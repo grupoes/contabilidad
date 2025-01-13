@@ -2,9 +2,9 @@
 
 <?= $this->section('css') ?>
 
-<link rel="stylesheet" href="<?= base_url() ?>public/assets/css/plugins/notifier.css" >
-<link rel="stylesheet" href="<?= base_url() ?>public/assets/css/plugins/dataTables.bootstrap5.min.css" />
-<link rel="stylesheet" href="<?= base_url() ?>public/assets/css/plugins/responsive.bootstrap5.min.css">
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css" >
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
 
 <?= $this->endSection() ?>
 
@@ -149,7 +149,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mt-3">
-                                <img id="preview" src="<?= base_url('public/assets/images/user/avatar-2.jpg')?>" alt="Vista previa" style="width: 200px; height: 200px; object-fit: cover;" />
+                                <img id="preview" src="<?= base_url('assets/images/user/avatar-2.jpg')?>" alt="Vista previa" style="width: 200px; height: 200px; object-fit: cover;" />
                             </div>       
                         </div>
                     </div>
@@ -167,12 +167,12 @@
 
 <?= $this->section('js') ?>
 
-<script src="<?= base_url() ?>public/assets/js/plugins/notifier.js"></script>
-<script src="<?= base_url() ?>public/assets/js/plugins/dataTables.min.js"></script>
-<script src="<?= base_url() ?>public/assets/js/plugins/dataTables.bootstrap5.min.js"></script>
-<script src="<?= base_url() ?>public/assets/js/plugins/dataTables.responsive.min.js"></script>
-<script src="<?= base_url() ?>public/assets/js/plugins/responsive.bootstrap5.min.js"></script>
-<script src="<?= base_url() ?>public/assets/js/plugins/sweetalert2.all.min.js"></script>
-<script src="<?= base_url() ?>public/js/auth/listaUsuario.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/notifier.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/dataTables.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/dataTables.bootstrap5.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/dataTables.responsive.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
+<script src="<?= base_url() ?>js/auth/listaUsuario.js"></script>
 
 <?= $this->endSection() ?>

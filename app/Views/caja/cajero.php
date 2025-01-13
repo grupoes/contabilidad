@@ -162,6 +162,6 @@
 
 <?= $this->section('js') ?>
 
-<script src="<?= base_url() ?>public/js/caja/cajero.js"></script>
+<script src="<?= base_url() ?>js/caja/cajero.js"></script>
 
 <?= $this->endSection() ?>

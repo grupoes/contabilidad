@@ -2,10 +2,10 @@
 
 <?= $this->section('css') ?>
 
-<link rel="stylesheet" href="<?= base_url() ?>public/assets/css/plugins/flatpickr.min.css">
-<link rel="stylesheet" href="<?= base_url() ?>public/assets/css/plugins/notifier.css" >
-<link rel="stylesheet" href="<?= base_url() ?>public/assets/css/plugins/dataTables.bootstrap5.min.css" />
-<link rel="stylesheet" href="<?= base_url() ?>public/assets/css/plugins/responsive.bootstrap5.min.css" >
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/flatpickr.min.css">
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css" >
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css" >
 
 <?= $this->endSection() ?>
 
@@ -138,14 +138,14 @@
 
 <?= $this->section('js') ?>
 
-<script src="<?= base_url() ?>public/assets/js/plugins/flatpickr.min.js"></script>
-<script src="<?= base_url() ?>public/assets/js/plugins/notifier.js"></script>
-<script src="<?= base_url() ?>public/assets/js/plugins/sweetalert2.all.min.js"></script>
-<script src="<?= base_url() ?>public/assets/js/plugins/dataTables.min.js"></script>
-<script src="<?= base_url() ?>public/assets/js/plugins/dataTables.bootstrap5.min.js"></script>
-<script src="<?= base_url() ?>public/assets/js/plugins/dataTables.responsive.min.js"></script>
-<script src="<?= base_url() ?>public/assets/js/plugins/responsive.bootstrap5.min.js"></script>
-<script src="<?= base_url() ?>public/assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>public/js/movimiento/cajero.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/flatpickr.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/notifier.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/dataTables.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/dataTables.bootstrap5.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/dataTables.responsive.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
+<script src="<?= base_url() ?>js/movimiento/cajero.js"></script>
 
 <?= $this->endSection() ?>
