@@ -1,9 +1,9 @@
-<!-- <script>console.log('URL: /codeigniter/default/public/sample-page')</script> -->
+<!-- <script>console.log('URL: /codeigniter/default/sample-page')</script> -->
 <!DOCTYPE html>
 <html lang="en">
 <!-- [Head] start -->
 
-<!-- Mirrored from ableproadmin.com/codeigniter/default/public/sample-page by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 29 Aug 2024 13:54:39 GMT -->
+<!-- Mirrored from ableproadmin.com/codeigniter/default/sample-page by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 29 Aug 2024 13:54:39 GMT -->
 <!-- Added by HTTrack -->
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
 
@@ -19,25 +19,25 @@
     <meta name="author" content="Phoenixcoded">
 
     <!-- [Favicon] icon -->
-    <link rel="icon" href="<?= base_url() ?>public/img/grupoes.ico" type="image/x-icon">
+    <link rel="icon" href="<?= base_url() ?>img/grupoes.ico" type="image/x-icon">
 
     <?= $this->renderSection('css') ?>
 
     <!-- [Google Font] Family -->
-    <link rel="stylesheet" href="<?= base_url() ?>public/assets/fonts/inter/inter.css" id="main-font-link" />
+    <link rel="stylesheet" href="<?= base_url() ?>assets/fonts/inter/inter.css" id="main-font-link" />
     <!-- [phosphor Icons] https://phosphoricons.com/ -->
-    <link rel="stylesheet" href="<?= base_url() ?>public/assets/fonts/phosphor/duotone/style.css" />
+    <link rel="stylesheet" href="<?= base_url() ?>assets/fonts/phosphor/duotone/style.css" />
     <!-- [Tabler Icons] https://tablericons.com -->
-    <link rel="stylesheet" href="<?= base_url() ?>public/assets/fonts/tabler-icons.min.css">
+    <link rel="stylesheet" href="<?= base_url() ?>assets/fonts/tabler-icons.min.css">
     <!-- [Feather Icons] https://feathericons.com -->
-    <link rel="stylesheet" href="<?= base_url() ?>public/assets/fonts/feather.css">
+    <link rel="stylesheet" href="<?= base_url() ?>assets/fonts/feather.css">
     <!-- [Font Awesome Icons] https://fontawesome.com/icons -->
-    <link rel="stylesheet" href="<?= base_url() ?>public/assets/fonts/fontawesome.css">
+    <link rel="stylesheet" href="<?= base_url() ?>assets/fonts/fontawesome.css">
     <!-- [Material Icons] https://fonts.google.com/icons -->
-    <link rel="stylesheet" href="<?= base_url() ?>public/assets/fonts/material.css">
+    <link rel="stylesheet" href="<?= base_url() ?>assets/fonts/material.css">
     <!-- [Template CSS Files] -->
-    <link rel="stylesheet" href="<?= base_url() ?>public/assets/css/style.css" id="main-style-link">
-    <link rel="stylesheet" href="<?= base_url() ?>public/assets/css/style-preset.css">
+    <link rel="stylesheet" href="<?= base_url() ?>assets/css/style.css" id="main-style-link">
+    <link rel="stylesheet" href="<?= base_url() ?>assets/css/style-preset.css">
 
     <style>
         .custom-loader {
@@ -78,7 +78,7 @@
             <div class="m-header" style="margin-bottom: 15px;">
                 <a href="dashboard-default.html" class="b-brand text-primary" style="padding-top: 20px;">
                     <!-- ========   Change your logo from here   ============ -->
-                    <img src="<?= base_url('public/assets/images/logo-dark.svg') ?>" alt="logo" class="img-fluid logo-lg" style="width: 70%;">
+                    <img src="<?= base_url('assets/images/logo-dark.svg') ?>" alt="logo" class="img-fluid logo-lg" style="width: 70%;">
                 </a>
             </div>
             <div class="navbar-content">
@@ -109,14 +109,14 @@
 
     <!-- Required Js -->
 
-    <script src="<?= base_url() ?>public/assets/js/plugins/popper.min.js"></script>
-    <script src="<?= base_url() ?>public/assets/js/plugins/simplebar.min.js"></script>
-    <script src="<?= base_url() ?>public/assets/js/plugins/bootstrap.min.js"></script>
-    <script src="<?= base_url() ?>public/assets/js/fonts/custom-font.js"></script>
-    <script src="<?= base_url() ?>public/assets/js/pcoded.js"></script>
-    <script src="<?= base_url() ?>public/assets/js/plugins/feather.min.js"></script>
-    <script src="<?= base_url() ?>public/js/jquery.min.js"></script>
-    <script src="<?= base_url() ?>public/js/main.js"></script>
+    <script src="<?= base_url() ?>assets/js/plugins/popper.min.js"></script>
+    <script src="<?= base_url() ?>assets/js/plugins/simplebar.min.js"></script>
+    <script src="<?= base_url() ?>assets/js/plugins/bootstrap.min.js"></script>
+    <script src="<?= base_url() ?>assets/js/fonts/custom-font.js"></script>
+    <script src="<?= base_url() ?>assets/js/pcoded.js"></script>
+    <script src="<?= base_url() ?>assets/js/plugins/feather.min.js"></script>
+    <script src="<?= base_url() ?>js/jquery.min.js"></script>
+    <script src="<?= base_url() ?>js/main.js"></script>
     
     <script>
         layout_change('light');

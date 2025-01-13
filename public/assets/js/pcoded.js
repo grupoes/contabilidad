@@ -561,16 +561,16 @@ function layout_change(layout) {
   } else {
     dark_flag = false;
     if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', 'public/img/logo-dark.svg');
+      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', 'img/logo-dark.svg');
     }
     if (document.querySelector('.navbar-brand .logo-lg')) {
-      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', 'public/img/logo-dark.svg');
+      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', 'img/logo-dark.svg');
     }
     if (document.querySelector('.auth-main.v1 .auth-sidefooter')) {
-      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', 'public/img/logo-dark.svg');
+      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', 'img/logo-dark.svg');
     }
     if (document.querySelector('.footer-top .footer-logo')) {
-      document.querySelector('.footer-top .footer-logo').setAttribute('src', 'public/img/logo-dark.svg');
+      document.querySelector('.footer-top .footer-logo').setAttribute('src', 'img/logo-dark.svg');
     }
     var control = document.querySelector('.theme-layout .btn.active');
     if (control) {

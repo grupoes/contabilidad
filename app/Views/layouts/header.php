@@ -181,7 +181,7 @@
                     aria-haspopup="false"
                     data-bs-auto-close="outside"
                     aria-expanded="false">
-                    <img src="<?= base_url() ?>public/assets/images/user/avatar-2.jpg" alt="user-image" class="user-avtar" />
+                    <img src="<?= base_url() ?>assets/images/user/avatar-2.jpg" alt="user-image" class="user-avtar" />
                 </a>
                 <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
                     <div class="dropdown-header d-flex align-items-center justify-content-between">
@@ -191,7 +191,7 @@
                         <div class="profile-notification-scroll position-relative" style="max-height: calc(100vh - 225px)">
                             <div class="d-flex mb-1">
                                 <div class="flex-shrink-0">
-                                    <img src="<?= base_url() ?>public/assets/images/user/avatar-2.jpg" alt="user-image" class="user-avtar wid-35" />
+                                    <img src="<?= base_url() ?>assets/images/user/avatar-2.jpg" alt="user-image" class="user-avtar wid-35" />
                                 </div>
                                 <div class="flex-grow-1 ms-3">
                                     <h6 class="mb-1"><?= session()->nombre ." ". session()->apellidos ?></h6>
