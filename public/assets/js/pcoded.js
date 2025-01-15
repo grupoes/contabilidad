@@ -1,6 +1,8 @@
 // 'use strict';
 var flg = '0';
 
+const urlSistema = document.getElementById('base_url').value;
+
 // Function to handle menu click events (collpase menus and it's submenu also collapse)
 if (!main_layout_change('horizontal')) {
   function menu_click() {
@@ -541,17 +543,17 @@ function layout_change(layout) {
   if (layout == 'dark') {
     dark_flag = true;
     if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', 'assets/images/logo-white.svg');
+      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', urlSistema+'assets/images/logo-white.svg');
     }
 
     if (document.querySelector('.navbar-brand .logo-lg')) {
-      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', 'assets/images/logo-white.svg');
+      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', urlSistema+'assets/images/logo-white.svg');
     }
     if (document.querySelector('.auth-main.v1 .auth-sidefooter')) {
-      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', 'assets/images/logo-white.svg');
+      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', urlSistema+'assets/images/logo-white.svg');
     }
     if (document.querySelector('.footer-top .footer-logo')) {
-      document.querySelector('.footer-top .footer-logo').setAttribute('src', 'assets/images/logo-white.svg');
+      document.querySelector('.footer-top .footer-logo').setAttribute('src', urlSistema+'assets/images/logo-white.svg');
     }
     var control = document.querySelector('.theme-layout .btn.active');
     if (control) {
@@ -561,16 +563,16 @@ function layout_change(layout) {
   } else {
     dark_flag = false;
     if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', 'img/logo-dark.svg');
+      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', urlSistema+'img/logo-dark.svg');
     }
     if (document.querySelector('.navbar-brand .logo-lg')) {
-      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', 'img/logo-dark.svg');
+      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', urlSistema+'img/logo-dark.svg');
     }
     if (document.querySelector('.auth-main.v1 .auth-sidefooter')) {
-      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', 'img/logo-dark.svg');
+      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', urlSistema+'img/logo-dark.svg');
     }
     if (document.querySelector('.footer-top .footer-logo')) {
-      document.querySelector('.footer-top .footer-logo').setAttribute('src', 'img/logo-dark.svg');
+      document.querySelector('.footer-top .footer-logo').setAttribute('src', urlSistema+'img/logo-dark.svg');
     }
     var control = document.querySelector('.theme-layout .btn.active');
     if (control) {
