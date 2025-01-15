@@ -41,15 +41,8 @@
                                 <option value="ALQUILER">ALQUILER</option>
                             </select>
 
-                            <a href="folio" target="_blank" id="btnIzquierda" class="btn btn-outline-primary d-inline-flex gap-2">
-                                <i class="ti ti-file f-18"></i> Folio
-                            </a>
                         </div>
 
-                        <!-- Botón alineado a la derecha -->
-                        <button type="button" id="btnModal" class="btn btn-primary d-inline-flex align-items-center gap-2">
-                            <i class="ti ti-plus f-18"></i> Nueva Empresa
-                        </button>
                     </div>
 
                     <div class="table-responsive">

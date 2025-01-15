@@ -13,4 +13,15 @@ statusCaja.addEventListener('click', (e) => {
             
         })
     }
+
+    if(data == 'cerrar') {
+        fetch(base_url+"caja/cierreCaja")
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                location.reload(true);
+            }
+            
+        })
+    }
 })

@@ -9,6 +9,8 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
+use App\Models\SesionCajaModel;
+
 /**
  * Class BaseController
  *
@@ -54,5 +56,22 @@ abstract class BaseController extends Controller
         // Preload any models, libraries, etc, here.
 
         // E.g.: $this->session = \Config\Services::session();
+    }
+
+    public function idSesionCaja($tipoPago)
+    {
+        $sesion = new SesionCajaModel();
+
+        $idUser = session()->id;
+
+        if($tipoPago == 1) {
+            $idcaja = 1;
+        } else {
+            $idcaja = 2;
+        }
+
+        $sesions = $sesion->join('sede_caja', 'sede_caja.id_sede_caja = sesion_caja.id_sede_caja')->where('sesion_caja.id_usuario', $idUser)->where('sede_caja.id_caja', $idcaja)->orderBy('sesion_caja.id_sesion_caja', 'DESC')->first();
+
+        return $sesions['id_sesion_caja'];
     }
 }

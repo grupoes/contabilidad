@@ -23,4 +23,13 @@ class Concepto extends BaseController
 
         return $this->response->setJSON($conceptos);
     }
+
+    public function conceptosTipoMovimiento($tipo)
+    {
+        $concepto = new ConceptoModel();
+
+        $conceptos = $concepto->where('con_estado', 1)->where('id_tipo_movimiento', $tipo)->findAll();
+
+        return $this->response->setJSON($conceptos);
+    }
 }

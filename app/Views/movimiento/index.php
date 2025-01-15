@@ -2,9 +2,9 @@
 
 <?= $this->section('css') ?>
 
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css" >
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css">
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css" >
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
 
 <?= $this->endSection() ?>
 
@@ -18,7 +18,7 @@
             <div class="row align-items-center">
                 <div class="col-md-12">
                     <div class="page-header-title">
-                        <h3 class="mb-0">Lista de Contribuyentes</h3>
+                        <h3 class="mb-0">Movimientos Generales</h3>
                     </div>
                 </div>
             </div>
@@ -31,44 +31,51 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center p-2 pb-sm-2">
-                        <!-- Contenedor para el select y el botón -->
-                        <div class="d-flex align-items-center gap-2">
-                            <select id="selectOpciones" class="form-select w-auto">
-                                <option value="TODOS">TODOS</option>
-                                <option value="CONTABLE">CONTABLE</option>
-                                <option value="ALQUILER">ALQUILER</option>
-                            </select>
-
-                            <a href="folio" target="_blank" class="btn btn-outline-primary d-inline-flex gap-2">
-                                <i class="ti ti-file f-18"></i> Folio
-                            </a>
-
-                            <?php if(count($consulta_certificado_por_vencer) > 0) { ?>
-                                <button class="btn btn-danger d-inline-flex gap-2" id="btnCertificadoVencer">
-                                    <i class="ti ti-file f-18"></i> Certificados Digitales por vencer
-                                </button>
-                            <?php } ?>
-
+                    <form id="formMov">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="sede" class="form-label">Sede</label>
+                                    <select name="sede" id="sede" class="form-select">
+                                        <option value="0">TODOS</option>
+                                        <?php foreach ($sedes as $key => $value) { ?>
+                                        <option value="<?= $value['id'] ?>"><?= $value['nombre_sede'] ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="" class="form-label">Desde</label>
+                                    <input type="date" class="form-control" name="desde" id="desde">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="" class="form-label">Hasta</label>
+                                    <input type="date" class="form-control" name="hasta" id="hasta">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-success mb-3 mt-4 w-50" id="btnForm">Buscar</button>
+                            </div>
                         </div>
 
-                        <!-- Botón alineado a la derecha -->
-                        <button type="button" id="btnModal" class="btn btn-primary d-inline-flex align-items-center gap-2">
-                            <i class="ti ti-plus f-18"></i> Nueva Empresa
-                        </button>
-                    </div>
+                    </form>
 
                     <div class="table-responsive">
                         <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableData">
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Razón Social</th>
-                                    <th>Servicio</th>
-                                    <th>Montos</th>
-                                    <th>Sistema</th>
-                                    <th>Activo</th>
-                                    <th class="text-center">Acciones</th>
+                                    <th>Caja</th>
+                                    <th>Tipo</th>
+                                    <th>Metodo</th>
+                                    <th>Concepto</th>
+                                    <th>Monto</th>
+                                    <th>Descripción</th>
+                                    <th>Sede</th>
+                                    <th>Fecha</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
@@ -209,13 +216,10 @@
 
                         <div class="col-md-8 mb-3">
                             <label class="form-label" for="choices-system">Seleccione Sistema</label>
-                            <select class="form-control" name="nameSystem[]" id="choices-system"  multiple>
-                                <?php foreach ($sistemas as $key => $value) { ?>
-                                    <option value="<?= $value['id'] ?>"><?= $value['nameSystem'] ?></option>
-                                <?php } ?>
+                            <select class="form-control" name="nameSystem[]" id="choices-system" multiple>
                             </select>
                         </div>
-                        
+
                         <h5>Boletas</h5>
                         <hr>
                         <div class="col-md-6 mb-3">
@@ -284,10 +288,10 @@
                         </tr>
                     </thead>
                     <tbody id="tableTarifa">
-                        
+
                     </tbody>
                 </table>
-                
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -340,7 +344,7 @@
                         </div>
                     </div>
                 </form>
-                
+
                 <h5>Lista de Certificados Digitales</h5>
                 <hr>
                 <table class="table">
@@ -355,10 +359,10 @@
                         </tr>
                     </thead>
                     <tbody id="tableCertificado">
-                        
+
                     </tbody>
                 </table>
-                
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -389,20 +393,10 @@
                         </thead>
                         <tbody>
 
-                        <?php foreach ($consulta_certificado_por_vencer as $key => $value) { ?>
-                            <tr>
-                                <td><?= $value->fecha_vencimiento ?></td>
-                                <td><?= $value->fecha_inicio ?></td>
-                                <td><?= $value->ruc ?></td>
-                                <td><?= $value->razon_social ?></td>
-                                <td><?= $value->tipo_certificado ?></td>
-                            </tr>
-                        <?php } ?>
-                            
                         </tbody>
                     </table>
                 </div>
-            
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

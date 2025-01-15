@@ -38,8 +38,13 @@ $routes->get('all-ubigeo', 'Contribuyentes::listaUbigeo');
 
 $routes->get('caja-diaria', 'Caja::index');
 $routes->get('caja/apertura', 'Caja::Aperturar');
+$routes->get('caja/cierreCaja', 'Caja::cierreCaja');
 
 $routes->get('movimientos', 'Movimiento::index');
+$routes->post('movimiento/guardar', 'Movimiento::guardar');
+$routes->get('movimientos/lista-cajero/(:any)', 'Movimiento::showCajero/$1');
+$routes->get('movimientos/metodos-pagos', 'Movimiento::allMetodoPagos');
 
 $routes->get('conceptos', 'Concepto::index');
 $routes->get('render-conceptos', 'Concepto::renderConceptos');
+$routes->get('conceptos-tipo-movimiento/(:num)', 'Concepto::conceptosTipoMovimiento/$1');
