@@ -33,6 +33,7 @@
             <div class="card">
                 <div class="card-body">
                     <form action="">
+                        <input type="hidden" name="idcontribuyente" id="idcontribuyente" value="<?= $id ?>">
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="mb-3">
@@ -84,12 +85,13 @@
                         <table class="table" id="tableData">
                             <thead>
                                 <tr>
-                                    <th>NRO. CUOTA</th>
                                     <th>F. VENCE</th>
                                     <th>F. PAGO</th>
-                                    <th>MONTO CUOTA</th>
-                                    <th>MONTO CANCELADO</th>
-                                    <th>MONTO RESTANTE</th>
+                                    <th>MONTO TOTAL</th>
+                                    <th>MONTO PAGADO</th>
+                                    <th>MONTO PENDIENTE</th>
+                                    <th>MONTO EXCEDENTE</th>
+                                    <th>ESTADO</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody">

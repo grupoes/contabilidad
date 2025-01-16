@@ -2,16 +2,15 @@
 
 namespace App\Controllers;
 
+use App\Controllers\BaseController;
+
 use App\Models\UbigeoModel;
 use App\Models\ContribuyenteModel;
 use App\Models\SistemaContribuyenteModel;
 use App\Models\SistemaModel;
-use App\Controllers\BaseController;
 use App\Models\HistorialTarifaModel;
-use App\Models\CuotaHonorarioModel;
 use App\Models\CertificadoDigitalModel;
-
-use CodeIgniter\HTTP\ResponseInterface;
+use App\Models\PagosModel;
 
 class Contribuyentes extends BaseController
 {
@@ -96,6 +95,11 @@ class Contribuyentes extends BaseController
 
     public function guardar()
     {
+        $sistema = new SistemaContribuyenteModel();
+        $model = new ContribuyenteModel();
+
+        $model->db->transStart();
+
         try {
             if (!$this->request->is('post')) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Método no permitido']);
@@ -110,9 +114,6 @@ class Contribuyentes extends BaseController
             }
 
             $idTabla = $data['idTable'];
-
-            $sistema = new SistemaContribuyenteModel();
-            $model = new ContribuyenteModel();
 
             $verificar = $model->where('ruc', $data['numeroDocumento'])->first();
 
@@ -166,39 +167,11 @@ class Contribuyentes extends BaseController
                     'estado' => 1
                 ]);
 
-                $cuota = new CuotaHonorarioModel();
+                $model->db->transComplete();
 
-                $fechaActual = new \DateTime();
-
-                // Sumar un mes a la fecha actual
-                $fechaActual->modify('+1 month');
-
-                // Imprimir la nueva fecha
-                $fecha_un = $fechaActual->format('Y-m-d');
-
-                $fecha_vence = date('Y-m', strtotime($fecha_un));
-
-                $fecha_vence = $fecha_vence."-".$data['diaCobro'];
-
-                $monto_cuota = "";
-                $fecha_cancelado = "";
-
-                if($data['tipoPago'] === "ADELANTADO") {
-                    $monto_cuota = $data['costoMensual'];
-                    $fecha_cancelado = date('Y-m-d');
-                } else {
-                    $monto_cuota = 0;
+                if ($model->db->transStatus() === false) {
+                    throw new \Exception("Error al realizar la operación.");
                 }
-
-                $cuota->insert([
-                    'contribuyente_id' => $contribuyente_id,
-                    'cuo_nrocuota' => 1,
-                    'cuo_fechavence' => $fecha_vence,
-                    'cuo_fechacancelado' => $fecha_cancelado,
-                    'cuo_montocuota' => $data['costoMensual'],
-                    'cuo_montopagado' => $monto_cuota,
-                    'cuo_estado' => 1
-                ]);
 
                 return $this->response->setJSON(['status' => 'success', 'message' => "Contribuyente registrado correctamente."]);
 
@@ -230,7 +203,11 @@ class Contribuyentes extends BaseController
                 return $this->response->setJSON(['status' => 'success', 'message' => "Contribuyente editado correctamente."]);
             }
 
+            
+
         } catch (\Exception $e) {
+            $model->db->transRollback();
+            
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }

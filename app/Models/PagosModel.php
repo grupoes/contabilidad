@@ -2,16 +2,16 @@
 
     use CodeIgniter\Model;
 
-    class CuotaHonorarioModel extends Model
+    class PagosModel extends Model
     {
-        protected $table      = 'cuota_honorario';
+        protected $table      = 'pagos';
         protected $primaryKey = 'id';
 
         protected $useAutoIncrement = true;
 
         protected $returnType     = 'array';
 
-        protected $allowedFields = ['id','contribuyente_id', 'cuo_nrocuota', 'cuo_fechavence', 'cuo_fechacancelado', 'cuo_montocuota', 'cuo_montopagado', 'cuo_estado'];
+        protected $allowedFields = ['id','contribuyente_id', 'fecha_pago', 'monto_total', 'mesCorrespondiente', 'montoPagado', 'montoPendiente', 'montoExcedente', 'estado'];
 
         protected $useTimestamps = false;
         protected $createdField  = 'created_at';

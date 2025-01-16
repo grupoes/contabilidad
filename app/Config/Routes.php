@@ -33,6 +33,7 @@ $routes->get('cobros', 'Contribuyentes::allCobros');
 $routes->get('listaCobros/(:any)', 'Contribuyentes::listaHonorariosCobros/$1');
 
 $routes->get('pago-honorario/(:num)', 'Pago::pagosHonorarios/$1');
+$routes->get('pagos/lista-pagos/(:num)', 'Pago::listaPagos/$1');
 
 $routes->get('all-ubigeo', 'Contribuyentes::listaUbigeo');
 

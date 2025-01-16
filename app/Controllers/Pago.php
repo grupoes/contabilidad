@@ -6,6 +6,7 @@ use App\Models\MetodoPagoModel;
 use App\Models\TipoComprobanteModel;
 use App\Models\ContribuyenteModel;
 use App\Models\HistorialTarifaModel;
+use App\Models\PagosModel;
 
 class Pago extends BaseController
 {
@@ -34,5 +35,14 @@ class Pago extends BaseController
         $tipos = $tipoComprobante->where('tipo_comprobante_estado', 1)->findAll();
 
         return view('pagos/pagar', compact('id', 'metodos', 'tipos', 'datos', 'idTarifa'));
+    }
+
+    public function listaPagos($id)
+    {
+        $pago = new PagosModel();
+
+        $pagos = $pago->where('contribuyente_id', $id)->findAll();
+
+        return $this->response->setJSON($pagos);
     }
 }
