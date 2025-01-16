@@ -53,7 +53,7 @@
                 <div class="card my-5">
                     <div class="card-body">
                         <form id="formLogin">
-                            <input type="hidden" id="urlbase" value="<?= base_url() ?>">
+                            <input type="hidden" id="base_url" value="<?= base_url() ?>">
                             <div class="text-center">
                                 <a href="#"><img src="<?= base_url() ?>img/logo-dark.svg" alt="img" style="width: 50%;"></a>
                             </div>
