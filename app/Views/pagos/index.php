@@ -19,7 +19,7 @@
             <div class="row align-items-center">
                 <div class="col-md-12">
                     <div class="page-header-title">
-                        <h3 class="mb-0">Lista de cobros por honorarios</h3>
+                        <h3 class="mb-0">Lista de Pagos</h3>
                     </div>
                 </div>
             </div>
@@ -51,9 +51,9 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Razón Social</th>
-                                    <th>Dia de Cobro</th>
-                                    <th>Servicio</th>
-                                    <th>Deuda</th>
+                                    <th>Fecha Pago</th>
+                                    <th>Monto</th>
+                                    <th>Forma Pago</th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
@@ -82,6 +82,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/contribuyente/listaCobros.js"></script>
+<script src="<?= base_url() ?>js/contribuyente/pagos.js"></script>
 
 <?= $this->endSection() ?>

@@ -45,9 +45,9 @@ function viewListContribuyentes(data) {
         let deuda = "";
 
         if(emp.meses_deuda == 0 || emp.meses_deuda == 1) {
-            deuda = `${emp.meses_deuda} mes`;
+            deuda = `${emp.debe}`;
         } else {
-            deuda = `${emp.meses_deuda} meses`;
+            deuda = `${emp.debe}`;
         }
 
         html += `
@@ -61,6 +61,7 @@ function viewListContribuyentes(data) {
                         </div>
                     </div>
                 </td>
+                <td>${emp.diaCobro}</td>
                 <td><a href="#" class="tipoServicio" data-id="${emp.id}">${emp.tipoServicio}</a></td>
                 <td>${deuda}</td>
                 <td>

@@ -19,7 +19,7 @@
             <div class="row align-items-center">
                 <div class="col-md-12">
                     <div class="page-header-title">
-                        <h3 class="mb-0">pago de honorario <?= $datos['razon_social'] ?></h3>
+                        <h3 class="mb-0">Pago de Honorario <?= $datos['razon_social'] ?></h3>
                     </div>
                 </div>
             </div>
@@ -32,13 +32,13 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <form action="">
+                    <form id="formPago">
                         <input type="hidden" name="idcontribuyente" id="idcontribuyente" value="<?= $id ?>">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="form-label" for="metodoPago">Metodo de Pago</label>
-                                    <select class="form-select" id="metodoPago" name="metodoPago">
+                                    <select class="form-select" id="metodoPago" name="metodoPago" required="true">
                                         <option value="">Selecionar...</option>
                                         <?php foreach ($metodos as $metodo) : ?>
                                             <option value="<?= $metodo['id'] ?>"><?= $metodo['metodo'] ?></option>
@@ -46,27 +46,17 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="form-label" for="monto">Monto</label>
-                                    <input type="text" class="form-control" id="monto" name="monto" value="<?= $idTarifa->monto_mensual ?>">
+                                    <input type="text" class="form-control" id="monto" name="monto" value="<?= $monto_mensual ?>">
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label class="form-label" for="tipoComprobante">Tipo Comprobante</label>
-                                    <select class="form-select" id="tipoComprobante" name="tipoComprobante">
-                                        <option value="">Seleccionar</option>
-                                        <?php foreach ($tipos as $tipo) : ?>
-                                            <option value="<?= $tipo['id_tipo_comprobante'] ?>"><?= $tipo['tipo_comprobante_descripcion'] ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
+                            
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="form-label" for="fechaPago">Fecha</label>
-                                    <input type="date" class="form-control" id="fechaPago" name="fechaPago">
+                                    <input type="date" class="form-control" id="fechaPago" name="fechaPago" value="<?= date('Y-m-d') ?>" min="<?= $fechaRestada ?>" max="<?= date('Y-m-d') ?>">
                                 </div>
                             </div>
                         </div>
@@ -87,10 +77,11 @@
                                 <tr>
                                     <th>F. VENCE</th>
                                     <th>F. PAGO</th>
-                                    <th>MONTO TOTAL</th>
-                                    <th>MONTO PAGADO</th>
-                                    <th>MONTO PENDIENTE</th>
-                                    <th>MONTO EXCEDENTE</th>
+                                    <th>TOTAL</th>
+                                    <th>F. PAGO</th>
+                                    <th>M. PAGADO</th>
+                                    <th>M. PENDIENTE</th>
+                                    <th>M. EXCEDENTE</th>
                                     <th>ESTADO</th>
                                 </tr>
                             </thead>

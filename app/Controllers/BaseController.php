@@ -10,6 +10,11 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 use App\Models\SesionCajaModel;
+use App\Models\HistorialTarifaModel;
+use App\Models\PagosModel;
+use App\Models\ContribuyenteModel;
+
+use DateTime;
 
 /**
  * Class BaseController
@@ -73,5 +78,34 @@ abstract class BaseController extends Controller
         $sesions = $sesion->join('sede_caja', 'sede_caja.id_sede_caja = sesion_caja.id_sede_caja')->where('sesion_caja.id_usuario', $idUser)->where('sede_caja.id_caja', $idcaja)->orderBy('sesion_caja.id_sesion_caja', 'DESC')->first();
 
         return $sesions['id_sesion_caja'];
+    }
+
+    public function getMontoMensual($idContribuyente)
+    {
+        $historial = new HistorialTarifaModel();
+
+        $pago = new PagosModel();
+        $contrib = new ContribuyenteModel();
+
+        $dataContrib = $contrib->where('id', $idContribuyente)->first();
+
+        $getUltimoPago = $pago->where('contribuyente_id', $idContribuyente)->orderBy('id', 'DESC')->first();
+
+        if (!$getUltimoPago) {
+            $fechaContratoObj = new DateTime($dataContrib['fechaContrato']);
+            $fechaPago = $fechaContratoObj->format('Y-m') . "-".$dataContrib['diaCobro'];
+
+            $diaVence = $fechaPago;
+        } else {
+            $fecha = new DateTime($getUltimoPago['mesCorrespondiente']); // Fecha inicial
+            $fecha->modify('+1 month'); // Sumar un mes
+            $diaVence = $fecha->format('Y-m-d');
+        }
+
+        $getHistorial = $historial->where('contribuyente_id', $idContribuyente)->where('fecha_inicio <=', $diaVence)->where('estado', 1)->orderBy('id', 'DESC')->first();
+
+        $monto = $getHistorial['monto_mensual'];
+
+        return $monto;
     }
 }

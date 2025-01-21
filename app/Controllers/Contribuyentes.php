@@ -12,13 +12,15 @@ use App\Models\HistorialTarifaModel;
 use App\Models\CertificadoDigitalModel;
 use App\Models\PagosModel;
 
+use DateTime;
+
 class Contribuyentes extends BaseController
 {
     public function index()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
         $sistema = new SistemaModel();
         $sistemas = $sistema->where('status', 1)->findAll();
@@ -36,13 +38,14 @@ class Contribuyentes extends BaseController
     public function allCobros()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
         return view('contribuyente/cobros');
     }
 
-    public function listaUbigeo() {
+    public function listaUbigeo()
+    {
         $model = new UbigeoModel();
         $data = $model->allUbigeo();
         return $this->response->setJSON($data);
@@ -54,10 +57,10 @@ class Contribuyentes extends BaseController
 
         $sql = "";
 
-        if($filtro !== 'TODOS') {
+        if ($filtro !== 'TODOS') {
             $sql = "WHERE c.tipoServicio = '$filtro'";
         }
-        
+
         $data = $model->query("SELECT 
             c.*, 
             -- Verificar si tiene sistema
@@ -109,7 +112,7 @@ class Contribuyentes extends BaseController
 
             $sistemas = "";
 
-            if(isset($data['nameSystem'])) {
+            if (isset($data['nameSystem'])) {
                 $sistemas = $data['nameSystem'];
             }
 
@@ -141,8 +144,8 @@ class Contribuyentes extends BaseController
 
             $tarifa = new HistorialTarifaModel();
 
-            if($idTabla === "0") {
-                if($verificar) {
+            if ($idTabla === "0") {
+                if ($verificar) {
                     return $this->response->setJSON(['status' => 'error', 'message' => "El RUC ya se encuentra registrado."]);
                 }
 
@@ -150,8 +153,8 @@ class Contribuyentes extends BaseController
 
                 $contribuyente_id = $model->insertID();
 
-                if(isset($data['nameSystem'])) {
-                    for ($i=0; $i < count($sistemas); $i++) { 
+                if (isset($data['nameSystem'])) {
+                    for ($i = 0; $i < count($sistemas); $i++) {
                         $sistema->insert([
                             'contribuyente_id' => $contribuyente_id,
                             'system_id' => $sistemas[$i]
@@ -174,14 +177,13 @@ class Contribuyentes extends BaseController
                 }
 
                 return $this->response->setJSON(['status' => 'success', 'message' => "Contribuyente registrado correctamente."]);
-
             } else {
-                $model->update($idTabla,$datos);
+                $model->update($idTabla, $datos);
 
                 $sistema->where('contribuyente_id', $idTabla)->delete();
 
-                if(isset($data['nameSystem'])) {
-                    for ($i=0; $i < count($sistemas); $i++) { 
+                if (isset($data['nameSystem'])) {
+                    for ($i = 0; $i < count($sistemas); $i++) {
                         $sistema->insert([
                             'contribuyente_id' => $idTabla,
                             'system_id' => $sistemas[$i]
@@ -202,12 +204,9 @@ class Contribuyentes extends BaseController
 
                 return $this->response->setJSON(['status' => 'success', 'message' => "Contribuyente editado correctamente."]);
             }
-
-            
-
         } catch (\Exception $e) {
             $model->db->transRollback();
-            
+
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
@@ -232,7 +231,6 @@ class Contribuyentes extends BaseController
         $data_contribuyente = $contri->find($id);
 
         return $this->response->setJSON(['status' => 'success', 'data_tarifa' => $data_tarifa, 'data_contribuyente' => $data_contribuyente]);
-        
     }
 
     public function getCertificadoDigital($id)
@@ -259,11 +257,11 @@ class Contribuyentes extends BaseController
 
             $last_tarifa = $tarifa->where('contribuyente_id', $data['idTableTarifa'])->where('estado', 1)->orderBy('fecha_inicio', 'DESC')->first();
 
-            if($data['fechaInicioTarifa'] <= $last_tarifa['fecha_inicio']) {
+            if ($data['fechaInicioTarifa'] <= $last_tarifa['fecha_inicio']) {
                 return $this->response->setJSON(['status' => 'error', 'message' => "No puedes colocar una fecha menor o igual a la ultima fecha de la tarifa"]);
             }
 
-            if($last_tarifa) {
+            if ($last_tarifa) {
                 $tarifa->update($last_tarifa['id'], ['fecha_fin' => $data['fechaInicioTarifa']]);
             }
 
@@ -276,7 +274,6 @@ class Contribuyentes extends BaseController
             ]);
 
             return $this->response->setJSON(['status' => 'success', 'message' => "Tarifa registrada correctamente."]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
@@ -296,39 +293,61 @@ class Contribuyentes extends BaseController
     public function listaHonorariosCobros($select)
     {
         $model = new ContribuyenteModel();
+        $pago = new PagosModel();
 
         $sql = "";
 
-        if($select !== 'TODOS') {
+        if ($select !== 'TODOS') {
             $sql = "WHERE c.tipoServicio = '$select'";
         }
 
-        $datos = $model->query("SELECT c.id,
-            c.razon_social,
-            c.ruc,
-            c.tipoPago,
-            c.diaCobro,
-            c.tipoServicio,
-            c.tipoSuscripcion,
-            -- Cálculo de meses de deuda
-            TIMESTAMPDIFF(MONTH,
-                CASE 
-                    WHEN MAX(p.fecha_pago) IS NULL THEN
-                        -- Si no hay pagos, considerar desde el registro del contribuyente
-                        DATE_ADD(DATE_FORMAT(c.fechaContrato, '%Y-%m-01'), INTERVAL c.diaCobro - 1 DAY)
-                    WHEN c.tipoPago = 'ADELANTADO' THEN
-                        -- Para pagos adelantados, considerar el inicio del mes del último pago
-                        DATE_FORMAT(LAST_DAY(MAX(p.fecha_pago)), '%Y-%m-01')
-                    WHEN c.tipoPago = 'ATRASADO' THEN
-                        -- Para pagos atrasados, considerar el día de cobro del último mes pagado
-                        DATE_ADD(DATE_FORMAT(LAST_DAY(MAX(p.fecha_pago)), '%Y-%m-01'), INTERVAL c.diaCobro - 1 DAY)
-                END,
-                CURRENT_DATE
-            ) AS meses_deuda
-        FROM contribuyentes c
-        LEFT JOIN pagos p ON c.id = p.contribuyente_id
-        $sql
-        GROUP BY c.id, c.razon_social, c.tipoPago, c.diaCobro, c.fechaContrato;")->getResult();
+        $datos = $model->query("SELECT c.id, c.razon_social, c.ruc, c.tipoPago, c.diaCobro, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes $sql as c ORDER BY c.id desc")->getResult();
+
+        foreach ($datos as $key => $value) {
+            $id = $value->id;
+
+            if ($value->tipoPago == 'ADELANTADO') {
+                $maxPago = $pago->query("SELECT contribuyente_id, MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id GROUP BY contribuyente_id")->getRow();
+
+                if (!$maxPago) {
+                    $debe = "1 mes";
+                } else {
+                    // Fecha de primer pago
+                    $primerPago = new DateTime($maxPago->ultimoMes);
+
+                    $fechaActual = date('Y-m-d');
+                    // Fecha actual
+                    $fechaActual = new DateTime($fechaActual);
+
+                    $siguientePago = clone $primerPago;
+                    $mesesDebe = 0;
+
+                    // Calcular el siguiente día de pago hasta que supere la fecha actual
+                    while ($siguientePago <= $fechaActual) {
+                        $siguientePago->modify('+1 month');
+                        $diaOriginal = (int)$primerPago->format('d');
+                        $diaActual = (int)$siguientePago->format('d');
+
+                        // Ajustar para meses con menos días (como febrero)
+                        if ($diaActual < $diaOriginal) {
+                            $siguientePago->modify('last day of previous month');
+                        }
+
+                        // Si el siguiente pago es menor o igual a la fecha actual, incrementar meses debe
+                        if ($siguientePago <= $fechaActual) {
+                            $mesesDebe++;
+                        }
+                    }
+
+                    $debe = $mesesDebe;
+
+                }
+            } else {
+                $debe = "0";
+            }
+
+            $value->debe = $debe;
+        }
 
         return $this->response->setJSON($datos);
     }
@@ -348,28 +367,28 @@ class Contribuyentes extends BaseController
             $ruta = "";
             $nameFile = "";
 
-            if($data['tipo_certificado'] === 'PROPIO') {
+            if ($data['tipo_certificado'] === 'PROPIO') {
                 if ($this->request->getFile('file_certificado')->isValid() && !$this->request->getFile('file_certificado')->hasMoved()) {
 
                     $archivo = $this->request->getFile('file_certificado');
-                
+
                     $nombreOriginal = $archivo->getClientName();
                     $extension = $archivo->getClientExtension();
-    
+
                     if (!in_array($extension, ['pfx', 'cer', 'p12'])) {
                         return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos con extensión .pfx o .cer.']);
                     }
-    
+
                     $archivo->move(WRITEPATH . 'uploads/certificadoDigital/', $nombreOriginal);
-    
+
                     // Ruta donde se guardó el archivo
                     $rutaArchivo = WRITEPATH . 'uploads/certificadoDigital/' . $nombreOriginal;
-    
+
                     $traer_ultimo = $certificado->where('contribuyente_id', $data['idTableCertificado'])->orderBy('id', 'DESC')->first();
-    
-                    if($traer_ultimo) {
+
+                    if ($traer_ultimo) {
                         $actualizar = array("estado" => 2);
-    
+
                         $certificado->update($traer_ultimo['id'], $actualizar);
                     }
 
@@ -377,22 +396,21 @@ class Contribuyentes extends BaseController
 
                     $clave = $data['claveCertificado'];
                     $ruta = $rutaArchivo;
-                    $nameFile = $codigoAleatorio . "_" .$nombreOriginal;
-    
+                    $nameFile = $codigoAleatorio . "_" . $nombreOriginal;
                 } else {
                     // Manejar el caso donde no se envió un archivo válido
                     $archivo = null;
                     // Opcional: Mensaje de error
                     $error = $this->request->getFile('archivo')->getErrorString();
-    
+
                     return $this->response->setJSON(['status' => 'error', 'message' => $error]);
                 }
             } else {
                 $traer_ultimo = $certificado->where('contribuyente_id', $data['idTableCertificado'])->orderBy('id', 'DESC')->first();
-    
-                if($traer_ultimo) {
+
+                if ($traer_ultimo) {
                     $actualizar = array("estado" => 2);
-    
+
                     $certificado->update($traer_ultimo['id'], $actualizar);
                 }
             }
@@ -409,7 +427,6 @@ class Contribuyentes extends BaseController
             ]);
 
             return $this->response->setJSON(['status' => 'success', 'message' => "Certificado registrado correctamente."]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
@@ -419,7 +436,7 @@ class Contribuyentes extends BaseController
     {
         // Ruta completa del archivo
         $rutaArchivo = WRITEPATH . 'uploads/certificadoDigital/' . $nameFile;
-    
+
         // Verificar si el archivo existe
         if (file_exists($rutaArchivo)) {
             // Descargar el archivo
@@ -440,5 +457,4 @@ class Contribuyentes extends BaseController
 
         return $this->response->setJSON(['status' => 'success', 'message' => 'El elimino correctamente el certificado']);
     }
-
 }
