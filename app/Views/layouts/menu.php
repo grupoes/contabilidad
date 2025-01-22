@@ -22,10 +22,10 @@
         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
     </a>
     <ul class="pc-submenu">
-        <li class="pc-item"><a class="pc-link" href="dashboard-default.html">UIT</a></li>
-        <li class="pc-item"><a class="pc-link" href="dashboard-analytics.html">Renta</a></li>
-        <li class="pc-item"><a class="pc-link" href="dashboard-finance.html">Notificación</a></li>
-        <li class="pc-item"><a class="pc-link" href="dashboard-finance.html">Contador</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">UIT</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Renta</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Notificación</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Contador</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('configuracion-caja-virtual') ?>">Caja Virtual</a></li>
     </ul>
 </li>
@@ -40,10 +40,10 @@
         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
     </a>
     <ul class="pc-submenu">
-        <li class="pc-item"><a class="pc-link" href="layout-vertical.html">PDT 0621</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-horizontal.html">PDT PLAME</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-color-header.html">PDT ANUAL</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-compact.html">BOLETA DE PAGO</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">PDT 0621</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">PDT PLAME</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">PDT ANUAL</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">BOLETA DE PAGO</a></li>
     </ul>
 </li>
 <li class="pc-item pc-hasmenu">
@@ -61,9 +61,9 @@
         <li class="pc-item"><a class="pc-link" href="<?= base_url('conceptos') ?>">Concepto</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('caja-diaria') ?>">Caja Diaria</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('movimientos') ?>">Movimiento</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-compact.html">Métodos de Pago</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-compact.html">Bancos</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-compact.html">Movimientos Bancos</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Métodos de Pago</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Bancos</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Movimientos Bancos</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('pagos') ?>">Pagos</a></li>
     </ul>
 </li>
@@ -78,11 +78,11 @@
         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
     </a>
     <ul class="pc-submenu">
-        <li class="pc-item"><a class="pc-link" href="layout-vertical.html">Módulos</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-horizontal.html">Permisos</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Módulos</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Permisos</a></li>
         <li class="pc-item"><a class="pc-link" href="usuarios">Usuario</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-compact.html">Perfil</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-compact.html">Asignar</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Perfil</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Asignar</a></li>
     </ul>
 </li>
 <li class="pc-item pc-hasmenu">
@@ -97,10 +97,10 @@
     </a>
     <ul class="pc-submenu">
         <li class="pc-item"><a class="pc-link" href="contribuyentes">Contribuyentes</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-horizontal.html">Declaración</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-color-header.html">Cargo</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-compact.html">Generar Guia</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-compact.html">Guia de Arrendamiento</a></li>
-        <li class="pc-item"><a class="pc-link" href="layout-compact.html">Libros Electrónicos</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Declaración</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Cargo</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Generar Guia</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Guia de Arrendamiento</a></li>
+        <li class="pc-item"><a class="pc-link" href="#">Libros Electrónicos</a></li>
     </ul>
 </li>
