@@ -26,7 +26,7 @@
         <li class="pc-item"><a class="pc-link" href="#">Renta</a></li>
         <li class="pc-item"><a class="pc-link" href="#">Notificación</a></li>
         <li class="pc-item"><a class="pc-link" href="#">Contador</a></li>
-        <li class="pc-item"><a class="pc-link" href="<?= base_url('configuracion-caja-virtual') ?>">Caja Virtual</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('configuracion/caja-virtual') ?>">Caja Virtual</a></li>
     </ul>
 </li>
 <li class="pc-item pc-hasmenu">

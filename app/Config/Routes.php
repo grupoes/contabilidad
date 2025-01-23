@@ -53,3 +53,5 @@ $routes->get('movimientos/metodos-pagos', 'Movimiento::allMetodoPagos');
 $routes->get('conceptos', 'Concepto::index');
 $routes->get('render-conceptos', 'Concepto::renderConceptos');
 $routes->get('conceptos-tipo-movimiento/(:num)', 'Concepto::conceptosTipoMovimiento/$1');
+
+$routes->get('configuracion/caja-virtual', 'Configuracion::cajaVirtual');
