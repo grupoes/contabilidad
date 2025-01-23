@@ -7,6 +7,7 @@ use App\Models\TipoComprobanteModel;
 use App\Models\ContribuyenteModel;
 use App\Models\HistorialTarifaModel;
 use App\Models\PagosModel;
+use App\Models\PagosHonorariosModel;
 
 use DateTime;
 
@@ -60,16 +61,37 @@ class Pago extends BaseController
         return $this->response->setJSON($pagos);
     }
 
+    public function listaPagosHonorarios($id)
+    {
+        $pago = new PagosHonorariosModel();
+
+        $pagos = $pago->query("SELECT p.contribuyente_id, DATE_FORMAT(p.fecha , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.registro, '%d-%m-%Y %H-%i-%s') as registro, p.monto, p.estado, mp.metodo from pagos_honorarios p INNER JOIN metodos_pagos mp ON mp.id = p.metodo_pago_id where p.contribuyente_id = $id order by p.id desc")->getResult();
+
+        return $this->response->setJSON($pagos);
+    }
+
     public function pagarHonorario()
     {
         $pago = new PagosModel();
         $contrib = new ContribuyenteModel();
+        $paHono = new PagosHonorariosModel();
 
         try {
             $idContribuyente = $this->request->getvar('idcontribuyente');
-            $fechaPago = $this->request->getvar('fechaPago');
+            $fechapago = $this->request->getvar('fechaPago');
             $metodoPago = $this->request->getvar('metodoPago');
             $monto = $this->request->getvar('monto');
+
+            $data_honorario = array(
+                "contribuyente_id" => $idContribuyente,
+                "registro" => date('Y-m-d H:i:s'),
+                "fecha" => $fechapago,
+                "metodo_pago_id" => $metodoPago,
+                "monto" => $monto,
+                "estado" => 1
+            );
+
+            $paHono->insert($data_honorario);
 
             $dataContrib = $contrib->where('id', $idContribuyente)->first();
 
@@ -165,7 +187,7 @@ class Pago extends BaseController
 
                     $datos = [
                         "contribuyente_id" => $idContribuyente,
-                        "fecha_pago" => date('Y-m-d H:i:s'),
+                        "fecha_pago" => $fechapago,
                         "monto_total" => $montoMensual,
                         "mesCorrespondiente" => $diaCorres,
                         "montoPagado" => $montoTotalDisponible,
@@ -183,7 +205,7 @@ class Pago extends BaseController
                     if($montoTotalDisponible/$montoMensual >= 2) {
                         $datos = [
                             "contribuyente_id" => $idContribuyente,
-                            "fecha_pago" => date('Y-m-d H:i:s'),
+                            "fecha_pago" => $fechapago,
                             "monto_total" => $montoMensual,
                             "mesCorrespondiente" => $diaVence,
                             "montoPagado" => $montoTotalDisponible,
@@ -210,7 +232,7 @@ class Pago extends BaseController
 
                         $datos = [
                             "contribuyente_id" => $idContribuyente,
-                            "fecha_pago" => date('Y-m-d H:i:s'),
+                            "fecha_pago" => $fechapago,
                             "monto_total" => $montoMensual,
                             "mesCorrespondiente" => $diaVence,
                             "montoPagado" => $montoTotalDisponible,
@@ -234,21 +256,6 @@ class Pago extends BaseController
                 $diaVence = $fechaMes->format('Y-m-d');
 
             }
-
-            /*$datos = array(
-                "contribuyente_id" => $idContribuyente,
-                "metodo_pago_id" => $metodoPago,
-                "fecha_pago" => date('Y-m-d H:i:s'),
-                "monto_total" => $monto_mensual,
-                "mesCorrespondiente" => $diaVence,
-                "montoPagado" => $monto,
-                "montoPendiente" => 0.00,
-                "montoExcedente" => 0.00,
-                "usuario_id_cobra" => session()->id,
-                "estado" => "pendiente"
-            );
-
-            $pago->insert($datos);*/
 
             return $this->response->setJSON([
                 "status" => "success",

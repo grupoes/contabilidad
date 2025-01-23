@@ -34,6 +34,7 @@ $routes->get('listaCobros/(:any)', 'Contribuyentes::listaHonorariosCobros/$1');
 
 $routes->get('pago-honorario/(:num)', 'Pago::pagosHonorarios/$1');
 $routes->get('pagos/lista-pagos/(:num)', 'Pago::listaPagos/$1');
+$routes->get('pagos/lista-pagos-honorarios/(:num)', 'Pago::listaPagosHonorarios/$1');
 $routes->post('pagos/pagar-honorario', 'Pago::pagarHonorario');
 $routes->get('pagos', 'Pago::index');
 $routes->get('pagos/renderPagos', 'Pago::renderPagos');

@@ -4,6 +4,7 @@ const idContribuyente = document.getElementById('idcontribuyente')
 const formPago = document.getElementById('formPago');
 
 renderPagos(idContribuyente.value);
+renderPagosHonorarios(idContribuyente.value);
 
 function renderPagos(idcontribuyente) {
     fetch(base_url+"pagos/lista-pagos/"+idcontribuyente)
@@ -12,6 +13,15 @@ function renderPagos(idcontribuyente) {
         viewPagos(data);
         
     }) 
+}
+
+function renderPagosHonorarios(idcontribuyente) {
+    fetch(base_url+"pagos/lista-pagos-honorarios/"+idcontribuyente)
+    .then(res => res.json())
+    .then(data => {
+        viewPagosHonorarios(data);
+        
+    })
 }
 
 function viewPagos(data) {
@@ -45,6 +55,26 @@ function viewPagos(data) {
     tableBody.innerHTML = html;
 }
 
+function viewPagosHonorarios(data) {
+    const tablePagos = document.getElementById('tablePagos');
+
+    let html = "";
+
+    data.forEach(pago => {
+        html += `
+        <tr>
+            <td>${pago.registro}</td>
+            <td>${pago.fecha_pago}</td>
+            <td>${pago.metodo}</td>
+            <td>${pago.monto}</td>
+            <td></td>
+        </tr>
+        `;
+    });
+
+    tablePagos.innerHTML = html;
+}
+
 const metodoPago = document.getElementById('metodoPago');
 
 formPago.addEventListener('submit', (e) => {
@@ -71,6 +101,7 @@ formPago.addEventListener('submit', (e) => {
             });
 
             renderPagos(idContribuyente.value);
+            renderPagosHonorarios(idContribuyente.value);
             return false;
         }
 
