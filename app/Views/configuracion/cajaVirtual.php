@@ -30,20 +30,35 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <form>
+                    <form id="formCajaVirtualSede">
                         <div>
                             <label class="form-label">Seleccione la sede para Caja Virtual</label>
                             <div class="row mb-2">
+                                <?php foreach ($sedes as $key => $value) {
+                                    $check = "";
+
+                                    if($value['caja_virtual'] == 1) {
+                                        $check = "checked";
+                                    }
+
+                                ?>
                                 <div class="col-lg-6">
                                     <div class="border card p-3">
                                         <div class="form-check">
-                                            <input type="radio" name="radio1" class="form-check-input input-primary" id="customCheckdef1" />
-                                            <label class="form-check-label d-block" for="customCheckdef1">
-                                                <span class="h5 d-block">Trial plan</span>
-                                                    <span class="f-12 text-muted">Free server basic collection</span></span>
+                                            <input type="radio" name="sede_id" class="form-check-input input-primary" id="sede-<?= $value['id'] ?>" value="<?= $value['id'] ?>" <?= $check ?> />
+                                            <label class="form-check-label d-block" for="sede-<?= $value['id'] ?>">
+                                                <span class="h5 d-block"><?= $value['nombre_sede'] ?></span>
+                                                    <span class="f-12 text-muted"><?= $value['direccion_sede'] ?></span></span>
                                             </label>
                                         </div>
                                     </div>
+                                </div>
+                                <?php } ?>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 d-flex justify-content-center">
+                                    <button type="submit" class="btn btn-success">Guardar</button>
                                 </div>
                             </div>
 

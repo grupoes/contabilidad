@@ -11,7 +11,7 @@
 
         protected $returnType     = 'array';
 
-        protected $allowedFields = ['id','empresa_id', 'nombre_sede', 'direccion_sede', 'anexo', 'estado'];
+        protected $allowedFields = ['id','empresa_id', 'nombre_sede', 'direccion_sede', 'anexo', 'estado', 'caja_virtual'];
 
         protected $useTimestamps = false;
         protected $createdField  = 'created_at';
