@@ -11,7 +11,7 @@
 
         protected $returnType     = 'array';
 
-        protected $allowedFields = ['id','contribuyente_id', 'metodo_pago_id', 'fecha_pago', 'monto_total', 'mesCorrespondiente', 'montoPagado', 'montoPendiente', 'montoExcedente', 'usuario_id_cobra', 'estado'];
+        protected $allowedFields = ['id','contribuyente_id', 'fecha_pago', 'monto_total', 'mesCorrespondiente', 'montoPagado', 'montoPendiente', 'montoExcedente', 'usuario_id_cobra', 'estado'];
 
         protected $useTimestamps = false;
         protected $createdField  = 'created_at';

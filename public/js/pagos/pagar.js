@@ -21,9 +21,9 @@ function viewPagos(data) {
         
         let estado = ``;
         
-        if(pago.estado == 'pagado') {
+        if(pago.estado == 'Pagado') {
             estado = `<span class="badge bg-light-success f-12">${pago.estado}</span>`;
-        } else if(pago.estado == 'pendiente') {
+        } else if(pago.estado == 'Pendiente') {
             estado = `<span class="badge bg-light-warning f-12">${pago.estado}</span>`;
         } else {
             estado = `<span class="badge bg-light-danger f-12">${pago.estado}</span>`;
@@ -34,7 +34,6 @@ function viewPagos(data) {
             <td>${pago.mesCorrespondiente}</td>
             <td>${pago.fecha_pago}</td>
             <td>${pago.monto_total}</td>
-            <td>${pago.metodo}</td>
             <td>${pago.montoPagado}</td>
             <td>${pago.montoPendiente}</td>
             <td>${pago.montoExcedente}</td>

@@ -52,7 +52,7 @@
                                     <input type="text" class="form-control" id="monto" name="monto" value="<?= $monto_mensual ?>">
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="form-label" for="fechaPago">Fecha</label>
@@ -71,25 +71,101 @@
                         </div>
                     </form>
 
-                    <div class="table-responsive">
-                        <table class="table" id="tableData">
-                            <thead>
-                                <tr>
-                                    <th>F. VENCE</th>
-                                    <th>F. PAGO</th>
-                                    <th>TOTAL</th>
-                                    <th>F. PAGO</th>
-                                    <th>M. PAGADO</th>
-                                    <th>M. PENDIENTE</th>
-                                    <th>M. EXCEDENTE</th>
-                                    <th>ESTADO</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tableBody">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card-body border-bottom pb-0">
 
-                            </tbody>
-                        </table>
+                                <ul
+                                    class="nav nav-tabs analytics-tab"
+                                    id="myTab"
+                                    role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button
+                                            class="nav-link active"
+                                            id="analytics-tab-1"
+                                            data-bs-toggle="tab"
+                                            data-bs-target="#analytics-tab-1-pane"
+                                            type="button"
+                                            role="tab"
+                                            aria-controls="analytics-tab-1-pane"
+                                            aria-selected="true">
+                                            Honorarios
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button
+                                            class="nav-link"
+                                            id="analytics-tab-2"
+                                            data-bs-toggle="tab"
+                                            data-bs-target="#analytics-tab-2-pane"
+                                            type="button"
+                                            role="tab"
+                                            aria-controls="analytics-tab-2-pane"
+                                            aria-selected="false">
+                                            Pagos
+                                        </button>
+                                    </li>
+
+                                </ul>
+                            </div>
+                            <div class="tab-content" id="myTabContent">
+                                <div
+                                    class="tab-pane fade show active"
+                                    id="analytics-tab-1-pane"
+                                    role="tabpanel"
+                                    aria-labelledby="analytics-tab-1"
+                                    tabindex="0">
+
+                                    <div class="table-responsive mt-3">
+                                        <table class="table" id="tableData">
+                                            <thead>
+                                                <tr>
+                                                    <th>F. VENCE</th>
+                                                    <th>F. PAGO</th>
+                                                    <th>TOTAL</th>
+                                                    <th>M. PAGADO</th>
+                                                    <th>M. PENDIENTE</th>
+                                                    <th>M. EXCEDENTE</th>
+                                                    <th>ESTADO</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tableBody">
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                                <div
+                                    class="tab-pane fade"
+                                    id="analytics-tab-2-pane"
+                                    role="tabpanel"
+                                    aria-labelledby="analytics-tab-2"
+                                    tabindex="0">
+
+                                    <div class="table-responsive mt-3">
+                                        <table class="table" id="tableData">
+                                            <thead>
+                                                <tr>
+                                                    <th>REGISTRO</th>
+                                                    <th>FECHA</th>
+                                                    <th>METODO PAGO</th>
+                                                    <th>MONTO</th>
+                                                    <th>ESTADO</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tablePagos">
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
