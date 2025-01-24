@@ -60,4 +60,13 @@ class Configuracion extends BaseController
         return view('configuracion/uit');
     }
 
+    public function renta()
+    {
+        if (!session()->logged_in) {            
+            return redirect()->to(base_url());
+        }
+        
+        return view('configuracion/renta');
+    }
+
 }
