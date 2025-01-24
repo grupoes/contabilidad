@@ -1,6 +1,9 @@
 const tableBody = document.getElementById('tableBody');
 const idContribuyente = document.getElementById('idcontribuyente')
 
+const div_voucher = document.getElementById('div-voucher');
+const voucher = document.getElementById('voucher');
+
 const formPago = document.getElementById('formPago');
 
 renderPagos(idContribuyente.value);
@@ -67,7 +70,12 @@ function viewPagosHonorarios(data) {
             <td>${pago.fecha_pago}</td>
             <td>${pago.metodo}</td>
             <td>${pago.monto}</td>
-            <td></td>
+            <td> 
+                <a href="#" data-lightbox="${base_url}vouchers/${pago.voucher}" onclick="verVaucher(event)"> Ver vaucher </a>
+            </td>
+            <td>
+                <a href=""#> <i class="fas fa-trash text-danger"></i> </a>
+            </td>
         </tr>
         `;
     });
@@ -91,6 +99,7 @@ formPago.addEventListener('submit', (e) => {
         
         if (data.status === 'success') {
             metodoPago.value = "";
+            voucher.value = "";
 
             Swal.fire({
                 position: 'top-end',
@@ -113,3 +122,36 @@ formPago.addEventListener('submit', (e) => {
         
     })
 })
+
+metodoPago.addEventListener('change', (e) => {
+    const valor = e.target.value;
+
+    if(valor == 1 || valor == "") {
+        div_voucher.setAttribute('hidden', true);
+        voucher.removeAttribute('required');
+    } else {
+        div_voucher.removeAttribute('hidden');
+        voucher.setAttribute('required', true);
+    }
+})
+
+var lightboxModal = new bootstrap.Modal(
+    document.getElementById("lightboxModal")
+);
+
+function verVaucher(e) {
+    e.preventDefault();
+
+    var images_path = e.target;
+    console.log(images_path);
+
+    if (images_path.tagName == "IMG") {
+        images_path = images_path.parentNode;
+    }
+
+    var recipient = images_path.getAttribute("data-lightbox");
+    var image = document.querySelector(".modal-image");
+    image.setAttribute("src", recipient);
+    lightboxModal.show();
+
+}

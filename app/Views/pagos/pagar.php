@@ -32,10 +32,10 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <form id="formPago">
+                    <form id="formPago" enctype="multipart/form-data">
                         <input type="hidden" name="idcontribuyente" id="idcontribuyente" value="<?= $id ?>">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" for="metodoPago">Metodo de Pago</label>
                                     <select class="form-select" id="metodoPago" name="metodoPago" required="true">
@@ -46,17 +46,24 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" for="monto">Monto</label>
                                     <input type="text" class="form-control" id="monto" name="monto" value="<?= $monto_mensual ?>">
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" for="fechaPago">Fecha</label>
                                     <input type="date" class="form-control" id="fechaPago" name="fechaPago" value="<?= date('Y-m-d') ?>" min="<?= $fechaRestada ?>" max="<?= date('Y-m-d') ?>">
+                                </div>
+                            </div>
+
+                            <div class="col-md-3" id="div-voucher" hidden>
+                                <div class="mb-3">
+                                    <label for="voucher" class="form-label">Voucher</label>
+                                    <input type="file" class="form-control" name="voucher" id="voucher" accept="image/*">
                                 </div>
                             </div>
                         </div>
@@ -151,6 +158,7 @@
                                                     <th>FECHA</th>
                                                     <th>METODO PAGO</th>
                                                     <th>MONTO</th>
+                                                    <th>VOUCHER</th>
                                                     <th>ESTADO</th>
                                                 </tr>
                                             </thead>
@@ -172,6 +180,29 @@
 
     </div>
     <!-- [ Main Content ] end -->
+</div>
+
+
+<div
+    class="modal fade modal-lightbox"
+    id="lightboxModal"
+    tabindex="-1"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+            <div class="modal-body">
+                <img
+                    src="../assets/images/light-box/l1.jpg"
+                    alt="images"
+                    class="modal-image img-fluid" />
+            </div>
+        </div>
+    </div>
 </div>
 
 <?= $this->endSection() ?>
