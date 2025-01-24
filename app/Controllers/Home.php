@@ -10,6 +10,16 @@ class Home extends BaseController
 			return redirect()->to(base_url());
 		}
 
-        return view('home/index');
+        switch (session()->perfil_id) {
+            case '3':
+                return view('home/cajero');
+                break;
+            
+            default:
+                return view('home/index');
+                break;
+        }
+
+        
     }
 }

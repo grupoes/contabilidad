@@ -157,6 +157,8 @@ function verVaucher(e) {
 }
 
 function deletePago(e, id) {
+    e.preventDefault();
+
     const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
           confirmButton: 'btn btn-success',

@@ -27,43 +27,14 @@
     <!-- [ Main Content ] start -->
     <div class="row">
 
-        <div class="col-md-6 col-xl-3">
+        <div class="col-sm-12">
             <div class="card">
-                <div class="card-body">
-                    <h6 class="mb-2 f-w-400 text-muted">Empresas Activas</h6>
-                    <h4 class="mb-3">
-                        88
-                    </h4>
+                <div class="card-header">
+                    <h5>Hello card</h5>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <div class="card">
                 <div class="card-body">
-                    <h6 class="mb-2 f-w-400 text-muted">Ingresos Totales</h6>
-                    <h4 class="mb-3">
-                        S/. 1323949.77
-                    </h4>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="mb-2 f-w-400 text-muted">Egresos Totales</h6>
-                    <h4 class="mb-3">
-                        S/. 1317165.44
-                    </h4>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="mb-2 f-w-400 text-muted">Saldo Actual</h6>
-                    <h4 class="mb-3">
-                        S/. 6784.33
-                    </h4>
+                    <p>
+                    </p>
                 </div>
             </div>
         </div>
