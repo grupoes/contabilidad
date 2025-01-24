@@ -57,6 +57,5 @@
 <script src="<?= base_url() ?>assets/js/plugins/notifier.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 
-<script src="<?= base_url() ?>js/configuracion/cajaVirtual.js"></script>
 
 <?= $this->endSection() ?>
