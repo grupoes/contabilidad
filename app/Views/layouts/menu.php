@@ -25,7 +25,7 @@
         <li class="pc-item"><a class="pc-link" href="<?= base_url('configuracion/uit') ?>">UIT</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('configuracion/renta') ?>">Renta</a></li>
         <li class="pc-item"><a class="pc-link" href="#">Notificación</a></li>
-        <li class="pc-item"><a class="pc-link" href="#">Contador</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('configuracion/contadores') ?>">Contador</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('configuracion/caja-virtual') ?>">Caja Virtual</a></li>
     </ul>
 </li>

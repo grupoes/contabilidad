@@ -69,4 +69,13 @@ class Configuracion extends BaseController
         return view('configuracion/renta');
     }
 
+    public function contadores()
+    {
+        if (!session()->logged_in) {            
+            return redirect()->to(base_url());
+        }
+        
+        return view('configuracion/contadores');
+    }
+
 }
