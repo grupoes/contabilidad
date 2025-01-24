@@ -51,4 +51,13 @@ class Configuracion extends BaseController
         }
     }
 
+    public function Uit()
+    {
+        if (!session()->logged_in) {            
+            return redirect()->to(base_url());
+        }
+        
+        return view('configuracion/uit');
+    }
+
 }

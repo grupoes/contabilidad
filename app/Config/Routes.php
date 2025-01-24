@@ -56,3 +56,5 @@ $routes->get('conceptos-tipo-movimiento/(:num)', 'Concepto::conceptosTipoMovimie
 
 $routes->get('configuracion/caja-virtual', 'Configuracion::cajaVirtual');
 $routes->post('configuracion-caja-virtual/save', 'Configuracion::saveCajaVirtual');
+
+$routes->get('configuracion/uit', 'Configuracion::Uit');
