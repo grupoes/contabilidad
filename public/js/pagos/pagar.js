@@ -74,7 +74,7 @@ function viewPagosHonorarios(data) {
                 <a href="#" data-lightbox="${base_url}vouchers/${pago.voucher}" onclick="verVaucher(event)"> Ver vaucher </a>
             </td>
             <td>
-                <a href=""#> <i class="fas fa-trash text-danger"></i> </a>
+                <a href="#" onclick="deletePago(event, ${pago.id})"> <i class="fas fa-trash text-danger"></i> </a>
             </td>
         </tr>
         `;
@@ -154,4 +154,31 @@ function verVaucher(e) {
     image.setAttribute("src", recipient);
     lightboxModal.show();
 
+}
+
+function deletePago(e, id) {
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: 'btn btn-success',
+          cancelButton: 'btn btn-danger'
+        },
+        buttonsStyling: false
+    });
+    swalWithBootstrapButtons
+    .fire({
+        title: '¿Está seguro?',
+        text: "¡No podrás revertir esto!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar!',
+        cancelButtonText: 'No, cancelar!',
+        reverseButtons: true
+    })
+    .then((result) => {
+        if (result.isConfirmed) {
+            swalWithBootstrapButtons.fire('Deleted!', 'Your file has been deleted.', 'success');
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            swalWithBootstrapButtons.fire('Cancelled', 'Your imaginary file is safe :)', 'error');
+        }
+    });
 }

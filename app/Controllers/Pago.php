@@ -65,7 +65,7 @@ class Pago extends BaseController
     {
         $pago = new PagosHonorariosModel();
 
-        $pagos = $pago->query("SELECT p.contribuyente_id, DATE_FORMAT(p.fecha , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.registro, '%d-%m-%Y %H-%i-%s') as registro, p.monto, p.estado, p.voucher, mp.metodo from pagos_honorarios p INNER JOIN metodos_pagos mp ON mp.id = p.metodo_pago_id where p.contribuyente_id = $id order by p.id desc")->getResult();
+        $pagos = $pago->query("SELECT p.id, p.contribuyente_id, DATE_FORMAT(p.fecha , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.registro, '%d-%m-%Y %H-%i-%s') as registro, p.monto, p.estado, p.voucher, mp.metodo from pagos_honorarios p INNER JOIN metodos_pagos mp ON mp.id = p.metodo_pago_id where p.contribuyente_id = $id order by p.id desc")->getResult();
 
         return $this->response->setJSON($pagos);
     }
