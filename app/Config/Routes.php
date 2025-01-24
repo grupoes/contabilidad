@@ -60,3 +60,8 @@ $routes->post('configuracion-caja-virtual/save', 'Configuracion::saveCajaVirtual
 $routes->get('configuracion/uit', 'Configuracion::Uit');
 $routes->get('configuracion/renta', 'Configuracion::renta');
 $routes->get('configuracion/contadores', 'Configuracion::contadores');
+
+$routes->get('declaraciones/pdt-0621', 'Pdt0621::index');
+$routes->get('declaraciones/pdt-plame', 'PdtPlame::index');
+$routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
+$routes->get('declaraciones/boleta-de-pago', 'BoletaPago::index');

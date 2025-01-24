@@ -40,10 +40,10 @@
         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
     </a>
     <ul class="pc-submenu">
-        <li class="pc-item"><a class="pc-link" href="#">PDT 0621</a></li>
-        <li class="pc-item"><a class="pc-link" href="#">PDT PLAME</a></li>
-        <li class="pc-item"><a class="pc-link" href="#">PDT ANUAL</a></li>
-        <li class="pc-item"><a class="pc-link" href="#">BOLETA DE PAGO</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('declaraciones/pdt-0621') ?>">PDT 0621</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('declaraciones/pdt-plame') ?>">PDT PLAME</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('declaraciones/pdt-anual') ?>">PDT ANUAL</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('declaraciones/boleta-de-pago') ?>">BOLETA DE PAGO</a></li>
     </ul>
 </li>
 <li class="pc-item pc-hasmenu">
