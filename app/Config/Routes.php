@@ -62,6 +62,8 @@ $routes->get('configuracion/uit', 'Configuracion::Uit');
 $routes->post('configuracion/save-uit', 'Configuracion::saveUit');
 $routes->get('configuracion/renta', 'Configuracion::renta');
 $routes->get('configuracion/contadores', 'Configuracion::contadores');
+$routes->get('configuracion/render-contadores', 'Configuracion::renderContadores');
+$routes->get('configuracion/elegir-contador/(:num)', 'Configuracion::elegirContador/$1');
 
 $routes->get('declaraciones/pdt-0621', 'Pdt0621::index');
 $routes->get('declaraciones/pdt-plame', 'PdtPlame::index');

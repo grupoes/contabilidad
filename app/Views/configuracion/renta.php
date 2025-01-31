@@ -42,38 +42,17 @@
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
+                                <?php foreach ($rentas as $key => $renta) : ?>
                                 <tr>
-                                    <td>1</td>
-                                    <td>amazonico</td>
-                                    <td>3081</td>
+                                    <td><?= $key + 1 ?></td>
+                                    <td><?= $renta['tri_descripcion'] ?></td>
+                                    <td><?= $renta['tri_codigo'] ?></td>
                                     <td class="text-center">
                                         <a href="#"> <i class="fas fa-pencil-alt"></i> </a>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>mype</td>
-                                    <td>3081</td>
-                                    <td class="text-center">
-                                        <a href="#"> <i class="fas fa-pencil-alt"></i> </a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>general</td>
-                                    <td>3081</td>
-                                    <td class="text-center">
-                                        <a href="#"> <i class="fas fa-pencil-alt"></i> </a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>agrario</td>
-                                    <td>3081</td>
-                                    <td class="text-center">
-                                        <a href="#"> <i class="fas fa-pencil-alt"></i> </a>
-                                    </td>
-                                </tr>
+
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>

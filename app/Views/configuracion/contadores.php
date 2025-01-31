@@ -65,54 +65,52 @@
     <!-- [ Main Content ] end -->
 </div>
 
-<div id="modalTipoServicio" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+<div id="modalContadores" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title h4" id="titleModalTarifa"></h5>
+                <h5 class="modal-title h4" id="titleModal"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="formTarifa">
                     <input type="hidden" name="idTableTarifa" id="idTableTarifa" value="0">
                     <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label" for="fechaInicioTarifa">Fecha Inicio</label>
-                            <input type="date" class="form-control" name="fechaInicioTarifa" id="fechaInicioTarifa" required>
+                        <div class="col-md-4">
+                            <div class="input-group mb-3">
+                                <label class="form-label" for="numeroDocumento">D.N.I.</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="numeroDocumento" id="numeroDocumento" placeholder="" aria-describedby="searchDocumento" required="">
+                                    <button class="btn btn-outline-primary" type="button" id="searchDocumento">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label" for="montoMensualTarifa">Monto Mensual</label>
-                            <input type="number" class="form-control" name="montoMensualTarifa" id="montoMensualTarifa" required>
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label" for="nombresApellidos">Nombres y Apellidos</label>
+                            <input type="text" class="form-control" name="nombresApellidos" id="nombresApellidos" required>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label" for="montoAnualTarifa">Monto Anual</label>
-                            <input type="number" class="form-control" name="montoAnualTarifa" id="montoAnualTarifa" required>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="num_colegiatura">Número de Colegiatura</label>
+                            <input type="number" class="form-control" name="num_colegiatura" id="num_colegiatura" required>
                         </div>
-                        <div class="col-md-3 mb-3 mt-4">
-                            <button type="submit" class="btn btn-success">Agregar Tarifa</button>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="domicilio">Domicilio</label>
+                            <input type="number" class="form-control" name="domicilio" id="domicilio">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="ubigeo">Ubigeo</label>
+                            <select name="ubigeo" id="ubigeo" class="form-select"></select>
                         </div>
                     </div>
                 </form>
 
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Fin</th>
-                            <th>Monto Mensual</th>
-                            <th>Monto Anual</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableTarifa">
-
-                    </tbody>
-                </table>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-primary" id="btnForm">Guardar</button>
             </div>
         </div>
     </div>

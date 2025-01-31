@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\SedeModel;
 use App\Models\UitModel;
+use App\Models\tributoModel;
+use App\Models\ContadorModel;
 
 class Configuracion extends BaseController
 {
@@ -97,8 +99,12 @@ class Configuracion extends BaseController
         if (!session()->logged_in) {            
             return redirect()->to(base_url());
         }
+
+        $tributo = new tributoModel();
+
+        $rentas = $tributo->where('tri_codigo', 3081)->findAll();
         
-        return view('configuracion/renta');
+        return view('configuracion/renta', compact('rentas'));
     }
 
     public function contadores()
@@ -108,6 +114,35 @@ class Configuracion extends BaseController
         }
         
         return view('configuracion/contadores');
+    }
+
+    public function renderContadores()
+    {
+        $contador = new ContadorModel();
+
+        $contadores = $contador->where('estado !=', 0)->findAll();
+
+        return $this->response->setJSON($contadores);
+    }
+
+    public function elegirContador($id)
+    {
+        $contador = new ContadorModel();
+
+        $data = array(
+            "estado" => 1
+        );
+
+        $contador->set($data)
+         ->where('estado !=', 0)
+         ->update();
+
+        $contador->update($id, ["estado" => 2]);
+
+        return $this->response->setJSON([
+            "status" => "success",
+            "message" => "Se eligio correctamente"
+        ]);
     }
 
 }
