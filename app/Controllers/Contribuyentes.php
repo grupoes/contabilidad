@@ -56,6 +56,15 @@ class Contribuyentes extends BaseController
         return $this->response->setJSON($data);
     }
 
+    public function renderContribuyentes()
+    {
+        $cont = new ContribuyenteModel();
+
+        $contribuyentes = $cont->where('estado >', 0)->findAll();
+
+        return $this->response->setJSON($contribuyentes);
+    }
+
     public function listaContribuyentes($filtro)
     {
         $model = new ContribuyenteModel();

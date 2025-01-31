@@ -2,7 +2,8 @@
 
 namespace App\Controllers;
 
-use App\Models\SedeModel;
+use App\Models\AnioModel;
+use App\Models\MesModel;
 
 class PdtAnual extends BaseController
 {
@@ -12,7 +13,14 @@ class PdtAnual extends BaseController
 			return redirect()->to(base_url());
 		}
 
-        return view('declaraciones/pdtanual');
+        $anio = new AnioModel();
+        $mes = new MesModel();
+
+        $anios = $anio->query("SELECT * FROM anio WHERE anio_estado = 1 AND anio_descripcion <= YEAR(CURDATE()) ORDER BY anio_descripcion DESC")->getResult();
+
+        $meses = $mes->where('mes_estado', 1)->findAll();
+
+        return view('declaraciones/pdtanual', compact('anios', 'meses'));
     }
 
 }

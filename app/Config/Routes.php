@@ -18,6 +18,7 @@ $routes->get('all-users', 'Auth::showUsers');
 $routes->get('home', 'Home::index');
 
 $routes->get('contribuyentes', 'Contribuyentes::index');
+$routes->get('contribuyentes/render', 'Contribuyentes::renderContribuyentes');
 $routes->post('contribuyente/add', 'Contribuyentes::guardar');
 $routes->post('contribuyente/add-tarifa', 'Contribuyentes::guardarTarifa');
 $routes->get('contribuyente/all/(:any)', 'Contribuyentes::listaContribuyentes/$1');
