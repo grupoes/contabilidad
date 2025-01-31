@@ -55,7 +55,7 @@
                         <form id="formLogin">
                             <input type="hidden" id="base_url" value="<?= base_url() ?>">
                             <div class="text-center">
-                                <a href="#"><img src="<?= base_url() ?>img/logo-dark.svg" alt="img" style="width: 50%;"></a>
+                                <a href="#"><img src="<?= base_url() ?>assets/images/logo-dark.svg" alt="img" style="width: 50%;"></a>
                             </div>
                             <div class="saprator my-3">
                                 <span></span>

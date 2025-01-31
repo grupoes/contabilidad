@@ -5,6 +5,8 @@ const newcs = $($table).DataTable(
 new $.fn.dataTable.Responsive(newcs);
 
 const btnModal = document.getElementById('btnModal');
+const searchDocumento = document.getElementById('searchDocumento');
+const titleModal = document.getElementById('titleModal');
 
 const razonSocial = document.getElementById('razonSocial');
 const nombreComercial = document.getElementById('nombreComercial');
@@ -13,6 +15,17 @@ const ubigeo = document.getElementById('ubigeo');
 const tipoSuscripcion = document.getElementById('tipoSuscripcion');
 const costoMensual = document.getElementById('costoMensual');
 const constAnual = document.getElementById('constAnual');
+const numeroDocumento = document.getElementById('numeroDocumento');
+const idTable = document.getElementById('idTable');
+const urbanizacion = document.getElementById('urbanizacion');
+const tipoServicio = document.getElementById('tipoServicio');
+const tipoPago = document.getElementById('tipoPago');
+const costoAnual = document.getElementById('costoAnual');
+const diaCobro = document.getElementById('diaCobro');
+const fechaContrato = document.getElementById('fechaContrato');
+const clientesVarios = document.getElementById('clientesVarios');
+const boletaAnulado = document.getElementById('boletaAnulado');
+const facturaAnulado = document.getElementById('facturaAnulado');
 
 const formDatos = document.getElementById('formDatos');
 
@@ -28,17 +41,39 @@ const tableCertificado = document.getElementById('tableCertificado');
 var multipleSystem = new Choices('#choices-system', {
     removeItemButton: true,
     placeholderValue: 'Seleccione una o más opciones',
+    allowHTML: true
 });
 
 var listaUbigeo = new Choices("#ubigeo", {
     removeItemButton: true,
     searchPlaceholderValue: "Buscar aqui el distrito, provincia o departamento",
+    allowHTML: true
 });
 
 btnModal.addEventListener('click', (e) => {
-    e.preventDefault();
 
     $("#modalAddEdit").modal('show');
+
+    titleModal.textContent = "Agregar Empresa";
+
+    idTable.value = 0;
+    numeroDocumento.value = "";
+    razonSocial.value = "";
+    nombreComercial.value = "";
+    direccionFiscal.value = "";
+    listaUbigeo.removeActiveItems();
+    urbanizacion.value = "";
+    tipoSuscripcion.value = "NO GRATUITO";
+    tipoServicio.value = "CONTABLE";
+    tipoPago.value = "ADELANTADO";
+    costoMensual.value = "";
+    costoAnual.value = "";
+    diaCobro.value = "01";
+    fechaContrato.value = "";
+    multipleSystem.removeActiveItems();
+    clientesVarios.value = "00000001";
+    boletaAnulado.value = "00000000";
+    facturaAnulado.value = "00000000001";
 
 })
 
@@ -248,6 +283,25 @@ function viewListContribuyentes(data) {
             }
             
         }
+        
+        let estadoEmpresa = "";
+
+        switch(emp.respuesta) {
+            case 0: 
+                estadoEmpresa = `<span class="badge bg-success" title="">${emp.tipo}</span>`;
+                break;
+            case 1: 
+                estadoEmpresa = `<span class="badge bg-primary" title="">${emp.tipo}</span>`;
+                break;
+            case 2: 
+                estadoEmpresa = `<span class="badge bg-warning" title="">${emp.tipo}</span>`;
+                break;
+            case 3: 
+                estadoEmpresa = `<span class="badge bg-danger" title="">${emp.tipo}</span>`;
+                break;
+            default:
+                break;
+        }
 
         html += `
             <tr>
@@ -270,9 +324,12 @@ function viewListContribuyentes(data) {
                 </td>
                 <td> 
                     <div class="form-check form-switch custom-switch-v1 mb-2">
-                        <input type="checkbox" class="form-check-input input-success" name="estado" id="desactivar-${emp.id}" ${estado}>
+                        <input type="checkbox" class="form-check-input input-success" name="estado" id="estado${emp.id}" ${estado} onchange="toggleSwitchStatus(this, ${emp.id})">
                     </div>
 
+                </td>
+                <td>
+                    ${estadoEmpresa}
                 </td>
                 <td>
                     <div class="dropdown">
@@ -290,7 +347,7 @@ function viewListContribuyentes(data) {
 
     $($table).DataTable().destroy();
 
-    tableBody.innerHTML = html;
+    tableBody.innerHTML = html
 
     const newcs = $($table).DataTable(
         optionsTableDefault
@@ -304,13 +361,14 @@ selectOpciones.addEventListener('change', (e) => {
 })
 
 tableBody.addEventListener('click', (e) => {
-    e.preventDefault();
 
     if(e.target.classList.contains('num-doc')) {
 
         idTable.value = e.target.dataset.id;
 
         $("#modalAddEdit").modal('show');
+
+        titleModal.textContent = "Editar Empresa";
 
         fetch(base_url+"contribuyente/get/"+e.target.dataset.id)
         .then(res => res.json())
@@ -483,7 +541,6 @@ formTarifa.addEventListener('submit', (e) => {
 });
 
 tableTarifa.addEventListener('click', (e) => {
-    e.preventDefault();
 
     if(e.target.classList.contains('btnDeleteTarifa')) {
         const valor = e.target.getAttribute('data-id');
@@ -584,5 +641,14 @@ tipo_certificado.addEventListener('change', (e) => {
     }
 })
 
-//fecha de contrato es diferente a la fecha de cobro
-//clientes con pagos adelantados que son los nuevos, y los antiguos que tienen pagos atrasados
+function toggleSwitchStatus(switchElement, id) {
+
+    let checked = switchElement.checked ? 1 : 2;
+
+    fetch(base_url+"contribuyente/status/"+id+"/"+checked)
+    .then(res => res.json())
+    .then(data => {
+        notifier.show('¡Bien hecho!', data.message, 'success', '', 2000);
+        
+    })
+}

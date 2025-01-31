@@ -61,9 +61,9 @@
         <li class="pc-item"><a class="pc-link" href="<?= base_url('conceptos') ?>">Concepto</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('caja-diaria') ?>">Caja Diaria</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('movimientos') ?>">Movimiento</a></li>
-        <li class="pc-item"><a class="pc-link" href="#">Métodos de Pago</a></li>
-        <li class="pc-item"><a class="pc-link" href="#">Bancos</a></li>
-        <li class="pc-item"><a class="pc-link" href="#">Movimientos Bancos</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('metodos-de-pago') ?>">Métodos de Pago</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('bancos') ?>">Bancos</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('movimiento-bancos') ?>">Movimientos Bancos</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('pagos') ?>">Pagos</a></li>
     </ul>
 </li>

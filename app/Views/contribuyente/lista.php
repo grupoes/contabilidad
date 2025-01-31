@@ -68,6 +68,7 @@
                                     <th>Montos</th>
                                     <th>Sistema</th>
                                     <th>Activo</th>
+                                    <th>Estado</th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
@@ -85,7 +86,7 @@
 </div>
 
 <div id="modalAddEdit" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -220,17 +221,17 @@
                         <hr>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="clientesVarios">Clientes varios</label>
-                            <input type="text" class="form-control" name="clientesVarios" id="clientesVarios" value="0000001" required>
+                            <input type="text" class="form-control" name="clientesVarios" id="clientesVarios" value="00000001" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="boletaAnulado">Anulado</label>
-                            <input type="text" class="form-control" name="boletaAnulado" id="boletaAnulado" value="0000001" required>
+                            <input type="text" class="form-control" name="boletaAnulado" id="boletaAnulado" value="00000000" required>
                         </div>
                         <h5>Facturas</h5>
                         <hr>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="facturaAnulado">Anulado</label>
-                            <input type="text" class="form-control" name="facturaAnulado" id="facturaAnulado" value="0000001" required>
+                            <input type="text" class="form-control" name="facturaAnulado" id="facturaAnulado" value="00000000001" required>
                         </div>
                     </div>
                 </div>
@@ -244,7 +245,7 @@
 </div>
 
 <div id="modalTipoServicio" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -297,7 +298,7 @@
 </div>
 
 <div id="modalSistema" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -368,7 +369,7 @@
 </div>
 
 <div id="modalCertificado" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">

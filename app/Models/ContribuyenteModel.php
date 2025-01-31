@@ -11,9 +11,9 @@
 
         protected $returnType     = 'array';
 
-        protected $allowedFields = ['id','ruc', 'razon_social', 'nombre_comercial', 'direccion_fiscal', 'ubigeo_id', 'urbanizacion', 'tipoSuscripcion', 'tipoServicio', 'tipoPago', 'costoMensual', 'costoAnual', 'diaCobro', 'fechaContrato', 'telefono', 'correo', 'usuario_secundario', 'clave_usuario_secundario', 'acceso', 'estado'];
+        protected $allowedFields = ['id','ruc', 'razon_social', 'nombre_comercial', 'direccion_fiscal', 'ubigeo_id', 'urbanizacion', 'tipoSuscripcion', 'tipoServicio', 'tipoPago', 'costoMensual', 'costoAnual', 'diaCobro', 'fechaContrato', 'telefono', 'correo', 'usuario_secundario', 'clave_usuario_secundario', 'acceso', 'user_add', 'user_edit', 'user_delete', 'estado', 'ruc_empresa_normal', 'ruc_empresa_baja', 'ruc_empresa_medio'];
 
-        protected $useTimestamps = false;
+        protected $useTimestamps = true;
         protected $createdField  = 'created_at';
         protected $updatedField  = 'updated_at';
 

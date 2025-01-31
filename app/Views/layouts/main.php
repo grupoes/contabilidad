@@ -108,14 +108,13 @@
     <!-- [ footer ] End -->
 
     <!-- Required Js -->
-
+    <script src="<?= base_url() ?>js/jquery.min.js"></script>
     <script src="<?= base_url() ?>assets/js/plugins/popper.min.js"></script>
     <script src="<?= base_url() ?>assets/js/plugins/simplebar.min.js"></script>
     <script src="<?= base_url() ?>assets/js/plugins/bootstrap.min.js"></script>
     <script src="<?= base_url() ?>assets/js/fonts/custom-font.js"></script>
     <script src="<?= base_url() ?>assets/js/pcoded.js"></script>
     <script src="<?= base_url() ?>assets/js/plugins/feather.min.js"></script>
-    <script src="<?= base_url() ?>js/jquery.min.js"></script>
     <script src="<?= base_url() ?>js/main.js"></script>
     
     <script>

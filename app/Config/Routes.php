@@ -21,6 +21,7 @@ $routes->get('contribuyentes', 'Contribuyentes::index');
 $routes->post('contribuyente/add', 'Contribuyentes::guardar');
 $routes->post('contribuyente/add-tarifa', 'Contribuyentes::guardarTarifa');
 $routes->get('contribuyente/all/(:any)', 'Contribuyentes::listaContribuyentes/$1');
+$routes->get('contribuyente/status/(:num)/(:num)', 'Contribuyentes::changeStatus/$1/$2');
 $routes->get('contribuyente/get/(:num)', 'Contribuyentes::getContribuyente/$1');
 $routes->get('contribuyente/historial-tarifa/(:num)', 'Contribuyentes::getTarifaContribuyente/$1');
 $routes->get('contribuyente/delete-tarifa/(:num)', 'Contribuyentes::deleteTarifa/$1');
