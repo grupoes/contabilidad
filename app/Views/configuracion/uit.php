@@ -29,9 +29,10 @@
             <div class="card">
                 <div class="card-body">
                     <form id="formUit">
+                        <input type="hidden" name="id" id="id" value="<?= $monto_uit['id_uit'] ?>">
                         <div class="col-md-4 mx-auto">
                             <label class="form-label">Ingresar UIT</label>
-                            <input type="text" name="uit" id="uit" class="form-control">
+                            <input type="text" name="uit" id="uit" class="form-control" value="<?= $monto_uit['uit_monto'] ?>" required>
 
                             <div class="row mt-3">
                                 <div class="col-md-12 d-flex justify-content-center">
@@ -56,6 +57,6 @@
 
 <script src="<?= base_url() ?>assets/js/plugins/notifier.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
-
+<script src="<?= base_url() ?>js/configuracion/uit.js"></script>
 
 <?= $this->endSection() ?>

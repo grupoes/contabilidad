@@ -59,6 +59,7 @@ $routes->get('configuracion/caja-virtual', 'Configuracion::cajaVirtual');
 $routes->post('configuracion-caja-virtual/save', 'Configuracion::saveCajaVirtual');
 
 $routes->get('configuracion/uit', 'Configuracion::Uit');
+$routes->post('configuracion/save-uit', 'Configuracion::saveUit');
 $routes->get('configuracion/renta', 'Configuracion::renta');
 $routes->get('configuracion/contadores', 'Configuracion::contadores');
 

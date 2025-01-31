@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\SedeModel;
+use App\Models\UitModel;
 
 class Configuracion extends BaseController
 {
@@ -56,8 +57,39 @@ class Configuracion extends BaseController
         if (!session()->logged_in) {            
             return redirect()->to(base_url());
         }
+
+        $uit = new UitModel();
+
+        $monto_uit = $uit->first();
         
-        return view('configuracion/uit');
+        return view('configuracion/uit', compact('monto_uit'));
+    }
+
+    public function saveUit()
+    {
+        try {
+            $uit = new UitModel();
+
+            $id = $this->request->getVar('id');
+            $monto = $this->request->getVar('uit');
+
+            $data = array(
+                "uit_monto" => $monto
+            );
+
+            if ($id) {
+                $uit->update($id, $data);
+            } else {
+                $uit->insert($data);
+            }
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se guardo correctamente"
+            ]);
+        } catch (\Exception $e) {
+            //throw $th;
+        }
     }
 
     public function renta()
