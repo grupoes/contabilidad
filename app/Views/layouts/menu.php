@@ -80,7 +80,7 @@
     <ul class="pc-submenu">
         <li class="pc-item"><a class="pc-link" href="#">Módulos</a></li>
         <li class="pc-item"><a class="pc-link" href="#">Permisos</a></li>
-        <li class="pc-item"><a class="pc-link" href="usuarios">Usuario</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('usuarios') ?>">Usuario</a></li>
         <li class="pc-item"><a class="pc-link" href="#">Perfil</a></li>
         <li class="pc-item"><a class="pc-link" href="#">Asignar</a></li>
     </ul>
@@ -96,7 +96,7 @@
         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
     </a>
     <ul class="pc-submenu">
-        <li class="pc-item"><a class="pc-link" href="contribuyentes">Contribuyentes</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('contribuyentes') ?>">Contribuyentes</a></li>
         <li class="pc-item"><a class="pc-link" href="#">Declaración</a></li>
         <li class="pc-item"><a class="pc-link" href="#">Cargo</a></li>
         <li class="pc-item"><a class="pc-link" href="#">Generar Guia</a></li>
