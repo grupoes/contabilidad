@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Models\SedeModel;
 use App\Models\UitModel;
-use App\Models\tributoModel;
+use App\Models\TributoModel;
 use App\Models\ContadorModel;
 
 class Configuracion extends BaseController
@@ -100,7 +100,7 @@ class Configuracion extends BaseController
             return redirect()->to(base_url());
         }
 
-        $tributo = new tributoModel();
+        $tributo = new TributoModel();
 
         $rentas = $tributo->where('tri_codigo', 3081)->findAll();
         
