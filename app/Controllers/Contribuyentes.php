@@ -14,8 +14,10 @@ use App\Models\PagosModel;
 use App\Models\CodificacionModel;
 use App\Models\ConfiguracionNotificacionModel;
 use App\Models\DeclaracionSunatModel;
-use App\Models\tributoModel;
+use App\Models\TributoModel;
 use App\Models\UitModel;
+
+//use App\Models\RucEmpresaModel;
 
 use DateTime;
 
@@ -451,6 +453,12 @@ class Contribuyentes extends BaseController
                     'codificacion_numero' => $facturaAnulado
                 ]);
 
+                $model->db->transComplete();
+
+                if ($model->db->transStatus() === false) {
+                    throw new \Exception("Error al realizar la operación.");
+                }
+
                 return $this->response->setJSON(['status' => 'success', 'message' => "Contribuyente editado correctamente."]);
             }
         } catch (\Exception $e) {
@@ -723,4 +731,80 @@ class Contribuyentes extends BaseController
 
         return $this->response->setJSON(['status' => 'success', 'message' => $message]);
     }
+
+    /*public function migrarContribuyentes()
+    {
+        $empresa = new RucEmpresaModel();
+        $cont = new ContribuyenteModel();
+        $tarifa = new HistorialTarifaModel();
+
+        $data = $empresa->findAll();
+
+        foreach ($data as $key => $value) {
+
+            if($value["gratuito"] === "NO") {
+                $tipoSuscripcion = "NO GRATUITO";
+            } else {
+                $tipoSuscripcion = "GRATUITO";
+            }
+
+            if($value["tipo_de_pago"] === 'ADELANTADO') {
+                $tipoPago = "ADELANTADO";
+            } else {
+                $tipoPago = "ATRASADO";
+            }
+
+            if($value['ruc_empresa_monto'] != null) {
+                $montoMensual = $value['ruc_empresa_monto'];
+            } else {
+                $montoMensual = 0;
+            }
+
+            if($value['costo_anual'] != null) {
+                $montoAnual = $value['costo_anual'];
+            } else {
+                $montoAnual = 0;
+            }
+
+            if($value['tipo_servicio'] != null) {
+                $tipoServicio = $value['tipo_servicio'];
+            } else {
+                $tipoServicio = "CONTABLE";
+            }
+
+            $datos = array(
+                "ruc" => $value["ruc_empresa_numero"],
+                "razon_social" => $value["ruc_empresa_razon_social"],
+                "nombre_comercial" => "",
+                "direccion_fiscal" => "",
+                "ubigeo_id" => '220901',
+                "urbanizacion" => "",
+                "tipoSuscripcion" => $tipoSuscripcion,
+                "tipoServicio" => $tipoServicio,
+                "tipoPago" => $tipoPago,
+                "costoMensual" => $montoMensual,
+                "costoAnual" => $value["costo_anual"],
+                "diaCobro" => 1,
+                "fechaContrato" => date('Y-m-d'),
+                "telefono" => "",
+                "access" => $value["ruc_empresa_numero"],
+                "user_add" => session()->id,
+                "estado" => $value['ruc_empresa_estado']
+            );
+
+            $cont->insert($datos);
+
+            $contribuyente_id = $cont->insertID();
+
+            $tarifa->insert([
+                'contribuyente_id' => $contribuyente_id,
+                'fecha_inicio' => date('Y-m')."-01",
+                'monto_mensual' => $montoMensual,
+                'monto_anual' => $montoAnual,
+                'estado' => 1
+            ]);
+
+            echo "<pre>"; print_r($datos); echo "</pre> <br>";
+        }
+    }*/
 }

@@ -31,6 +31,8 @@ $routes->post('contribuyente/add-certificado', 'Contribuyentes::guardarCertifica
 $routes->get('descargar-certificado/(:any)', 'Contribuyentes::descargarCertificado/$1');
 $routes->get('contribuyente/delete-certificado-digital/(:num)', 'Contribuyentes::deleteCertificadoDigital/$1');
 
+$routes->get('contribuyentes/migracion', 'Contribuyentes::migrarContribuyentes');
+
 $routes->get('cobros', 'Contribuyentes::allCobros');
 $routes->get('listaCobros/(:any)', 'Contribuyentes::listaHonorariosCobros/$1');
 
