@@ -23,4 +23,19 @@ class Pdt0621 extends BaseController
         return view('declaraciones/pdt0621', compact('anios', 'meses'));
     }
 
+    public function filesSave()
+    {
+        try {
+            if (!$this->request->is('post')) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Método no permitido']);
+            }
+
+            $data = $this->request->getPost();
+
+            return $this->response->setJSON(['status' => 'success', 'message' => $data]);
+        } catch (\Exception $e) {
+            
+        }
+    }
+
 }

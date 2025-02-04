@@ -56,7 +56,7 @@
 
 <div id="modalArchivo" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title h4" id="titleModalArchivo">Subir Archivos</h5>
@@ -64,7 +64,7 @@
             </div>
             <form id="formArchivo" method="POST" enctype="multipart/form-data">
                 <div class="modal-body">
-                    <input type="hidden" name="idTableTarifa" id="idTableTarifa" value="0">
+                    <input type="hidden" name="idTabla" id="idTabla" value="0">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="periodo">Periodo</label>
@@ -85,9 +85,13 @@
                             </select>
 
                         </div>
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label" for="file_pdt">Subir PDT</label>
-                            <input type="file" class="form-control" name="file_pdt" id="file_pdt" required>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="subir_renta">Subir Renta</label>
+                            <input type="file" class="form-control" name="subir_renta" accept=".pdf" id="subir_renta" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="subir_constancia">Subir Constancia</label>
+                            <input type="file" class="form-control" name="subir_constancia" accept=".pdf" id="subir_constancia" required>
                         </div>
                     </div>
                 </div>

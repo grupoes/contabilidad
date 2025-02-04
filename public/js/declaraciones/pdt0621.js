@@ -6,6 +6,8 @@ new $.fn.dataTable.Responsive(newcs);
 
 const tableBody = document.getElementById('tableBody');
 
+const formArchivo = document.getElementById('formArchivo');
+
 renderContribuyentes();
 
 function renderContribuyentes() {
@@ -37,12 +39,21 @@ function vistaContribuyentes(data) {
         `;
     });
 
+    $($table).DataTable().destroy();
+
     tableBody.innerHTML = html;
+
+    const newcs = $($table).DataTable(
+        optionsTableDefault
+    );
+    
+    new $.fn.dataTable.Responsive(newcs);
 }
 
 function modalArchivo(id) {
     $('#modalArchivo').modal('show');
-    //$('#idContribuyente').val(id);
+    const idTabla = document.getElementById('idTabla');
+    idTabla.value = id;
 }
 
 function descargarArchivos(id) {
@@ -52,3 +63,18 @@ function descargarArchivos(id) {
 function descargaMasiva(id) {
     $("#modalDescargarArchivoMasivo").modal("show");
 }
+
+formArchivo.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(formArchivo);
+
+    fetch(`${base_url}contribuyentes/file-save-pdt0621`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+    })
+})

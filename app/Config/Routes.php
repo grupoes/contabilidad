@@ -53,6 +53,8 @@ $routes->get('movimientos', 'Movimiento::index');
 $routes->post('movimiento/guardar', 'Movimiento::guardar');
 $routes->get('movimientos/lista-cajero/(:any)', 'Movimiento::showCajero/$1');
 $routes->get('movimientos/metodos-pagos', 'Movimiento::allMetodoPagos');
+$routes->get('movimiento/extornar/(:num)', 'Movimiento::extornar/$1');
+$routes->post('movimiento/cambio-pago', 'Movimiento::cambioPago');
 
 $routes->get('conceptos', 'Concepto::index');
 $routes->get('render-conceptos', 'Concepto::renderConceptos');
@@ -72,3 +74,5 @@ $routes->get('declaraciones/pdt-0621', 'Pdt0621::index');
 $routes->get('declaraciones/pdt-plame', 'PdtPlame::index');
 $routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
 $routes->get('declaraciones/boleta-de-pago', 'BoletaPago::index');
+
+$routes->post('contribuyentes/file-save-pdt0621', 'Pdt0621::filesSave');

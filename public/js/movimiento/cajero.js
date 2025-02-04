@@ -16,6 +16,14 @@ flatpickr(document.querySelector('#rango-fecha-movimientos'),{
     }*/
 });
 
+const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+      confirmButton: 'btn btn-success',
+      cancelButton: 'btn btn-danger'
+    },
+    buttonsStyling: false
+});
+
 function getDefaultDate() {
     const today = new Date();
     const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
@@ -39,6 +47,8 @@ btnNuevoIngreso.addEventListener('click', (e) => {
     titleModalMovimiento.textContent = "AGREGAR UN INGRESO";
     tipo_movimiento.value = 1;
 
+    formMovimiento.reset();
+
     conceptosTipoMoviemiento(1);
 })
 
@@ -46,6 +56,8 @@ btnNuevoEgreso.addEventListener('click', (e) => {
     $("#modalTipoMovimiento").modal('show');
     titleModalMovimiento.textContent = "AGREGAR UN EGRESO";
     tipo_movimiento.value = 2;
+
+    formMovimiento.reset();
 
     conceptosTipoMoviemiento(2);
 })
@@ -80,7 +92,10 @@ formMovimiento.addEventListener('submit', (e) => {
     .then(data => {
 
         if(data.status === 'success') {
+            $("#modalTipoMovimiento").modal('hide');
             renderMovimientos();
+
+            swalWithBootstrapButtons.fire('Muy bien!', data.message, 'success');
         }
         
     })
@@ -144,13 +159,7 @@ rangoFechaMovimientos.addEventListener('change', (e) => {
 })
 
 function extornar(id) {
-    const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-          confirmButton: 'btn btn-success',
-          cancelButton: 'btn btn-danger'
-        },
-        buttonsStyling: false
-    });
+    
     swalWithBootstrapButtons
     .fire({
         title: '¿Está seguro?',
@@ -163,15 +172,24 @@ function extornar(id) {
     })
     .then((result) => {
         if (result.isConfirmed) {
-            swalWithBootstrapButtons.fire('Deleted!', 'Your file has been deleted.', 'success');
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-            swalWithBootstrapButtons.fire('Cancelled', 'Your imaginary file is safe :)', 'error');
+            fetch(base_url+"movimiento/extornar/"+id)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    swalWithBootstrapButtons.fire('Extornado!', data.message, 'success');
+                    renderMovimientos();
+                }
+            })
+            
         }
     });
 }
 
 function changePago(idmov, idMetodoPago) {
     $("#modalChangePago").modal('show');
+
+    const idmovi = document.getElementById('idmov');
+    idmovi.value = idmov;
 
     fetch(base_url+"movimientos/metodos-pagos")
     .then(res => res.json())
@@ -193,3 +211,30 @@ function changePago(idmov, idMetodoPago) {
         
     })
 }
+
+const formCambioPago = document.getElementById('formCambioPago');
+
+formCambioPago.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(formCambioPago);
+
+    fetch(base_url+"movimiento/cambio-pago", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === 'success') {
+            $("#modalChangePago").modal('hide');
+            renderMovimientos();
+
+            swalWithBootstrapButtons.fire('Muy bien!', data.message, 'success');
+
+            return false;
+        }
+
+        swalWithBootstrapButtons.fire('Error!', data.message, 'danger');
+        
+    })
+})

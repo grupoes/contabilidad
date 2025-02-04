@@ -70,7 +70,7 @@ class Movimiento extends BaseController
 
             return $this->response->setJSON([
                 "status"  => "success",
-                "mensaje" => "Se agrego correctamente el movimiento"
+                "message" => "Se agrego correctamente el movimiento"
             ]);
 
         } catch (\Exception $e) {
@@ -103,7 +103,7 @@ class Movimiento extends BaseController
         inner join metodos_pagos mp on mp.id = m.id_metodo_pago
         inner join concepto c2 on c2.con_id = m.mov_concepto
         inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
-        where m.mov_estado = 1 and m.mov_fecha between '$startDateFormatted' and '$endDateFormatted'")->getResult();
+        where m.mov_estado = 1 and m.mov_fecha between '$startDateFormatted' and '$endDateFormatted' order by m.mov_id desc")->getResult();
 
         return $this->response->setJSON($movimientos);
     }
@@ -114,5 +114,32 @@ class Movimiento extends BaseController
         $metodos = $metodo->where('estado', 1)->findAll();
 
         return $this->response->setJSON($metodos);
+    }
+
+    public function extornar($id)
+    {
+        $mov = new MovimientoModel();
+
+        $mov->update($id, ['mov_estado' => 0]);
+
+        return $this->response->setJSON([
+            "status" => "success",
+            "message" => "Se extornó correctamente el movimiento"
+        ]);
+    }
+
+    public function cambioPago()
+    {
+        $mov = new MovimientoModel();
+
+        $idMovimiento = $this->request->getVar('idmov');
+        $nuevoMetodoPago = $this->request->getVar('nuevo_metodo_pago');
+
+        $mov->update($idMovimiento, ['id_metodo_pago' => $nuevoMetodoPago]);
+
+        return $this->response->setJSON([
+            "status" => "success",
+            "message" => "Se cambió correctamente el método de pago"
+        ]);
     }
 }
