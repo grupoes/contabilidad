@@ -83,3 +83,9 @@ $routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
 $routes->get('declaraciones/boleta-de-pago', 'BoletaPago::index');
 
 $routes->post('contribuyentes/file-save-pdt0621', 'Pdt0621::filesSave');
+
+$routes->get('bancos', 'Bancos::index');
+$routes->get('bancos/all', 'Bancos::show');
+$routes->post('banco/guardar', 'Bancos::save');
+$routes->get('banco/get-banco/(:num)', 'Bancos::getBanco/$1');
+$routes->get('banco/delete/(:num)', 'Bancos::delete/$1');

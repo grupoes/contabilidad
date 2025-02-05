@@ -11,11 +11,11 @@ flatpickr(document.querySelector('#rango-fecha-movimientos'),{
     dateFormat: 'd-m-Y',
     defaultDate: getDefaultDate(),
     allowInput: true,
-    /*onClose: function (selectedDates, dateStr, instance) {
+    onClose: function (selectedDates, dateStr, instance) {
         const selectedDate = instance.selectedDates[0];
         console.log("Fecha seleccionada:", selectedDate);
-        renderVentas();
-    }*/
+        renderMovimientos();
+    }
 });
 
 const swalWithBootstrapButtons = Swal.mixin({
