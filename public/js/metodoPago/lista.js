@@ -16,56 +16,68 @@ const swalWithBootstrapButtons = Swal.mixin({
 const tableBody = document.getElementById('tableBody');
 const btnModal = document.getElementById('btnModal');
 const titleModal = document.getElementById('titleModal');
-const formBanco = document.getElementById('formBanco');
-const idBanco = document.getElementById('idBanco');
+const formMetodo = document.getElementById('formMetodo');
+const idMetodo = document.getElementById('idMetodo');
 
-const nameBanco = document.getElementById('nameBanco');
-const titular = document.getElementById('titular');
-const numeroCuenta = document.getElementById('numeroCuenta');
-const moneda = document.getElementById('moneda');
+const nameMetodo = document.getElementById('nameMetodo');
+const banco = document.getElementById('banco');
+const descripcion = document.getElementById('descripcion');
 
 btnModal.addEventListener('click', () => {
-    $("#modalBancos").modal('show');
-    titleModal.textContent = 'Agregar Banco'
+    $("#modalMetodo").modal('show');
+    titleModal.textContent = 'Agregar Método de Pago'
 })
 
-renderBancos();
+renderMetodos();
 
-function renderBancos() {
-    fetch(base_url+"bancos/all")
+function renderMetodos() {
+    fetch(base_url+"metodos/all")
     .then(res => res.json())
     .then(data => {
-        viewBancos(data);
+        viewMetodos(data);
+        console.log(data);
         
     })
 }
 
-function viewBancos(data) {
+function viewMetodos(data) {
     let html = "";
 
-    data.forEach((banco, index) => {
+    data.forEach((metodo, index) => {
+        let nombreBanco = "";
+        let opciones = "";
+
+        if(metodo.nombre_banco != null) {
+            nombreBanco = metodo.nombre_banco;
+        }
+
+        if(metodo.id != 1) {
+            opciones = `
+            <ul class="list-inline me-auto mb-0">
+                <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Editar">
+                    <a href="#" onclick="editarMetodo(event, ${metodo.id})" class="avtar avtar-xs btn-link-success btn-pc-default"><i class="ti ti-edit-circle f-18"></i></a>
+                </li>
+                <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
+                    <a href="#" onclick="deleteMetodo(event, ${metodo.id})" class="avtar avtar-xs btn-link-danger btn-pc-default"><i class="ti ti-trash f-18"></i></a>
+                </li>
+            </ul>
+            `;
+        }
+
         html += `
         <tr>
             <td>${index + 1}</td>
-            <td>${ banco.nombre_banco }</td>
-            <td>${ banco.moneda }</td>
-            <td>${ banco.nombre_titular }</td>
-            <td>${ banco.numero_cuenta }</td>
+            <td>${ metodo.metodo }</td>
+            <td>${ nombreBanco }</td>
+            <td>${ metodo.descripcion }</td>
             <td>
-                <ul class="list-inline me-auto mb-0">
-                    <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Editar">
-                        <a href="#" onclick="editarBanco(event, ${banco.id})" class="avtar avtar-xs btn-link-success btn-pc-default"><i class="ti ti-edit-circle f-18"></i></a>
-                    </li>
-                    <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
-                        <a href="#" onclick="deleteBanco(event, ${banco.id})" class="avtar avtar-xs btn-link-danger btn-pc-default"><i class="ti ti-trash f-18"></i></a>
-                    </li>
-                </ul>
+                ${opciones}
             </td>
         </tr>
         `;
     });
 
-    $($table).DataTable().destroy();
+    $($table).DataTable().destroy()
 
     tableBody.innerHTML = html;
 
@@ -76,12 +88,12 @@ function viewBancos(data) {
     new $.fn.dataTable.Responsive(newcs);
 }
 
-formBanco.addEventListener('submit', (e) => {
+formMetodo.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const formData = new FormData(formBanco);
+    const formData = new FormData(formMetodo);
 
-    fetch(base_url+"banco/guardar", {
+    fetch(base_url+"metodo-pago/guardar", {
         method: 'POST',
         body: formData
     })
@@ -97,9 +109,9 @@ formBanco.addEventListener('submit', (e) => {
                 timer: 1500
             });
 
-            $("#modalBancos").modal('hide');
+            $("#modalMetodo").modal('hide');
 
-            renderBancos();
+            renderMetodos();
 
             return false;
         }
@@ -113,26 +125,24 @@ formBanco.addEventListener('submit', (e) => {
     })
 })
 
-function editarBanco(e, id) {
+function editarMetodo(e, id) {
     e.preventDefault();
 
-    idBanco.value = id;
-    titleModal.textContent = "Editar Banco";
+    idMetodo.value = id;
+    titleModal.textContent = "Editar Método de Pago";
 
-    $("#modalBancos").modal('show');
+    $("#modalMetodo").modal('show');
 
-    fetch(base_url+"banco/get-banco/"+id)
+    fetch(base_url+"metodo-pago/get-metodo/"+id)
     .then(res => res.json())
     .then(data => {
-        
-        nameBanco.value = data.nombre_banco;
-        titular.value = data.nombre_titular;
-        numeroCuenta.value = data.numero_cuenta;
-        moneda.value = data.moneda
+        nameMetodo.value = data.metodo;
+        banco.value = data.id_banco;
+        descripcion.value = data.descripcion;
     })
 }
 
-function deleteBanco(e, id) {
+function deleteMetodo(e, id) {
     e.preventDefault();
 
     swalWithBootstrapButtons
@@ -148,11 +158,11 @@ function deleteBanco(e, id) {
         .then((result) => {
             if (result.isConfirmed) {
                 
-                fetch(base_url+"banco/delete/"+id)
+                fetch(base_url+"metodo-pago/delete/"+id)
                 .then(res => res.json())
                 .then(data => {
                     if(data.status === 'success') {
-                        renderBancos();
+                        renderMetodos();
                         Swal.fire({
                             position: 'top-center',
                             icon: 'success',

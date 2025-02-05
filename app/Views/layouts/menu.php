@@ -64,7 +64,6 @@
         <li class="pc-item"><a class="pc-link" href="<?= base_url('metodos-de-pago') ?>">Métodos de Pago</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('bancos') ?>">Bancos</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('movimiento-bancos') ?>">Movimientos Bancos</a></li>
-        <li class="pc-item"><a class="pc-link" href="<?= base_url('pagos') ?>">Pagos</a></li>
     </ul>
 </li>
 <li class="pc-item pc-hasmenu">

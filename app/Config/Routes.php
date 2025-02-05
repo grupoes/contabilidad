@@ -89,3 +89,9 @@ $routes->get('bancos/all', 'Bancos::show');
 $routes->post('banco/guardar', 'Bancos::save');
 $routes->get('banco/get-banco/(:num)', 'Bancos::getBanco/$1');
 $routes->get('banco/delete/(:num)', 'Bancos::delete/$1');
+
+$routes->get('metodos-de-pago', 'MetodoPago::index');
+$routes->get('metodos/all', 'MetodoPago::show');
+$routes->post('metodo-pago/guardar', 'MetodoPago::save');
+$routes->get('metodo-pago/get-metodo/(:num)', 'MetodoPago::getMetodo/$1');
+$routes->get('metodo-pago/delete/(:num)', 'MetodoPago::delete/$1');
