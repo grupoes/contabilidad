@@ -62,8 +62,10 @@ $routes->get('movimiento/extornar/(:num)', 'Movimiento::extornar/$1');
 $routes->post('movimiento/cambio-pago', 'Movimiento::cambioPago');
 
 $routes->get('conceptos', 'Concepto::index');
+$routes->post('concepto/guardar', 'Concepto::save');
 $routes->get('render-conceptos', 'Concepto::renderConceptos');
 $routes->get('conceptos-tipo-movimiento/(:num)', 'Concepto::conceptosTipoMovimiento/$1');
+$routes->get('concepto/delete/(:num)', 'Concepto::deleteConcepto/$1');
 
 $routes->get('configuracion/caja-virtual', 'Configuracion::cajaVirtual');
 $routes->post('configuracion-caja-virtual/save', 'Configuracion::saveCajaVirtual');

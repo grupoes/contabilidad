@@ -2,16 +2,16 @@
 
     use CodeIgniter\Model;
 
-    class TributoModel extends Model
+    class TipoMovimientoModel extends Model
     {
-        protected $table      = 'tributo';
-        protected $primaryKey = 'id_tributo';
+        protected $table      = 'tipo_movimiento';
+        protected $primaryKey = 'id_tipo_movimiento';
 
         protected $useAutoIncrement = true;
 
         protected $returnType     = 'array';
 
-        protected $allowedFields = ['id_tributo','tri_descripcion','tri_estado', 'id_pdt', 'tri_tipo', 'tri_codigo', 'tipo', 'porcentaje_renta', 'porcentaje_renta_segunda'];
+        protected $allowedFields = ['id_tipo_movimiento','tipo_movimiento_descripcion','tipo_movimiento_estado'];
 
         protected $useTimestamps = false;
         protected $createdField  = 'created_at';
