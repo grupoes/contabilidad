@@ -27,38 +27,38 @@
                                     <div class="ms-2 me-auto">
                                         <div>Ingresos Caja Fisica</div>
                                     </div>
-                                    <span class="badge bg-primary rounded-pill">S/ 14.00</span>
+                                    <span class="badge bg-primary rounded-pill">S/ <span id="ingresos_caja_fisica"></span></span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div class="ms-2 me-auto">
                                         <div>Egresos Caja Fisica</div>
                                     </div>
-                                    <span class="badge bg-danger rounded-pill">S/ 14.00</span>
+                                    <span class="badge bg-danger rounded-pill">S/ <span id="egresos_caja_fisica"></span></span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div class="ms-2 me-auto">
                                         <div class="fw-bold">Utilidad Caja Fisica</div>
                                     </div>
-                                    <span class="badge bg-success rounded-pill">S/ 14.00</span>
+                                    <span class="badge bg-success rounded-pill">S/ <span id="utilidad_fisica"></span></span>
                                 </li>
 
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div class="ms-2 me-auto">
                                         <div>Ingresos Caja virtual</div>
                                     </div>
-                                    <span class="badge bg-primary rounded-pill">S/ 14.00</span>
+                                    <span class="badge bg-primary rounded-pill">S/ <span id="ingresos_caja_virtual"></span></span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div class="ms-2 me-auto">
                                         <div>Egresos Caja Virtual</div>
                                     </div>
-                                    <span class="badge bg-danger rounded-pill">S/ 14.00</span>
+                                    <span class="badge bg-danger rounded-pill">S/ <span id="egresos_caja_virtual"></span></span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div class="ms-2 me-auto">
                                         <div class="fw-bold">Utilidad Caja Virtual</div>
                                     </div>
-                                    <span class="badge bg-success rounded-pill">S/ 14.00</span>
+                                    <span class="badge bg-success rounded-pill">S/ <span id="utilidad_caja_virtual"></span></span>
                                 </li>
                             </ul>
                         </div>
@@ -74,7 +74,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="d-grid">
-                                <button class="btn btn-primary d-grid"><span class="text-truncate w-100">S/ 100.00</span></button>
+                                <button class="btn btn-primary d-grid"><span class="text-truncate w-100">S/ <span id="utilidad_hoy"></span></span></button>
                             </div>
                         </div>
                     </div>
@@ -161,6 +161,8 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>
+
+<script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 
 <script src="<?= base_url() ?>js/caja/cajero.js"></script>
 

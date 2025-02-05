@@ -65,3 +65,24 @@ function hideSpinnerButtonForm(accion) {
     btnForm.disabled = false;
     btnForm.innerHTML = accion;
 }
+
+function validarCaja() {
+    fetch(base_url+'caja/validar-caja')
+    .then(res => res.json())
+    .then(data => {
+        
+        if(data.status === 'warning') {
+            Swal.fire({
+                title: 'Atención Usuario!',
+                text: data.message,
+                icon: 'error',
+                showConfirmButton: false, // Oculta el botón "OK"
+                html: `
+                    <p style="font-size: 20px">${data.message}</p>
+                    <a href="${base_url}caja-diaria" class="btn btn-danger">IR A CAJA</a>
+                `
+            });
+        }
+        
+    })
+}

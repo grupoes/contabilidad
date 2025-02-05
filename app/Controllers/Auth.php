@@ -5,6 +5,8 @@ namespace App\Controllers;
 use App\Models\ProfileModel;
 use App\Models\SedeModel;
 use App\Models\UserModel;
+use App\Models\UsuarioModel;
+
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
 
@@ -56,7 +58,7 @@ class Auth extends BaseController
             $session = session();
             $session->set([
                 'id' => $user['id'],
-                'username' => $user['correo'],
+                'username' => $user['username'],
                 'nombre' => $user['nombres'],
                 'apellidos' => $user['apellidos'],
                 'perfil' => $user['nombre_perfil'],
@@ -222,6 +224,74 @@ class Auth extends BaseController
         $usuarios = $user->usersAll();
 
         return $this->response->setJSON($usuarios);
+    }
+
+    public function migrationUsers()
+    {
+        $usuario = new UsuarioModel();
+        $user = new UserModel();
+
+        $usuarios = $usuario->findAll();
+
+        foreach ($usuarios as $key => $value) {
+
+            if($value['usu_id'] != 391) {
+
+                if($value['usu_perfil'] == 1) {
+                    $perfil = 3;
+                }
+
+                if($value['usu_perfil'] == 5) {
+                    $perfil = 2;
+                }
+
+                if($value['usu_perfil'] == 6) {
+                    $perfil = 4;
+                }
+
+                if($value['usu_perfil'] == 8) {
+                    $perfil = 6;
+                }
+
+                if($value['usu_perfil'] == 7) {
+                    $perfil = 5;
+                }
+
+                if($value['usu_sede'] == 5) {
+                    $sede = 1;
+                }
+
+                if($value['usu_sede'] == 9) {
+                    $sede = 2;
+                }
+
+                $hashedPassword = password_hash($value['usu_clave'], PASSWORD_DEFAULT);
+
+                $data = array(
+                    "correo" => $value['correo'],
+                    "username" => $value['usu_usuario'],
+                    "password" => $hashedPassword,
+                    "alias" => "data_".$value['usu_clave'],
+                    "perfil_id" => $perfil,
+                    "sede_id" => $sede,
+                    "tipo_documento_id" => 1,
+                    "numero_documento" => $value['dni'],
+                    "nombres" => $value['nombres'],
+                    "apellidos" => $value['apellidos'],
+                    "telefono" => $value['telefono'],
+                    "direccion" => $value['direccion'],
+                    "fecha_nacimiento" => $value['fecha_nacimiento'],
+                    "numero_cuenta" => $value['numero_bancario'],
+                    "estado" => $value['usu_estado'],
+                    "path" => base_url('public/assets/images/user/avatar-2.jpg')
+                );
+
+                $user->insert($data);
+
+                echo "<pre>"; print_r($data); echo "</pre> <br>";
+            }
+
+        }
     }
 
 }

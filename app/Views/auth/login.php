@@ -63,8 +63,8 @@
                             <h4 class="text-center f-w-500 mb-3">Inicie sesión</h4>
                             <div id="alert" style="display:none;" class="alert"></div>
                             <div class="mb-3">
-                                <label class="form-label" for="username">Correo Electrónico</label>
-                                <input type="email" class="form-control" name="username" id="username" placeholder="Ingrese su usuario">
+                                <label class="form-label" for="username">Usuario</label>
+                                <input type="text" class="form-control" name="username" id="username" placeholder="Ingrese su usuario">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label" for="password">Contraseña</label>

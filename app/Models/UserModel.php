@@ -11,15 +11,15 @@
 
         protected $returnType     = 'array';
 
-        protected $allowedFields = ['id','correo','password', 'perfil_id', 'sede_id', 'tipo_documento_id','numero_documento', 'nombres', 'apellidos', 'telefono', 'direccion', 'fecha_nacimiento', 'numero_cuenta', 'estado', 'path'];
+        protected $allowedFields = ['id','correo', 'username','password', 'perfil_id', 'sede_id', 'tipo_documento_id','numero_documento', 'nombres', 'apellidos', 'telefono', 'direccion', 'fecha_nacimiento', 'numero_cuenta', 'estado', 'path'];
 
         protected $useTimestamps = true;
         protected $createdField  = 'created_at';
         protected $updatedField  = 'updated_at';
 
-        public function getUserByUsername($correo)
+        public function getUserByUsername($username)
         {
-            return $this->join('perfil', 'perfil.id = usuario.perfil_id')->where('usuario.correo', $correo)->where('usuario.estado', 1)->first();
+            return $this->join('perfil', 'perfil.id = usuario.perfil_id')->where('usuario.username', $username)->where('usuario.estado', 1)->first();
         }
 
         public function getUserByEmail($email)

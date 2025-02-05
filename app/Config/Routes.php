@@ -15,6 +15,8 @@ $routes->get('api/dni-ruc/(:any)/(:any)', 'Auth::api_dni_ruc/$1/$2');
 $routes->post('save-user', 'Auth::guardarUsuario');
 $routes->get('all-users', 'Auth::showUsers');
 
+$routes->get('migration-users', 'Auth::migrationUsers');
+
 $routes->get('home', 'Home::index');
 
 $routes->get('contribuyentes', 'Contribuyentes::index');
@@ -48,6 +50,9 @@ $routes->get('all-ubigeo', 'Contribuyentes::listaUbigeo');
 $routes->get('caja-diaria', 'Caja::index');
 $routes->get('caja/apertura', 'Caja::Aperturar');
 $routes->get('caja/cierreCaja', 'Caja::cierreCaja');
+$routes->get('caja/validar-caja', 'Caja::validarcaja');
+
+$routes->get('caja/resumen-cajero', 'Caja::resumenCajaDiaria');
 
 $routes->get('movimientos', 'Movimiento::index');
 $routes->post('movimiento/guardar', 'Movimiento::guardar');

@@ -4,6 +4,8 @@ const newcs = $($table).DataTable(
 
 new $.fn.dataTable.Responsive(newcs);
 
+validarCaja();
+
 flatpickr(document.querySelector('#rango-fecha-movimientos'),{
     mode: "range",
     dateFormat: 'd-m-Y',
@@ -21,6 +23,7 @@ const swalWithBootstrapButtons = Swal.mixin({
       confirmButton: 'btn btn-success',
       cancelButton: 'btn btn-danger'
     },
+    showConfirmButton: true,
     buttonsStyling: false
 });
 
@@ -49,7 +52,7 @@ btnNuevoIngreso.addEventListener('click', (e) => {
 
     formMovimiento.reset();
 
-    conceptosTipoMoviemiento(1);
+    conceptosTipoMovimiento(1);
 })
 
 btnNuevoEgreso.addEventListener('click', (e) => {
@@ -59,10 +62,10 @@ btnNuevoEgreso.addEventListener('click', (e) => {
 
     formMovimiento.reset();
 
-    conceptosTipoMoviemiento(2);
+    conceptosTipoMovimiento(2);
 })
 
-function conceptosTipoMoviemiento(tipo) {
+function conceptosTipoMovimiento(tipo) {
     fetch(base_url+"conceptos-tipo-movimiento/"+tipo)
     .then(res => res.json())
     .then(data => {

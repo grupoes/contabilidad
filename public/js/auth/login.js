@@ -27,7 +27,7 @@ formLogin.addEventListener('submit', async function(e) {
 
         setTimeout(() => {
             window.location.href = `${urlbase}home`;
-        }, 1500);
+        }, 1000);
     } else {
         alertBox.className = 'alert alert-danger';
         alertBox.textContent = result.message;
