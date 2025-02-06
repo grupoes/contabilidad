@@ -14,6 +14,8 @@ $routes->get('usuarios', 'Auth::userAll');
 $routes->get('api/dni-ruc/(:any)/(:any)', 'Auth::api_dni_ruc/$1/$2');
 $routes->post('save-user', 'Auth::guardarUsuario');
 $routes->get('all-users', 'Auth::showUsers');
+$routes->get('auth/asignar/(:num)', 'Auth::asignar/$1');
+$routes->post('save-asignar', 'Auth::saveAsignar');
 
 $routes->get('migration-users', 'Auth::migrationUsers');
 
@@ -61,6 +63,8 @@ $routes->get('movimientos/metodos-pagos', 'Movimiento::allMetodoPagos');
 $routes->get('movimiento/extornar/(:num)', 'Movimiento::extornar/$1');
 $routes->post('movimiento/cambio-pago', 'Movimiento::cambioPago');
 
+$routes->get('movimiento-bancos', 'Movimiento::bancosMovimientos');
+
 $routes->get('conceptos', 'Concepto::index');
 $routes->post('concepto/guardar', 'Concepto::save');
 $routes->get('render-conceptos', 'Concepto::renderConceptos');
@@ -95,3 +99,5 @@ $routes->get('metodos/all', 'MetodoPago::show');
 $routes->post('metodo-pago/guardar', 'MetodoPago::save');
 $routes->get('metodo-pago/get-metodo/(:num)', 'MetodoPago::getMetodo/$1');
 $routes->get('metodo-pago/delete/(:num)', 'MetodoPago::delete/$1');
+
+$routes->get('asignar-contribuyentes', 'Auth::asignarContribuyentes');

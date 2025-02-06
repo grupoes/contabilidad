@@ -6,8 +6,10 @@ use App\Models\ProfileModel;
 use App\Models\SedeModel;
 use App\Models\UserModel;
 use App\Models\UsuarioModel;
+use App\Models\ContribuyentesUsuarioModel;
 
 use App\Controllers\BaseController;
+use App\Models\ContribuyenteModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class Auth extends BaseController
@@ -291,6 +293,77 @@ class Auth extends BaseController
                 echo "<pre>"; print_r($data); echo "</pre> <br>";
             }
 
+        }
+    }
+
+    public function asignarContribuyentes()
+    {
+        if (!session()->logged_in) {
+			return redirect()->to(base_url());
+		}
+
+        $user = new UserModel();
+
+        $usuarios = $user->where('estado', 1)->where('perfil_id !=', 1)->where('perfil_id != 2')->findAll();
+
+        return view('auth/asignar', compact('usuarios'));
+    }
+
+    public function asignar($id)
+    {
+        $contr = new ContribuyenteModel();
+
+        $no_asignados = $contr->query("SELECT c.id, c.razon_social
+        FROM contribuyentes c
+        WHERE NOT EXISTS (
+            SELECT 1 
+            FROM contribuyentes_usuario cu 
+            WHERE cu.contribuyente_id = c.id
+        );")->getResult();
+
+        $asignados = $contr->select('contribuyentes.id, contribuyentes.razon_social')->join('contribuyentes_usuario', 'contribuyentes_usuario.contribuyente_id = contribuyentes.id')->where('contribuyentes_usuario.usuario_id', $id)->findAll();
+
+        return $this->response->setJSON(
+            ['asignados' => $asignados, 'no_asignados' => $no_asignados]);
+    }
+
+    public function saveAsignar()
+    {
+        $contUsuario = new ContribuyentesUsuarioModel();
+
+        try {
+
+            if (!$this->request->is('post')) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Método no permitido']);
+            }
+
+            $data = $this->request->getPost();
+            
+            $info = $contUsuario->where('usuario_id', $data['usuarios'])->findAll();
+
+            if ($info) {
+                $contUsuario->where('usuario_id', $data['usuarios'])->delete();
+            }
+
+            if(!$data['seleccionados']) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Seleccione algún contribuyente']);
+            }
+
+            $cont = $data['seleccionados'];
+
+            for ($i=0; $i < count($cont); $i++) { 
+                $datos = array(
+                    "contribuyente_id" => $cont[$i],
+                    "usuario_id" => $data['usuarios']
+                );
+
+                $contUsuario->insert($datos);
+            }
+
+            return $this->response->setJSON(['status' => 'success', 'message' => "Asignado correctamente."]);
+
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
 

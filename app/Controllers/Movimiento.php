@@ -142,4 +142,13 @@ class Movimiento extends BaseController
             "message" => "Se cambió correctamente el método de pago"
         ]);
     }
+
+    public function bancosMovimientos()
+    {
+        if (!session()->logged_in) {
+			return redirect()->to(base_url());
+		}
+
+        return view('movimiento/bancosMovimientos');
+    }
 }

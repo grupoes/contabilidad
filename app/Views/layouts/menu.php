@@ -81,7 +81,7 @@
         <li class="pc-item"><a class="pc-link" href="#">Permisos</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('usuarios') ?>">Usuario</a></li>
         <li class="pc-item"><a class="pc-link" href="#">Perfil</a></li>
-        <li class="pc-item"><a class="pc-link" href="#">Asignar</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('asignar-contribuyentes') ?>">Asignar</a></li>
     </ul>
 </li>
 <li class="pc-item pc-hasmenu">
