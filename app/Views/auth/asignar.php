@@ -36,7 +36,7 @@
                                 role="tab"
                                 aria-controls="analytics-tab-2-pane"
                                 aria-selected="false">
-                                MOROSOS ANUAL
+                                REASIGNAR
                             </button>
                         </li>
                     </ul>

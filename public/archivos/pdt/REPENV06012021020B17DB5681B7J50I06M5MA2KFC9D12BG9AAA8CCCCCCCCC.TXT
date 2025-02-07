@@ -1,0 +1,43 @@
+              PDT 601 PLANILLA ELECTRON. PLAME
+               RESUMEN DEL ARCHIVO DE ENVIO
+
+Se generó archivo de envío que deberá presentar a la SUNAT
+
+RUC             : 20603766581
+EMPLEADOR       : COMERCIAL JULIUS E.I.R.L.
+PERIODO         : 02/2021 RECTIFICATORIA : NO
+
+FORMA DE PAGO   : EFECTIVO
+
+NÚMERO DE TRABAJADORES:                      1
+NÚMERO DE PENSIONISTAS:                      0
+NÚMERO DE PERSONAL EN FORMACIÓN:             0
+NÚMERO DE PERSONAL DE TERCEROS:              0
+NÚMERO DE PS.4TA CATEGORÍA:                  0
+OTROS REGIMENES ESPECIALES:                  0
+
+CONCEPTO              CODIGO    SALDO A PAGAR  IMPORTE A PAGAR
+ESSALUD TRAB            5210            84               0
+ESSALUD AGRAR           5222             0               0
+ESSALUD CBSSP           5238             0               0
+ESSALUD SCTR            5211             0               0
+ESSALUD +VIDA           5214             0               0
+F.D.S.ARTISTA           5410             0               0
+ESSALUD PENS            5242             0               0
+SNP DL 19990            5310             0               0
+ASEG TU PENS            5621             0               0
+COSAP                   5612             0               0
+RENTA 5TA RET           3052             0               0
+RENTA 4TA RET           3042             0               0
+IES                     5081             0               0
+APORTE FCJMMS           5632             0               0
+CUOTA FONDO CJMMS       5642             0               0
+SNP INDEPENDIENTE       5342             0               0
+REP LEY 30003–RETENC.   5652             0               0
+REP LEY 30003–CTA.PROP. 5651             0               0
+ESSALUD AGRA LEY 31110  5245             0               0
+TOTAL                                   84               0
+
+Número Interno de Control 52182991
+Fecha de la descarga de datos del T-Registro: 01/03/2021 10:28:15
+ARCHIVO DE ENVIO: 06012021020B17DB5681B7J50I06M5MA2KFC9D12BG9AAA8CCCCCCCCC.ZIP

@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><LibroElectronico>
+  <VersionLibro> 5</VersionLibro>
+  <VersionPle> 5.1.4.0</VersionPle>
+ <Contribuyente>
+  <Ruc>20329049982 </Ruc>
+  <UsuarioSol>KPEP8ESF</UsuarioSol>
+  <RazonSocial> <![CDATA[INVERSIONES INTERN.EN COMUNIC.S.R.LTDA.]]></RazonSocial>
+  </Contribuyente>
+ <Control>
+  <Libro codigo="140000">
+      <Descripcion><![CDATA[Registro de ventas e ingresos]]></Descripcion>
+      <CodigoOportunidad codigo="00"> <![CDATA[  ]]></CodigoOportunidad>
+      <IndicadorOperaciones codigo="1"><![CDATA[ Empresa o entidad operativa]]> </IndicadorOperaciones>
+      <IndicadorMoneda codigo="1"> <![CDATA[ Nuevos Soles ]]>   </IndicadorMoneda>
+	  <IndicadorAtraso codigo="0"> <![CDATA[ 16/10/2019 - 00:00:00 ]]>   </IndicadorAtraso>
+               
+  </Libro>
+  
+ <Periodo>
+      <Mensual mes="Septiembre">20190900</Mensual>
+  
+ 
+ </Periodo>
+ <Archivos>
+ 
+ <Simple>
+ <Archivo codigo="140100">  
+  <Nombre>LE2032904998220190900140100001111.txt</Nombre>
+  <Descripcion><![CDATA[ Registro de ventas e ingresos ]]></Descripcion>
+  <Directorio><![CDATA[ C:\Sistema de Contabilidad Siga\libros ]]></Directorio>
+  <Tamano>22400</Tamano>
+  
+   			 <Hash>61aa85edbd1bbb34ee8335ea350f796b7dda10fd</Hash>
+				
+
+ <Resumen>
+  <CantidadRegistros>132</CantidadRegistros>
+<Contenido>
+      
+<mto_vta_per_e2>0.000</mto_vta_per_e2>
+<mto_vta_per_e1>103673.400</mto_vta_per_e1>
+<mto_vta_per_e0>0.000</mto_vta_per_e0>
+<cnt_reg_per_e2>12</cnt_reg_per_e2>
+<cnt_otro_fisi_e2>0.000</cnt_otro_fisi_e2>
+<cnt_otro_fisi_e0>0.000</cnt_otro_fisi_e0>
+<cnt_otro_fisi_e1>0.000</cnt_otro_fisi_e1>
+<mto_desc_igv_ipm_to>0.000</mto_desc_igv_ipm_to>
+<mto_igv_ipm_to>0.000</mto_igv_ipm_to>
+<cnt_otro_fisi_e9>0.000</cnt_otro_fisi_e9>
+<cnt_otro_fisi_e8>0.000</cnt_otro_fisi_e8>
+<cnt_reg_per_e1>120</cnt_reg_per_e1>
+<cnt_reg_per_e0>0</cnt_reg_per_e0>
+<cnt_cdp_mn_to>132.000</cnt_cdp_mn_to>
+<cnt_cdp_mn_e8>0.000</cnt_cdp_mn_e8>
+<cnt_nc_e1>0.000</cnt_nc_e1>
+<cnt_fact_fisi_to>0.000</cnt_fact_fisi_to>
+<cnt_cdp_mn_e9>0.000</cnt_cdp_mn_e9>
+<mto_isc_to>0.000</mto_isc_to>
+<cnt_cdp_mn_e0>0.000</cnt_cdp_mn_e0>
+<cnt_cdp_mn_e2>12.000</cnt_cdp_mn_e2>
+<mto_ivap_to>0.000</mto_ivap_to>
+<cnt_reg_per_to>132</cnt_reg_per_to>
+<cnt_cdp_mn_e1>120.000</cnt_cdp_mn_e1>
+<mto_vta_lib_e9>0.000</mto_vta_lib_e9>
+<mto_vta_lib_e8>0.000</mto_vta_lib_e8>
+<cnt_fact_fisi_e2>0.000</cnt_fact_fisi_e2>
+<cnt_fact_fisi_e1>0.000</cnt_fact_fisi_e1>
+<cnt_fact_fisi_e0>0.000</cnt_fact_fisi_e0>
+<mto_bi_gra_e0>0.000</mto_bi_gra_e0>
+<cnt_fact_fisi_e9>0.000</cnt_fact_fisi_e9>
+<mto_bi_gra_e2>0.000</mto_bi_gra_e2>
+<mto_bi_gra_e1>0.000</mto_bi_gra_e1>
+<cnt_fact_fisi_e8>0.000</cnt_fact_fisi_e8>
+<cnt_nd_fisi_to>0.000</cnt_nd_fisi_to>
+<cnt_nc_elec_e1>0.000</cnt_nc_elec_e1>
+<cnt_fact_elec_e9>0.000</cnt_fact_elec_e9>
+<cnt_nc_elec_e2>0.000</cnt_nc_elec_e2>
+<cnt_fact_elec_e8>0.000</cnt_fact_elec_e8>
+<cnt_nc_elec_e0>0.000</cnt_nc_elec_e0>
+<cnt_tam_det>22400</cnt_tam_det>
+<cnt_reg_e0>0</cnt_reg_e0>
+<cnt_reg_e1>120</cnt_reg_e1>
+<mto_otros_to>6.700</mto_otros_to>
+<cnt_reg_e2>12</cnt_reg_e2>
+<cnt_nc_elec_e9>0.000</cnt_nc_elec_e9>
+<cnt_nc_elec_e8>0.000</cnt_nc_elec_e8>
+<mto_otros_e2>0.000</mto_otros_e2>
+<mto_vta_lib_e0>0.000</mto_vta_lib_e0>
+<mto_vta_lib_e1>103673.400</mto_vta_lib_e1>
+<mto_vta_lib_e2>0.000</mto_vta_lib_e2>
+<mto_otros_e0>0.000</mto_otros_e0>
+<mto_otros_e1>6.700</mto_otros_e1>
+<mto_isc_e1>0.000</mto_isc_e1>
+<cnt_reg>132</cnt_reg>
+<mto_isc_e0>0.000</mto_isc_e0>
+<mto_isc_e2>0.000</mto_isc_e2>
+<cnt_fact_elec_e0>0.000</cnt_fact_elec_e0>
+<cnt_ind_cancel>0.000</cnt_ind_cancel>
+<cnt_fact_elec_e1>23.000</cnt_fact_elec_e1>
+<cnt_fact_elec_e2>0.000</cnt_fact_elec_e2>
+<cnt_reg_e9>0</cnt_reg_e9>
+<cnt_reg_e8>0</cnt_reg_e8>
+<mto_bi_gra_to>0.000</mto_bi_gra_to>
+<cnt_error1>0.000</cnt_error1>
+<mto_desc_igv_ipm_e2>0.000</mto_desc_igv_ipm_e2>
+<cod_hash>61aa85edbd1bbb34ee8335ea350f796b7dda10fd</cod_hash>
+<mto_desc_igv_ipm_e1>0.000</mto_desc_igv_ipm_e1>
+<mto_desc_igv_ipm_e0>0.000</mto_desc_igv_ipm_e0>
+<cod_hash_det>61aa85edbd1bbb34ee8335ea350f796b7dda10fd</cod_hash_det>
+<cnt_nd_elec_to>0.000</cnt_nd_elec_to>
+<mto_vta_per_to>103673.400</mto_vta_per_to>
+<mto_inaf_to>0.000</mto_inaf_to>
+<mto_inaf_e2>0.000</mto_inaf_e2>
+<mto_inaf_e1>0.000</mto_inaf_e1>
+<mto_inaf_e0>0.000</mto_inaf_e0>
+<cnt_reg_per_ant_to>0</cnt_reg_per_ant_to>
+<cnt_reg_per_ant_e9>0</cnt_reg_per_ant_e9>
+<cnt_reg_per_ant_e8>0</cnt_reg_per_ant_e8>
+<mto_bi_ivap_e1>0.000</mto_bi_ivap_e1>
+<mto_bi_ivap_e2>0.000</mto_bi_ivap_e2>
+<cnt_reg_det>132</cnt_reg_det>
+<mto_bi_ivap_e0>0.000</mto_bi_ivap_e0>
+<cnt_fact_elec_to>23.000</cnt_fact_elec_to>
+<mto_icbp_to>0.000</mto_icbp_to>
+<cnt_otro_elec_to>109.000</cnt_otro_elec_to>
+<mto_icbp_e1>0.000</mto_icbp_e1>
+<mto_ivap_e0>0.000</mto_ivap_e0>
+<mto_icbp_e2>0.000</mto_icbp_e2>
+<mto_icbp_e0>0.000</mto_icbp_e0>
+<cnt_cdp_me_e2>0.000</cnt_cdp_me_e2>
+<cnt_nd_fisi_e9>0.000</cnt_nd_fisi_e9>
+<cnt_cdp_me_e0>0.000</cnt_cdp_me_e0>
+<cnt_nd_fisi_e8>0.000</cnt_nd_fisi_e8>
+<cnt_cdp_me_e1>0.000</cnt_cdp_me_e1>
+<cnt_nc_fisi_e0>0.000</cnt_nc_fisi_e0>
+<mto_ivap_e2>0.000</mto_ivap_e2>
+<mto_ivap_e1>0.000</mto_ivap_e1>
+<cnt_nd_fisi_e2>0.000</cnt_nd_fisi_e2>
+<cnt_nc_fisi_e2>0.000</cnt_nc_fisi_e2>
+<cnt_nc_fisi_e1>0.000</cnt_nc_fisi_e1>
+<mto_exo_to>103666.700</mto_exo_to>
+<cnt_nc_elec_to>0.000</cnt_nc_elec_to>
+<cnt_cdp_me_e9>0.000</cnt_cdp_me_e9>
+<cnt_cdp_me_e8>0.000</cnt_cdp_me_e8>
+<mto_exp_to>0.000</mto_exp_to>
+<mto_igv_ipm_e0>0.000</mto_igv_ipm_e0>
+<mto_desc_bi_e2>0.000</mto_desc_bi_e2>
+<mto_igv_ipm_e1>0.000</mto_igv_ipm_e1>
+<mto_desc_bi_e1>0.000</mto_desc_bi_e1>
+<cnt_otro_elec_e9>0.000</cnt_otro_elec_e9>
+<mto_bi_ivap_to>0.000</mto_bi_ivap_to>
+<mto_desc_bi_e0>0.000</mto_desc_bi_e0>
+<cnt_otro_elec_e8>0.000</cnt_otro_elec_e8>
+<cnt_nc_fisi_to>0.000</cnt_nc_fisi_to>
+<mto_vta_lib_to>103673.400</mto_vta_lib_to>
+<mto_exp_e2>0.000</mto_exp_e2>
+<cnt_otro_elec_e2>12.000</cnt_otro_elec_e2>
+<mto_igv_ipm_e2>0.000</mto_igv_ipm_e2>
+<mto_exp_e0>0.000</mto_exp_e0>
+<mto_exp_e1>0.000</mto_exp_e1>
+<cnt_otro_elec_e0>0.000</cnt_otro_elec_e0>
+<cnt_otro_elec_e1>97.000</cnt_otro_elec_e1>
+<cnt_otro_fisi_to>0.000</cnt_otro_fisi_to>
+<mto_exo_e0>0.000</mto_exo_e0>
+<cnt_nd_elec_e9>0.000</cnt_nd_elec_e9>
+<mto_exo_e1>103666.700</mto_exo_e1>
+<cnt_nd_elec_e8>0.000</cnt_nd_elec_e8>
+<mto_exo_e2>0.000</mto_exo_e2>
+<cnt_nd_elec_e2>0.000</cnt_nd_elec_e2>
+<cnt_nd_elec_e1>0.000</cnt_nd_elec_e1>
+<mto_desc_bi_to>0.000</mto_desc_bi_to>
+<cnt_nd_elec_e0>0.000</cnt_nd_elec_e0>
+<cnt_nd_fisi_e0>0.000</cnt_nd_fisi_e0>
+<cnt_nd_fisi_e1>0.000</cnt_nd_fisi_e1>
+<cnt_nc_fisi_e9>0.000</cnt_nc_fisi_e9>
+<cnt_nc_fisi_e8>0.000</cnt_nc_fisi_e8>
+<cnt_cdp_me_to>0.000</cnt_cdp_me_to>
+  
+  </Contenido>
+  </Resumen>
+  </Archivo>
+  </Simple>
+
+  </Archivos>
+  
+  <Casillas>
+        <Multiple>
+          <Casilla codigo="cas100">    
+        <DescripcionCasilla><![CDATA[ $cl.getDesCasilla() ]]></DescripcionCasilla>
+        <MontoCasilla><![CDATA[ 0 ]]></MontoCasilla>
+      </Casilla>
+          <Casilla codigo="cas105">    
+        <DescripcionCasilla><![CDATA[ $cl.getDesCasilla() ]]></DescripcionCasilla>
+        <MontoCasilla><![CDATA[ 103667 ]]></MontoCasilla>
+      </Casilla>
+          <Casilla codigo="cas106">    
+        <DescripcionCasilla><![CDATA[ $cl.getDesCasilla() ]]></DescripcionCasilla>
+        <MontoCasilla><![CDATA[ 0 ]]></MontoCasilla>
+      </Casilla>
+          <Casilla codigo="cas107">    
+        <DescripcionCasilla><![CDATA[ $cl.getDesCasilla() ]]></DescripcionCasilla>
+        <MontoCasilla><![CDATA[ 0 ]]></MontoCasilla>
+      </Casilla>
+          <Casilla codigo="cas109">    
+        <DescripcionCasilla><![CDATA[ $cl.getDesCasilla() ]]></DescripcionCasilla>
+        <MontoCasilla><![CDATA[ 0 ]]></MontoCasilla>
+      </Casilla>
+          <Casilla codigo="cas113">    
+        <DescripcionCasilla><![CDATA[ $cl.getDesCasilla() ]]></DescripcionCasilla>
+        <MontoCasilla><![CDATA[ 189 ]]></MontoCasilla>
+      </Casilla>
+          <Casilla codigo="cas120">    
+        <DescripcionCasilla><![CDATA[ $cl.getDesCasilla() ]]></DescripcionCasilla>
+        <MontoCasilla><![CDATA[ 78963 ]]></MontoCasilla>
+      </Casilla>
+          <Casilla codigo="cas340">    
+        <DescripcionCasilla><![CDATA[ $cl.getDesCasilla() ]]></DescripcionCasilla>
+        <MontoCasilla><![CDATA[ 0 ]]></MontoCasilla>
+      </Casilla>
+          <Casilla codigo="cas110">    
+        <DescripcionCasilla><![CDATA[ $cl.getDesCasilla() ]]></DescripcionCasilla>
+        <MontoCasilla><![CDATA[ 0 ]]></MontoCasilla>
+      </Casilla>
+        </Multiple>
+      </Casillas>
+ <ComputadorOrigen>
+  <SistemaOperativo><![CDATA[ Windows 8]]>   </SistemaOperativo>
+  <MacAddress>18:56:80:86:9B:88</MacAddress>
+  <IP>2001:1388:7800:eceb:19d:3056:680:8252</IP>
+ </ComputadorOrigen>
+ <Transaccion>
+  <Numero anio="2019">25025046 </Numero>
+  <FechaRecepcion>16/10/2019 - 17:15:14</FechaRecepcion>
+  <FechaValidacion>16/10/2019 - 17:14:56</FechaValidacion>
+ </Transaccion>
+<Resumen>
+  <CantidadLibros>1</CantidadLibros>
+ </Resumen>
+  </Control>
+
+
+  <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><ds:Reference URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><ds:DigestValue>IzQehUJypbwHB2w0A8dJYEpCQYQ=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>CIL1vCbQ7jXflSZgga6rPLhf/DGZQ5dB7wD5R7njfYj8Fu5wbRqSVmEbjcgf1JtL+LtH7R/rQElI
+YTfoundqs0nahStf5yeOh8Qlqe4dLCMRI3nsxbLQulNtYAtIuZTDsqgoU8HWt6QZceBNNj6hXn4T
+w3pL1QcO1xPIFKMOJpxxBa26TNgF2RXlCmR1xuUp+qyHT+OKCglM72EKzjvNqKtTINw+OA567aUX
+k5Eg1gHtM5pxKe2qeXUkBbcGubSGiAjFkssEZCYqna14Ax04NHiT99PxXDE312kPI8V4/9ElA5X8
+HEcWoul44SOQxg0Lik6YsaBKpjSjNJpOkitiHg==</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIIKrTCCCJWgAwIBAgIJPS+cbfuqHKg2MA0GCSqGSIb3DQEBCwUAMIIBIjELMAkGA1UEBhMCUEUx
+DTALBgNVBAgMBExJTUExDTALBgNVBAcMBExJTUExPTA7BgNVBAsMNHNlZSBjdXJyZW50IGFkZHJl
+c3MgYXQgd3d3LmNhbWVyZmlybWEuY29tLnBlL2FkZHJlc3MxMDAuBgNVBAsMJ0FDIENBTUVSRklS
+TUEgUEVSw5ogQ0VSVElGSUNBRE9TIC0gMjAxNjEUMBIGA1UEBRMLMjA1NjYzMDI0NDcxGjAYBgNV
+BGEMEU5UUlBFLTIwNTY2MzAyNDQ3MSAwHgYDVQQKDBdDQU1FUkZJUk1BIFBFUsOaIFMuQS5DLjEw
+MC4GA1UEAwwnQUMgQ0FNRVJGSVJNQSBQRVLDmiBDRVJUSUZJQ0FET1MgLSAyMDE2MB4XDTE4MDky
+NzIxMDcyOFoXDTIwMDkyNjIxMDcyOFowggGXMSQwIgYJKoZIhvcNAQkBFhVldmFsZGVyMUBzdW5h
+dC5nb2IucGUxQjBABgNVBAMMOVNVUEVSSU5ULiBOQUMuIERFIEFEVUFOQVMgWSBERSBBRE1JTklT
+VFJBQ0nDk04gVFJJQlVUQVJJQTEaMBgGA1UEKgwRU1VQRVJJTlQuIE5BQy4gREUxMDAuBgNVBAQM
+J0FEVUFOQVMgWSBERSBBRE1JTklTVFJBQ0nDk04gVFJJQlVUQVJJQTEVMBMGA1UEBRMMRE5JOjA5
+NjE4NjgyMREwDwYDVQQHDAhCQVJSQU5DQTEYMBYGA1UECAwPTElNQSAtIEJBUlJBTkNBMRcwFQYD
+VQQMDA5FU1BFQ0lBTElTVEEgMjEqMCgGA1UECwwhRElWSVNJT04gQVJRVUlURUNUVVJBIFRFQ05P
+TE9HSUNBMSEwHwYDVQQLDBhJc3N1ZWQgYnkgU09GVCZORVQgW1BFMV0xFDASBgNVBGEMCzIwMTMx
+MzEyOTU1MQ4wDAYDVQQKDAVTVU5BVDELMAkGA1UEBhMCUEUwggEiMA0GCSqGSIb3DQEBAQUAA4IB
+DwAwggEKAoIBAQCpna6aUUpLcQz7t1xvG0oqMwCdQ/XWRa+lJFfD+MBOuP73HZrBrIwaURt8SN8F
+/HGYIvri+yyXJzZzIZBG2ndrPyXJQPpfBcedqqadDiQQrnJwWNZRyAQmNiAh9qvv0g8n7UREEUnp
+++dF8ahpJHBYNTW/gwWdtkGtJYZUgX8J58KEhRJKcqNYbwUT3M2ju/WiuS7+q/iZXYqSQJx3q9Q2
+tXQj1+iruqx8LzwxYlN8H7QnfXcJONFB7NGwmTQ6/qBkBYiKaAlESpLmmntV8pYwH9nn6bD0BHhf
+DthB+sKmRb1FzRhPYWiJgKnQM1LkuIjtZa3oNewoj+hchbBujHCXAgMBAAGjggRrMIIEZzAMBgNV
+HRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIGwDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQw
+HQYDVR0OBBYEFKPq18wYYEtJw1ix3nUb5fRvhE55MIGNBggrBgEFBQcBAQSBgDB+MFQGCCsGAQUF
+BzAChkhodHRwOi8vd3d3LmNhbWVyZmlybWEuY29tL2NlcnRzL2FjX2NhbWVyZmlybWFfcGVydV9j
+ZXJ0aWZpY2Fkb3MtMjAxNi5jcnQwJgYIKwYBBQUHMAGGGmh0dHA6Ly9vY3NwLmNhbWVyZmlybWEu
+Y29tMIIBQgYDVR0jBIIBOTCCATWAFDpuZRjnVtLk8y3dpXxybf8w4YYnoYIBEKSCAQwwggEIMQsw
+CQYDVQQGEwJFUzEPMA0GA1UECAwGTUFEUklEMQ8wDQYDVQQHDAZNQURSSUQxQjBABgNVBAsMOXNl
+ZSBjdXJyZW50IGFkZHJlc3MgYXQgaHR0cHM6Ly93d3cuY2FtZXJmaXJtYS5jb20vYWRkcmVzczEj
+MCEGA1UECwwaQUMgQ0FNRVJGSVJNQSBQRVLDmiAtIDIwMTYxEjAQBgNVBAUTCUE4Mjc0MzI4NzEY
+MBYGA1UEYQwPVkFURVMtQTgyNzQzMjg3MRswGQYDVQQKDBJBQyBDQU1FUkZJUk1BIFMuQS4xIzAh
+BgNVBAMMGkFDIENBTUVSRklSTUEgUEVSw5ogLSAyMDE2ggkAjGpF9TOqN0YwgaAGA1UdHwSBmDCB
+lTBIoEagRIZCaHR0cDovL2NybC5jYW1lcmZpcm1hLmNvbS9hY19jYW1lcmZpcm1hX3BlcnVfY2Vy
+dGlmaWNhZG9zLTIwMTYuY3JsMEmgR6BFhkNodHRwOi8vY3JsMS5jYW1lcmZpcm1hLmNvbS9hY19j
+YW1lcmZpcm1hX3BlcnVfY2VydGlmaWNhZG9zLTIwMTYuY3JsMIHeBgNVHREEgdYwgdOBFWV2YWxk
+ZXIxQHN1bmF0LmdvYi5wZaSBuTCBtjEhMB8GCisGAQQBgYcuHgcMEVNVUEVSSU5ULiBOQUMuIERF
+MSwwKgYKKwYBBAGBhy4eCAwcQURVQU5BUyBZIERFIEFETUlOSVNUUkFDScOTTjEaMBgGCisGAQQB
+gYcuHgkMClRSSUJVVEFSSUExRzBFBgorBgEEAYGHLh4KDDdDRVJUSUZJQ0FETyBERSBQRVJTT05B
+IEZJU0lDQSBDT04gVklOQ1VMQUNJT04gQSBFTVBSRVNBMBwGA1UdEgQVMBOBEWNhQGNhbWVyZmly
+bWEuY29tMIGQBgNVHSAEgYgwgYUwgYIGDCsGAQQBgYcuHhAAATByMCkGCCsGAQUFBwIBFh1odHRw
+czovL3BvbGljeS5jYW1lcmZpcm1hLmNvbTBFBggrBgEFBQcCAjA5DDdDRVJUSUZJQ0FETyBERSBQ
+RVJTT05BIEZJU0lDQSBDT04gVklOQ1VMQUNJT04gQSBFTVBSRVNBMA0GCSqGSIb3DQEBCwUAA4IC
+AQBw9nEuRY+CaAe11clomq55HpqsrlKGFGCsy8NfNVzq54FtuQ8EACbPfAXGSjt4XbzoxxF50ZHQ
+zfmBq6KDA4UvJMdwzX3jkHl+4P0ML7eIxIwJmMfULASTzLVs6rmaApIbt4+vQIKrnT2cPSSWp7kg
+Mpjj70vT2aUqjpm3CEgjZ1TF41O6HVzqoDLDvGCdtr1LWKOK0XYDY8+koHX6taHtZBbFH0pPKyKL
+Kfal+lJAp36eEJXgcHGw9c7eDQDQepAzYb+GtktiV7w2mJFqPH/3i7TQ7e89U2ju4tdF1uKa2coE
+An2dNtTtNkko8DaMVr8dxnhsrGnPRus1Ss8w+esCg6szpfBbm6wuxNc722SF7Teop5c2p0QK/zTl
+WpTaxim+Sk41LAVFxLL3WD4eO3hUANZF7xERIbEuoxPCyKRbHb5kazX2SKAzxNBXdCH0vYb7Sv4D
+T3Bpk0yRSI+RcXyqbi+Qk7Hmmk/nxUcE9VmzMbASy5F+gpIM7sDC/Fok0K5Bx6/IFc5hlSVNJ9XO
+eIlIrVyUK5A27iAhxOl8h3uARLpu+9uuobyird18ggogQcHmgluCdVYVBljp6DCyzNTpZEaGi/Yf
+KpVKjzlXTlk2/j56js4SFjsDp6YHtboO/X6g+fI5yjJZTgPqIaQSoM6DxMvLGIpqPeyKaD7HuoH1
+eA==</ds:X509Certificate></ds:X509Data></ds:KeyInfo></ds:Signature></LibroElectronico>

@@ -82,6 +82,8 @@ $routes->get('configuracion/render-contadores', 'Configuracion::renderContadores
 $routes->get('configuracion/elegir-contador/(:num)', 'Configuracion::elegirContador/$1');
 
 $routes->get('declaraciones/pdt-0621', 'Pdt0621::index');
+$routes->post('consulta-pdt-renta', 'Pdt0621::consulta');
+
 $routes->get('declaraciones/pdt-plame', 'PdtPlame::index');
 $routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
 $routes->get('declaraciones/boleta-de-pago', 'BoletaPago::index');

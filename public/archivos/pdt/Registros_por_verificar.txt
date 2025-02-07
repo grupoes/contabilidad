@@ -1,0 +1,19 @@
+﻿LISTADO DE PRESTADORES A VERIFICAR EN EL T-REGISTRO
+
+FECHA        : 04/20/2021
+RUC          : 10033003159
+PERIODO      : 03/2021
+
+TIPO DE PRESTADOR:
+01 - TRABAJADOR
+02 - PENSIONISTA
+04 - TERCEROS
+05 - FORMACION LABORAL
+
+OBSERVACION:
+01 - Trabajador con RP 98, verifique si transcurrió el plazo de elección del Régimen Pensionario, de ser así actualice el T-Registro
+02 - Prestador excluido de la declaración por cambios en los datos del T-registro, que se actualizaron al PDT PLAME
+
+DOCUMENTO IDENTIF |TIPO PRESTADOR|OBSERVACION|
+------------------|--------------|-----------|
+01-00949577       |      01      |      02       |

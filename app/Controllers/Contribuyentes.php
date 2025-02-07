@@ -76,9 +76,14 @@ class Contribuyentes extends BaseController
         $uit = new UitModel();
 
         $sql = "";
+        $asig = "";
 
         if ($filtro !== 'TODOS') {
             $sql = "AND c.tipoServicio = '$filtro'";
+        }
+
+        if(session()->perfil_id > 2) {
+            $asig = " AND cu.usuario_id = ".session()->id;
         }
 
         $data = $model->query("SELECT 
@@ -111,7 +116,7 @@ class Contribuyentes extends BaseController
                 ) THEN 'NO' -- Tiene un certificado válido
                 ELSE 'SI' -- No tiene certificado válido o está vencido
             END AS certificado_vencido
-        FROM contribuyentes c WHERE estado > 0 $sql order by c.id desc")->getResult();
+        FROM contribuyentes c left join contribuyentes_usuario cu ON cu.contribuyente_id = c.id WHERE c.estado > 0 $sql $asig order by c.id desc")->getResult();
 
         foreach ($data as $key => $value) {
             $confNot = $confiNoti->where('contribuyente_id', $value->id)->orderBy('id_tributo', 'asc')->findAll();

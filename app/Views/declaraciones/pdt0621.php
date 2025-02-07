@@ -65,6 +65,7 @@
             <form id="formArchivo" method="POST" enctype="multipart/form-data">
                 <div class="modal-body">
                     <input type="hidden" name="idTabla" id="idTabla" value="0">
+                    <input type="hidden" name="ruc_empresa" id="ruc_empresa_save" value="0">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="periodo">Periodo</label>
@@ -86,12 +87,12 @@
 
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="subir_renta">Subir Renta</label>
-                            <input type="file" class="form-control" name="subir_renta" accept=".pdf" id="subir_renta" required>
+                            <label class="form-label" for="file_renta">Subir Renta</label>
+                            <input type="file" class="form-control" name="file_renta" accept=".pdf" id="file_renta" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="subir_constancia">Subir Constancia</label>
-                            <input type="file" class="form-control" name="subir_constancia" accept=".pdf" id="subir_constancia" required>
+                            <label class="form-label" for="file_constancia">Subir Constancia</label>
+                            <input type="file" class="form-control" name="file_constancia" accept=".pdf" id="file_constancia" required>
                         </div>
                     </div>
                 </div>
@@ -112,46 +113,47 @@
                 <h5 class="modal-title h4" id="titleModalArchivo">Descargar Archivos</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formArchivo" method="POST" enctype="multipart/form-data">
-                <div class="modal-body">
-                    <input type="hidden" name="idTableTarifa" id="idTableTarifa" value="0">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="periodo">Periodo</label>
-                            <select name="periodo" id="periodo" class="form-select" required>
-                                <option value="">Seleccione</option>
-                                <?php foreach ($meses as $key => $value) { ?>
-                                    <option value="<?= $value['id_mes'] ?>"><?= $value['mes_descripcion'] ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="anio">Año</label>
-                            <select name="anio" id="anio" class="form-select" required>
-                                <option value="">Seleccione...</option>
-                                <?php foreach ($anios as $key => $value) { ?>
-                                    <option value="<?= $value->id_anio ?>"><?= $value->anio_descripcion ?></option>
-                                <?php } ?>
-                            </select>
 
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Periodo</th>
-                                        <th>Año</th>
-                                        <th>Archivos</th>
-                                    </tr>
-                                </thead>
-                            </table>
-                        </div>
+            <div class="modal-body">
+                <div class="row">
+                    <input type="hidden" id="rucEmpresa" value="0">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="periodo_file">Periodo</label>
+                        <select name="periodo_file" id="periodo_file" class="form-select" required>
+                            <option value="">Seleccione</option>
+                            <?php foreach ($meses as $key => $value) { ?>
+                                <option value="<?= $value['id_mes'] ?>"><?= $value['mes_descripcion'] ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="anio_file">Año</label>
+                        <select name="anio_file" id="anio_file" class="form-select" required>
+                            <option value="">Seleccione...</option>
+                            <?php foreach ($anios as $key => $value) { ?>
+                                <option value="<?= $value->id_anio ?>"><?= $value->anio_descripcion ?></option>
+                            <?php } ?>
+                        </select>
+
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Periodo</th>
+                                    <th>Año</th>
+                                    <th>Archivos</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loadFiles"></tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
         </div>
     </div>
 </div>
@@ -161,10 +163,10 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title h4" id="titleModalArchivo">Descargar Archivos</h5>
+                <h5 class="modal-title h4" id="titleModalArchivo">Consultar Pdt</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formArchivo" method="POST" enctype="multipart/form-data">
+            <form id="formArchivo" method="POST">
                 <div class="modal-body">
                     <input type="hidden" name="idTableTarifa" id="idTableTarifa" value="0">
                     <div class="row">
@@ -192,8 +194,8 @@
                             <label class="form-label" for="anio">hasta</label>
                             <select name="anio" id="anio" class="form-select" required>
                                 <option value="">Seleccione...</option>
-                                <?php foreach ($anios as $key => $value) { ?>
-                                    <option value="<?= $value->id_anio ?>"><?= $value->anio_descripcion ?></option>
+                                <?php foreach ($meses as $key => $value) { ?>
+                                    <option value="<?= $value['id_mes'] ?>"><?= $value['mes_descripcion'] ?></option>
                                 <?php } ?>
                             </select>
 
