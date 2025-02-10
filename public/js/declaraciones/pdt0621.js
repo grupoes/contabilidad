@@ -40,7 +40,7 @@ function vistaContribuyentes(data) {
             <td class="text-center">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-success" title="Subir archivos" onclick="modalArchivo(${cont.id}, '${cont.ruc}')"> <i class="ti ti-file-upload"></i> </button> 
-                    <button type="button" class="btn btn-info" title="Descargar archivos" onclick="descargarArchivos('${cont.ruc}')"> <i class="ti ti-file-download"></i> </button> 
+                    <button type="button" class="btn btn-info" title="Descargar archivos" onclick="descargarArchivos(${cont.id},'${cont.ruc}')"> <i class="ti ti-file-download"></i> </button> 
                     <button type="button" class="btn btn-primary" title="Descargar archivos" onclick="descargaMasiva(${cont.id})"> <i class="ti ti-file-export"></i> </button>
                 </div>
             </td>
@@ -64,18 +64,48 @@ function modalArchivo(id, ruc) {
     const idTabla = document.getElementById('idTabla');
     idTabla.value = id;
 
+    const titleModalArchivo = document.getElementById('titleModalArchivo');
+    
+
     const ruc_empresa_save = document.getElementById('ruc_empresa_save');
     ruc_empresa_save.value = ruc;
+
+    fetch(base_url + "contribuyentes/getId/"+ id)
+    .then(res => res.json())
+    .then(data => {
+        titleModalArchivo.textContent = "SUBIR ARCHIVOS - "+data.razon_social;
+        
+    })
 }
 
-function descargarArchivos(ruc) {
+function descargarArchivos(id,ruc) {
     $("#modalDescargarArchivo").modal("show");
     const rucEmpresa = document.getElementById('rucEmpresa');
     rucEmpresa.value = ruc;
+
+    const titleModalDownload = document.getElementById('titleModalDownload');
+
+    fetch(base_url + "contribuyentes/getId/"+ id)
+    .then(res => res.json())
+    .then(data => {
+        titleModalDownload.textContent = "DESCARGAR ARCHIVOS - "+data.razon_social;
+        
+    })
 }
 
 function descargaMasiva(id) {
     $("#modalDescargarArchivoMasivo").modal("show");
+
+    const titleModalConsult = document.getElementById('titleModalConsult');
+    const empresa_ruc = document.getElementById('empresa_ruc');
+
+    fetch(base_url + "contribuyentes/getId/"+ id)
+    .then(res => res.json())
+    .then(data => {
+        titleModalConsult.textContent = "DESCARGAR PDT - "+data.razon_social;
+        empresa_ruc.value = data.ruc;
+        
+    })
 }
 
 formArchivo.addEventListener('submit', (e) => {
@@ -167,5 +197,45 @@ function viewArchivos(data) {
     const loadFiles = document.getElementById('loadFiles');
 
     loadFiles.innerHTML = html;
+}
+
+const formConsulta = document.getElementById('formConsulta');
+
+formConsulta.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(formConsulta);
+
+    fetch(base_url+"consulta-pdt-rango", {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        viewPdts(data.data);
+        
+    })
+})
+
+function viewPdts(data) {
+    const contentPdts = document.getElementById('contentPdts');
+
+    let html = "";
+
+    data.forEach(pdt => {
+        html += `
+        <tr>
+            <td>${pdt.mes_descripcion}</td>
+            <td>
+              <a href='${base_url}archivos/pdt/${pdt.nombre_pdt}' target='_blank'>PDT</a>
+            </td>
+            <td>
+            <a href='${base_url}archivos/pdt/${pdt.nombre_constancia}' target='_blank'>CONSTANCIA</a>
+            </td>
+        </tr>
+        `;
+    });
+
+    contentPdts.innerHTML = html;
 }
 

@@ -59,7 +59,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title h4" id="titleModalArchivo">Subir Archivos</h5>
+                <h5 class="modal-title h4" id="titleModalArchivo"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="formArchivo" method="POST" enctype="multipart/form-data">
@@ -107,10 +107,10 @@
 
 <div id="modalDescargarArchivo" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title h4" id="titleModalArchivo">Descargar Archivos</h5>
+                <h5 class="modal-title h4" id="titleModalDownload"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -163,12 +163,13 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title h4" id="titleModalArchivo">Consultar Pdt</h5>
+                <h5 class="modal-title h4" id="titleModalConsult"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formArchivo" method="POST">
-                <div class="modal-body">
-                    <input type="hidden" name="idTableTarifa" id="idTableTarifa" value="0">
+
+            <div class="modal-body">
+                <form id="formConsulta">
+                    <input type="hidden" name="empresa_ruc" id="empresa_ruc" value="0">
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <label class="form-label" for="anio">Año</label>
@@ -181,8 +182,8 @@
 
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label class="form-label" for="periodo">Desde</label>
-                            <select name="periodo" id="periodo" class="form-select" required>
+                            <label class="form-label" for="desde">Desde</label>
+                            <select name="desde" id="desde" class="form-select" required>
                                 <option value="">Seleccione</option>
                                 <?php foreach ($meses as $key => $value) { ?>
                                     <option value="<?= $value['id_mes'] ?>"><?= $value['mes_descripcion'] ?></option>
@@ -191,8 +192,8 @@
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <label class="form-label" for="anio">hasta</label>
-                            <select name="anio" id="anio" class="form-select" required>
+                            <label class="form-label" for="hasta">hasta</label>
+                            <select name="hasta" id="hasta" class="form-select" required>
                                 <option value="">Seleccione...</option>
                                 <?php foreach ($meses as $key => $value) { ?>
                                     <option value="<?= $value['id_mes'] ?>"><?= $value['mes_descripcion'] ?></option>
@@ -202,31 +203,47 @@
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <button type="button" class="btn btn-primary mt-4">Consultar</button>
+                            <button type="submit" class="btn btn-primary mt-4">Consultar</button>
                         </div>
 
                     </div>
+                </form>
 
-                    <hr>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" placeholder="Escribe el correo electrónico" aria-label="Recipient's username" aria-describedby="button-addon2">
-                                <button class="btn btn-outline-danger" type="button" id="button-addon2">Email</button>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" placeholder="Escribe el numero de whatsapp" aria-label="Recipient's username" aria-describedby="button-addon2">
-                                <button class="btn btn-outline-success" type="button" id="button-addon2">Whatsapp</button>
-                            </div>
-                        </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Periodo</th>
+                                    <th>Archivo pdt</th>
+                                    <th>Archivo Constancia</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contentPdts"></tbody>
+                        </table>
                     </div>
-
                 </div>
 
-            </form>
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Escribe el correo electrónico" aria-label="Recipient's username" aria-describedby="button-addon2">
+                            <button class="btn btn-outline-danger" type="button" id="button-addon2">Email</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Escribe el numero de whatsapp" aria-label="Recipient's username" aria-describedby="button-addon2">
+                            <button class="btn btn-outline-success" type="button" id="button-addon2">Whatsapp</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
         </div>
     </div>
 </div>

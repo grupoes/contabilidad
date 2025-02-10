@@ -22,6 +22,7 @@ $routes->get('migration-users', 'Auth::migrationUsers');
 $routes->get('home', 'Home::index');
 
 $routes->get('contribuyentes', 'Contribuyentes::index');
+$routes->get('contribuyentes/getId/(:num)', 'Contribuyentes::getIdContribuyente/$1');
 $routes->get('contribuyentes/render', 'Contribuyentes::renderContribuyentes');
 $routes->post('contribuyente/add', 'Contribuyentes::guardar');
 $routes->post('contribuyente/add-tarifa', 'Contribuyentes::guardarTarifa');
@@ -83,12 +84,12 @@ $routes->get('configuracion/elegir-contador/(:num)', 'Configuracion::elegirConta
 
 $routes->get('declaraciones/pdt-0621', 'Pdt0621::index');
 $routes->post('consulta-pdt-renta', 'Pdt0621::consulta');
+$routes->post('contribuyentes/file-save-pdt0621', 'Pdt0621::filesSave');
+$routes->post('consulta-pdt-rango', 'Pdt0621::consultaPdt');
 
 $routes->get('declaraciones/pdt-plame', 'PdtPlame::index');
 $routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
 $routes->get('declaraciones/boleta-de-pago', 'BoletaPago::index');
-
-$routes->post('contribuyentes/file-save-pdt0621', 'Pdt0621::filesSave');
 
 $routes->get('bancos', 'Bancos::index');
 $routes->get('bancos/all', 'Bancos::show');

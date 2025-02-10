@@ -132,4 +132,31 @@ class Pdt0621 extends BaseController
         return $this->response->setJSON($consulta);
     }
 
+    public function consultaPdt()
+    {
+        $pdtRenta = new PdtRentaModel();
+
+        $anio = $this->request->getVar('anio');
+        $desde = $this->request->getVar('desde');
+        $hasta = $this->request->getVar('hasta');
+        $ruc = $this->request->getVar('empresa_ruc');
+
+        if($desde > $hasta) {
+
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "La fecha de Inicio (desde) no puede ser mayor a la fecha final (hasta)"
+            ]);
+        }
+
+        $data = $pdtRenta->query("SELECT * from pdt_renta inner join mes ON mes.id_mes = pdt_renta.periodo inner join archivos_pdt0621 ON pdt_renta.id_pdt_renta = archivos_pdt0621.id_pdt_renta where pdt_renta.ruc_empresa = '$ruc' and pdt_renta.anio = $anio and archivos_pdt0621.estado = 1 and pdt_renta.periodo BETWEEN '$desde' and '$hasta'")->getResult();
+
+        return $this->response->setJSON([
+            "status" => "success",
+            "message" => "Consulta correctamente",
+            "data" => $data
+        ]);
+
+    }
+
 }

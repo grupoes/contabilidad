@@ -42,6 +42,15 @@ class Contribuyentes extends BaseController
         return view('contribuyente/lista', compact('sistemas', 'consulta_certificado_por_vencer'));
     }
 
+    public function getIdContribuyente($id)
+    {
+        $cont = new ContribuyenteModel();
+
+        $data = $cont->select('id, ruc, razon_social')->find($id);
+
+        return $this->response->setJSON($data);
+    }
+
     public function allCobros()
     {
         if (!session()->logged_in) {
