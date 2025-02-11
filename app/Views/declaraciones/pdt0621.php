@@ -229,13 +229,13 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Escribe el correo electrónico" aria-label="Recipient's username" aria-describedby="button-addon2">
+                            <input type="text" class="form-control" id="correo" placeholder="Escribe el correo electrónico" aria-label="Recipient's username" aria-describedby="button-addon2">
                             <button class="btn btn-outline-danger" type="button" id="button-addon2">Email</button>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Escribe el numero de whatsapp" aria-label="Recipient's username" aria-describedby="button-addon2">
+                            <input type="text" class="form-control" id="whatsapp" placeholder="Escribe el numero de whatsapp" aria-label="Recipient's username" aria-describedby="button-addon2">
                             <button class="btn btn-outline-success" type="button" id="button-addon2">Whatsapp</button>
                         </div>
                     </div>

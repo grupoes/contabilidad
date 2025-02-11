@@ -2,16 +2,16 @@
 
     use CodeIgniter\Model;
 
-    class ArchivosPdt0621Model extends Model
+    class PdtRentaModel extends Model
     {
-        protected $table      = 'archivos_pdt0621';
-        protected $primaryKey = 'id_archivos_pdt';
+        protected $table      = 'pdt_plame';
+        protected $primaryKey = 'id_pdt_plame';
 
         protected $useAutoIncrement = true;
 
         protected $returnType     = 'array';
 
-        protected $allowedFields = ['id_archivos_pdt','id_pdt_renta', 'nombre_pdt', 'nombre_constancia', 'estado', 'user_id', 'user_edit', 'user_delete'];
+        protected $allowedFields = ['id_pdt_plame','ruc_empresa', 'periodo', 'anio', 'user_id', 'user_edit', 'user_delete', 'estado'];
 
         protected $useTimestamps = true;
         protected $createdField  = 'created_at';

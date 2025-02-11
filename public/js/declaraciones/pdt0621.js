@@ -17,6 +17,13 @@ const tableBody = document.getElementById('tableBody');
 
 const formArchivo = document.getElementById('formArchivo');
 
+const periodo_file = document.getElementById('periodo_file');
+const anio_file = document.getElementById('anio_file');
+const loadFiles = document.getElementById('loadFiles');
+
+const formConsulta = document.getElementById('formConsulta');
+const contentPdts = document.getElementById('contentPdts');
+
 renderContribuyentes();
 
 function renderContribuyentes() {
@@ -65,7 +72,8 @@ function modalArchivo(id, ruc) {
     idTabla.value = id;
 
     const titleModalArchivo = document.getElementById('titleModalArchivo');
-    
+
+    formArchivo.reset();
 
     const ruc_empresa_save = document.getElementById('ruc_empresa_save');
     ruc_empresa_save.value = ruc;
@@ -83,6 +91,11 @@ function descargarArchivos(id,ruc) {
     const rucEmpresa = document.getElementById('rucEmpresa');
     rucEmpresa.value = ruc;
 
+    periodo_file.value = "";
+    anio_file.value = "";
+
+    loadFiles.innerHTML = "";
+
     const titleModalDownload = document.getElementById('titleModalDownload');
 
     fetch(base_url + "contribuyentes/getId/"+ id)
@@ -95,6 +108,15 @@ function descargarArchivos(id,ruc) {
 
 function descargaMasiva(id) {
     $("#modalDescargarArchivoMasivo").modal("show");
+
+    formConsulta.reset();
+    contentPdts.innerHTML = "";
+
+    const correo = document.getElementById('correo');
+    const whatsapp = document.getElementById('whatsapp');
+
+    correo.value = "";
+    whatsapp.value = "";
 
     const titleModalConsult = document.getElementById('titleModalConsult');
     const empresa_ruc = document.getElementById('empresa_ruc');
@@ -131,12 +153,22 @@ formArchivo.addEventListener('submit', (e) => {
             return false;
         }
 
-        swalWithBootstrapButtons.fire('Error!', data.message, 'error');
+        $('#modalArchivo').modal('hide');
+
+        swalWithBootstrapButtons.fire({
+            title: 'Error!',
+            text: data.message,
+            icon: 'error'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                console.log("El usuario hizo clic en OK");
+                $('#modalArchivo').modal('show');
+                // Aquí puedes realizar cualquier acción adicional
+            }
+        });
+        
     })
 })
-
-const periodo_file = document.getElementById('periodo_file');
-const anio_file = document.getElementById('anio_file');
 
 const rucEmpresa = document.getElementById('rucEmpresa');
 
@@ -194,12 +226,8 @@ function viewArchivos(data) {
         `;
     });
 
-    const loadFiles = document.getElementById('loadFiles');
-
     loadFiles.innerHTML = html;
 }
-
-const formConsulta = document.getElementById('formConsulta');
 
 formConsulta.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -218,7 +246,6 @@ formConsulta.addEventListener('submit', (e) => {
 })
 
 function viewPdts(data) {
-    const contentPdts = document.getElementById('contentPdts');
 
     let html = "";
 

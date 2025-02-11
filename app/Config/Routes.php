@@ -88,6 +88,8 @@ $routes->post('contribuyentes/file-save-pdt0621', 'Pdt0621::filesSave');
 $routes->post('consulta-pdt-rango', 'Pdt0621::consultaPdt');
 
 $routes->get('declaraciones/pdt-plame', 'PdtPlame::index');
+$routes->post('contribuyentes/file-save-pdtplame', 'PdtPlame::filesSave');
+
 $routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
 $routes->get('declaraciones/boleta-de-pago', 'BoletaPago::index');
 

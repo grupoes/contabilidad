@@ -17,11 +17,6 @@
         protected $createdField  = 'created_at';
         protected $updatedField  = 'updated_at';
 
-        public function getAllProfiles()
-        {
-            return $this->where('id !=', 1)->findAll();
-        }
-
     }
 
 ?>

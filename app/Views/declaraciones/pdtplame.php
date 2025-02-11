@@ -64,7 +64,8 @@
             </div>
             <form id="formArchivo" method="POST" enctype="multipart/form-data">
                 <div class="modal-body">
-                    <input type="hidden" name="idTableTarifa" id="idTableTarifa" value="0">
+                    <input type="hidden" name="idTabla" id="idTabla" value="0">
+                    <input type="hidden" name="ruc_empresa" id="ruc_empresa_save" value="0">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="periodo">Periodo</label>
@@ -86,20 +87,20 @@
 
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="file_pdt">Subir R01 (excel o pdf)</label>
-                            <input type="file" class="form-control" name="file_pdt" id="file_pdt" required>
+                            <label class="form-label" for="file_r01">Subir R01 (excel o pdf)</label>
+                            <input type="file" class="form-control" name="file_r01" id="file_r01" accept=".xlsx, .xls, .pdf" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="file_pdt">Subir R12 (excel o pdf)</label>
-                            <input type="file" class="form-control" name="file_pdt" id="file_pdt" required>
+                            <label class="form-label" for="file_r12">Subir R12 (excel o pdf)</label>
+                            <input type="file" class="form-control" name="file_r12" id="file_r12" accept=".xlsx, .xls, .pdf" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="file_pdt">Subir Constancia (word o pdf)</label>
-                            <input type="file" class="form-control" name="file_pdt" id="file_pdt" required>
+                            <label class="form-label" for="file_constancia">Subir Constancia (word o pdf)</label>
+                            <input type="file" class="form-control" accept="doc,.docx, .pdf" name="file_constancia" id="file_constancia" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="file_pdt">Subir R08</label>
-                            <input type="file" class="form-control" name="file_pdt" id="file_pdt" required>
+                            <label class="form-label" for="file_r08">Subir R08 (txt, pdf)</label>
+                            <input type="file" class="form-control" accept="txt,.pdf" name="file_r08[]" id="file_r08" multiple required>
                         </div>
                     </div>
                 </div>
