@@ -4,6 +4,9 @@ namespace App\Controllers;
 
 use App\Models\AnioModel;
 use App\Models\MesModel;
+use App\Models\PdtPlameModel;
+use App\Models\ArchivosPdtPlameModel;
+use App\Models\R08PlameModel;
 
 class PdtPlame extends BaseController
 {
@@ -25,10 +28,11 @@ class PdtPlame extends BaseController
 
     public function filesSave()
     {
-        $pdtRenta = new PdtRentaModel();
-        $mes = new MesModel();
-        $anio_ = new AnioModel();
-        $files = new ArchivosPdt0621Model();
+        $pdtPlame = new PdtPlameModel();
+        $files = new ArchivosPdtPlameModel();
+        $r08 = new R08PlameModel();
+
+        $pdtPlame->db->transStart();
 
         try {
             if (!$this->request->is('post')) {
@@ -37,50 +41,55 @@ class PdtPlame extends BaseController
 
             $data = $this->request->getPost();
 
-            $file_renta = $this->request->getFile('file_renta');
+            $file_r01 = $this->request->getFile('file_r01');
+            $file_r12 = $this->request->getFile('file_r12');
             $file_constancia = $this->request->getFile('file_constancia');
 
-            if (!$file_renta) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de renta']);
+            if (!$file_r01) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo r01']);
+            }
+
+            if (!$file_r12) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo r12']);
             }
 
             if (!$file_constancia) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de constancia']);
             }
 
-            if (!$file_renta->isValid() || !$file_constancia->isValid()) {
+            if (!$file_r01->isValid() || !$file_r12->isValid() || !$file_constancia->isValid()) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
             }
 
-            if ($file_renta->getClientMimeType() !== 'application/pdf' || $file_constancia->getClientMimeType() !== 'application/pdf') {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos PDF']);
+            if ($file_r01->getClientMimeType() !== 'application/pdf' && $file_r01->getClientMimeType() !== 'application/vnd.ms-excel' && $file_r01->getClientMimeType() !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos PDF o Excel en R01']);
+            }
+
+            if ($file_r12->getClientMimeType() !== 'application/pdf' && $file_r12->getClientMimeType() !== 'application/vnd.ms-excel' && $file_r12->getClientMimeType() !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos PDF o Excel en R12']);
+            }
+
+            if ($file_constancia->getClientMimeType() !== 'application/pdf' && $file_constancia->getClientMimeType() !== 'application/msword' && $file_constancia->getClientMimeType() !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos PDF o Excel en Constancia']);
             }
 
             $ruc = $data['ruc_empresa'];
             $periodo = $data['periodo'];
             $anio = $data['anio'];
 
-            $consultaRenta = $pdtRenta->where('ruc_empresa', $ruc)->where('periodo', $periodo)->where('anio', $anio)->first();
+            $consultaPlame = $pdtPlame->where('ruc_empresa', $ruc)->where('periodo', $periodo)->where('anio', $anio)->first();
 
-            if($consultaRenta) {
+            if($consultaPlame) {
                 return $this->response->setJSON(['error' => 'success', 'message' => "El periodo y año ya existe."]);
             }
 
-            $data_periodo = $mes->find($periodo);
+            $name_r01 = $file_r01->getName();
+            $name_r12 = $file_r12->getName();
+            $name_constancia = $file_constancia->getName();
 
-            $data_anio = $anio_->find($anio);
-
-            $per = strtoupper($data_periodo['mes_descripcion']);
-            $ani = $data_anio['anio_descripcion'];
-
-            $ext_renta = $file_renta->getExtension();
-            $ext_constancia = $file_constancia->getExtension();
-
-            $archivo_pdt = "PDT0621_".$ruc."_".$per.$ani.".".$ext_renta;
-            $archivo_constancia = "CONST_".$ruc."_".$per.$ani.".".$ext_constancia;
-
-            $file_renta->move(FCPATH . 'archivos/pdt', $archivo_pdt);
-            $file_constancia->move(FCPATH . 'archivos/pdt', $archivo_constancia);
+            $file_r01->move(FCPATH . 'archivos/pdt', $name_r01);
+            $file_r12->move(FCPATH . 'archivos/pdt', $name_r12);
+            $file_constancia->move(FCPATH . 'archivos/pdt', $name_constancia);
 
             $datos_pdt = array(
                 "ruc_empresa" => $ruc,
@@ -90,25 +99,71 @@ class PdtPlame extends BaseController
                 "estado" => 1
             );
 
-            $pdtRenta->insert($datos_pdt);
+            $pdtPlame->insert($datos_pdt);
 
-            $pdtRentaId = $pdtRenta->insertID();
+            $pdtPlameId = $pdtPlame->insertID();
 
             $datos_files = array(
-                "id_pdt_renta" => $pdtRentaId,
-                "nombre_pdt" => $archivo_pdt,
-                "nombre_constancia" => $archivo_constancia,
+                "id_pdtplame" => $pdtPlameId,
+                "archivo_planilla" => $name_r01,
+                "archivo_honorarios" => $name_r12,
+                "archivo_constancia" => $name_constancia,
                 "estado" => 1,
                 "user_id" => session()->id
             );
 
             $files->insert($datos_files);
 
-            return $this->response->setJSON(['status' => 'success', 'message' => "Se registro correctamente"]);
+            $file_r08 = $this->request->getFileMultiple('file_r08');
+
+            for ($i=0; $i < count($file_r08); $i++) { 
+                $name = $file_r08[$i]->getName();
+
+                $file_r08[$i]->move(FCPATH . 'archivos/pdt', $name);
+
+                $data_r08 = array(
+                    "plameId" => $pdtPlameId,
+                    "nameFile" => $name,
+                    "status" => 1,
+                    "user_id" => session()->id
+                );
+
+                $r08->insert($data_r08);
+            }
+
+            $pdtPlame->db->transComplete();
+
+            if ($pdtPlame->db->transStatus() === false) {
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            return $this->response->setJSON(['status' => 'success', 'message' => "Se guardo correctamente"]);
 
         } catch (\Exception $e) {
+            log_message('error', 'Error en la transacción: ' . $e->getMessage());
+            $pdtPlame->db->transRollback();
+
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
+    }
+
+    public function consulta()
+    {
+        $pdtPlame = new PdtPlameModel();
+
+        $periodo = $this->request->getVar('periodo');
+        $anio = $this->request->getVar('anio');
+        $ruc = $this->request->getVar('ruc');
+
+        $consulta = $pdtPlame->query("SELECT
+        pdt_plame.periodo,pdt_plame.anio,archivos_pdtplame.id_archivos_pdtplame,archivos_pdtplame.archivo_planilla,archivos_pdtplame.archivo_honorarios,archivos_pdtplame.archivo_constancia,archivos_pdtplame.estado,archivos_pdtplame.id_pdtplame,anio.anio_descripcion,mes.mes_descripcion
+        FROM pdt_plame
+        INNER JOIN archivos_pdtplame ON archivos_pdtplame.id_pdtplame = pdt_plame.id_pdt_plame
+        INNER JOIN anio ON pdt_plame.anio = anio.id_anio
+        INNER JOIN mes ON mes.id_mes = pdt_plame.periodo
+        WHERE pdt_plame.ruc_empresa = $ruc AND pdt_plame.anio = $anio AND pdt_plame.periodo = $periodo AND archivos_pdtplame.estado = 1")->getResult();
+
+        return $this->response->setJSON($consulta);
     }
 
 }

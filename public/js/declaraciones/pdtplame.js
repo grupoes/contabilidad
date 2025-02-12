@@ -4,9 +4,23 @@ const newcs = $($table).DataTable(
 
 new $.fn.dataTable.Responsive(newcs);
 
+const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+      confirmButton: 'btn btn-success',
+      cancelButton: 'btn btn-danger'
+    },
+    showConfirmButton: true,
+    buttonsStyling: false
+});
+
 const tableBody = document.getElementById('tableBody');
 
 const formArchivo = document.getElementById('formArchivo');
+const ruc_emp = document.getElementById('ruc_emp');
+const loadFiles = document.getElementById('contentPdt');
+
+const anioDescarga = document.getElementById('anioDescarga');
+const periodoDescarga = document.getElementById('periodoDescarga');
 
 renderContribuyentes();
 
@@ -31,7 +45,7 @@ function vistaContribuyentes(data) {
             <td class="text-center">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <button type="button" class="btn btn-success" title="Subir archivos" onclick="modalArchivo(${cont.id})"> <i class="ti ti-file-upload"></i> </button> 
-                    <button type="button" class="btn btn-info" title="Descargar archivos" onclick="descargarArchivos(${cont.id})"> <i class="ti ti-file-download"></i> </button>
+                    <button type="button" class="btn btn-info" title="Descargar archivos" onclick="descargarArchivos(${cont.ruc}, ${cont.id})"> <i class="ti ti-file-download"></i> </button>
                 </div>
             </td>
         </tr>
@@ -69,8 +83,22 @@ function modalArchivo(id) {
     })
 }
 
-function descargarArchivos(id) {
+function descargarArchivos(ruc, id) {
     $("#modalDescargarArchivo").modal("show");
+    ruc_emp.value = ruc;
+
+    anioDescarga.value = "";
+    periodoDescarga.value = "";
+
+    loadFiles.innerHTML = "";
+
+    const titleModalDescargar = document.getElementById('titleModalDescargar');
+
+    fetch(base_url + "contribuyentes/getId/"+ id)
+    .then(res => res.json())
+    .then(data => {
+        titleModalDescargar.textContent = "Descargar Archivos - "+data.razon_social;
+    })
 }
 
 formArchivo.addEventListener('submit', (e) => {
@@ -112,3 +140,58 @@ formArchivo.addEventListener('submit', (e) => {
         
     })
 })
+
+periodoDescarga.addEventListener('change', (e) => {
+    const valor = e.target.value;
+    
+    if(valor != "") {
+        renderArchivos(valor, anioDescarga.value, ruc_emp.value)
+    }
+})
+
+anioDescarga.addEventListener('change', (e) => {
+    const valor = e.target.value;
+    
+    if(valor != "") {
+        renderArchivos(periodoDescarga.value, valor, ruc_emp.value)
+    }
+})
+
+function renderArchivos(periodo, anio, ruc) {
+    const formData = new FormData();
+    formData.append('periodo', periodo);
+    formData.append('anio', anio);
+    formData.append('ruc', ruc);
+
+    fetch(base_url+"consulta-pdt-plame", {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        
+        viewArchivos(data);
+        
+    })
+}
+
+function viewArchivos(data) {
+    let html = "";
+
+    data.forEach(archivo => {
+        html += `
+        <tr>
+            <td>${archivo.mes_descripcion}</td>
+            <td>${archivo.anio_descripcion}</td>
+            <td><a href='${base_url}archivos/pdt/${archivo.archivo_planilla}' class='btn btn-success btn-sm' target='_blank' title='Descargar Renta'>R01</a> <a href='${base_url}archivos/pdt/${archivo.archivo_honorarios}' target='_blank' class='btn btn-info btn-sm' title='Descargar constancia'>R12</a>
+                <a href='${base_url}archivos/pdt/${archivo.archivo_constancia}' target='_blank' class='btn btn-warning btn-sm' title='Descargar constancia'>CONST</a>
+                <a href='${base_url}archivos/pdt/${archivo.archivo_constancia}' target='_blank' class='btn btn-primary btn-sm' title='Descargar txt'>TXT</a>
+            </td>
+            <td> <button type='button' class='btn btn-danger' title='Rectificar Archivos' onclick='rectificar(${archivo.id_pdtplame},${archivo.id_archivos_pdtplame},${archivo.periodo},${archivo.anio})'>RECT</button>
+                <button type='button' class='btn btn-warning' title='Detalle' onclick='details_archivos(${archivo.id_pdtplame})'>DET</button></td>
+        </tr>
+        `;
+    });
+
+    loadFiles.innerHTML = html;
+}

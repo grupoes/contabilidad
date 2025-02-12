@@ -2,7 +2,7 @@
 
     use CodeIgniter\Model;
 
-    class PdtRentaModel extends Model
+    class PdtPlameModel extends Model
     {
         protected $table      = 'pdt_plame';
         protected $primaryKey = 'id_pdt_plame';

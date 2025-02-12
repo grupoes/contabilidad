@@ -128,3 +128,5 @@ nb-configuration.xml
 
 /public/vouchers/*
 !/public/vouchers/.gitkeep
+
+/public/archivos/*
