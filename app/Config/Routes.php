@@ -92,6 +92,9 @@ $routes->post('contribuyentes/file-save-pdtplame', 'PdtPlame::filesSave');
 $routes->post('consulta-pdt-plame', 'PdtPlame::consulta');
 
 $routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
+$routes->get('pdtAnual/verificar/(:num)', 'PdtAnual::verificar/$1');
+$routes->post('pdtAnual-consulta', 'PdtAnual::consulta');
+
 $routes->get('declaraciones/boleta-de-pago', 'BoletaPago::index');
 
 $routes->get('bancos', 'Bancos::index');
