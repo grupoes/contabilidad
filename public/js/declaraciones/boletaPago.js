@@ -20,6 +20,7 @@ const rucEmp = document.getElementById('rucEmp');
 
 const periodoDes = document.getElementById('periodoDes');
 const anioDes = document.getElementById('anioDes');
+const linkDescarga = document.getElementById('linkDescarga');
 
 renderContribuyentes();
 
@@ -81,6 +82,10 @@ function modalArchivo(id) {
 
 function descargarArchivos(id) {
     $("#modalDescargarArchivo").modal("show");
+
+    periodoDes.value = "";
+    anioDes.value = "";
+    linkDescarga.innerHTML = "";
 
     fetch(base_url + "contribuyentes/getId/"+ id)
     .then(res => res.json())
@@ -145,8 +150,6 @@ anioDes.addEventListener('change', (e) => {
         loadFiles(rucNum.value, periodoDes.value, valor)
     }
 })
-
-const linkDescarga = document.getElementById('linkDescarga');
 
 function loadFiles(ruc, periodo, anio) {
     const formData = new FormData();
