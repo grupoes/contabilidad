@@ -97,6 +97,7 @@ $routes->post('pdtAnual-consulta', 'PdtAnual::consulta');
 
 $routes->get('declaraciones/boleta-de-pago', 'BoletaPago::index');
 $routes->post('boleta-pago-save', 'BoletaPago::save');
+$routes->post('boletas-pago-load', 'BoletaPago::consulta');
 
 $routes->get('bancos', 'Bancos::index');
 $routes->get('bancos/all', 'Bancos::show');

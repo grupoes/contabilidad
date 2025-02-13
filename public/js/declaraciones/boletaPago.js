@@ -18,6 +18,9 @@ const titleModalArchivo = document.getElementById('titleModalArchivo');
 const formArchivo = document.getElementById('formArchivo');
 const rucEmp = document.getElementById('rucEmp');
 
+const periodoDes = document.getElementById('periodoDes');
+const anioDes = document.getElementById('anioDes');
+
 renderContribuyentes();
 
 function renderContribuyentes() {
@@ -59,6 +62,9 @@ function vistaContribuyentes(data) {
     new $.fn.dataTable.Responsive(newcs);
 }
 
+const titleModalDescarga = document.getElementById('titleModalDescarga');
+const rucNum = document.getElementById('rucNum');
+
 function modalArchivo(id) {
     $('#modalArchivo').modal('show');
     //$('#idContribuyente').val(id);
@@ -75,6 +81,13 @@ function modalArchivo(id) {
 
 function descargarArchivos(id) {
     $("#modalDescargarArchivo").modal("show");
+
+    fetch(base_url + "contribuyentes/getId/"+ id)
+    .then(res => res.json())
+    .then(data => {
+        titleModalDescarga.textContent = "DESCARGAR ARCHIVO - "+data.razon_social;
+        rucNum.value = data.ruc;
+    })
 }
 
 formArchivo.addEventListener('submit', (e) => {
@@ -116,3 +129,43 @@ formArchivo.addEventListener('submit', (e) => {
         
     })
 })
+
+periodoDes.addEventListener('change', (e) => {
+    const valor = e.target.value;
+
+    if(valor != "") {
+        loadFiles(rucNum.value, valor, anioDes.value)
+    }
+})
+
+anioDes.addEventListener('change', (e) => {
+    const valor = e.target.value;
+
+    if(valor != "") {
+        loadFiles(rucNum.value, periodoDes.value, valor)
+    }
+})
+
+const linkDescarga = document.getElementById('linkDescarga');
+
+function loadFiles(ruc, periodo, anio) {
+    const formData = new FormData();
+
+    formData.append('ruc', ruc);
+    formData.append('periodo', periodo);
+    formData.append('anio', anio);
+
+    fetch(base_url+"boletas-pago-load", {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === 'success') {
+            linkDescarga.innerHTML = `<a href='${data.link}' download><h2 class='text-center'>Descargar archivos <i class='icon-folder-download2'></i></h2></a>`;
+        } else {
+            linkDescarga.innerHTML = `<h5>${data.message}</h5>`;
+        }
+        
+    })
+}

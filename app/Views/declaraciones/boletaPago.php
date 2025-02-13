@@ -105,39 +105,45 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title h4" id="titleModalArchivo">Descargar Archivos</h5>
+                <h5 class="modal-title h4" id="titleModalDescarga"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formArchivo" method="POST" enctype="multipart/form-data">
-                <div class="modal-body">
-                    <input type="hidden" name="idTableTarifa" id="idTableTarifa" value="0">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="periodo">Periodo</label>
-                            <select name="periodo" id="periodo" class="form-select" required>
-                                <option value="">Seleccione</option>
-                                <?php foreach ($meses as $key => $value) { ?>
-                                    <option value="<?= $value['id_mes'] ?>"><?= $value['mes_descripcion'] ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="anio">Año</label>
-                            <select name="anio" id="anio" class="form-select" required>
-                                <option value="">Seleccione...</option>
-                                <?php foreach ($anios as $key => $value) { ?>
-                                    <option value="<?= $value->id_anio ?>"><?= $value->anio_descripcion ?></option>
-                                <?php } ?>
-                            </select>
 
-                        </div>
+            <div class="modal-body">
+                <input type="hidden" name="rucNum" id="rucNum" value="0">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="periodoDes">Periodo</label>
+                        <select name="periodo" id="periodoDes" class="form-select" required>
+                            <option value="">Seleccione</option>
+                            <?php foreach ($meses as $key => $value) { ?>
+                                <option value="<?= $value['id_mes'] ?>"><?= $value['mes_descripcion'] ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="anioDes">Año</label>
+                        <select name="anioDes" id="anioDes" class="form-select" required>
+                            <option value="">Seleccione...</option>
+                            <?php foreach ($anios as $key => $value) { ?>
+                                <option value="<?= $value->id_anio ?>"><?= $value->anio_descripcion ?></option>
+                            <?php } ?>
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mx-auto text-center" id="linkDescarga">
                         
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
         </div>
     </div>
 </div>

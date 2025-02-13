@@ -115,4 +115,71 @@ class BoletaPago extends BaseController
         
     }
 
+    public function consulta()
+    {
+        $anio_ = new AnioModel();
+        $mes_ = new MesModel();
+        $boleta = new BoletaPagoModel();
+
+        $ruc = $this->request->getVar("ruc");
+        $periodo = $this->request->getVar('periodo');
+        $anio = $this->request->getVar('anio');
+
+        $zip = new \ZipArchive();
+
+        $data_anio = $anio_->find($anio);
+        $data_periodo = $mes_->find($periodo);
+
+        if (!$data_anio || !$data_periodo) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Datos de año o periodo no encontrados."
+            ]);
+        }
+
+        $mes = $data_periodo['mes_fecha'];
+        $ani = $data_anio['anio_descripcion'];
+
+        $archivo = $ruc . "_" . $mes . $ani . ".zip";
+        $zipFileName = FCPATH . 'archivos/boletas_pago/' . $archivo;
+
+        $consulta_archivos = $boleta->query("
+            SELECT archivos_boleta.archivo 
+            FROM boleta_pago
+            INNER JOIN archivos_boleta ON archivos_boleta.id_boleta = boleta_pago.id_boleta
+            WHERE boleta_pago.periodo = ? AND boleta_pago.anio = ? AND boleta_pago.ruc_empresa = ?
+        ", [$periodo, $anio, $ruc])->getResult();
+
+        if (!$consulta_archivos) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "No hay archivos para el periodo y año seleccionados."
+            ]);
+        }
+
+        if ($zip->open($zipFileName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
+            foreach ($consulta_archivos as $value) {
+                $filePath = FCPATH . "archivos/boletas_pago/" . $ruc . "/" . $mes . $ani . "/" . $value->archivo;
+
+                if (file_exists($filePath)) {
+                    $zip->addFile($filePath, basename($filePath));
+                } else {
+                    log_message('error', "Archivo no encontrado: " . $filePath);
+                }
+            }
+
+            $zip->close();
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "link" => base_url('archivos/boletas_pago/' . $archivo)
+            ]);
+        } else {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "No se pudo crear el archivo ZIP"
+            ]);
+        }
+    }
+
 }
