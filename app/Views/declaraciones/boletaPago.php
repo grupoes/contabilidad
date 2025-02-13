@@ -64,7 +64,7 @@
             </div>
             <form id="formArchivo" method="POST" enctype="multipart/form-data">
                 <div class="modal-body">
-                    <input type="hidden" name="idTableTarifa" id="idTableTarifa" value="0">
+                    <input type="hidden" name="rucEmp" id="rucEmp" value="0">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="periodo">Periodo</label>
@@ -87,7 +87,7 @@
                         </div>
                         <div class="col-md-12 mb-3">
                             <label class="form-label" for="file_pdt">Subir PDT</label>
-                            <input type="file" class="form-control" name="file_pdt" id="file_pdt" required>
+                            <input type="file" class="form-control" name="file_pdt[]" id="file_pdt" multiple required>
                         </div>
                     </div>
                 </div>
