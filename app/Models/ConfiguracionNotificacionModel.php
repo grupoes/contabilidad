@@ -11,7 +11,7 @@
 
         protected $returnType     = 'array';
 
-        protected $allowedFields = ['id_tributo','contribuyente_id',];
+        protected $allowedFields = ['id_tributo','ruc_empresa_numero',];
 
         protected $useTimestamps = false;
         protected $createdField  = 'created_at';

@@ -82,7 +82,7 @@ class Contribuyentes extends BaseController
         $confiNoti = new ConfiguracionNotificacionModel();
         $declaracionSunat = new DeclaracionSunatModel();
         $tributo = new TributoModel();
-        $uit = new UitModel();
+        $uit_ = new UitModel();
 
         $sql = "";
         $asig = "";
@@ -128,7 +128,7 @@ class Contribuyentes extends BaseController
         FROM contribuyentes c left join contribuyentes_usuario cu ON cu.contribuyente_id = c.id WHERE c.estado > 0 $sql $asig order by c.id desc")->getResult();
 
         foreach ($data as $key => $value) {
-            $confNot = $confiNoti->where('contribuyente_id', $value->id)->orderBy('id_tributo', 'asc')->findAll();
+            $confNot = $confiNoti->where('ruc_empresa_numero', $value->ruc)->orderBy('id_tributo', 'asc')->findAll();
 
             $mes = date('m');
             $dia = date('d');
@@ -172,8 +172,8 @@ class Contribuyentes extends BaseController
                         $value->tipo = "amazonia";
                         break;
                     case 4:
-                        $sum = $uit->first();
-                        $uit = $sum["uit_monto"];
+                        $sum = $uit_->findAll();
+                        $uit = $sum[0]["uit_monto"];
                         $uitotal = (float) $uit * 15;
                         $codigo = $tributo->find(13);
                         $primero = $codigo["porcentaje_renta"];
