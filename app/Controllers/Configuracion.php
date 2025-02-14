@@ -145,4 +145,46 @@ class Configuracion extends BaseController
         ]);
     }
 
+    public function sendMessage()
+    {
+        try {
+            $numero = $this->request->getVar('numero');
+
+            $numero = "51".$numero;
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => 'http://64.23.188.190:3002/send-message',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS =>'{
+                "number": '.$numero.',
+                "message": "Esto es un mensaje de whatsapp por el sistema",
+                "mediaUrl": ""
+            }',
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json'
+            ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+
+            return $this->response->setJSON($response);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Ocurrio un error ".$e->getMessage()
+            ]);
+        }
+        
+    }
+
 }

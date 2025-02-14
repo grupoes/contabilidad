@@ -24,6 +24,10 @@ const loadFiles = document.getElementById('loadFiles');
 const formConsulta = document.getElementById('formConsulta');
 const contentPdts = document.getElementById('contentPdts');
 
+function validarNumero(input) {
+    input.value = input.value.replace(/\D/g, '').slice(0, 9); 
+}
+
 renderContribuyentes();
 
 function renderContribuyentes() {
@@ -266,3 +270,48 @@ function viewPdts(data) {
     contentPdts.innerHTML = html;
 }
 
+function verificarInput() {
+    let input = document.getElementById("whatsapp");
+    if (input.value.length !== 9) {
+        alert("El número debe tener exactamente 9 dígitos.");
+        input.focus();
+    } else {
+
+        const formData = new FormData();
+        formData.append('numero', input.value);
+        
+        fetch(base_url+"send-message", {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success === true) {
+                $('#modalDescargarArchivoMasivo').modal('hide');
+                Swal.fire({
+                    position: 'top-center',
+                    icon: 'success',
+                    title: data.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+
+                return false;
+            }
+
+            $('#modalDescargarArchivoMasivo').modal('hide');
+
+            swalWithBootstrapButtons.fire({
+                title: 'Error!',
+                text: data.message,
+                icon: 'error'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#modalDescargarArchivoMasivo').modal('show');
+                    // Aquí puedes realizar cualquier acción adicional
+                }
+            });
+            
+        })
+    }
+}
