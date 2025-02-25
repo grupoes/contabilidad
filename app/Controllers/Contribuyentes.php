@@ -398,7 +398,7 @@ class Contribuyentes extends BaseController
                     }
                 }
 
-                $tarifaData = $tarifa->where('contribuyente_id', $idTabla)->orderBy('id', 'desc')->first();
+                $tarifaData = $tarifa->where('contribuyente_id', $idTabla)->orderBy('id', 'asc')->first();
 
                 $idTarifa = $tarifaData['id'];
 
