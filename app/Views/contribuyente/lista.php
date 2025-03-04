@@ -140,7 +140,7 @@
                             <label class="form-label" for="tipoSuscripcion">Tipo de Suscripción</label>
                             <select class="form-select" name="tipoSuscripcion" id="tipoSuscripcion" required>
                                 <option value="NO GRATUITO">NO GRATUITO</option>
-                                <option value="SI GRATUITO">GRATUITO</option>
+                                <option value="GRATUITO">GRATUITO</option>
                             </select>
                         </div>
                         <div class="col-md-4 mb-3">

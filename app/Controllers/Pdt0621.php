@@ -12,8 +12,8 @@ class Pdt0621 extends BaseController
     public function index()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
         $anio = new AnioModel();
         $mes = new MesModel();
@@ -64,7 +64,7 @@ class Pdt0621 extends BaseController
 
             $consultaRenta = $pdtRenta->where('ruc_empresa', $ruc)->where('periodo', $periodo)->where('anio', $anio)->first();
 
-            if($consultaRenta) {
+            if ($consultaRenta) {
                 return $this->response->setJSON(['error' => 'success', 'message' => "El periodo y año ya existe."]);
             }
 
@@ -78,8 +78,8 @@ class Pdt0621 extends BaseController
             $ext_renta = $file_renta->getExtension();
             $ext_constancia = $file_constancia->getExtension();
 
-            $archivo_pdt = "PDT0621_".$ruc."_".$per.$ani.".".$ext_renta;
-            $archivo_constancia = "CONST_".$ruc."_".$per.$ani.".".$ext_constancia;
+            $archivo_pdt = "PDT0621_" . $ruc . "_" . $per . $ani . "." . $ext_renta;
+            $archivo_constancia = "CONST_" . $ruc . "_" . $per . $ani . "." . $ext_constancia;
 
             $file_renta->move(FCPATH . 'archivos/pdt', $archivo_pdt);
             $file_constancia->move(FCPATH . 'archivos/pdt', $archivo_constancia);
@@ -107,7 +107,6 @@ class Pdt0621 extends BaseController
             $files->insert($datos_files);
 
             return $this->response->setJSON(['status' => 'success', 'message' => "Se registro correctamente"]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
@@ -136,12 +135,12 @@ class Pdt0621 extends BaseController
     {
         $pdtRenta = new PdtRentaModel();
 
-        $anio = $this->request->getVar('anio');
+        $anio = $this->request->getVar('anio_consulta');
         $desde = $this->request->getVar('desde');
         $hasta = $this->request->getVar('hasta');
         $ruc = $this->request->getVar('empresa_ruc');
 
-        if($desde > $hasta) {
+        if ($desde > $hasta) {
 
             return $this->response->setJSON([
                 "status" => "error",
@@ -156,7 +155,5 @@ class Pdt0621 extends BaseController
             "message" => "Consulta correctamente",
             "data" => $data
         ]);
-
     }
-
 }

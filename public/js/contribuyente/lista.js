@@ -175,7 +175,7 @@ tipoSuscripcion.addEventListener('change', (e) => {
     const tipo = e.target.value;
     const costos = document.getElementsByClassName('costos');
 
-    if (tipo === 'SI GRATUITO') {
+    if (tipo === 'GRATUITO') {
         [...costos].forEach(costo => costo.setAttribute('hidden', true))
     } else {
         [...costos].forEach(costo => costo.removeAttribute('hidden'));
@@ -374,6 +374,14 @@ tableBody.addEventListener('click', (e) => {
         .then(res => res.json())
         .then(data => {
             const empresa = data.data;
+
+            const costos = document.getElementsByClassName('costos');
+
+            if(empresa.tipoSuscripcion === 'GRATUITO') {
+                [...costos].forEach(costo => costo.setAttribute('hidden', true))
+            } else {
+                [...costos].forEach(costo => costo.removeAttribute('hidden'));
+            }
 
             numeroDocumento.value = empresa.ruc;
             razonSocial.value = empresa.razon_social;

@@ -135,7 +135,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-4 mx-auto text-center" id="linkDescarga">
+                    <div class="col-md-8 mx-auto text-center" id="linkDescarga">
                         
                     </div>
                 </div>

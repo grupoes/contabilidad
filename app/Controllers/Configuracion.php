@@ -7,13 +7,15 @@ use App\Models\UitModel;
 use App\Models\TributoModel;
 use App\Models\ContadorModel;
 
+use App\Models\PdtRentaModel;
+
 class Configuracion extends BaseController
 {
     public function cajaVirtual()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
         $sede = new SedeModel();
 
@@ -45,7 +47,6 @@ class Configuracion extends BaseController
                 "status" => "success",
                 "message" => "Se configuro correctamemte"
             ]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 "status" => "error",
@@ -56,14 +57,14 @@ class Configuracion extends BaseController
 
     public function Uit()
     {
-        if (!session()->logged_in) {            
+        if (!session()->logged_in) {
             return redirect()->to(base_url());
         }
 
         $uit = new UitModel();
 
         $monto_uit = $uit->first();
-        
+
         return view('configuracion/uit', compact('monto_uit'));
     }
 
@@ -96,23 +97,23 @@ class Configuracion extends BaseController
 
     public function renta()
     {
-        if (!session()->logged_in) {            
+        if (!session()->logged_in) {
             return redirect()->to(base_url());
         }
 
         $tributo = new TributoModel();
 
         $rentas = $tributo->where('tri_codigo', 3081)->findAll();
-        
+
         return view('configuracion/renta', compact('rentas'));
     }
 
     public function contadores()
     {
-        if (!session()->logged_in) {            
+        if (!session()->logged_in) {
             return redirect()->to(base_url());
         }
-        
+
         return view('configuracion/contadores');
     }
 
@@ -134,8 +135,8 @@ class Configuracion extends BaseController
         );
 
         $contador->set($data)
-         ->where('estado !=', 0)
-         ->update();
+            ->where('estado !=', 0)
+            ->update();
 
         $contador->update($id, ["estado" => 2]);
 
@@ -149,28 +150,41 @@ class Configuracion extends BaseController
     {
         try {
             $numero = $this->request->getVar('numero');
+            $anio = $this->request->getVar('anio');
+            $desde = $this->request->getVar('desde');
+            $hasta = $this->request->getVar('hasta');
+            $ruc = $this->request->getVar('empresa_ruc');
 
-            $numero = "51".$numero;
+            $pdtRenta = new PdtRentaModel();
+
+            $consulta = $pdtRenta->query("SELECT * from pdt_renta inner join mes ON mes.id_mes = pdt_renta.periodo inner join archivos_pdt0621 ON pdt_renta.id_pdt_renta = archivos_pdt0621.id_pdt_renta where pdt_renta.ruc_empresa = '$ruc' and pdt_renta.anio = $anio and archivos_pdt0621.estado = 1 and pdt_renta.periodo BETWEEN '$desde' and '$hasta'")->getResult();
+
+            $links = [];
+
+            foreach ($consulta as $key => $value) {
+                array_push($links, base_url() . 'archivos/pdt/' . $value->nombre_pdt);
+                array_push($links, base_url() . 'archivos/pdt/' . $value->nombre_constancia);
+            }
+
+            $data = json_encode(["links" => $links]);
+
+            $url_api = "https://esconsultoresyasesores.com:4000/sendFilesGoogleCloudStorage";
 
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
-            CURLOPT_URL => 'http://64.23.188.190:3002/send-message',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS =>'{
-                "number": '.$numero.',
-                "message": "Esto es un mensaje de whatsapp por el sistema",
-                "mediaUrl": ""
-            }',
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json'
-            ),
+                CURLOPT_URL => $url_api,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => $data,
+                CURLOPT_HTTPHEADER => array(
+                    'Content-Type: application/json'
+                ),
             ));
 
             $response = curl_exec($curl);
@@ -181,10 +195,8 @@ class Configuracion extends BaseController
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 "status" => "error",
-                "message" => "Ocurrio un error ".$e->getMessage()
+                "message" => "Ocurrio un error " . $e->getMessage()
             ]);
         }
-        
     }
-
 }

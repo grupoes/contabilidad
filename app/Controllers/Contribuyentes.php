@@ -259,6 +259,12 @@ class Contribuyentes extends BaseController
             $idTabla = $data['idTable'];
 
             $verificar = $model->where('ruc', $data['numeroDocumento'])->first();
+            
+            if($data['tipoSuscripcion'] === 'GRATUITO') {
+                $diacobro = 0;
+            } else {
+                $diacobro = $data['diaCobro'];
+            }
 
             $datos = [
                 'ruc' => $data['numeroDocumento'],
@@ -272,7 +278,7 @@ class Contribuyentes extends BaseController
                 'tipoPago' => $data['tipoPago'],
                 'costoMensual' => $data['costoMensual'],
                 'costoAnual' => $data['costoAnual'],
-                'diaCobro' => $data['diaCobro'],
+                'diaCobro' => $diacobro,
                 'fechaContrato' => $data['fechaContrato'],
                 'telefono' => "",
                 'correo' => "",

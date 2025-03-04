@@ -172,8 +172,8 @@
                     <input type="hidden" name="empresa_ruc" id="empresa_ruc" value="0">
                     <div class="row">
                         <div class="col-md-3 mb-3">
-                            <label class="form-label" for="anio">Año</label>
-                            <select name="anio" id="anio" class="form-select" required>
+                            <label class="form-label" for="anio_consulta">Año</label>
+                            <select name="anio_consulta" id="anio_consulta" class="form-select" required>
                                 <option value="">Seleccione...</option>
                                 <?php foreach ($anios as $key => $value) { ?>
                                     <option value="<?= $value->id_anio ?>"><?= $value->anio_descripcion ?></option>
@@ -224,9 +224,7 @@
                     </div>
                 </div>
 
-                <hr>
-
-                <div class="row">
+                <div class="row" id="envio_archivos" hidden>
                     <div class="col-md-6">
                         <div class="input-group mb-3">
                             <input type="text" class="form-control" id="correo" placeholder="Escribe el correo electrónico" aria-label="Recipient's username" aria-describedby="button-addon2">
