@@ -75,7 +75,7 @@ $routes->get('concepto/delete/(:num)', 'Concepto::deleteConcepto/$1');
 $routes->get('configuracion/caja-virtual', 'Configuracion::cajaVirtual');
 $routes->post('configuracion-caja-virtual/save', 'Configuracion::saveCajaVirtual');
 
-$routes->post('send-message', 'Configuracion::sendMessage');
+$routes->post('send-file-google-cloud-storage', 'Configuracion::sendFileGoogleCloudStorage');
 
 $routes->get('configuracion/uit', 'Configuracion::Uit');
 $routes->post('configuracion/save-uit', 'Configuracion::saveUit');
@@ -88,6 +88,7 @@ $routes->get('declaraciones/pdt-0621', 'Pdt0621::index');
 $routes->post('consulta-pdt-renta', 'Pdt0621::consulta');
 $routes->post('contribuyentes/file-save-pdt0621', 'Pdt0621::filesSave');
 $routes->post('consulta-pdt-rango', 'Pdt0621::consultaPdt');
+$routes->post('send-file-pdt621', 'Pdt0621::sendMessageFiles');
 
 $routes->get('declaraciones/pdt-plame', 'PdtPlame::index');
 $routes->post('contribuyentes/file-save-pdtplame', 'PdtPlame::filesSave');

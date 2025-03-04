@@ -6,6 +6,7 @@ use App\Models\SedeModel;
 use App\Models\UitModel;
 use App\Models\TributoModel;
 use App\Models\ContadorModel;
+use App\Models\AnioModel;
 
 use App\Models\PdtRentaModel;
 
@@ -146,24 +147,30 @@ class Configuracion extends BaseController
         ]);
     }
 
-    public function sendMessage()
+    public function sendFileGoogleCloudStorage()
     {
         try {
-            $numero = $this->request->getVar('numero');
             $anio = $this->request->getVar('anio');
             $desde = $this->request->getVar('desde');
             $hasta = $this->request->getVar('hasta');
             $ruc = $this->request->getVar('empresa_ruc');
 
             $pdtRenta = new PdtRentaModel();
+            $anioModel = new AnioModel();
 
             $consulta = $pdtRenta->query("SELECT * from pdt_renta inner join mes ON mes.id_mes = pdt_renta.periodo inner join archivos_pdt0621 ON pdt_renta.id_pdt_renta = archivos_pdt0621.id_pdt_renta where pdt_renta.ruc_empresa = '$ruc' and pdt_renta.anio = $anio and archivos_pdt0621.estado = 1 and pdt_renta.periodo BETWEEN '$desde' and '$hasta'")->getResult();
 
+            $dataAnio = $anioModel->where('id_anio', $anio)->first();
+
             $links = [];
+
+            $meses = [];
 
             foreach ($consulta as $key => $value) {
                 array_push($links, base_url() . 'archivos/pdt/' . $value->nombre_pdt);
                 array_push($links, base_url() . 'archivos/pdt/' . $value->nombre_constancia);
+
+                array_push($meses, $value->mes_descripcion);
             }
 
             $data = json_encode(["links" => $links]);
@@ -191,7 +198,13 @@ class Configuracion extends BaseController
 
             curl_close($curl);
 
-            return $this->response->setJSON($response);
+            $datos = array(
+                "meses" => $meses,
+                "links" => json_decode($response, true),
+                "anio" => $dataAnio['anio_descripcion']
+            );
+
+            return $this->response->setJSON($datos);
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 "status" => "error",

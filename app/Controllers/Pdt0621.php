@@ -156,4 +156,77 @@ class Pdt0621 extends BaseController
             "data" => $data
         ]);
     }
+
+    public function sendMessageFiles()
+    {
+        try {
+            $anio = $this->request->getVar('anio');
+            $numero = $this->request->getVar('numero');
+            $links = json_decode($this->request->getVar('links'), true);
+            $meses = json_decode($this->request->getVar('meses'), true);
+
+            $detalle = "";
+
+            $contPdt = 0;
+            $contConst = 1;
+
+            for ($i = 0; $i < count($meses); $i++) {
+
+                $pdt = $links[$contPdt]['url'];
+                $constancia = $links[$contConst]['url'];
+
+                $detalle .= "*" . $meses[$i] . " " . $anio . "*\n" .
+                    "pdt: " . $pdt . "\n" .
+                    "constancia: " . $constancia . "\n\n";
+
+                $contPdt = $contPdt + 2;
+                $contConst = $contConst + 2;
+            }
+
+            $mensaje = "Se adjunta los archivos PDT 0621 de los siguientes periodos del año " . $anio . "\n\n" .
+                $detalle;
+
+            $data = [
+                "number" => "51" . $numero,
+                "message" => $mensaje,
+                "mediaUrl" => ""
+            ];
+
+            // Convertir el array a JSON
+            $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+            // Verificar si el JSON es válido antes de enviarlo
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                die("Error en JSON: " . json_last_error_msg());
+            }
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "http://64.23.188.190:3002/send-message",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => $jsonData,
+                CURLOPT_HTTPHEADER => array(
+                    'Content-Type: application/json'
+                ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+
+            return $this->response->setJSON($response);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Ocurrio un error " . $e->getMessage()
+            ]);
+        }
+    }
 }

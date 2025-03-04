@@ -284,7 +284,7 @@ function viewPdts(data) {
   contentPdts.innerHTML = html;
 }
 
-function verificarInput() {
+function verificarInputs() {
   let input = document.getElementById("whatsapp");
   if (input.value.length !== 9) {
     alert("El número debe tener exactamente 9 dígitos.");
@@ -305,34 +305,78 @@ function verificarInput() {
       .then((data) => {
         console.log(data);
         return false;
-
-        if (data.success === true) {
-          $("#modalDescargarArchivoMasivo").modal("hide");
-          Swal.fire({
-            position: "top-center",
-            icon: "success",
-            title: data.message,
-            showConfirmButton: false,
-            timer: 1500,
-          });
-
-          return false;
-        }
-
-        $("#modalDescargarArchivoMasivo").modal("hide");
-
-        swalWithBootstrapButtons
-          .fire({
-            title: "Error!",
-            text: data.message,
-            icon: "error",
-          })
-          .then((result) => {
-            if (result.isConfirmed) {
-              $("#modalDescargarArchivoMasivo").modal("show");
-              // Aquí puedes realizar cualquier acción adicional
-            }
-          });
       });
   }
+}
+
+async function verificarInput() {
+  let input = document.getElementById("whatsapp");
+
+  if (input.value.length !== 9) {
+    alert("El número debe tener exactamente 9 dígitos.");
+    input.focus();
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("numero", input.value);
+  formData.append("anio", anio_consulta.value);
+  formData.append("desde", desde.value);
+  formData.append("hasta", hasta.value);
+  formData.append("empresa_ruc", empresa_ruc.value);
+
+  try {
+    const response = await fetch(base_url + "send-file-google-cloud-storage", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    const itemFormData = new FormData();
+    itemFormData.append("anio", data.anio);
+    itemFormData.append("links", JSON.stringify(data.links));
+    itemFormData.append("meses", JSON.stringify(data.meses));
+    itemFormData.append("numero", input.value);
+
+    const sendResponse = await fetch(base_url + "send-file-pdt621", {
+      method: "POST",
+      body: itemFormData,
+    });
+
+    const sendData = await sendResponse.json();
+    console.log("Respuesta del envío:", sendData);
+  } catch (error) {
+    console.error("Error al enviar la solicitud:", error);
+  }
+}
+
+function volver_despues() {
+  if (data.success === true) {
+    $("#modalDescargarArchivoMasivo").modal("hide");
+    Swal.fire({
+      position: "top-center",
+      icon: "success",
+      title: data.message,
+      showConfirmButton: false,
+      timer: 1500,
+    });
+
+    return false;
+  }
+
+  $("#modalDescargarArchivoMasivo").modal("hide");
+
+  swalWithBootstrapButtons
+    .fire({
+      title: "Error!",
+      text: data.message,
+      icon: "error",
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        $("#modalDescargarArchivoMasivo").modal("show");
+        // Aquí puedes realizar cualquier acción adicional
+      }
+    });
 }
