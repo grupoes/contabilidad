@@ -345,38 +345,35 @@ async function verificarInput() {
     });
 
     const sendData = await sendResponse.json();
-    console.log("Respuesta del envío:", sendData);
+
+    if (sendData.success === true) {
+      $("#modalDescargarArchivoMasivo").modal("hide");
+      Swal.fire({
+        position: "top-center",
+        icon: "success",
+        title: sendData.message,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      return false;
+    }
+
+    $("#modalDescargarArchivoMasivo").modal("hide");
+
+    swalWithBootstrapButtons
+      .fire({
+        title: "Error!",
+        text: data.message,
+        icon: "error",
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          $("#modalDescargarArchivoMasivo").modal("show");
+          // Aquí puedes realizar cualquier acción adicional
+        }
+      });
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
-}
-
-function volver_despues() {
-  if (data.success === true) {
-    $("#modalDescargarArchivoMasivo").modal("hide");
-    Swal.fire({
-      position: "top-center",
-      icon: "success",
-      title: data.message,
-      showConfirmButton: false,
-      timer: 1500,
-    });
-
-    return false;
-  }
-
-  $("#modalDescargarArchivoMasivo").modal("hide");
-
-  swalWithBootstrapButtons
-    .fire({
-      title: "Error!",
-      text: data.message,
-      icon: "error",
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        $("#modalDescargarArchivoMasivo").modal("show");
-        // Aquí puedes realizar cualquier acción adicional
-      }
-    });
 }
