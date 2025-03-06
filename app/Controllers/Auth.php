@@ -17,8 +17,8 @@ class Auth extends BaseController
     public function index()
     {
         if (session()->logged_in) {
-			return redirect()->to(base_url('home'));
-		}
+            return redirect()->to(base_url('home'));
+        }
 
         return view('auth/login');
     }
@@ -26,8 +26,8 @@ class Auth extends BaseController
     public function userAll()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
         $model = new ProfileModel();
         $sede = new SedeModel();
@@ -101,17 +101,24 @@ class Auth extends BaseController
         $sede = $data['sede'];
         $perfil = $data['perfil'];
         $correo = $data['correo'];
+        $path = $data['path'];
         $password = $data['password'];
+        $username = $data['username'];
+        $iduser = $data['iduser'];
 
-        $newNameImageUser = "avatar-2.jpg";
+        $staCorreo = $data['staCorreo'];
+        $staUser = $data['staUser'];
+
+        $newPath = $path;
 
         if ($this->request->getFile('foto')->isValid()) {
             $file = $this->request->getFile('foto');
 
             // Opcional: valida el tipo o tamaño del archivo
             if ($file->isValid() && !$file->hasMoved()) {
-                $uploadPath = FCPATH . 'public/assets/images/user/';
+                $uploadPath = FCPATH . 'assets/images/user/';
                 $newNameImageUser = $file->getRandomName();
+                $newPath = base_url('assets/images/user/' . $newNameImageUser);
                 $file->move($uploadPath, $newNameImageUser);
             } else {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'El archivo no es válido o ya fue movido']);
@@ -124,15 +131,41 @@ class Auth extends BaseController
 
         $model = new UserModel();
 
-        if ($model->getUserByEmail($correo)) {
-            return $this->response->setJSON(['status' => 'error', 'message' => 'El correo electrónico ya está registrado.']);
+        if ($staCorreo == 0) {
+            if ($model->getUserByEmail($correo)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'El correo electrónico ya está registrado.']);
+            }
+        } else {
+            $data = $model->getUserByEmail($correo);
+
+            if ($correo !== $data['correo']) {
+                if ($model->getUserByEmail($correo)) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => 'El correo electrónico ya está registrado.']);
+                }
+            }
+        }
+
+        if ($staUser == 0) {
+            if ($model->getUserByUsername($username)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'El usuario ya está registrado.']);
+            }
+        } else {
+            $data = $model->getUserByUsername($username);
+
+            if ($username !== $data['username']) {
+                if ($model->getUserByUsername($username)) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => 'El usuario ya está registrado.']);
+                }
+            }
         }
 
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         $datos = array(
             "correo" => $correo,
+            "username" => $username,
             "password" => $hashedPassword,
+            "alias" => "data_" . $password,
             "perfil_id" => $perfil,
             "sede_id" => $sede,
             "tipo_documento_id" => $tipoDocumento,
@@ -144,77 +177,81 @@ class Auth extends BaseController
             "fecha_nacimiento" => $fechaNacimiento,
             "numero_cuenta" => $numeroCuenta,
             "estado" => 1,
-            "path" => base_url('public/assets/images/user/'.$newNameImageUser)
+            "path" => $newPath
         );
 
-        $model->insert($datos);
-
-        return $this->response->setJSON(['status' => 'success', 'message' => 'Usuario registrado exitosamente.']);
+        if ($iduser == 0) {
+            $model->insert($datos);
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Usuario registrado exitosamente.']);
+        } else {
+            $model->update($iduser, $datos);
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Usuario editado exitosamente.']);
+        }
     }
 
-    public function api_dni_ruc($tipo,$numero)
+    public function api_dni_ruc($tipo, $numero)
     {
         $token = "facturalaya_erickpeso_05jFE7sAOudi8j0";
 
         $bloquear_busquedas = false;
-		if ($bloquear_busquedas) {
-			$resp['respuesta'] = 'error';
-			$resp['titulo'] = 'Error';
-			$resp['mensaje'] = 'Tenemos Problemas en los Servidores de SUNAT y RENIEC, ingresa los datos manualmente por favor...';
-			return $this->response->setJSON($resp);
-		}
+        if ($bloquear_busquedas) {
+            $resp['respuesta'] = 'error';
+            $resp['titulo'] = 'Error';
+            $resp['mensaje'] = 'Tenemos Problemas en los Servidores de SUNAT y RENIEC, ingresa los datos manualmente por favor...';
+            return $this->response->setJSON($resp);
+        }
 
         if ($tipo == 'dni') {
-			$ruta = "https://facturalahoy.com/api/persona/" . $numero . '/' . $token . '/completa';
-		} elseif ($tipo == 'ruc') {
-			$ruta = "https://facturalahoy.com/api/empresa/" . $numero . '/' . $token . '/completa';
-		} else {
-			$resp['respuesta'] = 'error';
-			$resp['titulo'] = 'Error';
-			$resp['mensaje'] = 'Tipo de Documento Desconocido';
-			return $this->response->setJSON($resp);
-		}
+            $ruta = "https://facturalahoy.com/api/persona/" . $numero . '/' . $token . '/completa';
+        } elseif ($tipo == 'ruc') {
+            $ruta = "https://facturalahoy.com/api/empresa/" . $numero . '/' . $token . '/completa';
+        } else {
+            $resp['respuesta'] = 'error';
+            $resp['titulo'] = 'Error';
+            $resp['mensaje'] = 'Tipo de Documento Desconocido';
+            return $this->response->setJSON($resp);
+        }
 
-		$curl = curl_init();
-		curl_setopt_array($curl, array(
-			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_URL => $ruta,
-			CURLOPT_USERAGENT => 'Consulta Datos',
-			CURLOPT_CONNECTTIMEOUT => 0,
-			CURLOPT_TIMEOUT => 400,
-			CURLOPT_FAILONERROR => true
-		));
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $ruta,
+            CURLOPT_USERAGENT => 'Consulta Datos',
+            CURLOPT_CONNECTTIMEOUT => 0,
+            CURLOPT_TIMEOUT => 400,
+            CURLOPT_FAILONERROR => true
+        ));
 
-		$data = curl_exec($curl);
-		if (curl_error($curl)) {
-			$error_msg = curl_error($curl);
-		}
+        $data = curl_exec($curl);
+        if (curl_error($curl)) {
+            $error_msg = curl_error($curl);
+        }
 
-		curl_close($curl);
+        curl_close($curl);
 
-		if (isset($error_msg)) {
-			$resp['respuesta'] = 'error';
-			$resp['titulo'] = 'Error';
-			$resp['data'] = $data;
-			$resp['encontrado'] = false;
-			$resp['mensaje'] = 'Error en Api de Búsqueda';
-			$resp['errores_curl'] = $error_msg;
-			return $this->response->setJSON($resp);
-		}
+        if (isset($error_msg)) {
+            $resp['respuesta'] = 'error';
+            $resp['titulo'] = 'Error';
+            $resp['data'] = $data;
+            $resp['encontrado'] = false;
+            $resp['mensaje'] = 'Error en Api de Búsqueda';
+            $resp['errores_curl'] = $error_msg;
+            return $this->response->setJSON($resp);
+        }
 
-		$data_resp = json_decode($data);
-		if (!isset($data_resp->respuesta) || $data_resp->respuesta == 'error') {
-			$resp['respuesta'] = 'error';
-			$resp['titulo'] = 'Error';
-			$resp['encontrado'] = false;
-			$resp['data_resp'] = $data_resp;
-			return $this->response->setJSON($resp);
-		}
+        $data_resp = json_decode($data);
+        if (!isset($data_resp->respuesta) || $data_resp->respuesta == 'error') {
+            $resp['respuesta'] = 'error';
+            $resp['titulo'] = 'Error';
+            $resp['encontrado'] = false;
+            $resp['data_resp'] = $data_resp;
+            return $this->response->setJSON($resp);
+        }
 
-		$resp['respuesta'] = 'ok';
-		$resp['encontrado'] = true;
-		$resp['api'] = true;
-		$resp['data'] = json_decode($data);
+        $resp['respuesta'] = 'ok';
+        $resp['encontrado'] = true;
+        $resp['api'] = true;
+        $resp['data'] = json_decode($data);
 
         return $this->response->setJSON($resp);
     }
@@ -237,33 +274,33 @@ class Auth extends BaseController
 
         foreach ($usuarios as $key => $value) {
 
-            if($value['usu_id'] != 391) {
+            if ($value['usu_id'] != 391) {
 
-                if($value['usu_perfil'] == 1) {
+                if ($value['usu_perfil'] == 1) {
                     $perfil = 3;
                 }
 
-                if($value['usu_perfil'] == 5) {
+                if ($value['usu_perfil'] == 5) {
                     $perfil = 2;
                 }
 
-                if($value['usu_perfil'] == 6) {
+                if ($value['usu_perfil'] == 6) {
                     $perfil = 4;
                 }
 
-                if($value['usu_perfil'] == 8) {
+                if ($value['usu_perfil'] == 8) {
                     $perfil = 6;
                 }
 
-                if($value['usu_perfil'] == 7) {
+                if ($value['usu_perfil'] == 7) {
                     $perfil = 5;
                 }
 
-                if($value['usu_sede'] == 5) {
+                if ($value['usu_sede'] == 5) {
                     $sede = 1;
                 }
 
-                if($value['usu_sede'] == 9) {
+                if ($value['usu_sede'] == 9) {
                     $sede = 2;
                 }
 
@@ -273,7 +310,7 @@ class Auth extends BaseController
                     "correo" => $value['correo'],
                     "username" => $value['usu_usuario'],
                     "password" => $hashedPassword,
-                    "alias" => "data_".$value['usu_clave'],
+                    "alias" => "data_" . $value['usu_clave'],
                     "perfil_id" => $perfil,
                     "sede_id" => $sede,
                     "tipo_documento_id" => 1,
@@ -285,22 +322,23 @@ class Auth extends BaseController
                     "fecha_nacimiento" => $value['fecha_nacimiento'],
                     "numero_cuenta" => $value['numero_bancario'],
                     "estado" => $value['usu_estado'],
-                    "path" => base_url('public/assets/images/user/avatar-2.jpg')
+                    "path" => base_url('assets/images/user/avatar-2.jpg')
                 );
 
                 $user->insert($data);
 
-                echo "<pre>"; print_r($data); echo "</pre> <br>";
+                echo "<pre>";
+                print_r($data);
+                echo "</pre> <br>";
             }
-
         }
     }
 
     public function asignarContribuyentes()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
         $user = new UserModel();
 
@@ -324,7 +362,8 @@ class Auth extends BaseController
         $asignados = $contr->select('contribuyentes.id, contribuyentes.razon_social')->join('contribuyentes_usuario', 'contribuyentes_usuario.contribuyente_id = contribuyentes.id')->where('contribuyentes_usuario.usuario_id', $id)->findAll();
 
         return $this->response->setJSON(
-            ['asignados' => $asignados, 'no_asignados' => $no_asignados]);
+            ['asignados' => $asignados, 'no_asignados' => $no_asignados]
+        );
     }
 
     public function saveAsignar()
@@ -338,20 +377,20 @@ class Auth extends BaseController
             }
 
             $data = $this->request->getPost();
-            
+
             $info = $contUsuario->where('usuario_id', $data['usuarios'])->findAll();
 
             if ($info) {
                 $contUsuario->where('usuario_id', $data['usuarios'])->delete();
             }
 
-            if(!$data['seleccionados']) {
+            if (!$data['seleccionados']) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Seleccione algún contribuyente']);
             }
 
             $cont = $data['seleccionados'];
 
-            for ($i=0; $i < count($cont); $i++) { 
+            for ($i = 0; $i < count($cont); $i++) {
                 $datos = array(
                     "contribuyente_id" => $cont[$i],
                     "usuario_id" => $data['usuarios']
@@ -361,10 +400,26 @@ class Auth extends BaseController
             }
 
             return $this->response->setJSON(['status' => 'success', 'message' => "Asignado correctamente."]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
 
+    public function getUser($id)
+    {
+        $user = new UserModel();
+
+        $usuario = $user->find($id);
+
+        return $this->response->setJSON($usuario);
+    }
+
+    public function deleteUser($id)
+    {
+        $user = new UserModel();
+
+        $user->update($id, ['estado' => 0]);
+
+        return $this->response->setJSON(['status' => 'success', 'message' => 'Usuario eliminado correctamente.']);
+    }
 }

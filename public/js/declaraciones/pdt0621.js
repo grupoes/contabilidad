@@ -370,7 +370,6 @@ async function verificarInput() {
       .then((result) => {
         if (result.isConfirmed) {
           $("#modalDescargarArchivoMasivo").modal("show");
-          // Aquí puedes realizar cualquier acción adicional
         }
       });
   } catch (error) {

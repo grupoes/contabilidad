@@ -16,6 +16,8 @@ $routes->post('save-user', 'Auth::guardarUsuario');
 $routes->get('all-users', 'Auth::showUsers');
 $routes->get('auth/asignar/(:num)', 'Auth::asignar/$1');
 $routes->post('save-asignar', 'Auth::saveAsignar');
+$routes->get('get-user/(:num)', 'Auth::getUser/$1');
+$routes->get('user/delete/(:num)', 'Auth::deleteUser/$1');
 
 $routes->get('migration-users', 'Auth::migrationUsers');
 
