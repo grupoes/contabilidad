@@ -47,7 +47,6 @@
         .contentLoader {
             display: none;
         }
-
     </style>
 
 </head>
@@ -84,8 +83,8 @@
             <div class="navbar-content">
                 <?= $this->include('layouts/cardUser') ?>
 
-                <ul class="pc-navbar">
-                    <?= $this->include('layouts/menu') ?>
+                <ul class="pc-navbar" id="nav-menu">
+
                 </ul>
             </div>
         </div>
@@ -116,7 +115,7 @@
     <script src="<?= base_url() ?>assets/js/pcoded.js"></script>
     <script src="<?= base_url() ?>assets/js/plugins/feather.min.js"></script>
     <script src="<?= base_url() ?>js/main.js"></script>
-    
+
     <script>
         layout_change('light');
     </script>

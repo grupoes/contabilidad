@@ -121,3 +121,4 @@ $routes->get('asignar-contribuyentes', 'Auth::asignarContribuyentes');
 $routes->get('permisos', 'Permisos::index');
 $routes->get('permisos-perfil/(:num)', 'Permisos::show/$1');
 $routes->post('save-permisos', 'Permisos::guardar');
+$routes->get('menu-nav', 'Permisos::permisos_menu');
