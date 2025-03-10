@@ -78,7 +78,7 @@
     </a>
     <ul class="pc-submenu">
         <li class="pc-item"><a class="pc-link" href="#">Módulos</a></li>
-        <li class="pc-item"><a class="pc-link" href="#">Permisos</a></li>
+        <li class="pc-item"><a class="pc-link" href="<?= base_url('permisos') ?>">Permisos</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('usuarios') ?>">Usuario</a></li>
         <li class="pc-item"><a class="pc-link" href="#">Perfil</a></li>
         <li class="pc-item"><a class="pc-link" href="<?= base_url('asignar-contribuyentes') ?>">Asignar</a></li>

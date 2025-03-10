@@ -117,3 +117,7 @@ $routes->get('metodo-pago/get-metodo/(:num)', 'MetodoPago::getMetodo/$1');
 $routes->get('metodo-pago/delete/(:num)', 'MetodoPago::delete/$1');
 
 $routes->get('asignar-contribuyentes', 'Auth::asignarContribuyentes');
+
+$routes->get('permisos', 'Permisos::index');
+$routes->get('permisos-perfil/(:num)', 'Permisos::show/$1');
+$routes->post('save-permisos', 'Permisos::guardar');
