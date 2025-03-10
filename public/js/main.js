@@ -104,7 +104,7 @@ function viewMenu(data) {
         <label>Navegación</label>
     </li>
     <li class="pc-item">
-        <a href="<?= base_url('home') ?>" class="pc-link">
+        <a href="${base_url}home" class="pc-link">
             <span class="pc-micon">
                 <svg class="pc-icon">
                     <use xlink:href="#custom-home"></use>
@@ -146,4 +146,6 @@ function viewMenu(data) {
   menuList.innerHTML = html;
 
   feather.replace();
+
+  menu_click();
 }
