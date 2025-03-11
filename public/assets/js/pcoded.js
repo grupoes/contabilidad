@@ -1,4 +1,4 @@
-const urlbasic = document.getElementById('base_url').value;
+const urlbasic = document.getElementById("base_url").value;
 
 var flg = "0";
 {
@@ -109,18 +109,18 @@ function setLayout() {
       ((e = document.createElement("script")),
       "horizontal" === t
         ? (document.querySelector(".pc-sidebar").classList.add("d-none"),
-          (e.src = urlbasic+"assets/js/layout-horizontal.js"),
+          (e.src = urlbasic + "assets/js/layout-horizontal.js"),
           document.body.appendChild(e))
         : "color-header" === t
         ? document.querySelector(".pc-sidebar .m-header .logo-lg") &&
           document
             .querySelector(".pc-sidebar .m-header .logo-lg")
-            .setAttribute("src", urlbasic+"/assets/images/logo-white.svg")
+            .setAttribute("src", urlbasic + "/assets/images/logo-white.svg")
         : "compact" === t
-        ? ((e.src = urlbasic+"/assets/js/layout-compact.js"),
+        ? ((e.src = urlbasic + "/assets/js/layout-compact.js"),
           document.body.appendChild(e))
         : "tab" === t &&
-          ((e.src = urlbasic+"/assets/js/layout-tab.js"),
+          ((e.src = urlbasic + "/assets/js/layout-tab.js"),
           document.body.appendChild(e))),
     null === t &&
       (main_layout_change("vertical"),
@@ -307,7 +307,7 @@ for (
   t < tc.length;
   t++
 )
-  tc[t].setAttribute("src", urlbasic+"/assets/images/logo-white.svg");
+  tc[t].setAttribute("src", urlbasic + "/assets/images/logo-white.svg");
 var rtl_flag = !1,
   dark_flag = !1;
 function layout_change_default() {
@@ -453,19 +453,19 @@ function layout_change(e) {
         document.querySelector(".pc-sidebar .m-header .logo-lg") &&
           document
             .querySelector(".pc-sidebar .m-header .logo-lg")
-            .setAttribute("src", urlbasic+"assets/images/logo-white.svg"),
+            .setAttribute("src", urlbasic + "assets/images/logo-white.svg"),
         document.querySelector(".navbar-brand .logo-lg") &&
           document
             .querySelector(".navbar-brand .logo-lg")
-            .setAttribute("src", urlbasic+"assets/images/logo-white.svg"),
+            .setAttribute("src", urlbasic + "assets/images/logo-white.svg"),
         document.querySelector(".auth-main.v1 .auth-sidefooter") &&
           document
             .querySelector(".auth-main.v1 .auth-sidefooter img")
-            .setAttribute("src", urlbasic+"assets/images/logo-white.svg"),
+            .setAttribute("src", urlbasic + "assets/images/logo-white.svg"),
         document.querySelector(".footer-top .footer-logo") &&
           document
             .querySelector(".footer-top .footer-logo")
-            .setAttribute("src", urlbasic+"assets/images/logo-white.svg"),
+            .setAttribute("src", urlbasic + "assets/images/logo-white.svg"),
         document.querySelector(".theme-layout .btn.active") &&
           (document
             .querySelector(".theme-layout .btn.active")
@@ -477,19 +477,19 @@ function layout_change(e) {
         document.querySelector(".pc-sidebar .m-header .logo-lg") &&
           document
             .querySelector(".pc-sidebar .m-header .logo-lg")
-            .setAttribute("src", urlbasic+"assets/images/logo-dark.svg"),
+            .setAttribute("src", urlbasic + "assets/images/logo-dark.svg"),
         document.querySelector(".navbar-brand .logo-lg") &&
           document
             .querySelector(".navbar-brand .logo-lg")
-            .setAttribute("src", urlbasic+"assets/images/logo-dark.svg"),
+            .setAttribute("src", urlbasic + "assets/images/logo-dark.svg"),
         document.querySelector(".auth-main.v1 .auth-sidefooter") &&
           document
             .querySelector(".auth-main.v1 .auth-sidefooter img")
-            .setAttribute("src", urlbasic+"assets/images/logo-dark.svg"),
+            .setAttribute("src", urlbasic + "assets/images/logo-dark.svg"),
         document.querySelector(".footer-top .footer-logo") &&
           document
             .querySelector(".footer-top .footer-logo")
-            .setAttribute("src", urlbasic+"assets/images/logo-dark.svg"),
+            .setAttribute("src", urlbasic + "assets/images/logo-dark.svg"),
         document.querySelector(".theme-layout .btn.active") &&
           (document
             .querySelector(".theme-layout .btn.active")

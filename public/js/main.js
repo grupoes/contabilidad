@@ -145,7 +145,7 @@ function viewMenu(data) {
 
   menuList.innerHTML = html;
 
-  feather.replace();
-
   menu_click();
+
+  feather.replace();
 }
