@@ -1,5 +1,11 @@
 <?= $this->extend('layouts/main') ?>
 
+<?= $this->section('css') ?>
+
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css">
+
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
 
 <style>
@@ -20,6 +26,10 @@
         border-color: #EF6C00;
         color: #fff;
     }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
 </style>
 
 <div class="pc-content">
@@ -36,30 +46,64 @@
 
                     <div class="row">
                         <?php foreach ($declaraciones as $key => $value) { ?>
-                            <div class="col-md-4">
-                                <div class="card social-widget-card <?= $value['decl_color'] ?>">
-                                    <div class="card-body">
+                            <div class="col-md-4" onclick="declaracion(<?= $value['id_declaracion'] ?>, '<?= $value['decl_nombre'] ?>')" style="margin-bottom: 20px;">
+                                <div class="cursor-pointer card social-widget-card <?= $value['decl_color'] ?>">
+                                    <div class="card-body" style="padding: 20px;">
                                         <h3 class="text-white m-0"><?= $value['decl_nombre'] ?></h3>
-                                        <span class="m-t-10"><?= $value['decl_descripcion'] ?></span>
+                                        <span class="m-t-10" style="font-size: 12px;"><?= $value['decl_descripcion'] ?></span>
                                     </div>
                                 </div>
                             </div>
                         <?php } ?>
                     </div>
 
-
                 </div>
             </div>
         </div>
 
     </div>
+
+    <div class="row">
+        <div class="col-md-12" id="calendario">
+
+        </div>
+    </div>
     <!-- [ Main Content ] end -->
+</div>
+
+<div id="modalDeclaracion" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="titleModal"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formSelect">
+                <input type="hidden" name="id_declaracion" id="id_declaracion" value="0">
+                <div class="modal-body">
+                    <h5 class="mb-3">Seleccionar cual de opciones desea configurar</h5>
+                    <div id="alertMessage"></div>
+                    <div id="listDeclaracion">
+
+
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" id="btnForm">Configurar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>
 
+<script src="<?= base_url() ?>assets/js/plugins/notifier.js"></script>
 <script src="<?= base_url() ?>js/declaracion/lista.js"></script>
 
 <?= $this->endSection() ?>

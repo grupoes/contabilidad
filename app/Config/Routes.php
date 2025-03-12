@@ -124,3 +124,7 @@ $routes->post('save-permisos', 'Permisos::guardar');
 $routes->get('menu-nav', 'Permisos::permisos_menu');
 
 $routes->get('declaracion', 'Declaracion::index');
+$routes->get('listaDeclaracion/(:num)', 'Declaracion::listaDeclaracion/$1');
+$routes->post('declaracion/calendario', 'Declaracion::calendario');
+$routes->post('declaracion/extraer_data', 'Declaracion::extraer_data');
+$routes->post('declaracion/guardar_datos', 'Declaracion::guardar_datos');
