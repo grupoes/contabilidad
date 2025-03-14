@@ -76,7 +76,7 @@ function viewConfiguracion(data) {
 
   meses.forEach((mes) => {
     mesesHtml += `<tr>
-                    <td><b>${mes.mes_descripcion}</b> se declara (${mes.mes_declaracion})</td>`;
+                    <td class="sticky-col"><b>${mes.mes_descripcion}</b> se declara (${mes.mes_declaracion})</td>`;
 
     numeros.forEach((number) => {
       mesesHtml += `<td> <input type="text" maxlength='2' name="datos[]" id="datos${number.id_numero}${mes.id_mes}" class="form-control form-control-sm" onkeyup="enviar_datos(${number.id_numero}, ${mes.id_mes})"> </td>`;
@@ -97,17 +97,19 @@ function viewConfiguracion(data) {
                     </div>
                 </div>
 
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Periodo</th>
-                            ${numerosHtml}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${mesesHtml}
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                      <thead>
+                          <tr>
+                              <th class="sticky-col">Periodo</th>
+                              ${numerosHtml}
+                          </tr>
+                      </thead>
+                      <tbody>
+                          ${mesesHtml}
+                      </tbody>
+                  </table>
+                </div>
             </div>
         </div>
     `;

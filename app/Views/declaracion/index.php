@@ -30,6 +30,16 @@
     .cursor-pointer {
         cursor: pointer;
     }
+
+    .sticky-col {
+        position: sticky;
+        left: 0;
+        background-color: white;
+        /* Evita superposiciones visuales */
+        z-index: 1020;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        /* Efecto sutil */
+    }
 </style>
 
 <div class="pc-content">
