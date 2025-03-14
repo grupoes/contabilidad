@@ -121,6 +121,11 @@ function getAnio(e) {
   const valor = e.target.value;
 
   if (valor === "") {
+    $('input[name="datos[]"]')
+      .map(function (n, i) {
+        $(this).val("");
+      })
+      .get();
     return false;
   }
 
