@@ -2,13 +2,29 @@
 
 <?= $this->section('css') ?>
 
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css" >
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css">
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css" >
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
 
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+
+<style>
+    .choices__item--selectable::after {
+        content: '' !important;
+        display: none !important;
+    }
+
+    /* Para asegurar que los ítems ocupen todo el ancho */
+    .choices__list--dropdown .choices__item {
+        padding-right: 10px !important;
+        /* Reduce el padding derecho */
+        width: 100%;
+    }
+</style>
 
 <div class="pc-content">
 
@@ -44,7 +60,7 @@
                                 <i class="ti ti-file f-18"></i> Folio
                             </a>
 
-                            <?php if(count($consulta_certificado_por_vencer) > 0) { ?>
+                            <?php if (count($consulta_certificado_por_vencer) > 0) { ?>
                                 <button class="btn btn-danger d-inline-flex gap-2" id="btnCertificadoVencer">
                                     <i class="ti ti-file f-18"></i> Certificados Digitales por vencer
                                 </button>
@@ -210,13 +226,13 @@
 
                         <div class="col-md-8 mb-3">
                             <label class="form-label" for="choices-system">Seleccione Sistema</label>
-                            <select class="form-control" name="nameSystem[]" id="choices-system"  multiple>
+                            <select class="form-control" name="nameSystem[]" id="choices-system" multiple>
                                 <?php foreach ($sistemas as $key => $value) { ?>
                                     <option value="<?= $value['id'] ?>"><?= $value['nameSystem'] ?></option>
                                 <?php } ?>
                             </select>
                         </div>
-                        
+
                         <h5>Boletas</h5>
                         <hr>
                         <div class="col-md-6 mb-3">
@@ -285,10 +301,10 @@
                         </tr>
                     </thead>
                     <tbody id="tableTarifa">
-                        
+
                     </tbody>
                 </table>
-                
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -341,7 +357,7 @@
                         </div>
                     </div>
                 </form>
-                
+
                 <h5>Lista de Certificados Digitales</h5>
                 <hr>
                 <table class="table">
@@ -356,10 +372,10 @@
                         </tr>
                     </thead>
                     <tbody id="tableCertificado">
-                        
+
                     </tbody>
                 </table>
-                
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -390,22 +406,95 @@
                         </thead>
                         <tbody>
 
-                        <?php foreach ($consulta_certificado_por_vencer as $key => $value) { ?>
-                            <tr>
-                                <td><?= $value->fecha_vencimiento ?></td>
-                                <td><?= $value->fecha_inicio ?></td>
-                                <td><?= $value->ruc ?></td>
-                                <td><?= $value->razon_social ?></td>
-                                <td><?= $value->tipo_certificado ?></td>
-                            </tr>
-                        <?php } ?>
-                            
+                            <?php foreach ($consulta_certificado_por_vencer as $key => $value) { ?>
+                                <tr>
+                                    <td><?= $value->fecha_vencimiento ?></td>
+                                    <td><?= $value->fecha_inicio ?></td>
+                                    <td><?= $value->ruc ?></td>
+                                    <td><?= $value->razon_social ?></td>
+                                    <td><?= $value->tipo_certificado ?></td>
+                                </tr>
+                            <?php } ?>
+
                         </tbody>
                     </table>
                 </div>
-            
+
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalContacto" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="titleModalContactos"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form id="formContacto" method="POST">
+                    <input type="hidden" name="contacto_id" id="contacto_id" value="0">
+                    <input type="hidden" name="contribuyente_id" id="contribuyente_id" value="0">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label" for="selectPais">Código</label>
+                            <select class="form-select" id="selectPais" name="selectPais" required>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="numero_whatsapp">Numero de Whatsapp</label>
+                            <input type="text" class="form-control" id="numero_whatsapp" name="numero_whatsapp" placeholder="Ingrese número de Whatsapp" required>
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label" for="numero_llamadas">Numero de llamadas</label>
+                            <input type="text" class="form-control" id="numero_llamadas" name="numero_llamadas" placeholder="Ingrese número de teléfono" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="nombre_contacto">Nombre de Contacto</label>
+                            <input type="text" class="form-control" id="nombre_contacto" name="nombre_contacto" placeholder="Ingrese nombre de Contacto" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for=correo"">Email</label>
+                            <input type="email" class="form-control" name="correo" id="correo" placeholder="Ingrese el correo electrónico" required>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3 mx-auto text-center">
+                            <button type="button" class="btn btn-info" id="cleanForm">Limpiar</button>
+                            <button type="submit" class="btn btn-success" id="btnFormContacto">Agregar</button>
+                        </div>
+                    </div>
+
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>NOMBRE CONTACTO</th>
+                                <th># WHATSAPP</th>
+                                <th># LLAMADAS</th>
+                                <th>CORREO</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableContacto">
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                >
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>

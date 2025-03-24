@@ -16,6 +16,8 @@ use App\Models\ConfiguracionNotificacionModel;
 use App\Models\DeclaracionSunatModel;
 use App\Models\TributoModel;
 use App\Models\UitModel;
+use App\Models\PrefijosModel;
+use App\Models\ContactosContribuyenteModel;
 
 //use App\Models\RucEmpresaModel;
 
@@ -91,8 +93,8 @@ class Contribuyentes extends BaseController
             $sql = "AND c.tipoServicio = '$filtro'";
         }
 
-        if(session()->perfil_id > 2) {
-            $asig = " AND cu.usuario_id = ".session()->id;
+        if (session()->perfil_id > 2) {
+            $asig = " AND cu.usuario_id = " . session()->id;
         }
 
         $data = $model->query("SELECT 
@@ -141,7 +143,7 @@ class Contribuyentes extends BaseController
                 $anio = $anio;
             }
 
-            if($confNot) {
+            if ($confNot) {
                 $id = $confNot[0]["id_tributo"];
 
                 $dataDeclaracion = $declaracionSunat->query("SELECT SUM(decl_sunat_importe_venta) as venta,SUM(decl_sunat_importe_compra) as compra,SUM(monto) as monto FROM declaracion_sunat INNER JOIN fecha_declaracion ON declaracion_sunat.id_fecha_declaracion = fecha_declaracion.id_fecha_declaracion INNER JOIN anio ON fecha_declaracion.id_anio = anio.id_anio WHERE fecha_declaracion.id_tributo= $id and declaracion_sunat.ruc_empresa_numero= $value->id and anio_descripcion = $anio")->getResult();
@@ -225,7 +227,6 @@ class Contribuyentes extends BaseController
 
                     $value->respuesta = 0;
                 }
-
             } else {
                 $value->respuesta = 0;
                 $value->tipo = "Falta configuración";
@@ -259,8 +260,8 @@ class Contribuyentes extends BaseController
             $idTabla = $data['idTable'];
 
             $verificar = $model->where('ruc', $data['numeroDocumento'])->first();
-            
-            if($data['tipoSuscripcion'] === 'GRATUITO') {
+
+            if ($data['tipoSuscripcion'] === 'GRATUITO') {
                 $diacobro = 0;
             } else {
                 $diacobro = $data['diaCobro'];
@@ -315,7 +316,7 @@ class Contribuyentes extends BaseController
                 }
 
                 $fechaInit = new DateTime($data['fechaContrato']);
-                $fechaInicio = $fechaInit->format('Y-m') . "-".$data['diaCobro'];
+                $fechaInicio = $fechaInit->format('Y-m') . "-" . $data['diaCobro'];
 
                 $tarifa->insert([
                     'contribuyente_id' => $contribuyente_id,
@@ -617,7 +618,6 @@ class Contribuyentes extends BaseController
                     }
 
                     $debe = $mesesDebe;
-
                 }
             } else {
                 $debe = "0";
@@ -745,11 +745,89 @@ class Contribuyentes extends BaseController
 
         $message = "SE DESACTIVO EL CONTRIBUYENTE CORRECTAMENTE";
 
-        if($status == 1) {
+        if ($status == 1) {
             $message  = "SE ACTIVO EL CONTRIBUYENTE CORRECTAMENTE";
         }
 
         return $this->response->setJSON(['status' => 'success', 'message' => $message]);
+    }
+
+    public function prefijosPaises()
+    {
+        $prefijo = new PrefijosModel();
+
+        $prefijos = $prefijo->findAll();
+
+        return $this->response->setJSON($prefijos);
+    }
+
+    public function addContacto()
+    {
+        $contacto = new ContactosContribuyenteModel();
+
+        try {
+            $codigo = $this->request->getPost('selectPais');
+            $numeroWhatsapp = $this->request->getPost('numero_whatsapp');
+            $numero_llamadas = $this->request->getPost('numero_llamadas');
+            $nombre_contacto = $this->request->getPost('nombre_contacto');
+            $correo = $this->request->getPost('correo');
+            $contribuyente_id = $this->request->getPost('contribuyente_id');
+            $contacto_id = $this->request->getPost('contacto_id');
+
+            $data = array(
+                'nombre_contacto' => $nombre_contacto,
+                'telefono' => $numero_llamadas,
+                'prefijo' => $codigo,
+                'numero_whatsapp' => $codigo . $numeroWhatsapp,
+                'correo' => $correo,
+                'estado' => 1,
+                'contribuyente_id' => $contribuyente_id
+            );
+
+            if ($contacto_id == 0) {
+                $contacto->insert($data);
+
+                return $this->response->setJSON(['status' => 'success', 'message' => 'Contacto registrado correctamente.']);
+            } else {
+                $contacto->update($contacto_id, $data);
+                return $this->response->setJSON(['status' => 'success', 'message' => 'Contacto actualizado correctamente.']);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function renderContactos($id)
+    {
+        $contacto = new ContactosContribuyenteModel();
+        $contri = new ContribuyenteModel();
+
+        $contactos = $contacto->where('contribuyente_id', $id)->where('estado', 1)->findAll();
+
+        $data_contribuyente = $contri->find($id);
+
+        return $this->response->setJSON([
+            "contactos" => $contactos,
+            "data_contribuyente" => $data_contribuyente
+        ]);
+    }
+
+    public function getContacto($id)
+    {
+        $contacto = new ContactosContribuyenteModel();
+
+        $data = $contacto->find($id);
+
+        return $this->response->setJSON($data);
+    }
+
+    public function deleteContacto($id)
+    {
+        $contacto = new ContactosContribuyenteModel();
+
+        $contacto->update($id, ['estado' => 0]);
+
+        return $this->response->setJSON(['status' => 'success', 'message' => 'Contacto eliminado correctamente.']);
     }
 
     /*public function migrarContribuyentes()

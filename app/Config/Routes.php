@@ -37,6 +37,11 @@ $routes->get('contribuyente/certificado-digital/(:num)', 'Contribuyentes::getCer
 $routes->post('contribuyente/add-certificado', 'Contribuyentes::guardarCertificadoDigital');
 $routes->get('descargar-certificado/(:any)', 'Contribuyentes::descargarCertificado/$1');
 $routes->get('contribuyente/delete-certificado-digital/(:num)', 'Contribuyentes::deleteCertificadoDigital/$1');
+$routes->get('contribuyentes/paises', 'Contribuyentes::prefijosPaises');
+$routes->post('contribuyente/add-contacto', 'Contribuyentes::addContacto');
+$routes->get('contribuyente/contactos/(:num)', 'Contribuyentes::renderContactos/$1');
+$routes->get('contribuyente/get-contacto/(:num)', 'Contribuyentes::getContacto/$1');
+$routes->get('contribuyente/delete-contacto/(:num)', 'Contribuyentes::deleteContacto/$1');
 
 $routes->get('contribuyentes/migracion', 'Contribuyentes::migrarContribuyentes');
 
