@@ -229,7 +229,7 @@ function listaContribuyentes() {
     });
 }
 
-function optionsTable(id) {
+function optionsTable(id, ruc) {
   return `
         <a class="dropdown-item" href="#"><i class="material-icons-two-tone">book</i>Lista de Boletas</a>
         <a class="dropdown-item" href="#"><i class="material-icons-two-tone">library_books</i>Registrar Boletas</a>
@@ -238,10 +238,10 @@ function optionsTable(id) {
         <a class="dropdown-item" href="#" onclick="configurarDeclaraciones(event, ${id})"><i class="material-icons-two-tone">settings</i>Configurar declaraciones</a>
         <a class="dropdown-item" href="#"><i class="material-icons-two-tone">settings_applications</i>Declaración tributaria</a>
         <a class="dropdown-item" href="#"><i class="material-icons-two-tone">vpn_key</i>Ver contraseña</a>
-        <a class="dropdown-item" href="#"><i class="material-icons-two-tone">insert_drive_file</i>Escanear y generar maquetas de compras</a>
-        <a class="dropdown-item" href="#"><i class="material-icons-two-tone">file_copy</i>Reporte Comercial</a>
-        <a class="dropdown-item" href="#"><i class="material-icons-two-tone">restaurant</i>Reporte Restaurante</a>
-        <a class="dropdown-item" href="#"><i class="material-icons-two-tone">attach_file</i>Enviar archivos</a>
+        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9094/maqueta-compras/${ruc}" target="__blank"><i class="material-icons-two-tone">insert_drive_file</i>Escanear y generar maquetas de compras</a>
+        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9093/reportes/${ruc}" target="__blank"><i class="material-icons-two-tone">file_copy</i>Reporte Comercial</a>
+        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9092/reportes/${ruc}" target="__blank"><i class="material-icons-two-tone">restaurant</i>Reporte Restaurante</a>
+        <a class="dropdown-item" href="https://grupoesconsultores.com/contagrupoes/maqueta-compras/${ruc}" target="__blank"><i class="material-icons-two-tone">attach_file</i>Enviar archivos</a>
         <a class="dropdown-item" href="#" onclick="loadModalContactos(event, ${id})"><i class="material-icons-two-tone">account_box</i>Contactos</a>
     `;
 }
@@ -250,7 +250,7 @@ function viewListContribuyentes(data) {
   let html = "";
 
   data.forEach((emp, index) => {
-    let opciones = optionsTable(emp.id);
+    let opciones = optionsTable(emp.id, emp.ruc);
 
     let tieneSistema =
       emp.tiene_sistema === "SI"
