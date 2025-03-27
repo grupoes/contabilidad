@@ -54,7 +54,7 @@
                                 <option value="ALQUILER">ALQUILER</option>
                             </select>
 
-                            <a href="folio" target="_blank" class="btn btn-outline-primary d-inline-flex gap-2">
+                            <a href="https://grupoesconsultores.com/folio" target="_blank" class="btn btn-outline-primary d-inline-flex gap-2">
                                 <i class="ti ti-file f-18"></i> Folio
                             </a>
 
