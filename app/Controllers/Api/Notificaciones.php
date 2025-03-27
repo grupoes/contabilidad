@@ -24,12 +24,18 @@ class Notificaciones extends ResourceController
         $contrib = new ContribuyenteModel();
         $date = date('Y-m-d');
 
-        $consulta = $fecha->query("SELECT id_mes, id_numero, MIN(fecha_notificar) AS fecha_notificar, GROUP_CONCAT(tipo ORDER BY tipo SEPARATOR ', ') AS tipo, id_tributo, MIN(fecha_exacta) AS fecha_exacta FROM ( SELECT id_mes, id_numero, fecha_notificar, 'notificar' AS tipo, id_tributo, fecha_exacta FROM fecha_declaracion WHERE fecha_notificar = 'date' UNION SELECT id_mes, id_numero, fecha_exacta, 'ultimo_dia' AS tipo, id_tributo, fecha_exacta FROM fecha_declaracion WHERE fecha_exacta = '$date' ) AS subquery GROUP BY id_numero;")->getResult();
+        $consulta = $fecha->query("SELECT id_mes, id_numero, MIN(fecha_notificar) AS fecha_notificar, GROUP_CONCAT(tipo ORDER BY tipo SEPARATOR ', ') AS tipo, id_tributo, MIN(fecha_exacta) AS fecha_exacta FROM ( SELECT id_mes, id_numero, fecha_notificar, 'notificar' AS tipo, id_tributo, fecha_exacta FROM fecha_declaracion WHERE fecha_notificar = '$date' UNION SELECT id_mes, id_numero, fecha_exacta, 'ultimo_dia' AS tipo, id_tributo, fecha_exacta FROM fecha_declaracion WHERE fecha_exacta = '$date' ) AS subquery GROUP BY id_numero;")->getResult();
+
+        $empresas = array();
 
         foreach ($consulta as $key => $value) {
             $digito = $value->id_numero - 1;
             $emp = $contrib->query("SELECT * FROM contribuyentes WHERE estado = 1 and RIGHT(ruc, 1) = '$digito'")->getResult();
+
+            array_push($empresas, $emp);
         }
+
+        return $this->respond($empresas);
     }
 
     /**

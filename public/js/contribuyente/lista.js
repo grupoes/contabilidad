@@ -233,9 +233,9 @@ function optionsTable(id) {
   return `
         <a class="dropdown-item" href="#"><i class="material-icons-two-tone">book</i>Lista de Boletas</a>
         <a class="dropdown-item" href="#"><i class="material-icons-two-tone">library_books</i>Registrar Boletas</a>
-        <a class="dropdown-item" href="#"><i class="material-icons-two-tone">import_export</i>Importar Boletas</a>
-        <a class="dropdown-item" href="#"><i class="material-icons-two-tone">delete</i>Eliminar Empresa</a>
-        <a class="dropdown-item" href="#"><i class="material-icons-two-tone">settings</i>Configurar declaraciones</a>
+        <a class="dropdown-item" href="#" onclick="importarBoletas(event, ${id})"><i class="material-icons-two-tone">import_export</i>Importar Boletas</a>
+        <a class="dropdown-item" href="#" onclick="deleteEmpresa(event, ${id})"><i class="material-icons-two-tone">delete</i>Eliminar Empresa</a>
+        <a class="dropdown-item" href="#" onclick="configurarDeclaraciones(event, ${id})"><i class="material-icons-two-tone">settings</i>Configurar declaraciones</a>
         <a class="dropdown-item" href="#"><i class="material-icons-two-tone">settings_applications</i>Declaración tributaria</a>
         <a class="dropdown-item" href="#"><i class="material-icons-two-tone">vpn_key</i>Ver contraseña</a>
         <a class="dropdown-item" href="#"><i class="material-icons-two-tone">insert_drive_file</i>Escanear y generar maquetas de compras</a>
@@ -824,4 +824,122 @@ function deleteContacto(e, id) {
         }
       });
   }
+}
+
+const titleImportBoletas = document.getElementById("titleImportBoletas");
+
+function importarBoletas(e, id) {
+  e.preventDefault();
+  $("#modalImportBoletas").modal("show");
+
+  fetch(base_url + "contribuyentes/getId/" + id)
+    .then((res) => res.json())
+    .then((data) => {
+      titleImportBoletas.textContent = `Importar boletas de ${data.razon_social}`;
+    });
+}
+
+const swalWithBootstrapButtons = Swal.mixin({
+  customClass: {
+    confirmButton: "btn btn-success",
+    cancelButton: "btn btn-danger",
+  },
+  showConfirmButton: true,
+  buttonsStyling: false,
+});
+
+function deleteEmpresa(e, id) {
+  e.preventDefault();
+
+  swalWithBootstrapButtons
+    .fire({
+      title: `¿Seguro desea eliminarlo?`,
+      text: "¡No podrá revertir después!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar!",
+      cancelButtonText: "No, cancelar!",
+      reverseButtons: true,
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        fetch(base_url + "contribuyente/delete/" + id)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              listaContribuyentes();
+              Swal.fire({
+                position: "top-center",
+                icon: "success",
+                title: data.message,
+                showConfirmButton: false,
+                timer: 1500,
+              });
+              return false;
+            }
+
+            swalWithBootstrapButtons.fire("Error!", data.message, "error");
+          });
+      }
+    });
+}
+
+function configurarDeclaraciones(e, id) {
+  e.preventDefault();
+
+  $("#modalConfigurarDeclaracion").modal("show");
+
+  fetch(base_url + "contribuyente/declaracion/" + id)
+    .then((res) => res.json())
+    .then((data) => {
+      const titleModalConfigurar = document.getElementById(
+        "titleModalConfigurar"
+      );
+      titleModalConfigurar.textContent = `Configurar Declaraciones de ${data.contribuyente.razon_social}`;
+      viewDeclaraciones(data.configuraciones);
+    });
+}
+
+function viewDeclaraciones(data) {
+  const bodyDeclaracion = document.getElementById("bodyDeclaracion");
+
+  let html = "";
+
+  data.forEach((decla) => {
+    html += `
+    <div>
+      <h4 class="mb-3">${decla.decl_nombre}</h4>
+
+      <div class="row px-3">`;
+
+    decla.pdts.forEach((pdt) => {
+      html += `
+        <div class="col-md-6">
+          <h6 class="mb-2">${pdt.pdt_descripcion}</h6>
+
+          <div class="row px-3">`;
+
+      pdt.tributos.forEach((tributo) => {
+        let checked = tributo.configuracion === 1 ? "checked" : "";
+
+        html += `
+          <div class="col-md-6 mb-3">
+            <input type="checkbox" class="form-check-input" id="tributo${tributo.id_tributo}${pdt.id_pdt}${decla.id_declaracion}" ${checked}>
+            <label for="tributo${tributo.id_tributo}${pdt.id_pdt}${decla.id_declaracion}">${tributo.tri_descripcion}</label>
+          </div>
+          `;
+      });
+
+      html += `</div>
+        </div>
+      `;
+    });
+
+    html += `</div>
+
+    </div>
+    `;
+  });
+
+  bodyDeclaracion.innerHTML = html;
 }

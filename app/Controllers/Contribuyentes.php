@@ -14,6 +14,8 @@ use App\Models\PagosModel;
 use App\Models\CodificacionModel;
 use App\Models\ConfiguracionNotificacionModel;
 use App\Models\DeclaracionSunatModel;
+use App\Models\DeclaracionModel;
+use App\Models\PdtModel;
 use App\Models\TributoModel;
 use App\Models\UitModel;
 use App\Models\PrefijosModel;
@@ -828,6 +830,61 @@ class Contribuyentes extends BaseController
         $contacto->update($id, ['estado' => 0]);
 
         return $this->response->setJSON(['status' => 'success', 'message' => 'Contacto eliminado correctamente.']);
+    }
+
+    public function deleteContribuyente($id)
+    {
+        $model = new ContribuyenteModel();
+
+        $data = array('estado' => 0);
+
+        $model->update($id, $data);
+
+        return $this->response->setJSON(['status' => 'success', 'message' => 'Contribuyente eliminado correctamente.']);
+    }
+
+    public function declaracion($id)
+    {
+        $contrib = new ContribuyenteModel();
+        $tributo = new TributoModel();
+        $declaracion = new DeclaracionModel();
+        $pdt = new PdtModel();
+        $conf = new ConfiguracionNotificacionModel();
+
+        $data_contrib = $contrib->select('ruc, razon_social')->find($id);
+
+        $ruc = $data_contrib['ruc'];
+
+        $declaraciones = $declaracion->where('decl_estado', 1)->findAll();
+
+        foreach ($declaraciones as $key => $value) {
+
+            $pdts = $pdt->where('pdt_estado', 1)->where('id_declaracion', $value['id_declaracion'])->findAll();
+
+            foreach ($pdts as $key1 => $value1) {
+
+                $tributos = $tributo->where('id_pdt', $value1['id_pdt'])->findAll();
+
+                foreach ($tributos as $key2 => $value2) {
+                    $configuracion = $conf->where('id_tributo', $value2['id_tributo'])->where('ruc_empresa_numero', $ruc)->first();
+
+                    if ($configuracion) {
+                        $tributos[$key2]['configuracion'] = 1;
+                    } else {
+                        $tributos[$key2]['configuracion'] = 0;
+                    }
+                }
+
+                $pdts[$key1]['tributos'] = $tributos;
+            }
+
+            $declaraciones[$key]['pdts'] = $pdts;
+        }
+
+        return $this->response->setJSON([
+            "configuraciones" => $declaraciones,
+            "contribuyente" => $data_contrib
+        ]);
     }
 
     /*public function migrarContribuyentes()

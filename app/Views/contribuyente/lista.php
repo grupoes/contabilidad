@@ -6,8 +6,6 @@
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
 
-<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
-
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -497,6 +495,130 @@
                 >
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalImportBoletas" tabindex="-1" aria-labelledby="exampleModalFullscreenLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="titleImportBoletas">
+
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form id="formExcel" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="fileExcel" class="form-label">Subir Excel</label>
+                                <input type="file" class="form-control" name="fileExcel" id="fileExcel" accept=".xls, .xlsx" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-2 mb-3">
+                                    <label for="fecha" class="form-label">Fecha</label>
+                                    <input type="text" class="form-control" name="fecha" id="fecha" required>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="serie" class="form-label">Serie</label>
+                                    <input type="text" class="form-control" name="serie" id="serie" required>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="numero" class="form-label">Número</label>
+                                    <input type="text" class="form-control" name="numero" id="numero" required>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="monto" class="form-label">Monto</label>
+                                    <input type="text" class="form-control" name="monto" id="monto" required>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="ruc" class="form-label">RUC</label>
+                                    <input type="text" class="form-control" name="ruc" id="ruc" required>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="tipo" class="form-label">Tipo</label>
+                                    <input type="text" class="form-control" name="tipo" id="tipo" required>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="razon_social" class="form-label">Razón Social</label>
+                                    <input type="text" class="form-control" name="razon_social" id="razon_social">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="igv" class="form-label">IGV</label>
+                                    <select name="igv" id="igv" class="form-select">
+                                        <option value="no">no</option>
+                                        <option value="si">si</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-3 mt-5 form-check">
+                                    <input type="checkbox" class="form-check-input" id="conHora" name="conHora">
+                                    <label for="conHora">CON HORA</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mx-auto text-center">
+                            <button type="submit" class="btn btn-success">Importar</button>
+                        </div>
+                    </div>
+                </form>
+
+                <hr class="my-3">
+
+                <form action="">
+                    <h4 class="text-center">VACIAR DATA</h4>
+
+                    <div class="d-flex justify-content-center gap-3">
+                        <div class="col-md-3">
+                            <label for="inicio" class="form-label">Inicio</label>
+                            <input type="date" class="form-control" name="inicio" id="inicio" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="fin" class="form-label">Fin</label>
+                            <input type="date" class="form-control" name="fin" id="fin" required>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-3 mx-auto text-center">
+                            <button type="submit" class="btn btn-primary">Vaciar</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalConfigurarDeclaracion" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="titleModalConfigurar"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formDeclaracion">
+                <div class="modal-body" id="bodyDeclaracion">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" id="btnFormDeclaracion">Guardar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

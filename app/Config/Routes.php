@@ -42,6 +42,8 @@ $routes->post('contribuyente/add-contacto', 'Contribuyentes::addContacto');
 $routes->get('contribuyente/contactos/(:num)', 'Contribuyentes::renderContactos/$1');
 $routes->get('contribuyente/get-contacto/(:num)', 'Contribuyentes::getContacto/$1');
 $routes->get('contribuyente/delete-contacto/(:num)', 'Contribuyentes::deleteContacto/$1');
+$routes->get('contribuyente/delete/(:num)', 'Contribuyentes::deleteContribuyente/$1');
+$routes->get('contribuyente/declaracion/(:num)', 'Contribuyentes::declaracion/$1');
 
 $routes->get('contribuyentes/migracion', 'Contribuyentes::migrarContribuyentes');
 
@@ -133,3 +135,5 @@ $routes->get('listaDeclaracion/(:num)', 'Declaracion::listaDeclaracion/$1');
 $routes->post('declaracion/calendario', 'Declaracion::calendario');
 $routes->post('declaracion/extraer_data', 'Declaracion::extraer_data');
 $routes->post('declaracion/guardar_datos', 'Declaracion::guardar_datos');
+
+$routes->get('empresas-notificacion', 'Api\Notificaciones::index');
