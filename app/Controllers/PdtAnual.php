@@ -14,14 +14,16 @@ class PdtAnual extends BaseController
     public function index()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
         $anio = new AnioModel();
 
         $anios = $anio->query("SELECT * FROM anio WHERE anio_estado = 1 AND anio_descripcion <= YEAR(CURDATE()) ORDER BY anio_descripcion DESC")->getResult();
 
-        return view('declaraciones/pdtanual', compact('anios'));
+        $menu = $this->permisos_menu();
+
+        return view('declaraciones/pdtanual', compact('anios', 'menu'));
     }
 
     public function verificar($ruc)
@@ -56,7 +58,7 @@ class PdtAnual extends BaseController
         $hasta = $this->request->getVar("hasta");
         $ruc = $this->request->getVar('rucNum');
 
-        if($desde > $hasta) {
+        if ($desde > $hasta) {
             $data = [
                 "status" => "error",
                 "message" => "La fecha de Inicio (desde) no puede ser mayor a la fecha final (hasta)"
@@ -74,5 +76,4 @@ class PdtAnual extends BaseController
 
         return $this->response->setJSON($data);
     }
-
 }

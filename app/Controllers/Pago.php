@@ -19,14 +19,16 @@ class Pago extends BaseController
             return redirect()->to(base_url());
         }
 
-        return view('pagos/index');
+        $menu = $this->permisos_menu();
+
+        return view('pagos/index', compact('menu'));
     }
 
     public function pagosHonorarios($id)
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
         $contri = new ContribuyenteModel();
         $datos = $contri->find($id);
@@ -35,7 +37,7 @@ class Pago extends BaseController
         $metodos = $metodo->where('estado', 1)->findAll();
 
         $tarifa = new HistorialTarifaModel();
-        
+
         $monto_mensual = $this->getMontoMensual($id);
 
         $tipoComprobante = new TipoComprobanteModel();
@@ -49,7 +51,9 @@ class Pago extends BaseController
         // Formatear la fecha al formato deseado
         $fechaRestada = $fechaActual->format('Y-m-d');
 
-        return view('pagos/pagar', compact('id', 'metodos', 'tipos', 'datos', 'monto_mensual', 'fechaRestada'));
+        $menu = $this->permisos_menu();
+
+        return view('pagos/pagar', compact('id', 'metodos', 'tipos', 'datos', 'monto_mensual', 'fechaRestada', 'menu'));
     }
 
     public function listaPagos($id)
@@ -84,7 +88,7 @@ class Pago extends BaseController
 
             $nameFile = "";
 
-            if($metodoPago != 1) {
+            if ($metodoPago != 1) {
                 $voucher = $this->request->getFile('voucher');
 
                 if ($voucher->isValid() && !$voucher->hasMoved()) {
@@ -115,7 +119,7 @@ class Pago extends BaseController
 
             if (!$getUltimoPago) {
                 $fechaContratoObj = new DateTime($dataContrib['fechaContrato']);
-                $fechaPago = $fechaContratoObj->format('Y-m') . "-".$dataContrib['diaCobro'];
+                $fechaPago = $fechaContratoObj->format('Y-m') . "-" . $dataContrib['diaCobro'];
 
                 $diaVence = $fechaPago;
 
@@ -128,21 +132,20 @@ class Pago extends BaseController
                 $excedente = $getUltimoPago['montoExcedente'];
                 $montoPaga = $getUltimoPago['montoPagado'];
 
-                if($getUltimoPago['estado'] === 'Pagado') {
+                if ($getUltimoPago['estado'] === 'Pagado') {
                     $fecha = new DateTime($getUltimoPago['mesCorrespondiente']); // Fecha inicial
                     $fecha->modify('+1 month'); // Sumar un mes
                     $diaVence = $fecha->format('Y-m-d');
                 } else {
                     $diaVence = $getUltimoPago['mesCorrespondiente'];
                 }
-
             }
 
             $montoTotalDisponible = $monto + $excedente - $pendiente;
 
-            if($montoTotalDisponible <= 0) {
+            if ($montoTotalDisponible <= 0) {
 
-                if($montoTotalDisponible == 0) {
+                if ($montoTotalDisponible == 0) {
                     $mpen = 0;
                     $mpaga = $monto_mensual;
                     $estado = "Pagado";
@@ -151,7 +154,7 @@ class Pago extends BaseController
                     $mpen = $monto_mensual - $mpaga;
                     $estado = "Pendiente";
                 }
-                
+
                 $datos = [
                     "contribuyente_id" => $idContribuyente,
                     "monto_total" => $monto_mensual,
@@ -172,7 +175,7 @@ class Pago extends BaseController
                 if ($montoTotalDisponible <= $montoMensual) {
                     // Pago completo para el mes
 
-                    if($pendiente > 0) {
+                    if ($pendiente > 0) {
                         $datos_ac = [
                             "monto_total" => $monto_mensual,
                             "montoPagado" => $montoMensual,
@@ -181,7 +184,7 @@ class Pago extends BaseController
                             "usuario_id_cobra" => session()->id,
                             "estado" => "Pagado"
                         ];
-        
+
                         $pago->update($getUltimoPago['id'], $datos_ac);
 
                         $fecha = new DateTime($getUltimoPago['mesCorrespondiente']); // Fecha inicial
@@ -191,7 +194,7 @@ class Pago extends BaseController
                         $diaCorres = $diaVence;
                     }
 
-                    if($montoTotalDisponible == $montoMensual) {
+                    if ($montoTotalDisponible == $montoMensual) {
                         $status = "Pagado";
                     } else {
                         $status = "Pendiente";
@@ -210,13 +213,13 @@ class Pago extends BaseController
                         "usuario_id_cobra" => session()->id,
                         "estado" => $status
                     ];
-    
+
                     $pago->insert($datos);
                     $montoTotalDisponible -= $montoMensual;
                 } else {
                     // Pago parcial o excedente para el último mes
 
-                    if($montoTotalDisponible/$montoMensual >= 2) {
+                    if ($montoTotalDisponible / $montoMensual >= 2) {
                         $datos = [
                             "contribuyente_id" => $idContribuyente,
                             "fecha_pago" => $fechapago,
@@ -228,13 +231,13 @@ class Pago extends BaseController
                             "usuario_id_cobra" => session()->id,
                             "estado" => "Pagado"
                         ];
-        
+
                         $pago->insert($datos);
 
                         $montoTotalDisponible -= $montoMensual;
                     } else {
 
-                        if($montoMensual > $montoTotalDisponible) {
+                        if ($montoMensual > $montoTotalDisponible) {
                             $mpendiente = $montoMensual - $montoTotalDisponible;
                             $mexcedente = 0.00;
                             $estado = "Pendiente";
@@ -255,27 +258,22 @@ class Pago extends BaseController
                             "usuario_id_cobra" => session()->id,
                             "estado" => $estado
                         ];
-        
+
                         $pago->insert($datos);
                         $montoTotalDisponible = 0;
-
                     }
-
-        
                 }
 
                 // Avanzar al siguiente mes
                 $fechaMes = new DateTime($diaVence);
                 $fechaMes->modify('+1 month');
                 $diaVence = $fechaMes->format('Y-m-d');
-
             }
 
             return $this->response->setJSON([
                 "status" => "success",
                 "message" => "Se guardo correctamente el pago"
             ]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }

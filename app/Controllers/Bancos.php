@@ -9,10 +9,12 @@ class Bancos extends BaseController
     public function index()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
-        return view('bancos/index');
+        $menu = $this->permisos_menu();
+
+        return view('bancos/index', compact('menu'));
     }
 
     public function show()
@@ -29,7 +31,7 @@ class Bancos extends BaseController
         $banco = new BancosModel();
 
         try {
-            
+
             if (!$this->request->is('post')) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Método no permitido']);
             }
@@ -51,7 +53,7 @@ class Bancos extends BaseController
                 "estado" => 1
             );
 
-            if($idBanco == 0) {
+            if ($idBanco == 0) {
                 $banco->insert($datos);
 
                 return $this->response->setJSON(['status' => 'success', 'message' => "Se guardó correctamente."]);
@@ -60,7 +62,6 @@ class Bancos extends BaseController
 
                 return $this->response->setJSON(['status' => 'success', 'message' => "Se editó correctamente."]);
             }
-
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
@@ -85,11 +86,8 @@ class Bancos extends BaseController
             $banco->update($id, $datos);
 
             return $this->response->setJSON(['status' => 'success', 'message' => "Se eliminó correctamente."]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
-
     }
-
 }

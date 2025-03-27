@@ -12,8 +12,8 @@ class BoletaPago extends BaseController
     public function index()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
         $anio = new AnioModel();
         $mes = new MesModel();
@@ -22,7 +22,9 @@ class BoletaPago extends BaseController
 
         $meses = $mes->where('mes_estado', 1)->findAll();
 
-        return view('declaraciones/boletaPago', compact('anios', 'meses'));
+        $menu = $this->permisos_menu();
+
+        return view('declaraciones/boletaPago', compact('anios', 'meses', 'menu'));
     }
 
     public function save()
@@ -35,21 +37,21 @@ class BoletaPago extends BaseController
         $boletaPago->db->transStart();
 
         try {
-        
+
             $ruc = $this->request->getVar('rucEmp');
             $anio = $this->request->getVar('anio');
             $mes = $this->request->getVar('periodo');
 
             $consulta_boleta = $boletaPago->query("SELECT * FROM boleta_pago WHERE ruc_empresa = $ruc AND periodo = $mes AND anio = $anio")->getResult();
 
-            if($consulta_boleta) {
+            if ($consulta_boleta) {
                 return $this->response->setJSON([
                     "status" => "error",
                     "message" => "Ya existe el Periodo y el Año"
                 ]);
             }
 
-            $micarpeta = FCPATH.'archivos/boletas_pago/' . $ruc;
+            $micarpeta = FCPATH . 'archivos/boletas_pago/' . $ruc;
             if (!file_exists($micarpeta)) {
                 mkdir($micarpeta, 0777, true);
             }
@@ -81,7 +83,7 @@ class BoletaPago extends BaseController
 
             $pdts = $this->request->getFileMultiple('file_pdt');
 
-            for ($i=0; $i < count($pdts); $i++) { 
+            for ($i = 0; $i < count($pdts); $i++) {
                 $name = $pdts[$i]->getName();
 
                 $pdts[$i]->move($periodo_anio, $name);
@@ -106,13 +108,11 @@ class BoletaPago extends BaseController
                 "status" => "success",
                 "message" => "Se agrego correctamente los archivos"
             ]);
-
         } catch (\Exception $e) {
             $boletaPago->db->transRollback();
 
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
-        
     }
 
     public function consulta()
@@ -181,5 +181,4 @@ class BoletaPago extends BaseController
             ]);
         }
     }
-
 }

@@ -10,14 +10,16 @@ class MetodoPago extends BaseController
     public function index()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
         $banco = new BancosModel();
 
         $bancos = $banco->where('estado', 1)->findAll();
 
-        return view('metodoPago/index', compact('bancos'));
+        $menu = $this->permisos_menu();
+
+        return view('metodoPago/index', compact('bancos', 'menu'));
     }
 
     public function show()
@@ -34,7 +36,7 @@ class MetodoPago extends BaseController
         $metodo = new MetodoPagoModel();
 
         try {
-            
+
             if (!$this->request->is('post')) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Método no permitido']);
             }
@@ -55,7 +57,7 @@ class MetodoPago extends BaseController
                 "id_banco" => $banco
             );
 
-            if($idMetodo == 0) {
+            if ($idMetodo == 0) {
                 $metodo->insert($datos);
 
                 return $this->response->setJSON(['status' => 'success', 'message' => "Se guardó correctamente."]);
@@ -64,7 +66,6 @@ class MetodoPago extends BaseController
 
                 return $this->response->setJSON(['status' => 'success', 'message' => "Se editó correctamente."]);
             }
-
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
@@ -89,11 +90,8 @@ class MetodoPago extends BaseController
             $metodo->update($id, $datos);
 
             return $this->response->setJSON(['status' => 'success', 'message' => "Se eliminó correctamente."]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
-
     }
-
 }

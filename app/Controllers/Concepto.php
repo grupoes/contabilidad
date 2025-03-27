@@ -10,21 +10,23 @@ class Concepto extends BaseController
     public function index()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
         $tipo = new TipoMovimientoModel();
 
         $tipos = $tipo->where('tipo_movimiento_estado', 1)->findAll();
 
-        return view('concepto/index', compact('tipos'));
+        $menu = $this->permisos_menu();
+
+        return view('concepto/index', compact('tipos', 'menu'));
     }
 
     public function renderConceptos()
     {
         $concepto = new ConceptoModel();
 
-        $conceptos = $concepto->join('tipo_movimiento','tipo_movimiento.id_tipo_movimiento = concepto.id_tipo_movimiento')->where('concepto.con_estado', 1)->findAll();
+        $conceptos = $concepto->join('tipo_movimiento', 'tipo_movimiento.id_tipo_movimiento = concepto.id_tipo_movimiento')->where('concepto.con_estado', 1)->findAll();
 
         return $this->response->setJSON($conceptos);
     }
@@ -59,7 +61,7 @@ class Concepto extends BaseController
                 "con_estado" => 1
             );
 
-            if($idConcepto == 0) {
+            if ($idConcepto == 0) {
                 $concepto->insert($datos);
 
                 return $this->response->setJSON(['status' => 'success', 'message' => "Se guardó correctamente."]);
@@ -69,7 +71,6 @@ class Concepto extends BaseController
 
                 return $this->response->setJSON(['status' => 'success', 'message' => "Se editó correctamente."]);
             }
-
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
@@ -85,7 +86,6 @@ class Concepto extends BaseController
             $concepto->update($id, $data);
 
             return $this->response->setJSON(['status' => 'success', 'message' => "Se eliminó correctamente."]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }

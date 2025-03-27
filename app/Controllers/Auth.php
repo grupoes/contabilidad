@@ -35,7 +35,9 @@ class Auth extends BaseController
         $profiles = $model->getAllProfiles();
         $sedes = $sede->allSedes();
 
-        return view('auth/listaUsuarios', compact('profiles', 'sedes'));
+        $menu = $this->permisos_menu();
+
+        return view('auth/listaUsuarios', compact('profiles', 'sedes', 'menu'));
     }
 
     public function login()
@@ -344,7 +346,9 @@ class Auth extends BaseController
 
         $usuarios = $user->where('estado', 1)->where('perfil_id !=', 1)->where('perfil_id != 2')->findAll();
 
-        return view('auth/asignar', compact('usuarios'));
+        $menu = $this->permisos_menu();
+
+        return view('auth/asignar', compact('usuarios', 'menu'));
     }
 
     public function asignar($id)

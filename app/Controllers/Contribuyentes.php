@@ -43,7 +43,9 @@ class Contribuyentes extends BaseController
         inner join contribuyentes c on c.id = cd.contribuyente_id
         WHERE cd.fecha_vencimiento BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 30 DAY) and cd.estado = 1;')->getResult();
 
-        return view('contribuyente/lista', compact('sistemas', 'consulta_certificado_por_vencer'));
+        $menu = $this->permisos_menu();
+
+        return view('contribuyente/lista', compact('sistemas', 'consulta_certificado_por_vencer', 'menu'));
     }
 
     public function getIdContribuyente($id)
@@ -61,7 +63,9 @@ class Contribuyentes extends BaseController
             return redirect()->to(base_url());
         }
 
-        return view('contribuyente/cobros');
+        $menu = $this->permisos_menu();
+
+        return view('contribuyente/cobros', compact('menu'));
     }
 
     public function listaUbigeo()

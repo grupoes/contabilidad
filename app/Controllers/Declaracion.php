@@ -22,7 +22,9 @@ class Declaracion extends BaseController
 
         $declaraciones = $declaracion->findAll();
 
-        return view('declaracion/index', compact('declaraciones'));
+        $menu = $this->permisos_menu();
+
+        return view('declaracion/index', compact('declaraciones', 'menu'));
     }
 
     public function listaDeclaracion($id)

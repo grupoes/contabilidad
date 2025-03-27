@@ -13,8 +13,8 @@ class PdtPlame extends BaseController
     public function index()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
         $anio = new AnioModel();
         $mes = new MesModel();
@@ -23,7 +23,9 @@ class PdtPlame extends BaseController
 
         $meses = $mes->where('mes_estado', 1)->findAll();
 
-        return view('declaraciones/pdtplame', compact('anios', 'meses'));
+        $menu = $this->permisos_menu();
+
+        return view('declaraciones/pdtplame', compact('anios', 'meses', 'menu'));
     }
 
     public function filesSave()
@@ -79,7 +81,7 @@ class PdtPlame extends BaseController
 
             $consultaPlame = $pdtPlame->where('ruc_empresa', $ruc)->where('periodo', $periodo)->where('anio', $anio)->first();
 
-            if($consultaPlame) {
+            if ($consultaPlame) {
                 return $this->response->setJSON(['error' => 'success', 'message' => "El periodo y año ya existe."]);
             }
 
@@ -116,7 +118,7 @@ class PdtPlame extends BaseController
 
             $file_r08 = $this->request->getFileMultiple('file_r08');
 
-            for ($i=0; $i < count($file_r08); $i++) { 
+            for ($i = 0; $i < count($file_r08); $i++) {
                 $name = $file_r08[$i]->getName();
 
                 $file_r08[$i]->move(FCPATH . 'archivos/pdt', $name);
@@ -138,7 +140,6 @@ class PdtPlame extends BaseController
             }
 
             return $this->response->setJSON(['status' => 'success', 'message' => "Se guardo correctamente"]);
-
         } catch (\Exception $e) {
             log_message('error', 'Error en la transacción: ' . $e->getMessage());
             $pdtPlame->db->transRollback();
@@ -165,5 +166,4 @@ class PdtPlame extends BaseController
 
         return $this->response->setJSON($consulta);
     }
-
 }

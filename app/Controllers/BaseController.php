@@ -13,6 +13,7 @@ use App\Models\SesionCajaModel;
 use App\Models\HistorialTarifaModel;
 use App\Models\PagosModel;
 use App\Models\ContribuyenteModel;
+use App\Models\PermisosModel;
 
 use DateTime;
 
@@ -69,7 +70,7 @@ abstract class BaseController extends Controller
 
         $idUser = session()->id;
 
-        if($tipoPago == 1) {
+        if ($tipoPago == 1) {
             $idcaja = 1;
         } else {
             $idcaja = 2;
@@ -93,7 +94,7 @@ abstract class BaseController extends Controller
 
         if (!$getUltimoPago) {
             $fechaContratoObj = new DateTime($dataContrib['fechaContrato']);
-            $fechaPago = $fechaContratoObj->format('Y-m') . "-".$dataContrib['diaCobro'];
+            $fechaPago = $fechaContratoObj->format('Y-m') . "-" . $dataContrib['diaCobro'];
 
             $diaVence = $fechaPago;
         } else {
@@ -107,5 +108,28 @@ abstract class BaseController extends Controller
         $monto = $getHistorial['monto_mensual'];
 
         return $monto;
+    }
+
+    public function permisos_menu()
+    {
+        $permisos = new PermisosModel();
+
+        $modulos = $permisos->select('modulos.modulo_padre,(SELECT m2.nombre FROM modulos m2 WHERE m2.id = modulos.modulo_padre) AS modulo_padre_nombre, (SELECT m2.icono FROM modulos m2 WHERE m2.id = modulos.modulo_padre) AS modulo_padre_icono')
+            ->join('modulos', 'modulos.id = permisos.modulo_id')
+            ->where('permisos.perfil_id', session()->perfil_id)
+            ->groupBy('modulos.modulo_padre')
+            ->findAll();
+
+        foreach ($modulos as $key => $value) {
+            $hijos = $permisos->select('modulos.id,modulos.nombre,modulos.url, modulos.orden')
+                ->join('modulos', 'modulos.id = permisos.modulo_id')
+                ->where('permisos.perfil_id', session()->perfil_id)
+                ->where('modulos.modulo_padre', $value['modulo_padre'])
+                ->findAll();
+
+            $modulos[$key]['hijos'] = $hijos;
+        }
+
+        return $modulos;
     }
 }

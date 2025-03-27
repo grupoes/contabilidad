@@ -22,7 +22,9 @@ class Configuracion extends BaseController
 
         $sedes = $sede->where('estado', 1)->findAll();
 
-        return view('configuracion/cajaVirtual', compact('sedes'));
+        $menu = $this->permisos_menu();
+
+        return view('configuracion/cajaVirtual', compact('sedes', 'menu'));
     }
 
     public function saveCajaVirtual()
@@ -66,7 +68,9 @@ class Configuracion extends BaseController
 
         $monto_uit = $uit->first();
 
-        return view('configuracion/uit', compact('monto_uit'));
+        $menu = $this->permisos_menu();
+
+        return view('configuracion/uit', compact('monto_uit', 'menu'));
     }
 
     public function saveUit()
@@ -106,7 +110,9 @@ class Configuracion extends BaseController
 
         $rentas = $tributo->where('tri_codigo', 3081)->findAll();
 
-        return view('configuracion/renta', compact('rentas'));
+        $menu = $this->permisos_menu();
+
+        return view('configuracion/renta', compact('rentas', 'menu'));
     }
 
     public function contadores()
@@ -115,7 +121,9 @@ class Configuracion extends BaseController
             return redirect()->to(base_url());
         }
 
-        return view('configuracion/contadores');
+        $menu = $this->permisos_menu();
+
+        return view('configuracion/contadores', compact('menu'));
     }
 
     public function renderContadores()

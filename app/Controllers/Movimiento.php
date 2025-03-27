@@ -14,10 +14,12 @@ class Movimiento extends BaseController
     public function index()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
-        if(session()->perfil_id == 3){
+        $menu = $this->permisos_menu();
+
+        if (session()->perfil_id == 3) {
 
             $metodo = new MetodoPagoModel();
             $tipoComp = new TipoComprobanteModel();
@@ -25,14 +27,14 @@ class Movimiento extends BaseController
             $metodos = $metodo->where('estado', 1)->findAll();
             $comprobantes = $tipoComp->where('tipo_comprobante_estado', 1)->findAll();
 
-            return view('movimiento/cajero', compact('metodos', 'comprobantes'));
+            return view('movimiento/cajero', compact('metodos', 'comprobantes', 'menu'));
         }
 
         $sede = new SedeModel();
 
         $sedes = $sede->where('estado', 1)->findAll();
 
-        return view('movimiento/index', compact('sedes'));
+        return view('movimiento/index', compact('sedes', 'menu'));
     }
 
     public function guardar()
@@ -72,7 +74,6 @@ class Movimiento extends BaseController
                 "status"  => "success",
                 "message" => "Se agrego correctamente el movimiento"
             ]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 "status" => "error",
@@ -92,7 +93,7 @@ class Movimiento extends BaseController
             $startDateFormatted = DateTime::createFromFormat('d-m-Y', $dateRange)->format('Y-m-d');
             $endDateFormatted = DateTime::createFromFormat('d-m-Y', $dateRange)->format('Y-m-d');
         }
-        
+
 
         $mov = new MovimientoModel();
 
@@ -146,9 +147,11 @@ class Movimiento extends BaseController
     public function bancosMovimientos()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
 
-        return view('movimiento/bancosMovimientos');
+        $menu = $this->permisos_menu();
+
+        return view('movimiento/bancosMovimientos', compact('menu'));
     }
 }

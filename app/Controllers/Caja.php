@@ -11,27 +11,30 @@ class Caja extends BaseController
     public function index()
     {
         if (!session()->logged_in) {
-			return redirect()->to(base_url());
-		}
+            return redirect()->to(base_url());
+        }
+
+        $menu = $this->permisos_menu();
 
         $sesionCaja = new SesionCajaModel();
 
-        if(session()->perfil_id == 3){
+        if (session()->perfil_id == 3) {
 
             $getDataSesionCaja = $sesionCaja->where('id_usuario', session()->id)->orderBy('id_sesion_caja', 'desc')->first();
 
             $estadoCaja = "";
 
-            if(!$getDataSesionCaja) {
+            if (!$getDataSesionCaja) {
                 $estadoCaja = "abrir";
             } else {
-                $estadoCaja = $getDataSesionCaja['ses_estado'] == 1 ? 'cerrar': 'abrir';
+                $estadoCaja = $getDataSesionCaja['ses_estado'] == 1 ? 'cerrar' : 'abrir';
             }
 
-            return view('caja/cajero', compact('estadoCaja'));
+
+            return view('caja/cajero', compact('estadoCaja', 'menu'));
         }
 
-        return view('caja/index');
+        return view('caja/index', compact('menu'));
     }
 
     public function Aperturar()
@@ -47,10 +50,10 @@ class Caja extends BaseController
 
             $sesions = $sesion->where('id_usuario', $idUser)->orderBy('id_sesion_caja', 'DESC')->findAll(2);
 
-            if($sesions) {
+            if ($sesions) {
                 $fechaApertura = date('Y-m-d', strtotime($sesions[0]['ses_fechaapertura']));
 
-                if($fechaApertura == date('Y-m-d')) {
+                if ($fechaApertura == date('Y-m-d')) {
                     return $this->response->setJSON([
                         "status" => "error",
                         "message" => "Podrá abrir caja el día de mañana"
@@ -67,7 +70,7 @@ class Caja extends BaseController
 
             $fecha_apertura = date('Y-m-d H:i:s');
 
-            $datos_fisica = array( 
+            $datos_fisica = array(
                 "id_usuario" => session()->id,
                 "id_sede_caja" => $getSedeCajaFisica['id_sede_caja'],
                 "ses_fechaapertura" => $fecha_apertura,
@@ -79,7 +82,7 @@ class Caja extends BaseController
 
             $sesion->insert($datos_fisica);
 
-            $datos_virtual = array( 
+            $datos_virtual = array(
                 "id_usuario" => session()->id,
                 "id_sede_caja" => $getSedeCajaVirtual['id_sede_caja'],
                 "ses_fechaapertura" => $fecha_apertura,
@@ -101,7 +104,6 @@ class Caja extends BaseController
                 "status" => "success",
                 "message" => "se aperturo caja satisfactoriamente"
             ]);
-
         } catch (\Throwable $th) {
             $sesion->db->transRollback(); // Revertir la transacción
             return $this->response->setJSON([
@@ -109,7 +111,6 @@ class Caja extends BaseController
                 "message" => "Ocurrió un error: " . $th->getMessage()
             ]);
         }
-        
     }
 
     public function cierreCaja()
@@ -117,7 +118,7 @@ class Caja extends BaseController
         $sesion = new SesionCajaModel();
 
         try {
-            
+
             $idUser = session()->id;
 
             $sesions = $sesion->where('id_usuario', $idUser)->orderBy('id_sesion_caja', 'DESC')->findAll(2);
@@ -136,7 +137,6 @@ class Caja extends BaseController
                 "status" => "success",
                 "message" => "Caja cerrada correctamente"
             ]);
-
         } catch (\Throwable $th) {
             return $this->response->setJSON([
                 "status" => "error",
@@ -145,23 +145,23 @@ class Caja extends BaseController
         }
     }
 
-    public	function validarcaja()
-	{
+    public    function validarcaja()
+    {
         $sesion = new SesionCajaModel();
 
-		$html = '1';
+        $html = '1';
         $status = 'success';
 
         $exist_sesion = $sesion->where('id_usuario', session()->id)->where('ses_estado', 1)->findAll();
 
-        if($exist_sesion) {
+        if ($exist_sesion) {
 
             $fecha_apertura = date('Y-m-d', strtotime($exist_sesion[0]['ses_fechaapertura']));
 
-            if($fecha_apertura == date('Y-m-d')) {
+            if ($fecha_apertura == date('Y-m-d')) {
                 $html = $html;
             } else {
-                $html = 'Estimado usuario: Aun no cierra caja del día: 	'.date('d-m-Y', strtotime($exist_sesion[0]['ses_fechaapertura']));
+                $html = 'Estimado usuario: Aun no cierra caja del día: 	' . date('d-m-Y', strtotime($exist_sesion[0]['ses_fechaapertura']));
                 $status = 'warning';
             }
         } else {
@@ -173,8 +173,7 @@ class Caja extends BaseController
             "status" => $status,
             "message" => $html
         ]);
-
-	}
+    }
 
     public function verificarTipoCaja()
     {
@@ -184,11 +183,11 @@ class Caja extends BaseController
 
         $sesions = $sesion->select('sesion_caja.id_sesion_caja, sesion_caja.ses_estado, sede_caja.id_caja')->join('sede_caja', 'sede_caja.id_sede_caja = sesion_caja.id_sede_caja')->where('sesion_caja.id_usuario', $idUser)->orderBy('sesion_caja.id_sesion_caja', 'DESC')->findAll(2);
 
-        if($sesions) {
+        if ($sesions) {
             $fisico = "";
             $virtual = "";
             foreach ($sesions as $key => $value) {
-                if($value['id_caja'] == 1) {
+                if ($value['id_caja'] == 1) {
                     $fisico = $value['id_sesion_caja'];
                 } else {
                     $virtual = $value['id_sesion_caja'];
@@ -199,14 +198,13 @@ class Caja extends BaseController
         } else {
             return array("status" => "warning");
         }
-        
     }
 
     public function ingresosFisicos()
     {
         $verificar = $this->verificarTipoCaja();
 
-        if($verificar['status'] == 'warning') {
+        if ($verificar['status'] == 'warning') {
             return 0.00;
         } else {
             $fisico = $verificar['fisico'];
@@ -223,7 +221,7 @@ class Caja extends BaseController
     {
         $verificar = $this->verificarTipoCaja();
 
-        if($verificar['status'] == 'warning') {
+        if ($verificar['status'] == 'warning') {
             return 0.00;
         } else {
             $fisico = $verificar['fisico'];
@@ -240,7 +238,7 @@ class Caja extends BaseController
     {
         $verificar = $this->verificarTipoCaja();
 
-        if($verificar['status'] == 'warning') {
+        if ($verificar['status'] == 'warning') {
             return 0.00;
         } else {
             $virtual = $verificar['virtual'];
@@ -257,7 +255,7 @@ class Caja extends BaseController
     {
         $verificar = $this->verificarTipoCaja();
 
-        if($verificar['status'] == 'warning') {
+        if ($verificar['status'] == 'warning') {
             return 0.00;
         } else {
             $virtual = $verificar['virtual'];
@@ -293,5 +291,4 @@ class Caja extends BaseController
             "utilidadHoy" => $utilidad_hoy
         ]);
     }
-
 }

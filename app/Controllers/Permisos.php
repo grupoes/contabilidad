@@ -23,7 +23,9 @@ class Permisos extends BaseController
             $perfiles = $profile->where('estado', 1)->findAll();
         }
 
-        return view('permisos/index', compact('perfiles'));
+        $menu = $this->permisos_menu();
+
+        return view('permisos/index', compact('perfiles', 'menu'));
     }
 
     public function show($idperfil)
@@ -98,29 +100,5 @@ class Permisos extends BaseController
             'status' => 'success',
             'message' => "Permisos actualizados correctamente"
         ]);
-    }
-
-    public function permisos_menu()
-    {
-        $permisos = new PermisosModel();
-        //select modulos.modulo_padre,(SELECT m2.nombre FROM grupoes_contabilidad.modulos m2 WHERE m2.id = modulos.modulo_padre) AS modulo_padre_nombre from grupoes_contabilidad.permisos inner join modulos on modulos.id = permisos.modulo_id GROUP BY modulos.modulo_padre;
-
-        $modulos = $permisos->select('modulos.modulo_padre,(SELECT m2.nombre FROM modulos m2 WHERE m2.id = modulos.modulo_padre) AS modulo_padre_nombre, (SELECT m2.icono FROM modulos m2 WHERE m2.id = modulos.modulo_padre) AS modulo_padre_icono')
-            ->join('modulos', 'modulos.id = permisos.modulo_id')
-            ->where('permisos.perfil_id', session()->perfil_id)
-            ->groupBy('modulos.modulo_padre')
-            ->findAll();
-
-        foreach ($modulos as $key => $value) {
-            $hijos = $permisos->select('modulos.id,modulos.nombre,modulos.url, modulos.orden')
-                ->join('modulos', 'modulos.id = permisos.modulo_id')
-                ->where('permisos.perfil_id', session()->perfil_id)
-                ->where('modulos.modulo_padre', $value['modulo_padre'])
-                ->findAll();
-
-            $modulos[$key]['hijos'] = $hijos;
-        }
-
-        return $this->response->setJSON($modulos);
     }
 }

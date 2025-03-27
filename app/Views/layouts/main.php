@@ -84,7 +84,7 @@
                 <?= $this->include('layouts/cardUser') ?>
 
                 <ul class="pc-navbar" id="nav-menu">
-
+                    <?= $this->include('layouts/menu') ?>
                 </ul>
             </div>
         </div>

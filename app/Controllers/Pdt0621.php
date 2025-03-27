@@ -22,7 +22,9 @@ class Pdt0621 extends BaseController
 
         $meses = $mes->where('mes_estado', 1)->findAll();
 
-        return view('declaraciones/pdt0621', compact('anios', 'meses'));
+        $menu = $this->permisos_menu();
+
+        return view('declaraciones/pdt0621', compact('anios', 'meses', 'menu'));
     }
 
     public function filesSave()
