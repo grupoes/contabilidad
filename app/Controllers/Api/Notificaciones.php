@@ -7,6 +7,7 @@ use CodeIgniter\RESTful\ResourceController;
 
 use App\Models\FechaDeclaracionModel;
 use App\Models\ContribuyenteModel;
+use App\Models\ContactosContribuyenteModel;
 
 class Notificaciones extends ResourceController
 {
@@ -22,17 +23,38 @@ class Notificaciones extends ResourceController
     {
         $fecha = new FechaDeclaracionModel();
         $contrib = new ContribuyenteModel();
+        $contacto = new ContactosContribuyenteModel();
+
         $date = date('Y-m-d');
 
-        $consulta = $fecha->query("SELECT id_mes, id_numero, MIN(fecha_notificar) AS fecha_notificar, GROUP_CONCAT(tipo ORDER BY tipo SEPARATOR ', ') AS tipo, id_tributo, MIN(fecha_exacta) AS fecha_exacta FROM ( SELECT id_mes, id_numero, fecha_notificar, 'notificar' AS tipo, id_tributo, fecha_exacta FROM fecha_declaracion WHERE fecha_notificar = '$date' UNION SELECT id_mes, id_numero, fecha_exacta, 'ultimo_dia' AS tipo, id_tributo, fecha_exacta FROM fecha_declaracion WHERE fecha_exacta = '$date' ) AS subquery GROUP BY id_numero;")->getResult();
+        $consulta = $fecha->query("(SELECT id_numero, MIN(fecha_declaracion.fecha_notificar) AS notificacion
+        FROM fecha_declaracion 
+        INNER JOIN tributo ON tributo.id_tributo = fecha_declaracion.id_tributo 
+        WHERE fecha_declaracion.fecha_notificar = '$date' 
+        AND tributo.id_pdt = 1 
+        GROUP BY id_numero)
+        UNION
+        (SELECT id_numero, MIN(fecha_declaracion.fecha_exacta) AS notificacion
+        FROM fecha_declaracion 
+        INNER JOIN tributo ON tributo.id_tributo = fecha_declaracion.id_tributo 
+        WHERE fecha_declaracion.fecha_exacta = '$date' 
+        AND tributo.id_pdt = 1 
+        GROUP BY id_numero);
+        ")->getResult();
 
-        $empresas = array();
+        $empresas = [];
 
         foreach ($consulta as $key => $value) {
             $digito = $value->id_numero - 1;
             $emp = $contrib->query("SELECT * FROM contribuyentes WHERE estado = 1 and RIGHT(ruc, 1) = '$digito'")->getResult();
 
-            array_push($empresas, $emp);
+            foreach ($emp as $key1 => $value1) {
+                $contactos = $contacto->where('contribuyente_id', $value1->id)->findAll();
+
+                $emp[$key1]->contactos = $contactos;
+            }
+
+            $empresas = array_merge($empresas, $emp);
         }
 
         return $this->respond($empresas);
