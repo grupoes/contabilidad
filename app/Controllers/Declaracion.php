@@ -20,7 +20,7 @@ class Declaracion extends BaseController
 
         $declaracion = new DeclaracionModel();
 
-        $declaraciones = $declaracion->findAll();
+        $declaraciones = $declaracion->where('id_declaracion', 1)->findAll();
 
         $menu = $this->permisos_menu();
 
@@ -140,11 +140,17 @@ class Declaracion extends BaseController
                 if ($mes_exacto == "1") {
                     $anio = (int) $anio + 1;
                 }
-                $fecha_final = $anio . "-" . $mes_exacto . "-" . $dia;
 
-                $date = date_create($fecha_final);
-                date_add($date, date_interval_create_from_date_string('-3 days'));
-                $fecha_notificacion = date_format($date, "Y-m-d");
+                if ($dia === "") {
+                    $fecha_notificacion = "";
+                    $fecha_final = "";
+                } else {
+                    $fecha_final = $anio . "-" . $mes_exacto . "-" . $dia;
+
+                    $date = date_create($fecha_final);
+                    date_add($date, date_interval_create_from_date_string('-3 days'));
+                    $fecha_notificacion = date_format($date, "Y-m-d");
+                }
 
                 $data = array(
                     "id_anio" => $ani,

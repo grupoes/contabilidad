@@ -21,12 +21,14 @@ function declaracion(id, nombre) {
       let html = "";
 
       data.forEach((decla) => {
-        html += `
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="radio" name="lista" id="list-${decla.id_pdt}" value="${decla.id_pdt}">
-            <label class="form-check-label" for="list-${decla.id_pdt}">${decla.pdt_descripcion}</label>
-        </div>
-        `;
+        if (decla.id_pdt == 1 || decla.id_pdt == 3) {
+          html += `
+          <div class="form-check mb-3">
+              <input class="form-check-input" type="radio" name="lista" id="list-${decla.id_pdt}" value="${decla.id_pdt}">
+              <label class="form-check-label" for="list-${decla.id_pdt}">${decla.pdt_descripcion}</label>
+          </div>
+          `;
+        }
       });
 
       listDeclaracion.innerHTML = html;
@@ -79,7 +81,7 @@ function viewConfiguracion(data) {
                     <td class="sticky-col"><b>${mes.mes_descripcion}</b> se declara (${mes.mes_declaracion})</td>`;
 
     numeros.forEach((number) => {
-      mesesHtml += `<td> <input type="text" maxlength='2' name="datos[]" id="datos${number.id_numero}${mes.id_mes}" class="form-control form-control-sm" onkeyup="enviar_datos(${number.id_numero}, ${mes.id_mes})"> </td>`;
+      mesesHtml += `<td> <input type="text" maxlength='2' name="datos[]" id="datos${number.id_numero}${mes.id_mes}" class="form-control form-control-sm" onBlur="enviar_datos(${number.id_numero}, ${mes.id_mes})"> </td>`;
     });
 
     mesesHtml += `</tr>`;
@@ -148,7 +150,11 @@ function getAnio(e) {
         .get();
 
       data.forEach((dia) => {
-        $("#datos" + dia.numeracion).val(dia.dia_exacto);
+        if (dia.dia_exacto == 0) {
+          $("#datos" + dia.numeracion).val("");
+        } else {
+          $("#datos" + dia.numeracion).val(dia.dia_exacto);
+        }
       });
     });
 }
@@ -167,29 +173,29 @@ function enviar_datos(id_numero, id_mes) {
       fecha.val(maximo);
     }
 
-    if (fecha.val() != "" && fecha.val().length >= 1) {
-      const list = document.getElementById("lista").value;
-      const formData = new FormData();
-      formData.append("id_anio", anio);
-      formData.append("id_mes", idm);
-      formData.append("id_numero", idn);
-      formData.append("dia", fecha.val());
-      formData.append("lista", list);
+    //if (fecha.val() != "" && fecha.val().length >= 1) {
+    const list = document.getElementById("lista").value;
+    const formData = new FormData();
+    formData.append("id_anio", anio);
+    formData.append("id_mes", idm);
+    formData.append("id_numero", idn);
+    formData.append("dia", fecha.val());
+    formData.append("lista", list);
 
-      fetch(base_url + "declaracion/guardar_datos", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.status === "success") {
-            notifier.show("¡Bien hecho!", data.message, "success", "", 4000);
-            return false;
-          }
+    fetch(base_url + "declaracion/guardar_datos", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          notifier.show("¡Bien hecho!", data.message, "success", "", 4000);
+          return false;
+        }
 
-          notifier.show("¡Sorry!", data.message, "danger", "", 4000);
-        });
-    }
+        notifier.show("¡Sorry!", data.message, "danger", "", 4000);
+      });
+    //}
   }
 }
 
