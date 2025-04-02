@@ -90,7 +90,7 @@ class Declaracion extends BaseController
 
         $sql = $tributo->where('id_pdt', $lista)->first();
 
-        $datos = $fecha->select('CONCAT(id_numero, id_mes) as numeracion, dia_exacto')
+        $datos = $fecha->select('CONCAT(id_numero, id_mes) as numeracion, CONCAT(id_numero, 1) as numeracionBalance, dia_exacto, fecha_exacta')
             ->where('id_tributo', $sql['id_tributo'])
             ->where('id_anio', $anio)
             ->findAll();
@@ -124,6 +124,10 @@ class Declaracion extends BaseController
 
                 $id_existe = "";
 
+                if ($lista == 3) {
+                    $mes = date('m', strtotime($dia));
+                }
+
                 $tribut = $fecha->where('id_anio', $ani)
                     ->where('id_mes', $mes)
                     ->where('id_numero', $numero)
@@ -144,12 +148,26 @@ class Declaracion extends BaseController
                 if ($dia === "") {
                     $fecha_notificacion = "";
                     $fecha_final = "";
+                    $dia_exacto = $dia;
                 } else {
-                    $fecha_final = $anio . "-" . $mes_exacto . "-" . $dia;
 
-                    $date = date_create($fecha_final);
-                    date_add($date, date_interval_create_from_date_string('-3 days'));
-                    $fecha_notificacion = date_format($date, "Y-m-d");
+                    if ($lista == 1) {
+                        $fecha_final = $anio . "-" . $mes_exacto . "-" . $dia;
+
+                        $date = date_create($fecha_final);
+                        date_add($date, date_interval_create_from_date_string('-3 days'));
+                        $fecha_notificacion = date_format($date, "Y-m-d");
+
+                        $dia_exacto = $dia;
+                    } else {
+                        $fecha_final = $dia;
+
+                        $date = date_create($fecha_final);
+                        date_add($date, date_interval_create_from_date_string('-3 days'));
+                        $fecha_notificacion = date_format($date, "Y-m-d");
+
+                        $dia_exacto = date('d', strtotime($fecha_final));
+                    }
                 }
 
                 $data = array(
@@ -159,7 +177,7 @@ class Declaracion extends BaseController
                     "id_tributo" => $value['id_tributo'],
                     "fecha_exacta" => $fecha_final,
                     "fecha_notificar" => $fecha_notificacion,
-                    "dia_exacto" => $dia
+                    "dia_exacto" => $dia_exacto
                 );
 
                 if ($id_existe == "") {

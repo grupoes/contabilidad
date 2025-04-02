@@ -76,16 +76,32 @@ function viewConfiguracion(data) {
   const meses = data.meses;
   let mesesHtml = "";
 
-  meses.forEach((mes) => {
-    mesesHtml += `<tr>
-                    <td class="sticky-col"><b>${mes.mes_descripcion}</b> se declara (${mes.mes_declaracion})</td>`;
+  if (data.lista === "1") {
+    meses.forEach((mes) => {
+      mesesHtml += `<tr>
+                      <td class="sticky-col" style="background: #f1eeee;"><b>${mes.mes_descripcion}</b> se declara (${mes.mes_declaracion})</td>`;
+
+      numeros.forEach((number) => {
+        mesesHtml += `<td> <input type="text" maxlength='2' name="datos[]" id="datos${number.id_numero}${mes.id_mes}" class="form-control form-control-sm" onBlur="enviar_datos(${number.id_numero}, ${mes.id_mes})"> </td>`;
+      });
+
+      mesesHtml += `</tr>`;
+    });
+  }
+
+  if (data.lista === "3") {
+    let htmlFila = "";
 
     numeros.forEach((number) => {
-      mesesHtml += `<td> <input type="text" maxlength='2' name="datos[]" id="datos${number.id_numero}${mes.id_mes}" class="form-control form-control-sm" onBlur="enviar_datos(${number.id_numero}, ${mes.id_mes})"> </td>`;
+      htmlFila += `<td> <input type="date" maxlength='2' name="datos[]" id="datos${number.id_numero}1" class="form-control form-control-sm" onBlur="enviar_datos(${number.id_numero}, 1)"> </td>`;
     });
 
-    mesesHtml += `</tr>`;
-  });
+    mesesHtml += `
+      <tr>
+        <td class="sticky-col" style="background: #f1eeee;"><b>Fecha</b></td>
+        ${htmlFila}
+      </tr>`;
+  }
 
   let html = `
         <div class="card">
@@ -103,7 +119,7 @@ function viewConfiguracion(data) {
                   <table class="table table-sm">
                       <thead>
                           <tr>
-                              <th class="sticky-col">Periodo</th>
+                              <th class="sticky-col" style="background: #f1eeee;">Periodo</th>
                               ${numerosHtml}
                           </tr>
                       </thead>
@@ -153,7 +169,11 @@ function getAnio(e) {
         if (dia.dia_exacto == 0) {
           $("#datos" + dia.numeracion).val("");
         } else {
-          $("#datos" + dia.numeracion).val(dia.dia_exacto);
+          if (lista == 3) {
+            $("#datos" + dia.numeracionBalance).val(dia.fecha_exacta);
+          } else {
+            $("#datos" + dia.numeracion).val(dia.dia_exacto);
+          }
         }
       });
     });
