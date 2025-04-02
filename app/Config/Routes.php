@@ -45,6 +45,7 @@ $routes->get('contribuyente/delete-contacto/(:num)', 'Contribuyentes::deleteCont
 $routes->get('contribuyente/delete/(:num)', 'Contribuyentes::deleteContribuyente/$1');
 $routes->get('contribuyente/declaracion/(:num)', 'Contribuyentes::declaracion/$1');
 $routes->post('contribuyente/configurar-declaracion', 'Contribuyentes::configurarDeclaracion');
+$routes->post('contribuyente/importar-boletas', 'Contribuyentes::importarBoletas');
 
 $routes->get('contribuyentes/migracion', 'Contribuyentes::migrarContribuyentes');
 

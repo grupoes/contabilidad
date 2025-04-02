@@ -916,6 +916,17 @@ class Contribuyentes extends BaseController
         }
     }
 
+    public function importarBoletas()
+    {
+        try {
+            $file = $this->request->getFile('fileExcel');
+            $file->move(WRITEPATH . 'uploads/boletas/');
+            $filePath = WRITEPATH . 'uploads/boletas/' . $file->getName();
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
     /*public function migrarContribuyentes()
     {
         $empresa = new RucEmpresaModel();

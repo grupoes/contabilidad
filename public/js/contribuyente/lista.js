@@ -968,3 +968,25 @@ formDeclaracion.addEventListener("submit", (e) => {
       }
     });
 });
+
+const formExcel = document.getElementById("formExcel");
+
+formExcel.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formExcel);
+
+  fetch(base_url + "contribuyente/importar-boletas", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        $("#modalImportBoletas").modal("hide");
+        notifier.show("¡Bien hecho!", data.message, "success", "", 4000);
+      } else {
+        notifier.show("¡Sorry!", data.message, "danger", "", 4000);
+      }
+    });
+});
