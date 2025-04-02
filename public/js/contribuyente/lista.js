@@ -892,6 +892,9 @@ function configurarDeclaraciones(e, id) {
   fetch(base_url + "contribuyente/declaracion/" + id)
     .then((res) => res.json())
     .then((data) => {
+      const ruc_empresa = document.getElementById("ruc_empresa");
+      ruc_empresa.value = data.contribuyente.ruc;
+
       const titleModalConfigurar = document.getElementById(
         "titleModalConfigurar"
       );
@@ -924,7 +927,7 @@ function viewDeclaraciones(data) {
 
         html += `
           <div class="col-md-6 mb-3">
-            <input type="checkbox" class="form-check-input" id="tributo${tributo.id_tributo}${pdt.id_pdt}${decla.id_declaracion}" ${checked}>
+            <input type="checkbox" class="form-check-input" name="declaracion[]" value="${tributo.id_tributo}" id="tributo${tributo.id_tributo}${pdt.id_pdt}${decla.id_declaracion}" ${checked}>
             <label for="tributo${tributo.id_tributo}${pdt.id_pdt}${decla.id_declaracion}">${tributo.tri_descripcion}</label>
           </div>
           `;
@@ -943,3 +946,25 @@ function viewDeclaraciones(data) {
 
   bodyDeclaracion.innerHTML = html;
 }
+
+const formDeclaracion = document.getElementById("formDeclaracion");
+
+formDeclaracion.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formDeclaracion);
+
+  fetch(base_url + "contribuyente/configurar-declaracion", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        $("#modalConfigurarDeclaracion").modal("hide");
+        notifier.show("¡Bien hecho!", data.message, "success", "", 4000);
+      } else {
+        notifier.show("¡Sorry!", data.message, "danger", "", 4000);
+      }
+    });
+});

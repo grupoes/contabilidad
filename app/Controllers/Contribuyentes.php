@@ -891,6 +891,31 @@ class Contribuyentes extends BaseController
         ]);
     }
 
+    public function configurarDeclaracion()
+    {
+        $configuracion = new ConfiguracionNotificacionModel();
+
+        try {
+            $declaracion = $this->request->getPost('declaracion');
+            $ruc = $this->request->getPost('ruc_empresa');
+
+            $configuracion->where('ruc_empresa_numero', $ruc)->delete();
+
+            for ($i = 0; $i < count($declaracion); $i++) {
+                $data = array(
+                    "id_tributo" => $declaracion[$i],
+                    "ruc_empresa_numero" => $ruc
+                );
+
+                $configuracion->insert($data);
+            }
+
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Configuración guardada correctamente.']);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
     /*public function migrarContribuyentes()
     {
         $empresa = new RucEmpresaModel();

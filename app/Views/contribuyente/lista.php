@@ -611,6 +611,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="formDeclaracion">
+                <input type="hidden" name="ruc_empresa" id="ruc_empresa">
                 <div class="modal-body" id="bodyDeclaracion">
 
                 </div>
