@@ -511,6 +511,7 @@
             <div class="modal-body">
 
                 <form id="formExcel" enctype="multipart/form-data">
+                    <input type="hidden" name="numero_ruc" id="numero_ruc">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
@@ -564,15 +565,17 @@
                         </div>
 
                         <div class="col-md-4 mx-auto text-center">
-                            <button type="submit" class="btn btn-success">Importar</button>
+                            <button type="submit" class="btn btn-success" id="importComprobantes">Importar</button>
                         </div>
                     </div>
                 </form>
 
                 <hr class="my-3">
 
-                <form action="">
+                <form id="formVacear">
                     <h4 class="text-center">VACIAR DATA</h4>
+                    <input type="hidden" name="numero_ruc" id="rucEmpresa">
+                    <div id="alertMessage"></div>
 
                     <div class="d-flex justify-content-center gap-3">
                         <div class="col-md-3">
@@ -587,14 +590,14 @@
 
                     <div class="row mt-3">
                         <div class="col-md-3 mx-auto text-center">
-                            <button type="submit" class="btn btn-primary">Vaciar</button>
+                            <button type="submit" class="btn btn-primary" id="btnVacear">Vaciar</button>
                         </div>
                     </div>
                 </form>
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="submit" class="btn btn-secondary" data-bs-dismiss="modal">
                     Cerrar
                 </button>
             </div>

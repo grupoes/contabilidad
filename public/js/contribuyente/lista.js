@@ -827,6 +827,8 @@ function deleteContacto(e, id) {
 }
 
 const titleImportBoletas = document.getElementById("titleImportBoletas");
+const numero_ruc = document.getElementById("numero_ruc");
+const rucEmpresa = document.getElementById("rucEmpresa");
 
 function importarBoletas(e, id) {
   e.preventDefault();
@@ -836,6 +838,8 @@ function importarBoletas(e, id) {
     .then((res) => res.json())
     .then((data) => {
       titleImportBoletas.textContent = `Importar boletas de ${data.razon_social}`;
+      numero_ruc.value = data.ruc;
+      rucEmpresa.value = data.ruc;
     });
 }
 
@@ -970,11 +974,15 @@ formDeclaracion.addEventListener("submit", (e) => {
 });
 
 const formExcel = document.getElementById("formExcel");
+const importComprobantes = document.getElementById("importComprobantes");
 
-formExcel.addEventListener("submit", (e) => {
+formExcel.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const formData = new FormData(formExcel);
+
+  importComprobantes.textContent = "Importando...";
+  importComprobantes.disabled = true;
 
   fetch(base_url + "contribuyente/importar-boletas", {
     method: "POST",
@@ -982,11 +990,84 @@ formExcel.addEventListener("submit", (e) => {
   })
     .then((res) => res.json())
     .then((data) => {
+      importComprobantes.textContent = "Importar";
+      importComprobantes.disabled = false;
+
       if (data.status === "success") {
-        $("#modalImportBoletas").modal("hide");
-        notifier.show("¡Bien hecho!", data.message, "success", "", 4000);
+        descargarBoletas(e, data.numero_ruc, data.minimo, data.maximo);
+        formExcel.reset();
+        return false;
       } else {
-        notifier.show("¡Sorry!", data.message, "danger", "", 4000);
+        alert(data.message);
       }
+    });
+});
+
+function descargarBoletas(e, ruc, minimo, maximo) {
+  e.preventDefault();
+
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = base_url + "descargar/excelComprobantes";
+  form.target = "_blank";
+
+  // Agregar parámetros como campos ocultos si es necesario
+  const input = document.createElement("input");
+  input.type = "hidden";
+  input.name = "ruc";
+  input.value = ruc;
+
+  const inputMin = document.createElement("input");
+  inputMin.type = "hidden";
+  inputMin.name = "minimo";
+  inputMin.value = minimo;
+
+  const inputMax = document.createElement("input");
+  inputMax.type = "hidden";
+  inputMax.name = "maximo";
+  inputMax.value = maximo;
+
+  form.appendChild(input);
+  form.appendChild(inputMin);
+  form.appendChild(inputMax);
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
+
+const formVacear = document.getElementById("formVacear");
+const alertMessage = document.getElementById("alertMessage");
+const btnVacear = document.getElementById("btnVacear");
+
+formVacear.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formVacear);
+
+  btnVacear.textContent = "Vaciando data...";
+  btnVacear.disabled = true;
+
+  fetch(base_url + "contribuyente/vacear-boletas", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      btnVacear.textContent = "Vaciar";
+      btnVacear.disabled = false;
+
+      if (data.status === "success") {
+        alertMessage.innerHTML = `<div class="alert alert-success" role="alert">${data.message}</div>`;
+        formVacear.reset();
+
+        setTimeout(() => {
+          alertMessage.innerHTML = "";
+        }, 5000);
+
+        return false;
+      }
+
+      alertMessage.innerHTML = `<div class="alert alert-danger" role="alert">${data.message}</div>`;
     });
 });
