@@ -1265,6 +1265,31 @@ class Contribuyentes extends BaseController
         }
     }
 
+    public function verAcceso($id)
+    {
+        $contrib = new ContribuyenteModel();
+
+        $data_contrib = $contrib->select('ruc, razon_social, acceso')->find($id);
+
+        return $this->response->setJSON(['status' => 'success', 'datos' => $data_contrib]);
+    }
+
+    public function updatePassword()
+    {
+        $contrib = new ContribuyenteModel();
+
+        try {
+            $id = $this->request->getPost('idcon');
+            $password = $this->request->getPost('clave');
+
+            $contrib->update($id, ['acceso' => $password]);
+
+            return $this->response->setJSON(['status' => 'success', 'message' => "Contraseña actualizada correctamente."]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
     /*public function migrarContribuyentes()
     {
         $empresa = new RucEmpresaModel();

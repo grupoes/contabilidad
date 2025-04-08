@@ -237,7 +237,7 @@ function optionsTable(id, ruc) {
         <a class="dropdown-item" href="#" onclick="deleteEmpresa(event, ${id})"><i class="material-icons-two-tone">delete</i>Eliminar Empresa</a>
         <a class="dropdown-item" href="#" onclick="configurarDeclaraciones(event, ${id})"><i class="material-icons-two-tone">settings</i>Configurar declaraciones</a>
         <a class="dropdown-item" href="#"><i class="material-icons-two-tone">settings_applications</i>Declaración tributaria</a>
-        <a class="dropdown-item" href="#"><i class="material-icons-two-tone">vpn_key</i>Ver contraseña</a>
+        <a class="dropdown-item" href="#" onclick="verAcceso(event, ${id})"><i class="material-icons-two-tone">vpn_key</i>Ver contraseña</a>
         <a class="dropdown-item" href="https://esconsultoresyasesores.com:9094/maqueta-compras/${ruc}" target="__blank"><i class="material-icons-two-tone">insert_drive_file</i>Escanear y generar maquetas de compras</a>
         <a class="dropdown-item" href="https://esconsultoresyasesores.com:9093/reportes/${ruc}" target="__blank"><i class="material-icons-two-tone">file_copy</i>Reporte Comercial</a>
         <a class="dropdown-item" href="https://esconsultoresyasesores.com:9092/reportes/${ruc}" target="__blank"><i class="material-icons-two-tone">restaurant</i>Reporte Restaurante</a>
@@ -1069,5 +1069,68 @@ formVacear.addEventListener("submit", (e) => {
       }
 
       alertMessage.innerHTML = `<div class="alert alert-danger" role="alert">${data.message}</div>`;
+    });
+});
+
+const titleModalAcceso = document.getElementById("titleModalAcceso");
+const usuario = document.getElementById("usuario");
+const password = document.getElementById("password");
+const idcon = document.getElementById("idcon");
+
+function verAcceso(e, id) {
+  e.preventDefault();
+
+  $("#modalAcceso").modal("show");
+
+  idcon.value = id;
+
+  fetch(base_url + "contribuyente/ver-acceso/" + id)
+    .then((res) => res.json())
+    .then((data) => {
+      const datos = data.datos;
+
+      titleModalAcceso.textContent = `Acceso de ${datos.razon_social}`;
+      usuario.value = datos.ruc;
+      password.value = datos.acceso;
+    });
+}
+
+document
+  .getElementById("togglePassword")
+  .addEventListener("click", function () {
+    var passwordInput = document.getElementById("password");
+    var icon = this.querySelector("i");
+
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      icon.classList.remove("fa-eye");
+      icon.classList.add("fa-eye-slash");
+    } else {
+      passwordInput.type = "password";
+      icon.classList.remove("fa-eye-slash");
+      icon.classList.add("fa-eye");
+    }
+  });
+
+const formClave = document.getElementById("formClave");
+
+formClave.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formClave);
+
+  fetch(base_url + "contribuyente/actualizar-clave", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        notifier.show("¡Bien hecho!", data.message, "success", "", 4000);
+        $("#modalAcceso").modal("hide");
+        return false;
+      }
+
+      notifier.show("¡Sorry!", data.message, "danger", "", 4000);
     });
 });

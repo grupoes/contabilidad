@@ -48,6 +48,8 @@ $routes->post('contribuyente/configurar-declaracion', 'Contribuyentes::configura
 $routes->post('contribuyente/importar-boletas', 'Contribuyentes::importarBoletas');
 $routes->post('descargar/excelComprobantes', 'Contribuyentes::descargarExcelComprobantes');
 $routes->post('contribuyente/vacear-boletas', 'Contribuyentes::vacearBoletas');
+$routes->get('contribuyente/ver-acceso/(:num)', 'Contribuyentes::verAcceso/$1');
+$routes->post('contribuyente/actualizar-clave', 'Contribuyentes::updatePassword');
 
 $routes->get('contribuyentes/migracion', 'Contribuyentes::migrarContribuyentes');
 
