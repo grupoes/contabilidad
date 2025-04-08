@@ -104,11 +104,11 @@ class Caja extends BaseController
                 "status" => "success",
                 "message" => "se aperturo caja satisfactoriamente"
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             $sesion->db->transRollback(); // Revertir la transacción
             return $this->response->setJSON([
                 "status" => "error",
-                "message" => "Ocurrió un error: " . $th->getMessage()
+                "message" => "Ocurrió un error: " . $e->getMessage()
             ]);
         }
     }
@@ -137,15 +137,15 @@ class Caja extends BaseController
                 "status" => "success",
                 "message" => "Caja cerrada correctamente"
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             return $this->response->setJSON([
                 "status" => "error",
-                "message" => "Ocurrió un error: " . $th->getMessage()
+                "message" => "Ocurrió un error: " . $e->getMessage()
             ]);
         }
     }
 
-    public    function validarcaja()
+    public function validarcaja()
     {
         $sesion = new SesionCajaModel();
 

@@ -115,6 +115,43 @@ class Configuracion extends BaseController
         return view('configuracion/renta', compact('rentas', 'menu'));
     }
 
+    public function getRentas($id)
+    {
+        $tributo = new TributoModel();
+
+        $renta = $tributo->find($id);
+
+        return $this->response->setJSON($renta);
+    }
+
+    public function updateRentas()
+    {
+        try {
+            $tributo = new TributoModel();
+
+            $id = $this->request->getPost('idRenta');
+            $porcentaje = $this->request->getPost('porcentaje');
+            $porcentaje_despues = $this->request->getPost('porcentaje_despues');
+
+            $data = array(
+                "porcentaje_renta" => $porcentaje,
+                "porcentaje_renta_segunda" => $porcentaje_despues
+            );
+
+            $tributo->update($id, $data);
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se actualizo correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => $e->getMessage()
+            ]);
+        }
+    }
+
     public function contadores()
     {
         if (!session()->logged_in) {

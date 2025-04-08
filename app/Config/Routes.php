@@ -101,6 +101,8 @@ $routes->get('configuracion/elegir-contador/(:num)', 'Configuracion::elegirConta
 $routes->get('configuracion/get-contador/(:num)', 'Configuracion::getContador/$1');
 $routes->post('configuracion/save-contador', 'Configuracion::saveContador');
 $routes->get('configuracion/delete-contador/(:num)', 'Configuracion::deleteContador/$1');
+$routes->get('configuracion/rentasAnuales/(:num)', 'Configuracion::getRentas/$1');
+$routes->post('configuracion/rentasAnuales/actualizar', 'Configuracion::updateRentas');
 
 $routes->get('declaraciones/pdt-0621', 'Pdt0621::index');
 $routes->post('consulta-pdt-renta', 'Pdt0621::consulta');

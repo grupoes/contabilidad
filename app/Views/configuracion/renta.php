@@ -2,9 +2,9 @@
 
 <?= $this->section('css') ?>
 
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css" >
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css">
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css" >
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
 
 <?= $this->endSection() ?>
 
@@ -43,14 +43,14 @@
                             </thead>
                             <tbody id="tableBody">
                                 <?php foreach ($rentas as $key => $renta) : ?>
-                                <tr>
-                                    <td><?= $key + 1 ?></td>
-                                    <td><?= $renta['tri_descripcion'] ?></td>
-                                    <td><?= $renta['tri_codigo'] ?></td>
-                                    <td class="text-center">
-                                        <a href="#"> <i class="fas fa-pencil-alt"></i> </a>
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td><?= $key + 1 ?></td>
+                                        <td><?= $renta['tri_descripcion'] ?></td>
+                                        <td><?= $renta['tri_codigo'] ?></td>
+                                        <td class="text-center">
+                                            <a href="#" onclick="rentasAnuales(event, <?= $renta['id_tributo'] ?>)"> <i class="fas fa-pencil-alt"></i> </a>
+                                        </td>
+                                    </tr>
 
                                 <?php endforeach; ?>
                             </tbody>
@@ -64,55 +64,37 @@
     <!-- [ Main Content ] end -->
 </div>
 
-<div id="modalTipoServicio" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+<div id="modalRenta" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title h4" id="titleModalTarifa"></h5>
+                <h5 class="modal-title h4" id="titleModalRenta"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form id="formTarifa">
-                    <input type="hidden" name="idTableTarifa" id="idTableTarifa" value="0">
+            <form id="formRenta">
+                <div class="modal-body" id="contentRenta">
+                    <input type="hidden" name="idRenta" id="idRenta">
                     <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label" for="fechaInicioTarifa">Fecha Inicio</label>
-                            <input type="date" class="form-control" name="fechaInicioTarifa" id="fechaInicioTarifa" required>
+                        <div class="col-md-5">
+                            <div class="mb-3">
+                                <label class="form-label">Porcentaje</label>
+                                <input type="number" class="form-control" id="porcentaje" name="porcentaje" step="any">
+                            </div>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label" for="montoMensualTarifa">Monto Mensual</label>
-                            <input type="number" class="form-control" name="montoMensualTarifa" id="montoMensualTarifa" required>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label" for="montoAnualTarifa">Monto Anual</label>
-                            <input type="number" class="form-control" name="montoAnualTarifa" id="montoAnualTarifa" required>
-                        </div>
-                        <div class="col-md-3 mb-3 mt-4">
-                            <button type="submit" class="btn btn-success">Agregar Tarifa</button>
+                        <div class="col-md-7" id="esconder" hidden>
+                            <div class="mb-3">
+                                <label class="form-label">Porcentaje despues de los 15 UIT</label>
+                                <input type="number" class="form-control" id="porcentaje_despues" name="porcentaje_despues" step="any">
+                            </div>
                         </div>
                     </div>
-                </form>
-
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Fin</th>
-                            <th>Monto Mensual</th>
-                            <th>Monto Anual</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableTarifa">
-                        
-                    </tbody>
-                </table>
-                
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" id="btnForm">Guardar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
