@@ -98,6 +98,9 @@ $routes->get('configuracion/renta', 'Configuracion::renta');
 $routes->get('configuracion/contadores', 'Configuracion::contadores');
 $routes->get('configuracion/render-contadores', 'Configuracion::renderContadores');
 $routes->get('configuracion/elegir-contador/(:num)', 'Configuracion::elegirContador/$1');
+$routes->get('configuracion/get-contador/(:num)', 'Configuracion::getContador/$1');
+$routes->post('configuracion/save-contador', 'Configuracion::saveContador');
+$routes->get('configuracion/delete-contador/(:num)', 'Configuracion::deleteContador/$1');
 
 $routes->get('declaraciones/pdt-0621', 'Pdt0621::index');
 $routes->post('consulta-pdt-renta', 'Pdt0621::consulta');

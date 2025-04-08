@@ -155,6 +155,77 @@ class Configuracion extends BaseController
         ]);
     }
 
+    public function getContador($id)
+    {
+        $contador = new ContadorModel();
+
+        $contador = $contador->find($id);
+
+        return $this->response->setJSON($contador);
+    }
+
+    public function saveContador()
+    {
+        try {
+            $contador = new ContadorModel();
+
+            $id = $this->request->getPost('idContador');
+            $dni = $this->request->getPost('numeroDocumento');
+            $nombre = $this->request->getPost('nombresApellidos');
+            $colegiatura = $this->request->getPost('num_colegiatura');
+            $domicilio = $this->request->getPost('domicilio');
+            $ubigeo = $this->request->getPost('ubigeo');
+            $estado = $this->request->getPost('estado');
+
+            $data = array(
+                "dni" => $dni,
+                "nombre_apellidos" => $nombre,
+                "numero_colegiatura" => $colegiatura,
+                "domicilio" => $domicilio,
+                "estado" => $estado,
+                "ubigeo" => $ubigeo
+            );
+
+            if ($id != 0) {
+                $contador->update($id, $data);
+                return $this->response->setJSON([
+                    "status" => "success",
+                    "message" => "Se actualizo correctamente"
+                ]);
+            } else {
+                $contador->insert($data);
+                return $this->response->setJSON([
+                    "status" => "success",
+                    "message" => "Se guardo correctamente"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Ocurrio un error " . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function deleteContador($id)
+    {
+        try {
+            $contador = new ContadorModel();
+
+            $contador->update($id, ["estado" => 0]);
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se elimino correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Ocurrio un error " . $e->getMessage()
+            ]);
+        }
+    }
+
     public function sendFileGoogleCloudStorage()
     {
         try {

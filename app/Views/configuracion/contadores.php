@@ -73,9 +73,10 @@
                 <h5 class="modal-title h4" id="titleModal"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form id="formTarifa">
-                    <input type="hidden" name="idTableTarifa" id="idTableTarifa" value="0">
+            <form id="formContador">
+                <div class="modal-body">
+                    <input type="hidden" name="estado" id="estado" value="1">
+                    <input type="hidden" name="idContador" id="idContador" value="0">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="input-group mb-3">
@@ -91,27 +92,27 @@
                         <div class="col-md-8 mb-3">
                             <label class="form-label" for="nombresApellidos">Nombres y Apellidos</label>
                             <input type="text" class="form-control" name="nombresApellidos" id="nombresApellidos" required>
+                            <small id="getNombres" class="form-text text-success"></small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="num_colegiatura">Número de Colegiatura</label>
-                            <input type="number" class="form-control" name="num_colegiatura" id="num_colegiatura" required>
+                            <input type="text" class="form-control" name="num_colegiatura" id="num_colegiatura" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="domicilio">Domicilio</label>
-                            <input type="number" class="form-control" name="domicilio" id="domicilio">
+                            <input type="text" class="form-control" name="domicilio" id="domicilio">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="ubigeo">Ubigeo</label>
                             <select name="ubigeo" id="ubigeo" class="form-select"></select>
                         </div>
                     </div>
-                </form>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="submit" class="btn btn-primary" id="btnForm">Guardar</button>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" id="btnForm">Guardar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -126,6 +127,7 @@
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.responsive.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
 
 <script src="<?= base_url() ?>js/configuracion/contadores.js"></script>
 
