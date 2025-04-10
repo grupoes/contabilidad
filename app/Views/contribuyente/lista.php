@@ -447,11 +447,11 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label" for="numero_whatsapp">Numero de Whatsapp</label>
-                            <input type="text" class="form-control" id="numero_whatsapp" name="numero_whatsapp" placeholder="Ingrese número de Whatsapp" required>
+                            <input type="text" class="form-control" id="numero_whatsapp" name="numero_whatsapp" placeholder="Ingrese número de Whatsapp" maxlength="9" minlength="9" required>
                         </div>
                         <div class="col-md-5 mb-3">
                             <label class="form-label" for="numero_llamadas">Numero de llamadas</label>
-                            <input type="text" class="form-control" id="numero_llamadas" name="numero_llamadas" placeholder="Ingrese número de teléfono" required>
+                            <input type="text" class="form-control" id="numero_llamadas" maxlength="9" minlength="9" name="numero_llamadas" placeholder="Ingrese número de teléfono" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="nombre_contacto">Nombre de Contacto</label>

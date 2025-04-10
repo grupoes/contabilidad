@@ -715,6 +715,8 @@ cargarPaises();
 
 const formContacto = document.getElementById("formContacto");
 const tableContacto = document.getElementById("tableContacto");
+const numero_whatsapp = document.getElementById("numero_whatsapp");
+const numero_llamadas = document.getElementById("numero_llamadas");
 
 formContacto.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -825,6 +827,23 @@ function deleteContacto(e, id) {
       });
   }
 }
+
+numero_whatsapp.addEventListener("paste", function (e) {
+  e.preventDefault(); // Evita el pegado normal
+
+  // Obtiene el texto del portapapeles
+  let texto = (e.clipboardData || window.clipboardData).getData("text");
+
+  // Limpia el texto (elimina TODOS los espacios)
+  let textoLimpio = texto.replace(/\s+/g, "");
+
+  // O si quieres eliminar solo al inicio y al final: texto.trim()
+  // O si quieres reemplazar múltiples espacios por uno solo: texto.trim().replace(/\s+/g, ' ')
+
+  // Pega el texto limpio en el input
+  document.execCommand("insertText", false, textoLimpio);
+  numero_llamadas.value = textoLimpio;
+});
 
 const titleImportBoletas = document.getElementById("titleImportBoletas");
 const numero_ruc = document.getElementById("numero_ruc");
