@@ -459,7 +459,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for=correo"">Email</label>
-                            <input type="email" class="form-control" name="correo" id="correo" placeholder="Ingrese el correo electrónico" required>
+                            <input type="email" class="form-control" name="correo" id="correo" placeholder="Ingrese el correo electrónico">
                         </div>
 
                     </div>

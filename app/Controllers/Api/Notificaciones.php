@@ -60,6 +60,47 @@ class Notificaciones extends ResourceController
         return $this->respond($empresas);
     }
 
+    public function balance()
+    {
+        $fecha = new FechaDeclaracionModel();
+        $contrib = new ContribuyenteModel();
+        $contacto = new ContactosContribuyenteModel();
+
+        $date = date('Y-m-d');
+
+        $consulta = $fecha->query("(SELECT id_numero, MIN(fecha_declaracion.fecha_notificar) AS notificacion
+        FROM fecha_declaracion 
+        INNER JOIN tributo ON tributo.id_tributo = fecha_declaracion.id_tributo 
+        WHERE fecha_declaracion.fecha_notificar = '$date' 
+        AND tributo.id_pdt = 3 
+        GROUP BY id_numero)
+        UNION
+        (SELECT id_numero, MIN(fecha_declaracion.fecha_exacta) AS notificacion
+        FROM fecha_declaracion 
+        INNER JOIN tributo ON tributo.id_tributo = fecha_declaracion.id_tributo 
+        WHERE fecha_declaracion.fecha_exacta = '$date' 
+        AND tributo.id_pdt = 3 
+        GROUP BY id_numero);
+        ")->getResult();
+
+        $empresas = [];
+
+        foreach ($consulta as $key => $value) {
+            $digito = $value->id_numero - 1;
+            $emp = $contrib->query("SELECT * FROM contribuyentes WHERE estado = 1 and RIGHT(ruc, 1) = '$digito'")->getResult();
+
+            foreach ($emp as $key1 => $value1) {
+                $contactos = $contacto->where('contribuyente_id', $value1->id)->findAll();
+
+                $emp[$key1]->contactos = $contactos;
+            }
+
+            $empresas = array_merge($empresas, $emp);
+        }
+
+        return $this->respond($empresas);
+    }
+
     /**
      * Return the properties of a resource object.
      *
