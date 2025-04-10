@@ -801,10 +801,17 @@ function editContacto(e, id) {
     .then((data) => {
       const contacto = data;
 
+      const prefijo = contacto.prefijo;
+      let whatsapp = contacto.numero_whatsapp;
+
+      if (whatsapp.startsWith(prefijo)) {
+        whatsapp = whatsapp.slice(prefijo.length);
+      }
+
       contacto_id.value = contacto.id;
       contribuyente_id.value = contacto.contribuyente_id;
       nombre_contacto.value = contacto.nombre_contacto;
-      numero_whatsapp.value = contacto.numero_whatsapp;
+      numero_whatsapp.value = whatsapp;
       numero_llamadas.value = contacto.telefono;
       correo.value = contacto.correo;
 
