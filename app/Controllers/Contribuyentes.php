@@ -65,6 +65,20 @@ class Contribuyentes extends BaseController
         return $this->response->setJSON($data);
     }
 
+    public function getContribuyenteActivos($type)
+    {
+        $cont = new ContribuyenteModel();
+
+        if ($type == 'TODOS') {
+            $contribuyentes = $cont->where('estado', 1)->orderBy('RIGHT(ruc, 1) ASC')->findAll();
+            return $this->response->setJSON($contribuyentes);
+        }
+
+        $contribuyentes = $cont->where('estado', 1)->where('tipoServicio', $type)->orderBy('RIGHT(ruc, 1) ASC')->findAll();
+
+        return $this->response->setJSON($contribuyentes);
+    }
+
     public function allCobros()
     {
         if (!session()->logged_in) {

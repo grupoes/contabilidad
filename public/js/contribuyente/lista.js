@@ -717,6 +717,8 @@ const formContacto = document.getElementById("formContacto");
 const tableContacto = document.getElementById("tableContacto");
 const numero_whatsapp = document.getElementById("numero_whatsapp");
 const numero_llamadas = document.getElementById("numero_llamadas");
+const nombre_contacto = document.getElementById("nombre_contacto");
+const correo = document.getElementById("correo");
 
 formContacto.addEventListener("submit", (e) => {
   e.preventDefault();

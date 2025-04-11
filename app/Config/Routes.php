@@ -50,6 +50,7 @@ $routes->post('descargar/excelComprobantes', 'Contribuyentes::descargarExcelComp
 $routes->post('contribuyente/vacear-boletas', 'Contribuyentes::vacearBoletas');
 $routes->get('contribuyente/ver-acceso/(:num)', 'Contribuyentes::verAcceso/$1');
 $routes->post('contribuyente/actualizar-clave', 'Contribuyentes::updatePassword');
+$routes->get('contribuyentes/contribuyentesActivos/(:any)', 'Contribuyentes::getContribuyenteActivos/$1');
 
 $routes->get('contribuyentes/migracion', 'Contribuyentes::migrarContribuyentes');
 
@@ -148,3 +149,6 @@ $routes->post('declaracion/extraer_data', 'Declaracion::extraer_data');
 $routes->post('declaracion/guardar_datos', 'Declaracion::guardar_datos');
 
 $routes->get('empresas-notificacion', 'Api\Notificaciones::index');
+
+$routes->get('mensajes-masivos', 'Mensajes::index');
+$routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');
