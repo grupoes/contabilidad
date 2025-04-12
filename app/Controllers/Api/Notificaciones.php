@@ -27,16 +27,16 @@ class Notificaciones extends ResourceController
 
         $date = date('Y-m-d');
 
-        $consulta = $fecha->query("(SELECT id_numero, MIN(fecha_declaracion.fecha_notificar) AS notificacion
+        $consulta = $fecha->query("(SELECT id_numero, MIN(fecha_declaracion.fecha_notificar) AS notificacion, MIN(fecha_declaracion.fecha_exacta) as fecha_exacta, MIN(anio.anio_descripcion) as anio, MIN(mes.mes_descripcion) as mes
         FROM fecha_declaracion 
-        INNER JOIN tributo ON tributo.id_tributo = fecha_declaracion.id_tributo 
+        INNER JOIN tributo ON tributo.id_tributo = fecha_declaracion.id_tributo INNER JOIN anio ON anio.id_anio = fecha_declaracion.id_anio INNER JOIN mes ON mes.id_mes = fecha_declaracion.id_mes
         WHERE fecha_declaracion.fecha_notificar = '$date' 
         AND tributo.id_pdt = 1 
         GROUP BY id_numero)
         UNION
-        (SELECT id_numero, MIN(fecha_declaracion.fecha_exacta) AS notificacion
+        (SELECT id_numero, MIN(fecha_declaracion.fecha_exacta) AS notificacion, MIN(fecha_declaracion.fecha_exacta) as fecha_exacta, MIN(anio.anio_descripcion) as anio, MIN(mes.mes_descripcion) as mes
         FROM fecha_declaracion 
-        INNER JOIN tributo ON tributo.id_tributo = fecha_declaracion.id_tributo 
+        INNER JOIN tributo ON tributo.id_tributo = fecha_declaracion.id_tributo INNER JOIN anio ON anio.id_anio = fecha_declaracion.id_anio INNER JOIN mes ON mes.id_mes = fecha_declaracion.id_mes
         WHERE fecha_declaracion.fecha_exacta = '$date' 
         AND tributo.id_pdt = 1 
         GROUP BY id_numero);
@@ -44,14 +44,32 @@ class Notificaciones extends ResourceController
 
         $empresas = [];
 
+        setlocale(LC_TIME, 'es_ES.UTF-8');
+
         foreach ($consulta as $key => $value) {
+            $fecha_obj = new \DateTime($value->fecha_exacta);
+
+            $formatter = new \IntlDateFormatter(
+                'es_ES',                      // Locale
+                \IntlDateFormatter::FULL,     // Fecha larga (puedes usar MEDIUM, SHORT, etc.)
+                \IntlDateFormatter::NONE,     // No mostrar la hora
+                'America/Lima',              // Zona horaria
+                \IntlDateFormatter::GREGORIAN
+            );
+
+            $formatter->setPattern("EEEE d 'de' MMMM 'de' y");
+
+            $letraFecha = $formatter->format($fecha_obj);
+
             $digito = $value->id_numero - 1;
-            $emp = $contrib->query("SELECT * FROM contribuyentes WHERE estado = 1 and RIGHT(ruc, 1) = '$digito'")->getResult();
+            $emp = $contrib->query("SELECT * FROM contribuyentes WHERE tipoServicio = 'CONTABLE' AND estado = 1 and RIGHT(ruc, 1) = '$digito'")->getResult();
 
             foreach ($emp as $key1 => $value1) {
                 $contactos = $contacto->where('contribuyente_id', $value1->id)->findAll();
 
                 $emp[$key1]->contactos = $contactos;
+                $emp[$key1]->fechaExacta = $letraFecha;
+                $emp[$key1]->periodo = strtoupper($value->mes . " " . $value->anio);
             }
 
             $empresas = array_merge($empresas, $emp);
