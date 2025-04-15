@@ -152,3 +152,9 @@ $routes->get('empresas-notificacion', 'Api\Notificaciones::index');
 
 $routes->get('mensajes-masivos', 'Mensajes::index');
 $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');
+
+$routes->get('numeros-whatsapp', 'NumeroWhatsapp::index');
+$routes->get('configuracion/numeroWhatsapp/all', 'NumeroWhatsapp::allNumeroWhatsapp');
+$routes->post('configuracion/numeroWhatsapp/store', 'NumeroWhatsapp::saveNumeroWhatsapp');
+$routes->get('configuracion/numeroWhatsapp/(:num)', 'NumeroWhatsapp::getIdNumeroWhatsapp/$1');
+$routes->get('configuracion/deleteWhatsapp/(:num)', 'NumeroWhatsapp::deleteWhatsapp/$1');
