@@ -124,7 +124,7 @@ class Notificaciones extends ResourceController
     {
         $envio = new EnviosModel();
 
-        $consulta = $envio->where('estado', 'pendiente')->findAll(3);
+        $consulta = $envio->where('estado', 'pendiente')->findAll(20);
 
         return $this->respond($consulta);
     }
