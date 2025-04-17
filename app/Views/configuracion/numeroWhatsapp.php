@@ -2,9 +2,9 @@
 
 <?= $this->section('css') ?>
 
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css">
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css" />
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css" />
 
 <?= $this->endSection() ?>
 

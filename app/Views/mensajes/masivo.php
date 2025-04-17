@@ -2,9 +2,24 @@
 
 <?= $this->section('css') ?>
 
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css">
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css" />
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css" />
+
+<style>
+    #pickerContainer {
+        display: none;
+        position: absolute;
+        z-index: 9999;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        background: white;
+        border-radius: 8px;
+    }
+</style>
+
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.26.3/index.js"></script>
+
+
 
 <style>
     .toolbar {
@@ -20,6 +35,18 @@
     }
 
     .toolbar button:hover {
+        background-color: #e8e8e8;
+    }
+
+    .toolbar i {
+        background-color: white;
+        border: none;
+        border-radius: 3px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .toolbar i:hover {
         background-color: #e8e8e8;
     }
 
@@ -65,18 +92,21 @@
                                     <div class="toolbar">
 
                                         <!-- Icons or text can be added inside the buttons -->
-                                        <button type="button" title="Insertar un emoji" id="btnEmojiTemplate"> <i class="ti ti-mood-empty"></i> </button>
-                                        <button type="button" title="Negrita (Ctrl + b)" id="addNegrita"><b>B</b></button>
-                                        <button type="button" title="Cursiva (Ctrl + i)" id="addCursiva"><i>I</i></button>
-                                        <button type="button" title="Tachado" id="addTachado"><s>T</s></button>
-                                        <button type="button" title="Add Variable" id="addVariable"> <i class="ti ti-plus"></i> Agregar
-                                            variable</button>
+                                        <i id="btnEmojiTemplate" class="ti ti-mood-empty"></i>
+                                        <button type="button" title="Negrita (Ctrl + b)" id="addNegrita" onclick="wrapWithAsterisks()"><b>B</b></button>
+                                        <button type="button" title="Cursiva (Ctrl + i)" id="addCursiva" onclick="wrapWithCursive()"><em>I</em></button>
+                                        <button type="button" title="Tachado" id="addTachado" onclick="wrapWithCross()"><s>T</s></button>
+                                        <button type="button" title="Add Variable" id="addVariable"> + Agregar variable</button>
 
                                     </div>
 
                                     <textarea name="message" id="editorTemplate" cols="30" rows="7"
                                         class="form-control" maxlength="1024" required=""></textarea>
                                     <div class="char-counter">Caracteres: 0 de 1024</div>
+
+                                    <div id="pickerContainer">
+                                        <emoji-picker locale="es"></emoji-picker>
+                                    </div>
 
                                 </div>
 
@@ -129,9 +159,10 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-3 mx-auto">
+                            <div class="col-md-10 mx-auto">
                                 <div class="mb-3 text-center">
-                                    <button type="submit" class="btn btn-success">Enviar</button>
+                                    <a href="<?= base_url('lista-mensajes')?>" class="btn btn-danger">Cancelar</a>
+                                    <button type="submit" class="btn btn-success">Enviar Mensaje</button>
                                 </div>
 
                             </div>
@@ -139,37 +170,33 @@
                         </div>
                     </form>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <h5>Historial de Envíos</h5>
-                            </div>
-
-                            <div class="table-responsive">
-                                <table class="table table-sm" id="tableEnvios">
-                                    <thead>
-                                        <tr>
-                                            <th>Fecha</th>
-                                            <th>Titulo</th>
-                                            <th>Contribuyente</th>
-                                            <th>Contacto</th>
-                                            <th>Whatsapp</th>
-                                            <th>Estado</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="listEnvios">
-
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
         </div>
         <!-- [ Main Content ] end -->
+    </div>
+
+    <div id="modalVariables" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+        aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title h4" id="titleModal">Elegir Variable</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <button type="button" class="btn btn-outline-success d-inline-flex variable" data-info="RAZON_SOCIAL">RAZON SOCIAL</button>
+                    <button type="button" class="btn btn-outline-success d-inline-flex variable" data-info="RUC">RUC</button>
+                    <button type="button" class="btn btn-outline-success d-inline-flex variable" data-info="NOMBRE_CONTACTO">NOMBRE CONTACTO</button>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+
+            </div>
+        </div>
     </div>
 
     <?= $this->endSection() ?>

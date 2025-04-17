@@ -149,9 +149,14 @@ $routes->post('declaracion/extraer_data', 'Declaracion::extraer_data');
 $routes->post('declaracion/guardar_datos', 'Declaracion::guardar_datos');
 
 $routes->get('empresas-notificacion', 'Api\Notificaciones::index');
+$routes->get('mensajes-pendientes', 'Api\Notificaciones::mensajesPendientes');
+$routes->post('update-mensaje', 'Api\Notificaciones::updateMessage');
 
 $routes->get('mensajes-masivos', 'Mensajes::index');
 $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');
+$routes->get('lista-mensajes', 'Mensajes::listaMensajes');
+$routes->get('all-mensaje', 'Mensajes::mensajesAll');
+$routes->get('mensajes-all-id/(:num)', 'Mensajes::mensajesAllId/$1');
 
 $routes->get('numeros-whatsapp', 'NumeroWhatsapp::index');
 $routes->get('configuracion/numeroWhatsapp/all', 'NumeroWhatsapp::allNumeroWhatsapp');

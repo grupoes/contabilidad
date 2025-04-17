@@ -8,6 +8,7 @@ use CodeIgniter\RESTful\ResourceController;
 use App\Models\FechaDeclaracionModel;
 use App\Models\ContribuyenteModel;
 use App\Models\ContactosContribuyenteModel;
+use App\Models\EnviosModel;
 
 class Notificaciones extends ResourceController
 {
@@ -117,6 +118,29 @@ class Notificaciones extends ResourceController
         }
 
         return $this->respond($empresas);
+    }
+
+    public function mensajesPendientes()
+    {
+        $envio = new EnviosModel();
+
+        $consulta = $envio->where('estado', 'pendiente')->findAll(3);
+
+        return $this->respond($consulta);
+    }
+
+    public function updateMessage()
+    {
+        $envio = new EnviosModel();
+
+        $data = $this->request->getJSON();
+
+        $id = $data->id ?? null;
+        $fecha_envio = $data->fecha_envio ?? null;
+
+        $envio->update($id, ['fecha_envio' => $fecha_envio, 'estado' => 'enviado']);
+
+        return $this->respond(['message' => "Mensaje actualizado correctamente"]);
     }
 
     /**

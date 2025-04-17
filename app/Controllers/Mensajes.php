@@ -40,24 +40,53 @@ class Mensajes extends BaseController
                 'contenido' => $message,
                 'fechaCreacion' => $fechaCreacion,
                 'creadoPor' => session()->id,
+                'typeContri' => $tipo,
             ];
 
             $mensaje->insert($mensajeData);
             $mensajeId = $mensaje->getInsertID();
 
+            preg_match_all('/{{\s*(\w+)\s*}}/', $message, $matches);
+
+            $mensajeOriginal = $message;
+
             for ($i = 0; $i < count($destinatarios); $i++) {
                 $idContribuyente = $destinatarios[$i];
-                $contribuyente = $contri->select('razon_social')->find($idContribuyente);
+                $contribuyente = $contri->select('razon_social, ruc')->find($idContribuyente);
                 $consultContacto = $contacto->where('contribuyente_id', $idContribuyente)->findAll();
+
+                $messagePersonalizado = $mensajeOriginal;
 
                 if ($consultContacto) {
                     foreach ($consultContacto as $key => $value) {
+
+                        foreach ($matches[0] as $index => $placeholder) {
+                            $varName = $matches[1][$index];
+                            $replacement = '';
+
+                            switch ($varName) {
+                                case 'RAZON_SOCIAL':
+                                    $replacement = $contribuyente['razon_social'];
+                                    break;
+                                case 'RUC':
+                                    $replacement = $contribuyente['ruc'];
+                                    break;
+                                case 'NOMBRE_CONTACTO':
+                                    $replacement = $value['nombre_contacto'];
+                                    break;
+                            }
+
+                            $messagePersonalizado = str_replace($placeholder, $replacement, $messagePersonalizado);
+                        }
+
                         $envioData = [
                             'mensaje_id' => $mensajeId,
                             'contacto_id' => $value['id'],
+                            'message' => $messagePersonalizado,
                             'numero_whatsapp' => $value['numero_whatsapp'],
                             'nombre_contacto' => $value['nombre_contacto'],
                             'razon_social' => $contribuyente['razon_social'],
+                            'ruc' => $contribuyente['ruc'],
                         ];
 
                         $envio->insert($envioData);
@@ -76,5 +105,34 @@ class Mensajes extends BaseController
                 'message' => $e->getMessage(),
             ]);
         }
+    }
+
+    public function listaMensajes()
+    {
+        if (!session()->logged_in) {
+            return redirect()->to(base_url());
+        }
+
+        $menu = $this->permisos_menu();
+
+        return view('mensajes/lista', compact('menu'));
+    }
+
+    public function mensajesAll()
+    {
+        $mensaje = new MensajeModel();
+
+        $consulta = $mensaje->orderBy('id', 'desc')->findAll();
+
+        return $this->response->setJSON($consulta);
+    }
+
+    public function mensajesAllId($id)
+    {
+        $envio = new EnviosModel();
+
+        $consulta = $envio->where('mensaje_id', $id)->findAll();
+
+        return $this->response->setJSON($consulta);
     }
 }

@@ -13,7 +13,7 @@ class EnviosModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'mensaje_id', 'contacto_id', 'fecha_envio', 'estado', 'intentos', 'numero_whatsapp', 'nombre_contacto', 'razon_social'];
+    protected $allowedFields = ['id', 'mensaje_id', 'contacto_id', 'message', 'fecha_envio', 'estado', 'intentos', 'numero_whatsapp', 'nombre_contacto', 'razon_social', 'ruc'];
 
     protected $useTimestamps = false;
     protected $createdField  = 'created_at';
