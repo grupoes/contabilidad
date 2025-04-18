@@ -20,10 +20,11 @@ function viewMensajes(data) {
             <tr>
                 <td>${index + 1}</td>
                 <td>${mensaje.titulo}</td>
-                <td>${mensaje.contenido}</td>
+                <td>
+                  <p style="width: 250px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;" data-bs-toggle="popover" title="${mensaje.contenido}">${mensaje.contenido}</p>
+                </td>
                 <td>${mensaje.fechaCreacion}</td>
                 <td>${mensaje.typeContri}</td>
-                <td>${mensaje.creadoPor}</td>
                 <td>
                     <ul class="list-inline me-auto mb-0">
                         <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Ver Mensajes">
@@ -62,12 +63,23 @@ const tableBodyMessages = document.getElementById("tableBodyMessages");
 function viewMensajesId(data) {
   let template = "";
   data.forEach((message, index) => {
+
+    let estado = "";
+
+    if(message.estado === 'pendiente') {
+      estado = `<span class="badge bg-primary">${message.estado}</span>`;
+    } else {
+      estado = `<span class="badge bg-success">${message.estado}</span>`;
+    }
+
     template += `
         <tr>
             <td>${index + 1}</td>
-            <td>${message.message}</td>
+            <td>
+              <p style="width: 250px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;" data-bs-toggle="popover" title="${message.message}">${message.message}</p>
+            </td>
             <td>${message.fecha_envio}</td>
-            <td>${message.estado}</td>
+            <td>${estado}</td>
         </tr>
         `;
   });

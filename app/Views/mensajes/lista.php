@@ -52,7 +52,6 @@
                                     <th>Modelo Mensaje</th>
                                     <th>Fecha</th>
                                     <th>Tipo</th>
-                                    <th>Usuario</th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
@@ -71,7 +70,7 @@
 
 <div id="modalMensajes" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title h4" id="titleModal">Lista de Mensajes</h5>
