@@ -310,3 +310,29 @@ modalBody.addEventListener("click", (e) => {
     $("#modalVariables").modal("hide");
   }
 });
+
+const schedulingImmediateRadio = document.getElementById('schedulingImmediate');
+    const schedulingProgrammedRadio = document.getElementById('schedulingProgrammed');
+    const schedulingOptions = document.getElementById('schedulingOptions');
+    
+    // Función para mostrar/ocultar el panel de programación
+    function toggleSchedulingOptions() {
+        if (schedulingProgrammedRadio.checked) {
+            schedulingOptions.style.display = 'flex';
+        } else {
+            schedulingOptions.style.display = 'none';
+        }
+    }
+    
+    // Eventos para detectar cambios en los radios
+    schedulingImmediateRadio.addEventListener('change', toggleSchedulingOptions);
+    schedulingProgrammedRadio.addEventListener('change', toggleSchedulingOptions);
+    
+    // Configurar fecha mínima al día actual
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const formattedToday = `${yyyy}-${mm}-${dd}`;
+    
+    document.getElementById('scheduledDate').min = formattedToday;

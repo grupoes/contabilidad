@@ -92,7 +92,7 @@
                                     <div class="toolbar">
 
                                         <!-- Icons or text can be added inside the buttons -->
-                                        <i id="btnEmojiTemplate" class="ti ti-mood-empty"></i>
+                                        <i id="btnEmojiTemplate" class="ti ti-mood-empty" title="emoji"></i>
                                         <button type="button" title="Negrita (Ctrl + b)" id="addNegrita" onclick="wrapWithAsterisks()"><b>B</b></button>
                                         <button type="button" title="Cursiva (Ctrl + i)" id="addCursiva" onclick="wrapWithCursive()"><em>I</em></button>
                                         <button type="button" title="Tachado" id="addTachado" onclick="wrapWithCross()"><s>T</s></button>
@@ -102,12 +102,54 @@
 
                                     <textarea name="message" id="editorTemplate" cols="30" rows="7"
                                         class="form-control" maxlength="1024" required=""></textarea>
-                                    <div class="char-counter">Caracteres: 0 de 1024</div>
 
                                     <div id="pickerContainer">
                                         <emoji-picker locale="es"></emoji-picker>
                                     </div>
 
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Programar envío</label>
+                                    <div class="d-flex gap-3 mb-2">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="schedulingType" id="schedulingImmediate" value="INMEDIATO" checked>
+                                            <label class="form-check-label" for="schedulingImmediate">
+                                                Enviar ahora
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="schedulingType" id="schedulingProgrammed" value="PROGRAMADO">
+                                            <label class="form-check-label" for="schedulingProgrammed">
+                                                Programar envío
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div id="schedulingOptions" class="row" style="display: none;">
+                                        <!-- Selección de fecha -->
+                                        <div class="col-md-6 mb-2">
+                                            <label class="form-label">Fecha de envío</label>
+                                            <input type="date" class="form-control" name="scheduledDate" id="scheduledDate">
+                                        </div>
+                                        
+                                        <!-- Selección de hora -->
+                                        <div class="col-md-6 mb-2">
+                                            <label class="form-label">Hora de envío</label>
+                                            <input type="time" class="form-control" name="scheduledTime" id="scheduledTime">
+                                        </div>
+                                        
+                                        <!-- Repetición (opcional) -->
+                                        <div class="col-md-12 mb-2">
+                                            <label class="form-label">Repetir envío</label>
+                                            <select class="form-select" name="repeatSchedule" id="repeatSchedule">
+                                                <option value="NONE">No repetir</option>
+                                                <option value="DAILY">Diariamente</option>
+                                                <option value="WEEKLY">Semanalmente</option>
+                                                <option value="MONTHLY">Mensualmente</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
