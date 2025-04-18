@@ -53,7 +53,7 @@ class Mensajes extends BaseController
             for ($i = 0; $i < count($destinatarios); $i++) {
                 $idContribuyente = $destinatarios[$i];
                 $contribuyente = $contri->select('razon_social, ruc')->find($idContribuyente);
-                $consultContacto = $contacto->where('contribuyente_id', $idContribuyente)->findAll();
+                $consultContacto = $contacto->where('contribuyente_id', $idContribuyente)->where('estado', 1)->findAll();
 
                 $messagePersonalizado = $mensajeOriginal;
 

@@ -109,7 +109,7 @@ class Notificaciones extends ResourceController
             $emp = $contrib->query("SELECT * FROM contribuyentes WHERE estado = 1 and RIGHT(ruc, 1) = '$digito'")->getResult();
 
             foreach ($emp as $key1 => $value1) {
-                $contactos = $contacto->where('contribuyente_id', $value1->id)->findAll();
+                $contactos = $contacto->where('contribuyente_id', $value1->id)->where('estado', 1)->findAll();
 
                 $emp[$key1]->contactos = $contactos;
             }
