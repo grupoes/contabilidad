@@ -86,7 +86,7 @@
 
                         </div>
                         <div class="col-md-12 mb-3">
-                            <label class="form-label" for="file_pdt">Subir PDT</label>
+                            <label class="form-label" for="file_pdt">Subir Boletas</label>
                             <input type="file" class="form-control" name="file_pdt[]" id="file_pdt" multiple required>
                         </div>
                     </div>
@@ -136,7 +136,7 @@
 
                 <div class="row">
                     <div class="col-md-8 mx-auto text-center" id="linkDescarga">
-                        
+
                     </div>
                 </div>
             </div>
