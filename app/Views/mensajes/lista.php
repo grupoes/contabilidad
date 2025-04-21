@@ -73,7 +73,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title h4" id="titleModal">Lista de Mensajes</h5>
+                <h5 class="modal-title h4" id="titleModalMessage"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -84,8 +84,10 @@
                         <thead>
                             <tr>
                                 <th>#</th>
+                                <th>Numero Whatsapp</th>
                                 <th>Mensaje</th>
                                 <th>Fecha Envio</th>
+                                <th>Razón Social</th>
                                 <th>Estado</th>
                             </tr>
                         </thead>

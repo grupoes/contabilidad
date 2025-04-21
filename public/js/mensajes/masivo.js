@@ -51,9 +51,11 @@ function viewContribuyentesActivos(data) {
     html += `
     <tr>
         <td>
-            <input type="checkbox" class="form-check-input" name="contribuyentes[]" value="${contri.id}" checked>
+            <input type="checkbox" class="form-check-input" name="contribuyentes[]" id="contri${contri.id}" value="${contri.id}" checked>
         </td>
-        <td>${contri.razon_social}</td>
+        <td>
+            <label for="contri${contri.id}">${contri.razon_social}</label>
+        </td>
     </tr>`;
   });
 
@@ -87,7 +89,7 @@ formMessageMasivos.addEventListener("submit", (e) => {
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
     confirmButtonText: "Enviar!",
-    cancelButtonText: "Cancelar"
+    cancelButtonText: "Cancelar",
   }).then((result) => {
     if (result.isConfirmed) {
       const formData = new FormData(formMessageMasivos);
@@ -121,7 +123,6 @@ formMessageMasivos.addEventListener("submit", (e) => {
         });
     }
   });
-
 });
 
 const checkAll = document.getElementById("checkAll");
@@ -311,28 +312,30 @@ modalBody.addEventListener("click", (e) => {
   }
 });
 
-const schedulingImmediateRadio = document.getElementById('schedulingImmediate');
-    const schedulingProgrammedRadio = document.getElementById('schedulingProgrammed');
-    const schedulingOptions = document.getElementById('schedulingOptions');
-    
-    // Función para mostrar/ocultar el panel de programación
-    function toggleSchedulingOptions() {
-        if (schedulingProgrammedRadio.checked) {
-            schedulingOptions.style.display = 'flex';
-        } else {
-            schedulingOptions.style.display = 'none';
-        }
-    }
-    
-    // Eventos para detectar cambios en los radios
-    schedulingImmediateRadio.addEventListener('change', toggleSchedulingOptions);
-    schedulingProgrammedRadio.addEventListener('change', toggleSchedulingOptions);
-    
-    // Configurar fecha mínima al día actual
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const formattedToday = `${yyyy}-${mm}-${dd}`;
-    
-    document.getElementById('scheduledDate').min = formattedToday;
+const schedulingImmediateRadio = document.getElementById("schedulingImmediate");
+const schedulingProgrammedRadio = document.getElementById(
+  "schedulingProgrammed"
+);
+const schedulingOptions = document.getElementById("schedulingOptions");
+
+// Función para mostrar/ocultar el panel de programación
+function toggleSchedulingOptions() {
+  if (schedulingProgrammedRadio.checked) {
+    schedulingOptions.style.display = "flex";
+  } else {
+    schedulingOptions.style.display = "none";
+  }
+}
+
+// Eventos para detectar cambios en los radios
+schedulingImmediateRadio.addEventListener("change", toggleSchedulingOptions);
+schedulingProgrammedRadio.addEventListener("change", toggleSchedulingOptions);
+
+// Configurar fecha mínima al día actual
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth() + 1).padStart(2, "0");
+const dd = String(today.getDate()).padStart(2, "0");
+const formattedToday = `${yyyy}-${mm}-${dd}`;
+
+document.getElementById("scheduledDate").min = formattedToday;

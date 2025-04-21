@@ -122,7 +122,7 @@ class Mensajes extends BaseController
     {
         $mensaje = new MensajeModel();
 
-        $consulta = $mensaje->orderBy('id', 'desc')->findAll();
+        $consulta = $mensaje->select("id, titulo, contenido, DATE_FORMAT(fechaCreacion, '%d-%m-%Y %H:%i:%s') as fecha, creadoPor, typeContri")->orderBy('id', 'desc')->findAll();
 
         return $this->response->setJSON($consulta);
     }
@@ -131,7 +131,7 @@ class Mensajes extends BaseController
     {
         $envio = new EnviosModel();
 
-        $consulta = $envio->where('mensaje_id', $id)->findAll();
+        $consulta = $envio->select("id, message, DATE_FORMAT(fecha_envio, '%d-%m-%Y %H:%i:%s') as fecha_envio, numero_whatsapp, razon_social, estado")->where('mensaje_id', $id)->findAll();
 
         return $this->response->setJSON($consulta);
     }
