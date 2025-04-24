@@ -1,22 +1,21 @@
-<?php namespace App\Models;
+<?php
 
-    use CodeIgniter\Model;
+namespace App\Models;
 
-    class ContribuyenteModel extends Model
-    {
-        protected $table      = 'contribuyentes';
-        protected $primaryKey = 'id';
+use CodeIgniter\Model;
 
-        protected $useAutoIncrement = true;
+class ContribuyenteModel extends Model
+{
+    protected $table      = 'contribuyentes';
+    protected $primaryKey = 'id';
 
-        protected $returnType     = 'array';
+    protected $useAutoIncrement = true;
 
-        protected $allowedFields = ['id','ruc', 'razon_social', 'nombre_comercial', 'direccion_fiscal', 'ubigeo_id', 'urbanizacion', 'tipoSuscripcion', 'tipoServicio', 'tipoPago', 'costoMensual', 'costoAnual', 'diaCobro', 'fechaContrato', 'telefono', 'correo', 'usuario_secundario', 'clave_usuario_secundario', 'acceso', 'user_add', 'user_edit', 'user_delete', 'estado', 'ruc_empresa_normal', 'ruc_empresa_baja', 'ruc_empresa_medio'];
+    protected $returnType     = 'array';
 
-        protected $useTimestamps = true;
-        protected $createdField  = 'created_at';
-        protected $updatedField  = 'updated_at';
+    protected $allowedFields = ['id', 'ruc', 'razon_social', 'nombre_comercial', 'direccion_fiscal', 'ubigeo_id', 'urbanizacion', 'tipoSuscripcion', 'tipoServicio', 'tipoPago', 'costoMensual', 'costoAnual', 'diaCobro', 'fechaContrato', 'telefono', 'correo', 'usuario_secundario', 'clave_usuario_secundario', 'acceso', 'user_add', 'user_edit', 'user_delete', 'numeroWhatsappId', 'estado', 'ruc_empresa_normal', 'ruc_empresa_baja', 'ruc_empresa_medio'];
 
-    }
-
-?>
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+}

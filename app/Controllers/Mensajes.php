@@ -33,6 +33,11 @@ class Mensajes extends BaseController
             $titulo = $this->request->getPost('titulo');
             $destinatarios = $this->request->getPost('contribuyentes');
 
+            return $this->response->setJSON([
+                'status' => "success",
+                'message' => $destinatarios,
+            ]);
+
             $fechaCreacion = date('Y-m-d H:i:s');
 
             $mensajeData = [
@@ -52,7 +57,7 @@ class Mensajes extends BaseController
 
             for ($i = 0; $i < count($destinatarios); $i++) {
                 $idContribuyente = $destinatarios[$i];
-                $contribuyente = $contri->select('razon_social, ruc')->find($idContribuyente);
+                $contribuyente = $contri->select('contribuyentes.razon_social, contribuyentes.ruc, numeros_whatsapp.link')->join('numeros_whatsapp', 'numeros_whatsapp.id = contribuyentes.numeroWhatsappId')->find($idContribuyente);
                 $consultContacto = $contacto->where('contribuyente_id', $idContribuyente)->where('estado', 1)->findAll();
 
                 $messagePersonalizado = $mensajeOriginal;
@@ -87,6 +92,7 @@ class Mensajes extends BaseController
                             'nombre_contacto' => $value['nombre_contacto'],
                             'razon_social' => $contribuyente['razon_social'],
                             'ruc' => $contribuyente['ruc'],
+                            'link' => $contribuyente['link'],
                         ];
 
                         $envio->insert($envioData);

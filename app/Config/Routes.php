@@ -56,7 +56,7 @@ $routes->get('contribuyentes/contribuyentesActivos/(:any)', 'Contribuyentes::get
 $routes->get('contribuyentes/migracion', 'Contribuyentes::migrarContribuyentes');
 
 $routes->get('cobros', 'Contribuyentes::allCobros');
-$routes->get('listaCobros/(:any)', 'Contribuyentes::listaHonorariosCobros/$1');
+$routes->get('listaCobros/(:any)/(:num)', 'Contribuyentes::listaHonorariosCobros/$1/$2');
 
 $routes->get('pago-honorario/(:num)', 'Pago::pagosHonorarios/$1');
 $routes->get('pagos/lista-pagos/(:num)', 'Pago::listaPagos/$1');

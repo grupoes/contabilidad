@@ -24,6 +24,7 @@ const fechaContrato = document.getElementById("fechaContrato");
 const clientesVarios = document.getElementById("clientesVarios");
 const boletaAnulado = document.getElementById("boletaAnulado");
 const facturaAnulado = document.getElementById("facturaAnulado");
+const numeroNotificacion = document.getElementById("numeroNotificacion");
 
 const formDatos = document.getElementById("formDatos");
 
@@ -380,6 +381,7 @@ selectOpciones.addEventListener("change", (e) => {
 
 tableBody.addEventListener("click", (e) => {
   if (e.target.classList.contains("num-doc")) {
+    e.preventDefault();
     idTable.value = e.target.dataset.id;
 
     $("#modalAddEdit").modal("show");
@@ -411,6 +413,7 @@ tableBody.addEventListener("click", (e) => {
         costoAnual.value = empresa.costoAnual;
         diaCobro.value = empresa.diaCobro;
         fechaContrato.value = empresa.fechaContrato;
+        numeroNotificacion.value = empresa.numeroWhatsappId;
 
         const sistemas = data.sistemas;
 
@@ -425,6 +428,7 @@ tableBody.addEventListener("click", (e) => {
   }
 
   if (e.target.classList.contains("tipoServicio")) {
+    e.preventDefault();
     const idTableTarifa = document.getElementById("idTableTarifa");
     idTableTarifa.value = e.target.dataset.id;
 

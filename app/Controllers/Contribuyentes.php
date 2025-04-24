@@ -28,6 +28,7 @@ use App\Models\MigracionModel;
 use App\Models\MigrarModel;
 use App\Models\ComprobanteModel;
 use App\Models\AyudaBoletaModel;
+use App\Models\NumeroWhatsappModel;
 
 //use App\Models\RucEmpresaModel;
 
@@ -51,9 +52,12 @@ class Contribuyentes extends BaseController
         inner join contribuyentes c on c.id = cd.contribuyente_id
         WHERE cd.fecha_vencimiento BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 30 DAY) and cd.estado = 1;')->getResult();
 
+        $numeros = new NumeroWhatsappModel();
+        $numeros_whatsapp = $numeros->where('estado', 1)->findAll();
+
         $menu = $this->permisos_menu();
 
-        return view('contribuyente/lista', compact('sistemas', 'consulta_certificado_por_vencer', 'menu'));
+        return view('contribuyente/lista', compact('sistemas', 'consulta_certificado_por_vencer', 'menu', 'numeros_whatsapp'));
     }
 
     public function getIdContribuyente($id)
@@ -323,7 +327,8 @@ class Contribuyentes extends BaseController
                 'usuario_secundario' => "",
                 'clave_usuario_secundario' => "",
                 'acceso' => $data['numeroDocumento'],
-                'estado' => 1
+                'estado' => 1,
+                'numeroWhatsappId' => $data['numeroNotificacion'],
             ];
 
             $clientesVarios = $data['clientesVarios'];
@@ -605,7 +610,7 @@ class Contribuyentes extends BaseController
         return $this->response->setJSON(['status' => 'success', 'message' => "Tarifa eliminada correctamente."]);
     }
 
-    public function listaHonorariosCobros($select)
+    public function listaHonorariosCobros($select, $estado)
     {
         $model = new ContribuyenteModel();
         $pago = new PagosModel();
@@ -613,10 +618,10 @@ class Contribuyentes extends BaseController
         $sql = "";
 
         if ($select !== 'TODOS') {
-            $sql = "WHERE c.tipoServicio = '$select'";
+            $sql = "AND c.tipoServicio = '$select'";
         }
 
-        $datos = $model->query("SELECT c.id, c.razon_social, c.ruc, c.tipoPago, c.diaCobro, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes $sql as c ORDER BY c.id desc")->getResult();
+        $datos = $model->query("SELECT c.id, c.razon_social, c.ruc, c.tipoPago, c.diaCobro, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes as c WHERE tipoSuscripcion = 'NO GRATUITO' AND c.estado = $estado $sql ORDER BY c.id desc")->getResult();
 
         foreach ($datos as $key => $value) {
             $id = $value->id;

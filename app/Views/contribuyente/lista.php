@@ -231,6 +231,16 @@
                             </select>
                         </div>
 
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label" for="numeroNotificacion">Número de Notificación Whatsapp</label>
+                            <select class="form-control" name="numeroNotificacion" id="numeroNotificacion" required>
+                                <option value="">Seleccione...</option>
+                                <?php foreach ($numeros_whatsapp as $key => $value) { ?>
+                                    <option value="<?= $value['id'] ?>">51<?= $value['numero'] . " - " . $value['titulo'] ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+
                         <h5>Boletas</h5>
                         <hr>
                         <div class="col-md-6 mb-3">

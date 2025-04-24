@@ -2,9 +2,9 @@
 
 <?= $this->section('css') ?>
 
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css" >
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css">
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
-<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css" >
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
 
 
 <?= $this->endSection() ?>
@@ -39,6 +39,11 @@
                                 <option value="TODOS">TODOS</option>
                                 <option value="CONTABLE">CONTABLE</option>
                                 <option value="ALQUILER">ALQUILER</option>
+                            </select>
+
+                            <select id="estados" class="form-select w-auto">
+                                <option value="1">ACTIVOS</option>
+                                <option value="2">INACTIVOS</option>
                             </select>
 
                         </div>

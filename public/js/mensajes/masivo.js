@@ -21,7 +21,7 @@ const configEnvio = {
   columnDefs: [{ orderable: false, targets: [0, 1] }],
 };
 
-$("#tableContribuyentes").DataTable(configTable);
+let tableContri = $("#tableContribuyentes").DataTable(configTable);
 
 const btn = document.getElementById("btnEmojiTemplate");
 const input = document.getElementById("editorTemplate");
@@ -51,7 +51,7 @@ function viewContribuyentesActivos(data) {
     html += `
     <tr>
         <td>
-            <input type="checkbox" class="form-check-input" name="contribuyentes[]" id="contri${contri.id}" value="${contri.id}" checked>
+            <input type="checkbox" class="form-check-input checkbox-select" data-id="${contri.id}" name="contribuyentes[]" id="contri${contri.id}" value="${contri.id}" checked>
         </td>
         <td>
             <label for="contri${contri.id}">${contri.razon_social}</label>
