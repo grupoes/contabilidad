@@ -33,11 +33,6 @@ class Mensajes extends BaseController
             $titulo = $this->request->getPost('titulo');
             $destinatarios = $this->request->getPost('contribuyentes');
 
-            return $this->response->setJSON([
-                'status' => "success",
-                'message' => $destinatarios,
-            ]);
-
             $fechaCreacion = date('Y-m-d H:i:s');
 
             $mensajeData = [
