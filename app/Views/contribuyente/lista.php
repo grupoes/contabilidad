@@ -281,8 +281,8 @@
                     <input type="hidden" name="idTableTarifa" id="idTableTarifa" value="0">
                     <div class="row">
                         <div class="col-md-3 mb-3">
-                            <label class="form-label" for="fechaInicioTarifa">Fecha Inicio</label>
-                            <input type="date" class="form-control" name="fechaInicioTarifa" id="fechaInicioTarifa" required>
+                            <label class="form-label" for="fechaInicioTarifa">Periodo</label>
+                            <input type="month" class="form-control" name="fechaInicioTarifa" id="fechaInicioTarifa" min="<?= date('Y-m') ?>" required>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label" for="montoMensualTarifa">Monto Mensual</label>

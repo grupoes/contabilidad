@@ -38,7 +38,7 @@ class Pago extends BaseController
 
         $tarifa = new HistorialTarifaModel();
 
-        $monto_mensual = $this->getMontoMensual($id);
+        //$monto_mensual = $this->getMontoMensual($id);
 
         $tipoComprobante = new TipoComprobanteModel();
         $tipos = $tipoComprobante->where('tipo_comprobante_estado', 1)->findAll();
@@ -53,7 +53,7 @@ class Pago extends BaseController
 
         $menu = $this->permisos_menu();
 
-        return view('pagos/pagar', compact('id', 'metodos', 'tipos', 'datos', 'monto_mensual', 'fechaRestada', 'menu'));
+        return view('pagos/pagar', compact('id', 'metodos', 'tipos', 'datos', 'fechaRestada', 'menu'));
     }
 
     public function listaPagos($id)

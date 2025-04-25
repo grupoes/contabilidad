@@ -49,7 +49,7 @@
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" for="monto">Monto</label>
-                                    <input type="text" class="form-control" id="monto" name="monto" value="<?= $monto_mensual ?>">
+                                    <input type="text" class="form-control" id="monto" name="monto" value="0">
                                 </div>
                             </div>
 

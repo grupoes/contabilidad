@@ -664,11 +664,35 @@ tipo_certificado.addEventListener("change", (e) => {
 
 function toggleSwitchStatus(switchElement, id) {
   let checked = switchElement.checked ? 1 : 2;
+  let messageStatus = "";
+  let buttonText = "";
 
-  fetch(base_url + "contribuyente/status/" + id + "/" + checked)
-    .then((res) => res.json())
-    .then((data) => {
-      notifier.show("¡Bien hecho!", data.message, "success", "", 2000);
+  if (checked == 1) {
+    messageStatus = "¿Estás seguro de activar este contribuyente?";
+    buttonText = "Si, activar";
+  } else {
+    messageStatus = "¿Estás seguro de desactivar este contribuyente?";
+    buttonText = "Si, desactivar";
+  }
+
+  swalWithBootstrapButtons
+    .fire({
+      title: messageStatus,
+      text: "¡No podrá revertir después!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: buttonText,
+      cancelButtonText: "No, cancelar!",
+      reverseButtons: true,
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        fetch(base_url + "contribuyente/status/" + id + "/" + checked)
+          .then((res) => res.json())
+          .then((data) => {
+            notifier.show("¡Bien hecho!", data.message, "success", "", 2000);
+          });
+      }
     });
 }
 

@@ -574,20 +574,28 @@ class Contribuyentes extends BaseController
             $data = $this->request->getPost();
 
             $tarifa = new HistorialTarifaModel();
+            $contri = new ContribuyenteModel();
 
-            $last_tarifa = $tarifa->where('contribuyente_id', $data['idTableTarifa'])->where('estado', 1)->orderBy('fecha_inicio', 'DESC')->first();
+            $idContribuyente = $data['idTableTarifa'];
+            $fechaInicio = $data['fechaInicioTarifa'];
 
-            if ($data['fechaInicioTarifa'] <= $last_tarifa['fecha_inicio']) {
+            $dataContri = $contri->select('diaCobro')->find($idContribuyente);
+
+            $fechaInicio = $fechaInicio . "-" . $dataContri['diaCobro'];
+
+            $last_tarifa = $tarifa->where('contribuyente_id', $idContribuyente)->where('estado', 1)->orderBy('fecha_inicio', 'DESC')->first();
+
+            if ($fechaInicio <= $last_tarifa['fecha_inicio']) {
                 return $this->response->setJSON(['status' => 'error', 'message' => "No puedes colocar una fecha menor o igual a la ultima fecha de la tarifa"]);
             }
 
             if ($last_tarifa) {
-                $tarifa->update($last_tarifa['id'], ['fecha_fin' => $data['fechaInicioTarifa']]);
+                $tarifa->update($last_tarifa['id'], ['fecha_fin' => $fechaInicio]);
             }
 
             $tarifa->insert([
-                'contribuyente_id' => $data['idTableTarifa'],
-                'fecha_inicio' => $data['fechaInicioTarifa'],
+                'contribuyente_id' => $idContribuyente,
+                'fecha_inicio' => $fechaInicio,
                 'monto_mensual' => $data['montoMensualTarifa'],
                 'monto_anual' => $data['montoAnualTarifa'],
                 'estado' => 1
@@ -781,9 +789,13 @@ class Contribuyentes extends BaseController
     {
         $model = new ContribuyenteModel();
 
-        $data = array('estado' => $status);
-
-        $model->update($id, $data);
+        if ($status !== 1) {
+            $data = array('estado' => $status, 'deleted_at' => date('Y-m-d H:i:s:s'));
+            $model->update($id, $data);
+        } else {
+            $data = array('estado' => $status);
+            $model->update($id, $data);
+        }
 
         $message = "SE DESACTIVO EL CONTRIBUYENTE CORRECTAMENTE";
 
