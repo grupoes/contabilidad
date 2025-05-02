@@ -6,7 +6,7 @@ use App\Models\MetodoPagoModel;
 use App\Models\TipoComprobanteModel;
 use App\Models\MovimientoModel;
 use App\Models\SedeModel;
-
+use App\Models\SesionCajaModel;
 use DateTime;
 
 class Movimiento extends BaseController
@@ -104,7 +104,7 @@ class Movimiento extends BaseController
         inner join metodos_pagos mp on mp.id = m.id_metodo_pago
         inner join concepto c2 on c2.con_id = m.mov_concepto
         inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
-        where m.mov_estado != 0 and m.mov_fecha between '$startDateFormatted' and '$endDateFormatted' order by m.mov_id desc")->getResult();
+        where m.mov_estado = 1 and m.mov_fecha between '$startDateFormatted' and '$endDateFormatted' order by m.mov_id desc")->getResult();
 
         return $this->response->setJSON($movimientos);
     }
@@ -153,5 +153,34 @@ class Movimiento extends BaseController
         $menu = $this->permisos_menu();
 
         return view('movimiento/bancosMovimientos', compact('menu'));
+    }
+
+    public function listaVirtualPendientes()
+    {
+        $mov = new MovimientoModel();
+
+        $datos = $mov->query("SELECT m.mov_id, m.mov_monto, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.metodo, m.mov_estado, m.mov_descripcion, m.nombreUser FROM movimiento m
+        inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+        where m.mov_estado = 2")->getResult();
+
+        return $this->response->setJSON($datos);
+    }
+
+    public function aceptarVirtual($id)
+    {
+        $mov = new MovimientoModel();
+
+        $sesion = new SesionCajaModel();
+
+        $idUser = session()->id;
+
+        $sesions = $sesion->where('id_usuario', $idUser)->orderBy('id_sesion_caja', 'DESC')->findAll(2);
+
+        $mov->update($id, ['mov_estado' => 1, 'id_sesion_caja' => $sesions[0]['id_sesion_caja']]);
+
+        return $this->response->setJSON([
+            "status" => "success",
+            "message" => "Se aceptó correctamente el movimiento"
+        ]);
     }
 }

@@ -1,22 +1,21 @@
-<?php namespace App\Models;
+<?php
 
-    use CodeIgniter\Model;
+namespace App\Models;
 
-    class MovimientoModel extends Model
-    {
-        protected $table      = 'movimiento';
-        protected $primaryKey = 'mov_id';
+use CodeIgniter\Model;
 
-        protected $useAutoIncrement = true;
+class MovimientoModel extends Model
+{
+    protected $table      = 'movimiento';
+    protected $primaryKey = 'mov_id';
 
-        protected $returnType     = 'array';
+    protected $useAutoIncrement = true;
 
-        protected $allowedFields = ['mov_id','id_sesion_caja', 'mov_formapago', 'id_metodo_pago', 'mov_concepto', 'mov_fecha', 'mov_monto', 'mov_estado', 'mov_descripcion', 'mov_hora', 'id_tipo_comprobante', 'tipo_comprobante_descripcion', 'mov_cobro'];
+    protected $returnType     = 'array';
 
-        protected $useTimestamps = false;
-        protected $createdField  = 'created_at';
-        protected $updatedField  = 'updated_at';
+    protected $allowedFields = ['mov_id', 'id_sesion_caja', 'mov_formapago', 'id_metodo_pago', 'mov_concepto', 'mov_fecha', 'mov_monto', 'mov_estado', 'mov_descripcion', 'mov_hora', 'id_tipo_comprobante', 'tipo_comprobante_descripcion', 'mov_cobro', 'userRegister', 'nombreUser'];
 
-    }
-
-?>
+    protected $useTimestamps = false;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+}

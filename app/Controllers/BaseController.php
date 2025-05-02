@@ -150,7 +150,9 @@ abstract class BaseController extends Controller
             'mov_fecha' => date('Y-m-d'),
             'mov_hora' => date('H:i:s'),
             'mov_estado' => $estado,
-            'mov_cobro' => 0
+            'mov_cobro' => 0,
+            'userRegister' => session()->id,
+            'nombreUser' => session()->nombre . ' ' . session()->apellidos,
         ]);
 
         $id = $mov->insertID();

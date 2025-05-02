@@ -80,41 +80,60 @@ function viewPagosHonorarios(data) {
 }
 
 const metodoPago = document.getElementById("metodoPago");
+const countPagos = document.getElementById("countPagos");
 
 formPago.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const formData = new FormData(formPago);
 
-  fetch(`${base_url}pagos/pagar-honorario`, {
-    method: "POST",
-    body: formData,
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.status === "success") {
-        metodoPago.value = "";
-        voucher.value = "";
+  Swal.fire({
+    title: "¿Estas seguro?",
+    text: "No podrá revertir después!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Cobrar!",
+    cancelButtonText: "Cancelar",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`${base_url}pagos/pagar-honorario`, {
+        method: "POST",
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "success") {
+            metodoPago.value = "";
+            voucher.value = "";
 
-        Swal.fire({
-          position: "top-end",
-          icon: "success",
-          title: data.message,
-          showConfirmButton: false,
-          timer: 1500,
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: data.message,
+              showConfirmButton: false,
+              timer: 1500,
+            });
+
+            if (countPagos.value == 0) {
+              location.reload();
+            } else {
+              renderPagos(idContribuyente.value);
+              renderPagosHonorarios(idContribuyente.value);
+            }
+
+            return false;
+          }
+
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Ocurrio un error, recargue de nuevo la página o contáctase con el administrador!",
+          });
         });
-
-        renderPagos(idContribuyente.value);
-        renderPagosHonorarios(idContribuyente.value);
-        return false;
-      }
-
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Ocurrio un error, recargue de nuevo la página o contáctase con el administrador!",
-      });
-    });
+    }
+  });
 });
 
 metodoPago.addEventListener("change", (e) => {

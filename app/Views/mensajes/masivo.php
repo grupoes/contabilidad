@@ -101,7 +101,7 @@
                                     </div>
 
                                     <textarea name="message" id="editorTemplate" cols="30" rows="7"
-                                        class="form-control" maxlength="1024" required=""></textarea>
+                                        class="form-control" required=""></textarea>
 
                                     <div id="pickerContainer">
                                         <emoji-picker locale="es"></emoji-picker>
@@ -132,13 +132,13 @@
                                             <label class="form-label">Fecha de envío</label>
                                             <input type="date" class="form-control" name="scheduledDate" id="scheduledDate">
                                         </div>
-                                        
+
                                         <!-- Selección de hora -->
                                         <div class="col-md-6 mb-2">
                                             <label class="form-label">Hora de envío</label>
                                             <input type="time" class="form-control" name="scheduledTime" id="scheduledTime">
                                         </div>
-                                        
+
                                         <!-- Repetición (opcional) -->
                                         <div class="col-md-12 mb-2">
                                             <label class="form-label">Repetir envío</label>
@@ -203,7 +203,7 @@
 
                             <div class="col-md-10 mx-auto">
                                 <div class="mb-3 text-center">
-                                    <a href="<?= base_url('lista-mensajes')?>" class="btn btn-danger">Cancelar</a>
+                                    <a href="<?= base_url('lista-mensajes') ?>" class="btn btn-danger">Cancelar</a>
                                     <button type="submit" class="btn btn-success">Enviar Mensaje</button>
                                 </div>
 

@@ -42,6 +42,10 @@
 
                         <!-- Contenedor para los botones -->
                         <div class="d-flex align-items-center gap-2 ms-auto">
+                            <button type="button" id="verMovimientosVirtual" class="btn btn-warning d-inline-flex align-items-center gap-2">
+                                <i class="ti ti-minus f-18"></i> Movimientos
+                            </button>
+
                             <button type="button" id="btnNuevoEgreso" class="btn btn-danger d-inline-flex align-items-center gap-2">
                                 <i class="ti ti-minus f-18"></i> Nuevo Egreso
                             </button>
@@ -151,11 +155,52 @@
                             <div class="col-md-12">
                                 <label for="" class="form-label">Elige el Método de Pago</label>
                                 <select name="nuevo_metodo_pago" id="nuevo_metodo_pago" class="form-select">
-                                    
+
                                 </select>
                             </div>
                         </div>
-                    </div>                
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" id="btnFormPago">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-sm" id="movimientosVirtuales" tabindex="-1" role="dialog"
+    aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="mySmallModalLabel">Movimientos Virtuales</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formCambioPago">
+                <div class="modal-body">
+                    <input type="hidden" name="idmov" id="idmov" value="0">
+                    <div class="row">
+                        <div class="table-responsive">
+                            <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableDataVirtual">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Forma Pago</th>
+                                        <th>Monto</th>
+                                        <th>Descripción</th>
+                                        <th>Fecha</th>
+                                        <th>Usuario</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBodyVirtual">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

@@ -1,137 +1,140 @@
-const newcs = $($table).DataTable(
-    optionsTableDefault
-);
+const newcs = $($table).DataTable(optionsTableDefault);
 
 new $.fn.dataTable.Responsive(newcs);
 
 validarCaja();
 
-flatpickr(document.querySelector('#rango-fecha-movimientos'),{
-    mode: "range",
-    dateFormat: 'd-m-Y',
-    defaultDate: getDefaultDate(),
-    allowInput: true,
-    onClose: function (selectedDates, dateStr, instance) {
-        const selectedDate = instance.selectedDates[0];
-        console.log("Fecha seleccionada:", selectedDate);
-        renderMovimientos();
-    }
+flatpickr(document.querySelector("#rango-fecha-movimientos"), {
+  mode: "range",
+  dateFormat: "d-m-Y",
+  defaultDate: getDefaultDate(),
+  allowInput: true,
+  onClose: function (selectedDates, dateStr, instance) {
+    const selectedDate = instance.selectedDates[0];
+    console.log("Fecha seleccionada:", selectedDate);
+    renderMovimientos();
+  },
 });
 
 const swalWithBootstrapButtons = Swal.mixin({
-    customClass: {
-      confirmButton: 'btn btn-success',
-      cancelButton: 'btn btn-danger'
-    },
-    showConfirmButton: true,
-    buttonsStyling: false
+  customClass: {
+    confirmButton: "btn btn-success",
+    cancelButton: "btn btn-danger",
+  },
+  showConfirmButton: true,
+  buttonsStyling: false,
 });
 
 function getDefaultDate() {
-    const today = new Date();
-    const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
-    const endDate = today;
-    return [startDate, endDate];
+  const today = new Date();
+  const startDate = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() - 30
+  );
+  const endDate = today;
+  return [startDate, endDate];
 }
 
-const btnNuevoIngreso = document.getElementById('btnNuevoIngreso');
-const btnNuevoEgreso = document.getElementById('btnNuevoEgreso');
-const titleModalMovimiento = document.getElementById('titleModalMovimiento');
-const conceptoCaja = document.getElementById('conceptoCaja');
-const tipo_movimiento = document.getElementById('tipo_movimiento');
+const btnNuevoIngreso = document.getElementById("btnNuevoIngreso");
+const btnNuevoEgreso = document.getElementById("btnNuevoEgreso");
+const titleModalMovimiento = document.getElementById("titleModalMovimiento");
+const conceptoCaja = document.getElementById("conceptoCaja");
+const tipo_movimiento = document.getElementById("tipo_movimiento");
 
-const formMovimiento = document.getElementById('formMovimiento');
+const formMovimiento = document.getElementById("formMovimiento");
 
-const rangoFechaMovimientos = document.getElementById('rango-fecha-movimientos');
-const tableBody = document.getElementById('tableBody');
+const rangoFechaMovimientos = document.getElementById(
+  "rango-fecha-movimientos"
+);
+const tableBody = document.getElementById("tableBody");
 
-btnNuevoIngreso.addEventListener('click', (e) => {
-    $("#modalTipoMovimiento").modal('show');
-    titleModalMovimiento.textContent = "AGREGAR UN INGRESO";
-    tipo_movimiento.value = 1;
+const verMovimientosVirtual = document.getElementById("verMovimientosVirtual");
+const tableBodyVirtual = document.getElementById("tableBodyVirtual");
 
-    formMovimiento.reset();
+btnNuevoIngreso.addEventListener("click", (e) => {
+  $("#modalTipoMovimiento").modal("show");
+  titleModalMovimiento.textContent = "AGREGAR UN INGRESO";
+  tipo_movimiento.value = 1;
 
-    conceptosTipoMovimiento(1);
-})
+  formMovimiento.reset();
 
-btnNuevoEgreso.addEventListener('click', (e) => {
-    $("#modalTipoMovimiento").modal('show');
-    titleModalMovimiento.textContent = "AGREGAR UN EGRESO";
-    tipo_movimiento.value = 2;
+  conceptosTipoMovimiento(1);
+});
 
-    formMovimiento.reset();
+btnNuevoEgreso.addEventListener("click", (e) => {
+  $("#modalTipoMovimiento").modal("show");
+  titleModalMovimiento.textContent = "AGREGAR UN EGRESO";
+  tipo_movimiento.value = 2;
 
-    conceptosTipoMovimiento(2);
-})
+  formMovimiento.reset();
+
+  conceptosTipoMovimiento(2);
+});
 
 function conceptosTipoMovimiento(tipo) {
-    fetch(base_url+"conceptos-tipo-movimiento/"+tipo)
-    .then(res => res.json())
-    .then(data => {
-        let html = "";
+  fetch(base_url + "conceptos-tipo-movimiento/" + tipo)
+    .then((res) => res.json())
+    .then((data) => {
+      let html = "";
 
-        html += `<option value="">Seleccione...</option>`;
+      html += `<option value="">Seleccione...</option>`;
 
-        data.forEach(concep => {
-            html += `<option value="${concep.con_id}">${concep.con_descripcion}</option>`;
-        });
+      data.forEach((concep) => {
+        html += `<option value="${concep.con_id}">${concep.con_descripcion}</option>`;
+      });
 
-        conceptoCaja.innerHTML = html;
-        
-    })
+      conceptoCaja.innerHTML = html;
+    });
 }
 
-formMovimiento.addEventListener('submit', (e) => {
-    e.preventDefault();
+formMovimiento.addEventListener("submit", (e) => {
+  e.preventDefault();
 
-    const formData = new FormData(formMovimiento);
+  const formData = new FormData(formMovimiento);
 
-    fetch(base_url+"movimiento/guardar", {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
+  fetch(base_url + "movimiento/guardar", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        $("#modalTipoMovimiento").modal("hide");
+        renderMovimientos();
 
-        if(data.status === 'success') {
-            $("#modalTipoMovimiento").modal('hide');
-            renderMovimientos();
-
-            swalWithBootstrapButtons.fire('Muy bien!', data.message, 'success');
-        }
-        
-    })
-})
+        swalWithBootstrapButtons.fire("Muy bien!", data.message, "success");
+      }
+    });
+});
 
 renderMovimientos();
 
 function renderMovimientos() {
-    fetch(base_url+"movimientos/lista-cajero/"+rangoFechaMovimientos.value)
-    .then(res => res.json())
-    .then(data => {
-        tableMovimientos(data);
-        
-    })
+  fetch(base_url + "movimientos/lista-cajero/" + rangoFechaMovimientos.value)
+    .then((res) => res.json())
+    .then((data) => {
+      tableMovimientos(data);
+    });
 }
 
 function tableMovimientos(data) {
-    let html = "";
+  let html = "";
 
-    const currentDate = new Date().toISOString().split('T')[0];
+  const currentDate = new Date().toISOString().split("T")[0];
 
-    data.forEach((mov, i) => {
-        let botonExtornar = "";
+  data.forEach((mov, i) => {
+    let botonExtornar = "";
 
-        if(currentDate === mov.mov_fecha) {
-            botonExtornar = `
+    if (currentDate === mov.mov_fecha) {
+      botonExtornar = `
             <div class="btn-group" role="group" aria-label="Basic example">
                 <button type="button" class="btn btn-danger" onclick="extornar(${mov.mov_id})" title="EXTORNAR"><i class="fas fa-minus"></i></button>
                 <button type="button" class="btn btn-info" onclick="changePago(${mov.mov_id}, ${mov.id_metodo_pago})" title="CAMBIAR METODO DE PAGO"><i class="fas fa-arrows-alt-h"></i></button>
             </div>`;
-        }
+    }
 
-        html += `
+    html += `
         <tr>
             <td>${i + 1}</td>
             <td>${mov.caja_descripcion}</td>
@@ -144,100 +147,147 @@ function tableMovimientos(data) {
             <td>${botonExtornar}</td>
         </tr>
         `;
-    });
+  });
 
-    $($table).DataTable().destroy();
+  $($table).DataTable().destroy();
 
-    tableBody.innerHTML = html;
+  tableBody.innerHTML = html;
 
-    const newcs = $($table).DataTable(
-        optionsTableDefault
-    );
-    
-    new $.fn.dataTable.Responsive(newcs);
+  const newcs = $($table).DataTable(optionsTableDefault);
+
+  new $.fn.dataTable.Responsive(newcs);
 }
 
-rangoFechaMovimientos.addEventListener('change', (e) => {
-    renderMovimientos();
-})
+rangoFechaMovimientos.addEventListener("change", (e) => {
+  renderMovimientos();
+});
 
 function extornar(id) {
-    
-    swalWithBootstrapButtons
+  swalWithBootstrapButtons
     .fire({
-        title: '¿Está seguro?',
-        text: "¡No podrás revertir esto!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, extornar!',
-        cancelButtonText: 'No, cancelar!',
-        reverseButtons: true
+      title: "¿Está seguro?",
+      text: "¡No podrás revertir esto!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, extornar!",
+      cancelButtonText: "No, cancelar!",
+      reverseButtons: true,
     })
     .then((result) => {
-        if (result.isConfirmed) {
-            fetch(base_url+"movimiento/extornar/"+id)
-            .then(res => res.json())
-            .then(data => {
-                if(data.status === 'success') {
-                    swalWithBootstrapButtons.fire('Extornado!', data.message, 'success');
-                    renderMovimientos();
-                }
-            })
-            
-        }
+      if (result.isConfirmed) {
+        fetch(base_url + "movimiento/extornar/" + id)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              swalWithBootstrapButtons.fire(
+                "Extornado!",
+                data.message,
+                "success"
+              );
+              renderMovimientos();
+            }
+          });
+      }
     });
 }
 
 function changePago(idmov, idMetodoPago) {
-    $("#modalChangePago").modal('show');
+  $("#modalChangePago").modal("show");
 
-    const idmovi = document.getElementById('idmov');
-    idmovi.value = idmov;
+  const idmovi = document.getElementById("idmov");
+  idmovi.value = idmov;
 
-    fetch(base_url+"movimientos/metodos-pagos")
-    .then(res => res.json())
-    .then(data => {
-        let html = "";
+  fetch(base_url + "movimientos/metodos-pagos")
+    .then((res) => res.json())
+    .then((data) => {
+      let html = "";
 
-        data.forEach(metodo => {
-            let seleted = "";
+      data.forEach((metodo) => {
+        let seleted = "";
 
-            if(metodo.id == idMetodoPago) {
-                seleted = `selected="true"`;
-            }
-
-            html += `<option value="${metodo.id}" ${seleted}>${metodo.metodo}</option>`;
-        });
-        
-        const nuevo_metodo_pago = document.getElementById('nuevo_metodo_pago');
-        nuevo_metodo_pago.innerHTML = html;
-        
-    })
-}
-
-const formCambioPago = document.getElementById('formCambioPago');
-
-formCambioPago.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(formCambioPago);
-
-    fetch(base_url+"movimiento/cambio-pago", {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.status === 'success') {
-            $("#modalChangePago").modal('hide');
-            renderMovimientos();
-
-            swalWithBootstrapButtons.fire('Muy bien!', data.message, 'success');
-
-            return false;
+        if (metodo.id == idMetodoPago) {
+          seleted = `selected="true"`;
         }
 
-        swalWithBootstrapButtons.fire('Error!', data.message, 'danger');
-        
-    })
-})
+        html += `<option value="${metodo.id}" ${seleted}>${metodo.metodo}</option>`;
+      });
+
+      const nuevo_metodo_pago = document.getElementById("nuevo_metodo_pago");
+      nuevo_metodo_pago.innerHTML = html;
+    });
+}
+
+const formCambioPago = document.getElementById("formCambioPago");
+
+formCambioPago.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formCambioPago);
+
+  fetch(base_url + "movimiento/cambio-pago", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        $("#modalChangePago").modal("hide");
+        renderMovimientos();
+
+        swalWithBootstrapButtons.fire("Muy bien!", data.message, "success");
+
+        return false;
+      }
+
+      swalWithBootstrapButtons.fire("Error!", data.message, "danger");
+    });
+});
+
+verMovimientosVirtual.addEventListener("click", (e) => {
+  $("#movimientosVirtuales").modal("show");
+  renderMovimientosVirtual();
+});
+
+function renderMovimientosVirtual() {
+  fetch(base_url + "movimientos/lista-virtual-pendientes")
+    .then((res) => res.json())
+    .then((data) => {
+      tableMovimientosVirtual(data);
+    });
+}
+
+function tableMovimientosVirtual(data) {
+  let html = "";
+
+  data.forEach((mov, i) => {
+    html += `
+        <tr>
+            <td>${i + 1}</td>
+            <td>${mov.metodo}</td>
+            <td>${mov.mov_monto}</td>
+            <td>${mov.mov_descripcion}</td>
+            <td>${mov.fecha}</td>
+            <td>${mov.nombreUser}</td>
+            <td>
+                <button type="button" class="btn btn-success" onclick="aceptarVirtual(${
+                  mov.mov_id
+                })"><i class="fas fa-check"></i></button>
+            </td>
+        </tr>
+        `;
+  });
+
+  tableBodyVirtual.innerHTML = html;
+}
+
+function aceptarVirtual(id) {
+  fetch(base_url + "movimiento/aceptar-virtual/" + id)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        swalWithBootstrapButtons.fire("Muy bien!", data.message, "success");
+        renderMovimientos();
+        renderMovimientosVirtual();
+      }
+    });
+}

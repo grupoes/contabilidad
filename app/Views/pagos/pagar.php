@@ -34,7 +34,7 @@
                 <div class="card-body">
                     <form id="formPago" enctype="multipart/form-data">
                         <input type="hidden" name="idcontribuyente" id="idcontribuyente" value="<?= $id ?>">
-
+                        <input type="hidden" name="countPagos" id="countPagos" value="<?= $countPagos ?>">
 
                         <div class="row">
                             <div class="col-md-4" <?php echo $countPagos == 1 ? 'hidden' : '' ?>>
