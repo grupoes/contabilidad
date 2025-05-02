@@ -60,7 +60,8 @@ function viewListContribuyentes(data) {
                         </div>
                     </div>
                 </td>
-                <td>${emp.diaCobro}</td>
+                <td>${emp.diaCobro} cada mes</td>
+                <td>${emp.tipoPago}</td>
                 <td><a href="#" class="tipoServicio" data-id="${emp.id}">${
       emp.tipoServicio
     }</a></td>

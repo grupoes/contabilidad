@@ -14,6 +14,7 @@ use App\Models\HistorialTarifaModel;
 use App\Models\PagosModel;
 use App\Models\ContribuyenteModel;
 use App\Models\PermisosModel;
+use App\Models\MovimientoModel;
 
 use DateTime;
 
@@ -131,5 +132,29 @@ abstract class BaseController extends Controller
         }
 
         return $modulos;
+    }
+
+    public function generarMovimiento($sesionCaja, $concepto, $formaPago, $metodoPago, $monto, $descripcion, $tipoComprobante, $descripcionComprobante, $estado)
+    {
+        $mov = new MovimientoModel();
+
+        $mov->insert([
+            'id_sesion_caja' => $sesionCaja,
+            'mov_formapago' => $formaPago,
+            'id_metodo_pago' => $metodoPago,
+            'mov_concepto' => $concepto,
+            'mov_monto' => $monto,
+            'mov_descripcion' => $descripcion,
+            'id_tipo_comprobante' => $tipoComprobante,
+            'tipo_comprobante_descripcion' => $descripcionComprobante,
+            'mov_fecha' => date('Y-m-d'),
+            'mov_hora' => date('H:i:s'),
+            'mov_estado' => $estado,
+            'mov_cobro' => 0
+        ]);
+
+        $id = $mov->insertID();
+
+        return $id;
     }
 }

@@ -104,7 +104,7 @@ class Movimiento extends BaseController
         inner join metodos_pagos mp on mp.id = m.id_metodo_pago
         inner join concepto c2 on c2.con_id = m.mov_concepto
         inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
-        where m.mov_estado = 1 and m.mov_fecha between '$startDateFormatted' and '$endDateFormatted' order by m.mov_id desc")->getResult();
+        where m.mov_estado != 0 and m.mov_fecha between '$startDateFormatted' and '$endDateFormatted' order by m.mov_id desc")->getResult();
 
         return $this->response->setJSON($movimientos);
     }

@@ -29,6 +29,7 @@ use App\Models\MigrarModel;
 use App\Models\ComprobanteModel;
 use App\Models\AyudaBoletaModel;
 use App\Models\NumeroWhatsappModel;
+use App\Models\ContratosModel;
 
 //use App\Models\RucEmpresaModel;
 
@@ -546,8 +547,13 @@ class Contribuyentes extends BaseController
     {
         $tarifa = new HistorialTarifaModel();
         $contri = new ContribuyenteModel();
+        $contrato = new ContratosModel();
 
-        $data_tarifa = $tarifa->where('contribuyente_id', $id)->where('estado', 1)->orderBy('id', 'desc')->findAll();
+        $dataContrato = $contrato->where('contribuyenteId', $id)->where('estado', 1)->orderBy('id', 'desc')->first();
+
+        $idContrato = $dataContrato['id'];
+
+        $data_tarifa = $tarifa->where('contratoId', $idContrato)->where('estado', 1)->orderBy('id', 'desc')->findAll();
         $data_contribuyente = $contri->find($id);
 
         return $this->response->setJSON(['status' => 'success', 'data_tarifa' => $data_tarifa, 'data_contribuyente' => $data_contribuyente]);
@@ -634,43 +640,53 @@ class Contribuyentes extends BaseController
         foreach ($datos as $key => $value) {
             $id = $value->id;
 
-            if ($value->tipoPago == 'ADELANTADO') {
-                $maxPago = $pago->query("SELECT contribuyente_id, MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id GROUP BY contribuyente_id")->getRow();
+            //si tiene pagos
+            $pagos = $pago->where('contribuyente_id', $id)->findAll();
 
-                if (!$maxPago) {
-                    $debe = "1 mes";
-                } else {
-                    // Fecha de primer pago
-                    $primerPago = new DateTime($maxPago->ultimoMes);
-
-                    $fechaActual = date('Y-m-d');
-                    // Fecha actual
-                    $fechaActual = new DateTime($fechaActual);
-
-                    $siguientePago = clone $primerPago;
-                    $mesesDebe = 0;
-
-                    // Calcular el siguiente día de pago hasta que supere la fecha actual
-                    while ($siguientePago <= $fechaActual) {
-                        $siguientePago->modify('+1 month');
-                        $diaOriginal = (int)$primerPago->format('d');
-                        $diaActual = (int)$siguientePago->format('d');
-
-                        // Ajustar para meses con menos días (como febrero)
-                        if ($diaActual < $diaOriginal) {
-                            $siguientePago->modify('last day of previous month');
-                        }
-
-                        // Si el siguiente pago es menor o igual a la fecha actual, incrementar meses debe
-                        if ($siguientePago <= $fechaActual) {
-                            $mesesDebe++;
-                        }
-                    }
-
-                    $debe = $mesesDebe;
-                }
+            if (!$pagos) {
+                $debe = "No tiene pagos";
             } else {
-                $debe = "0";
+                if ($value->tipoPago == 'ADELANTADO') {
+                    $maxPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado' ")->getRow();
+
+                    $ultimoPago = new DateTime($maxPago->ultimoMes);
+                    $hoy = new DateTime(); // Toma la fecha actual
+
+                    // Calcula la diferencia
+                    $diferencia = $ultimoPago->diff($hoy);
+
+                    // Obtiene cuántos meses han pasado (años * 12 + meses)
+                    $mesesDebe = ($diferencia->y * 12) + $diferencia->m;
+
+                    if ($mesesDebe > 1) {
+                        $debe = $mesesDebe . " meses";
+                    } elseif ($mesesDebe == 1) {
+                        $debe = $mesesDebe . " mes";
+                    } else {
+                        $debe = "No debe";
+                    }
+                } else {
+                    $maxPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado' ")->getRow();
+
+                    $ultimoPago = new DateTime($maxPago->ultimoMes);
+                    $hoy = new DateTime(); // Toma la fecha actual
+
+                    // Calcula la diferencia
+                    $diferencia = $ultimoPago->diff($hoy);
+
+                    // Obtiene cuántos meses han pasado (años * 12 + meses)
+                    $mesesDebe = ($diferencia->y * 12) + $diferencia->m;
+
+                    $mesesDebe = $mesesDebe - 1;
+
+                    if ($mesesDebe > 1) {
+                        $debe = ($mesesDebe) . " meses";
+                    } elseif ($mesesDebe == 1) {
+                        $debe = $mesesDebe . " mes";
+                    } else {
+                        $debe = "No debe";
+                    }
+                }
             }
 
             $value->debe = $debe;

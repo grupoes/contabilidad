@@ -1,22 +1,21 @@
-<?php namespace App\Models;
+<?php
 
-    use CodeIgniter\Model;
+namespace App\Models;
 
-    class PagosHonorariosModel extends Model
-    {
-        protected $table      = 'pagos_honorarios';
-        protected $primaryKey = 'id';
+use CodeIgniter\Model;
 
-        protected $useAutoIncrement = true;
+class PagosHonorariosModel extends Model
+{
+    protected $table      = 'pagos_honorarios';
+    protected $primaryKey = 'id';
 
-        protected $returnType     = 'array';
+    protected $useAutoIncrement = true;
 
-        protected $allowedFields = ['id','contribuyente_id', 'registro', 'fecha', 'metodo_pago_id', 'monto', 'voucher', 'estado'];
+    protected $returnType     = 'array';
 
-        protected $useTimestamps = false;
-        protected $createdField  = 'created_at';
-        protected $updatedField  = 'updated_at';
+    protected $allowedFields = ['id', 'contribuyente_id', 'movimientoId', 'pagoId', 'registro', 'fecha', 'metodo_pago_id', 'monto', 'voucher', 'estado'];
 
-    }
-
-?>
+    protected $useTimestamps = false;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+}

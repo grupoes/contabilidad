@@ -1,22 +1,21 @@
-<?php namespace App\Models;
+<?php
 
-    use CodeIgniter\Model;
+namespace App\Models;
 
-    class HistorialTarifaModel extends Model
-    {
-        protected $table      = 'historial_tarifas';
-        protected $primaryKey = 'id';
+use CodeIgniter\Model;
 
-        protected $useAutoIncrement = true;
+class HistorialTarifaModel extends Model
+{
+    protected $table      = 'historial_tarifas';
+    protected $primaryKey = 'id';
 
-        protected $returnType     = 'array';
+    protected $useAutoIncrement = true;
 
-        protected $allowedFields = ['id','contribuyente_id', 'fecha_inicio', 'fecha_fin', 'monto_mensual', 'monto_anual', 'estado'];
+    protected $returnType     = 'array';
 
-        protected $useTimestamps = false;
-        protected $createdField  = 'created_at';
-        protected $updatedField  = 'updated_at';
+    protected $allowedFields = ['id', 'contribuyente_id', 'contratoId', 'fecha_inicio', 'fecha_fin', 'monto_mensual', 'monto_anual', 'estado'];
 
-    }
-
-?>
+    protected $useTimestamps = false;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+}

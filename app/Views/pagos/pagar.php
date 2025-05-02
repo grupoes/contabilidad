@@ -34,6 +34,24 @@
                 <div class="card-body">
                     <form id="formPago" enctype="multipart/form-data">
                         <input type="hidden" name="idcontribuyente" id="idcontribuyente" value="<?= $id ?>">
+
+
+                        <div class="row">
+                            <div class="col-md-4" <?php echo $countPagos == 1 ? 'hidden' : '' ?>>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" name="generarMovimiento" id="generarMovimiento" value="1" checked>
+                                    <label for="generarMovimiento">Generar Movimiento</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <input type="hidden" name="diaCobro" id="diaCobro" value="<?= $datos['diaCobro'] ?>">
+                                    <label class="form-label" for="tipoPago">Dia de Cobro: <strong><?= $datos['diaCobro'] ?> de cada mes</strong> </label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="mb-3">
@@ -49,16 +67,18 @@
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" for="monto">Monto</label>
-                                    <input type="text" class="form-control" id="monto" name="monto" value="0">
+                                    <input type="text" class="form-control" id="monto" name="monto" value="<?= $datos['costoMensual'] ?>">
                                 </div>
                             </div>
 
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label class="form-label" for="fechaPago">Fecha</label>
-                                    <input type="date" class="form-control" id="fechaPago" name="fechaPago" value="<?= date('Y-m-d') ?>" min="<?= $fechaRestada ?>" max="<?= date('Y-m-d') ?>">
+                            <?php if ($countPagos == 0) { ?>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="periodo">Periodo</label>
+                                        <input type="month" class="form-control" id="periodo" name="periodo" required>
+                                    </div>
                                 </div>
-                            </div>
+                            <?php } ?>
 
                             <div class="col-md-3" id="div-voucher" hidden>
                                 <div class="mb-3">
@@ -127,12 +147,11 @@
                                         <table class="table" id="tableData">
                                             <thead>
                                                 <tr>
-                                                    <th>F. VENCE</th>
+                                                    <th>PERIODO</th>
                                                     <th>F. PAGO</th>
                                                     <th>TOTAL</th>
                                                     <th>M. PAGADO</th>
                                                     <th>M. PENDIENTE</th>
-                                                    <th>M. EXCEDENTE</th>
                                                     <th>ESTADO</th>
                                                 </tr>
                                             </thead>

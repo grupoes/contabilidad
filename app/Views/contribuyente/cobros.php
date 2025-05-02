@@ -57,6 +57,7 @@
                                     <th>#</th>
                                     <th>Razón Social</th>
                                     <th>Dia de Cobro</th>
+                                    <th>Tipo de Pago</th>
                                     <th>Servicio</th>
                                     <th>Deuda</th>
                                     <th class="text-center">Acciones</th>
