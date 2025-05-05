@@ -59,7 +59,16 @@ function viewPagosHonorarios(data) {
 
   let html = "";
 
+  const currentDate = new Date().toISOString().split("T")[0];
+
   data.forEach((pago) => {
+    let botonDelete = "";
+
+    if (currentDate === pago.fecha) {
+      botonDelete = `
+            <a href="#" onclick="deletePago(event, ${pago.id})"> <i class="fas fa-trash text-danger"></i> </a>`;
+    }
+
     html += `
         <tr>
             <td>${pago.registro}</td>
@@ -70,7 +79,7 @@ function viewPagosHonorarios(data) {
                 <a href="#" data-lightbox="${base_url}vouchers/${pago.voucher}" onclick="verVaucher(event)"> Ver vaucher </a>
             </td>
             <td>
-                <a href="#" onclick="deletePago(event, ${pago.id})"> <i class="fas fa-trash text-danger"></i> </a>
+                ${botonDelete}
             </td>
         </tr>
         `;

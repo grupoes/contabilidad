@@ -642,12 +642,19 @@ class Contribuyentes extends BaseController
 
             //si tiene pagos
             $pagos = $pago->where('contribuyente_id', $id)->findAll();
+            $amortizo = 0;
 
             if (!$pagos) {
                 $debe = "No tiene pagos";
             } else {
                 if ($value->tipoPago == 'ADELANTADO') {
                     $maxPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado' ")->getRow();
+
+                    $max = $pago->query("SELECT MAX(estado) as estado FROM pagos WHERE contribuyente_id = $id ")->getRow();
+
+                    if ($max->estado === 'pendiente') {
+                        $amortizo = 1;
+                    }
 
                     $ultimoPago = new DateTime($maxPago->ultimoMes);
                     $hoy = new DateTime(); // Toma la fecha actual
@@ -690,6 +697,7 @@ class Contribuyentes extends BaseController
             }
 
             $value->debe = $debe;
+            $value->amortizo = $amortizo;
         }
 
         return $this->response->setJSON($datos);

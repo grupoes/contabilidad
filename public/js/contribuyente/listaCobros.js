@@ -39,8 +39,8 @@ function viewListContribuyentes(data) {
 
     let deuda = "";
 
-    if (emp.meses_deuda == 0 || emp.meses_deuda == 1) {
-      deuda = `${emp.debe}`;
+    if (emp.amortizo == 1) {
+      deuda = `<span class="badge bg-danger" title="">${emp.debe}</span>`;
     } else {
       deuda = `${emp.debe}`;
     }
