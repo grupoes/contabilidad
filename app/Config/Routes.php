@@ -74,6 +74,8 @@ $routes->get('caja/cierreCaja', 'Caja::cierreCaja');
 $routes->get('caja/validar-caja', 'Caja::validarcaja');
 
 $routes->get('caja/resumen-cajero', 'Caja::resumenCajaDiaria');
+$routes->get('resumenCajaDia', 'Caja::resumenCajaDia');
+$routes->get('resumenCajaDiaAll', 'Caja::resumenCajaDiaAll');
 
 $routes->get('movimientos', 'Movimiento::index');
 $routes->post('movimiento/guardar', 'Movimiento::guardar');
