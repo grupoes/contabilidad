@@ -56,7 +56,7 @@
 
                             <select id="selectEstado" class="form-select w-auto">
                                 <option value="1">ACTIVOS</option>
-                                <option value="2">NO ACTIVOS</option>
+                                <option value="2">INACTIVOS</option>
                                 <option value="0">TOTALES</option>
                             </select>
 
