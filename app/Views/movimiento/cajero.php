@@ -42,9 +42,6 @@
 
                         <!-- Contenedor para los botones -->
                         <div class="d-flex align-items-center gap-2 ms-auto">
-                            <button type="button" id="verMovimientosVirtual" class="btn btn-warning d-inline-flex align-items-center gap-2">
-                                <i class="ti ti-minus f-18"></i> Movimientos
-                            </button>
 
                             <button type="button" id="btnNuevoEgreso" class="btn btn-danger d-inline-flex align-items-center gap-2">
                                 <i class="ti ti-minus f-18"></i> Nuevo Egreso

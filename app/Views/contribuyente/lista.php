@@ -45,13 +45,19 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center p-2 pb-sm-2">
-                        <!-- Contenedor para el select y el botón -->
-                        <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center p-2 pb-sm-2">
+                        <!-- Contenedor para el select y los botones -->
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-2 mb-md-0">
                             <select id="selectOpciones" class="form-select w-auto">
                                 <option value="TODOS">TODOS</option>
                                 <option value="CONTABLE">CONTABLE</option>
                                 <option value="ALQUILER">ALQUILER</option>
+                            </select>
+
+                            <select id="selectEstado" class="form-select w-auto">
+                                <option value="1">ACTIVOS</option>
+                                <option value="2">NO ACTIVOS</option>
+                                <option value="0">TOTALES</option>
                             </select>
 
                             <a href="https://grupoesconsultores.com/folio" target="_blank" class="btn btn-outline-primary d-inline-flex gap-2">
@@ -63,7 +69,6 @@
                                     <i class="ti ti-file f-18"></i> Certificados Digitales por vencer
                                 </button>
                             <?php } ?>
-
                         </div>
 
                         <!-- Botón alineado a la derecha -->
@@ -71,6 +76,7 @@
                             <i class="ti ti-plus f-18"></i> Nueva Empresa
                         </button>
                     </div>
+
 
                     <div class="table-responsive">
                         <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableData">

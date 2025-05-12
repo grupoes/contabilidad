@@ -15,6 +15,7 @@ use App\Models\PagosModel;
 use App\Models\ContribuyenteModel;
 use App\Models\PermisosModel;
 use App\Models\MovimientoModel;
+use App\Models\SedeModel;
 
 use DateTime;
 
@@ -158,5 +159,25 @@ abstract class BaseController extends Controller
         $id = $mov->insertID();
 
         return $id;
+    }
+
+    public function obtenerCajaSedeVirtual()
+    {
+        $sede = new SedeModel();
+        $sesionCaja = new SesionCajaModel();
+
+        $sedeCaja = $sede->where('caja_virtual', 1)->first();
+
+        $idsede = $sedeCaja['id'];
+
+        //traer la sesion caja de la sede virtual y del usuario admin sede
+        $sesionCaja = $sesionCaja->select('sesion_caja.id_sesion_caja')->join('sede_caja', 'sede_caja.id_sede_caja = sesion_caja.id_sede_caja')->where('sede_caja.id_sede', $idsede)->orderBy('sesion_caja.id_sesion_caja', 'desc')->findAll(2);
+
+        $array = array(
+            'id_sesion_caja' => $sesionCaja[0]['id_sesion_caja'],
+            'sede' => $idsede
+        );
+
+        return $array;
     }
 }

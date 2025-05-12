@@ -95,6 +95,29 @@ class Caja extends BaseController
 
             $sesion->insert($datos_virtual);
 
+            $idSesionVirtual = $sesion->insertID();
+
+            if (session()->perfil_id == 3 && session()->sede_id == 1) {
+                $sede = $this->obtenerCajaSedeVirtual();
+
+                if ($sede['sede'] === session()->sede_id) {
+                    $dataPendient = $this->listaVirtualPendientes();
+
+                    if ($dataPendient) {
+                        foreach ($dataPendient as $key => $value) {
+                            $movimiento = new MovimientoModel();
+
+                            $data_update = array(
+                                "id_sesion_caja" => $idSesionVirtual,
+                                "mov_estado" => 1
+                            );
+
+                            $movimiento->update($value->mov_id, $data_update);
+                        }
+                    }
+                }
+            }
+
             $sesion->db->transComplete();
 
             if ($sesion->db->transStatus() === false) {
@@ -434,5 +457,16 @@ class Caja extends BaseController
             "utilidadVirtual" => $utilidadVirtual,
             "utilidadHoy" => $utilidad_hoy
         ]);
+    }
+
+    public function listaVirtualPendientes()
+    {
+        $mov = new MovimientoModel();
+
+        $datos = $mov->query("SELECT m.mov_id, m.mov_monto, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.metodo, m.mov_estado, m.mov_descripcion, m.nombreUser FROM movimiento m
+        inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+        where m.mov_estado = 2")->getResult();
+
+        return $datos;
     }
 }

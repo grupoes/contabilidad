@@ -29,7 +29,7 @@ $routes->get('contribuyentes/render', 'Contribuyentes::renderContribuyentes');
 $routes->get('contribuyentes/renderContribuyentesContables', 'Contribuyentes::renderContribuyentesContables');
 $routes->post('contribuyente/add', 'Contribuyentes::guardar');
 $routes->post('contribuyente/add-tarifa', 'Contribuyentes::guardarTarifa');
-$routes->get('contribuyente/all/(:any)', 'Contribuyentes::listaContribuyentes/$1');
+$routes->get('contribuyente/all/(:any)/(:num)', 'Contribuyentes::listaContribuyentes/$1/$2');
 $routes->get('contribuyente/status/(:num)/(:num)', 'Contribuyentes::changeStatus/$1/$2');
 $routes->get('contribuyente/get/(:num)', 'Contribuyentes::getContribuyente/$1');
 $routes->get('contribuyente/historial-tarifa/(:num)', 'Contribuyentes::getTarifaContribuyente/$1');
@@ -83,8 +83,6 @@ $routes->get('movimientos/lista-cajero/(:any)', 'Movimiento::showCajero/$1');
 $routes->get('movimientos/metodos-pagos', 'Movimiento::allMetodoPagos');
 $routes->get('movimiento/extornar/(:num)', 'Movimiento::extornar/$1');
 $routes->post('movimiento/cambio-pago', 'Movimiento::cambioPago');
-$routes->get('movimientos/lista-virtual-pendientes', 'Movimiento::listaVirtualPendientes');
-$routes->get('movimiento/aceptar-virtual/(:num)', 'Movimiento::aceptarVirtual/$1');
 
 $routes->get('movimiento-bancos', 'Movimiento::bancosMovimientos');
 
@@ -157,6 +155,7 @@ $routes->post('declaracion/guardar_datos', 'Declaracion::guardar_datos');
 $routes->get('empresas-notificacion', 'Api\Notificaciones::index');
 $routes->get('mensajes-pendientes', 'Api\Notificaciones::mensajesPendientes');
 $routes->post('update-mensaje', 'Api\Notificaciones::updateMessage');
+$routes->get('send-email', 'Api\Notificaciones::sendEmail');
 
 $routes->get('mensajes-masivos', 'Mensajes::index');
 $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');

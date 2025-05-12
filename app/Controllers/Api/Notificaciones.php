@@ -5,6 +5,8 @@ namespace App\Controllers\Api;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
 
+use Resend\Resend;
+
 use App\Models\FechaDeclaracionModel;
 use App\Models\ContribuyenteModel;
 use App\Models\ContactosContribuyenteModel;
@@ -134,6 +136,21 @@ class Notificaciones extends ResourceController
         $envio->update($id, ['fecha_envio' => $fecha_envio, 'estado' => 'enviado']);
 
         return $this->respond(['message' => "Mensaje actualizado correctamente"]);
+    }
+
+    public function sendEmail()
+    {
+
+        $resend = Resend::client('re_5wjnGFy9_2269kCpAmET27oqTKKa1eSQv');
+
+        $result = $resend->emails->send([
+            'from' => 'Acme <contabilidad@grupoesconsultores.com>',
+            'to' => ['desarrollo.tecnologico.tarapoto@gmail.com'],
+            'subject' => 'hello world',
+            'html' => '<strong>it works!</strong>',
+        ]);
+
+        return $this->respond($result);
     }
 
     /**

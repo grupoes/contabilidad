@@ -218,12 +218,19 @@ formDatos.addEventListener("submit", (e) => {
 });
 
 const selectOpciones = document.getElementById("selectOpciones");
+const selectEstado = document.getElementById("selectEstado");
 const tableBody = document.getElementById("tableBody");
 
 listaContribuyentes();
 
 function listaContribuyentes() {
-  fetch(base_url + "contribuyente/all/" + selectOpciones.value)
+  fetch(
+    base_url +
+      "contribuyente/all/" +
+      selectOpciones.value +
+      "/" +
+      selectEstado.value
+  )
     .then((res) => res.json())
     .then((data) => {
       viewListContribuyentes(data);
@@ -376,6 +383,10 @@ function viewListContribuyentes(data) {
 }
 
 selectOpciones.addEventListener("change", (e) => {
+  listaContribuyentes();
+});
+
+selectEstado.addEventListener("change", (e) => {
   listaContribuyentes();
 });
 

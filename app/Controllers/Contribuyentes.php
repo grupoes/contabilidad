@@ -120,7 +120,7 @@ class Contribuyentes extends BaseController
         return $this->response->setJSON($contribuyentes);
     }
 
-    public function listaContribuyentes($filtro)
+    public function listaContribuyentes($filtro, $estado)
     {
         $model = new ContribuyenteModel();
         $confiNoti = new ConfiguracionNotificacionModel();
@@ -130,6 +130,7 @@ class Contribuyentes extends BaseController
 
         $sql = "";
         $asig = "";
+        $status = "";
 
         if ($filtro !== 'TODOS') {
             $sql = "AND c.tipoServicio = '$filtro'";
@@ -137,6 +138,12 @@ class Contribuyentes extends BaseController
 
         if (session()->perfil_id > 2) {
             $asig = " AND cu.usuario_id = " . session()->id;
+        }
+
+        if ($estado == 0) {
+            $status = "c.estado > 0";
+        } else {
+            $status = "c.estado = $estado";
         }
 
         $data = $model->query("SELECT 
@@ -169,7 +176,7 @@ class Contribuyentes extends BaseController
                 ) THEN 'NO' -- Tiene un certificado válido
                 ELSE 'SI' -- No tiene certificado válido o está vencido
             END AS certificado_vencido
-        FROM contribuyentes c left join contribuyentes_usuario cu ON cu.contribuyente_id = c.id WHERE c.estado > 0 $sql $asig order by c.id desc")->getResult();
+        FROM contribuyentes c left join contribuyentes_usuario cu ON cu.contribuyente_id = c.id WHERE $status $sql $asig order by c.id desc")->getResult();
 
         foreach ($data as $key => $value) {
             $confNot = $confiNoti->where('ruc_empresa_numero', $value->ruc)->orderBy('id_tributo', 'asc')->findAll();
