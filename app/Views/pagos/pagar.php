@@ -155,6 +155,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>PERIODO</th>
+                                                    <th>F. PAGO</th>
                                                     <th>F. PROCESO</th>
                                                     <th>TOTAL</th>
                                                     <th>M. PAGADO</th>
