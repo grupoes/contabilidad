@@ -73,7 +73,7 @@ class Pago extends BaseController
     {
         $pago = new PagosModel();
 
-        $pagos = $pago->query("SELECT p.contribuyente_id, DATE_FORMAT(p.fecha_pago , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.mesCorrespondiente, '%d-%m-%Y') as mesCorrespondiente, p.monto_total, p.montoPagado, p.montoPendiente, p.montoExcedente, p.estado from pagos p where p.contribuyente_id = $id order by p.id desc")->getResult();
+        $pagos = $pago->query("SELECT p.contribuyente_id, DATE_FORMAT(p.fecha_pago , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.fecha_proceso , '%d-%m-%Y') as fecha_proceso, DATE_FORMAT(p.mesCorrespondiente, '%d-%m-%Y') as mesCorrespondiente, p.monto_total, p.montoPagado, p.montoPendiente, p.montoExcedente, p.estado from pagos p where p.contribuyente_id = $id order by p.id desc")->getResult();
 
         return $this->response->setJSON($pagos);
     }
@@ -100,6 +100,7 @@ class Pago extends BaseController
             $metodoPago = $this->request->getvar('metodoPago');
             $monto = $this->request->getvar('monto');
             $diaCobro = $this->request->getvar('diaCobro');
+            $fecha_proceso = $this->request->getvar('fecha_proceso');
 
             $nameFile = "";
 
@@ -119,7 +120,6 @@ class Pago extends BaseController
             $montoMensual = $dataContrib['costoMensual'];
 
             if (isset($_POST['generarMovimiento'])) {
-                $descripcion = "Pago de Honorario de " . $dataContrib['razon_social'];
 
                 $dataSede = $this->Aperturar();
 
@@ -131,7 +131,7 @@ class Pago extends BaseController
 
                 $descripcion = "Pago de Honorario de " . $dataContrib['razon_social'];
 
-                $idMovimiento = $this->generarMovimiento($sesionId, 1, 1, $metodoPago, $monto, $descripcion, 5, 'TICKET - 0001', 2);
+                $idMovimiento = $this->generarMovimiento($sesionId, 1, 1, $metodoPago, $monto, $descripcion, 5, 'TICKET - 0001', 1);
 
                 $data_honorario = array(
                     "contribuyente_id" => $idContribuyente,
@@ -153,6 +153,7 @@ class Pago extends BaseController
                 $data = array(
                     "contribuyente_id" => $idContribuyente,
                     "fecha_pago" => date('Y-m-d H:i:s'),
+                    "fecha_proceso" => $fecha_proceso,
                     "monto_total" => $monto,
                     "mesCorrespondiente" => $periodo,
                     "montoPagado" => $monto,
@@ -201,6 +202,7 @@ class Pago extends BaseController
                             "mesCorrespondiente" => $mesCorrespondiente,
                             "monto_total" => $montoMensual,
                             "fecha_pago" => date('Y-m-d H:i:s'),
+                            "fecha_proceso" => $fecha_proceso,
                             "montoPagado" => $montoMensual,
                             "montoPendiente" => 0,
                             "montoExcedente" => 0,
@@ -216,6 +218,7 @@ class Pago extends BaseController
                             "contribuyente_id" => $idContribuyente,
                             "mesCorrespondiente" => $mesCorrespondiente,
                             "fecha_pago" => date('Y-m-d H:i:s'),
+                            "fecha_proceso" => $fecha_proceso,
                             "monto_total" => $montoMensual,
                             "montoPagado" => $montoDisponible,
                             "montoPendiente" => $montoMensual - $montoDisponible,

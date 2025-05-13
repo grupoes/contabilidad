@@ -1,22 +1,21 @@
-<?php namespace App\Models;
+<?php
 
-    use CodeIgniter\Model;
+namespace App\Models;
 
-    class PagosModel extends Model
-    {
-        protected $table      = 'pagos';
-        protected $primaryKey = 'id';
+use CodeIgniter\Model;
 
-        protected $useAutoIncrement = true;
+class PagosModel extends Model
+{
+    protected $table      = 'pagos';
+    protected $primaryKey = 'id';
 
-        protected $returnType     = 'array';
+    protected $useAutoIncrement = true;
 
-        protected $allowedFields = ['id','contribuyente_id', 'fecha_pago', 'monto_total', 'mesCorrespondiente', 'montoPagado', 'montoPendiente', 'montoExcedente', 'usuario_id_cobra', 'estado'];
+    protected $returnType     = 'array';
 
-        protected $useTimestamps = false;
-        protected $createdField  = 'created_at';
-        protected $updatedField  = 'updated_at';
+    protected $allowedFields = ['id', 'contribuyente_id', 'fecha_pago', 'monto_total', 'mesCorrespondiente', 'montoPagado', 'montoPendiente', 'montoExcedente', 'usuario_id_cobra', 'estado', 'fecha_proceso'];
 
-    }
-
-?>
+    protected $useTimestamps = false;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+}

@@ -250,6 +250,11 @@ abstract class BaseController extends Controller
 
                         $idSesionVirtual = $sesion->insertID();
                     } else {
+                        $sesion->db->transComplete();
+
+                        if ($sesion->db->transStatus() === false) {
+                            throw new \Exception("Error al realizar la operación.");
+                        }
                         return [
                             "idSesionFisica" => $sesions[1]['id_sesion_caja'],
                             "idSesionVirtual" => $sesions[0]['id_sesion_caja'],

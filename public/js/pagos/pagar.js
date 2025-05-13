@@ -42,7 +42,7 @@ function viewPagos(data) {
     html += `
         <tr>
             <td>${pago.mesCorrespondiente}</td>
-            <td>${pago.fecha_pago}</td>
+            <td>${pago.fecha_proceso}</td>
             <td>${pago.monto_total}</td>
             <td>${pago.montoPagado}</td>
             <td>${pago.montoPendiente}</td>
@@ -213,3 +213,15 @@ function deletePago(e, id) {
       }
     });
 }
+
+const generarMovimiento = document.getElementById("generarMovimiento");
+
+generarMovimiento.addEventListener("change", (e) => {
+  if (e.target.checked) {
+    document.getElementById("proceso").removeAttribute("hidden");
+    document.getElementById("fecha_proceso").setAttribute("required", true);
+  } else {
+    document.getElementById("proceso").setAttribute("hidden", true);
+    document.getElementById("fecha_proceso").removeAttribute("required");
+  }
+});
