@@ -65,6 +65,7 @@ $routes->post('pagos/pagar-honorario', 'Pago::pagarHonorario');
 $routes->get('pagos', 'Pago::index');
 $routes->get('pagos/renderPagos', 'Pago::renderPagos');
 $routes->get('pagos/actualizar', 'Pago::insertContratos');
+$routes->get('pagos/delete-pago/(:num)', 'Pago::deletePago/$1');
 
 $routes->get('all-ubigeo', 'Contribuyentes::listaUbigeo');
 

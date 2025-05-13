@@ -62,12 +62,14 @@ function viewPagosHonorarios(data) {
 
   const currentDate = new Date().toISOString().split("T")[0];
 
-  data.forEach((pago) => {
+  data.forEach((pago, index) => {
     let botonDelete = "";
 
-    if (currentDate === pago.fecha) {
-      botonDelete = `
-            <a href="#" onclick="deletePago(event, ${pago.id})"> <i class="fas fa-trash text-danger"></i> </a>`;
+    if (index === 0) {
+      if (currentDate === pago.fecha) {
+        botonDelete = `
+              <a href="#" onclick="deletePago(event, ${pago.id})"> <i class="fas fa-trash text-danger"></i> </a>`;
+      }
     }
 
     html += `
@@ -200,17 +202,22 @@ function deletePago(e, id) {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        swalWithBootstrapButtons.fire(
-          "Deleted!",
-          "Your file has been deleted.",
-          "success"
-        );
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        swalWithBootstrapButtons.fire(
-          "Cancelled",
-          "Your imaginary file is safe :)",
-          "error"
-        );
+        fetch(`${base_url}pagos/delete-pago/${id}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              renderPagos(idContribuyente.value);
+              renderPagosHonorarios(idContribuyente.value);
+
+              Swal.fire({
+                position: "top-end",
+                icon: "success",
+                title: data.message,
+                showConfirmButton: false,
+                timer: 1500,
+              });
+            }
+          });
       }
     });
 }

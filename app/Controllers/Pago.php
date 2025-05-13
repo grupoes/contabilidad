@@ -9,6 +9,7 @@ use App\Models\HistorialTarifaModel;
 use App\Models\PagosModel;
 use App\Models\PagosHonorariosModel;
 use App\Models\ContratosModel;
+use App\Models\MovimientoModel;
 
 use DateTime;
 
@@ -73,7 +74,7 @@ class Pago extends BaseController
     {
         $pago = new PagosModel();
 
-        $pagos = $pago->query("SELECT p.contribuyente_id, DATE_FORMAT(p.fecha_pago , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.fecha_proceso , '%d-%m-%Y') as fecha_proceso, DATE_FORMAT(p.mesCorrespondiente, '%d-%m-%Y') as mesCorrespondiente, p.monto_total, p.montoPagado, p.montoPendiente, p.montoExcedente, p.estado from pagos p where p.contribuyente_id = $id order by p.id desc")->getResult();
+        $pagos = $pago->query("SELECT p.contribuyente_id, DATE_FORMAT(p.fecha_pago , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.fecha_proceso , '%d-%m-%Y') as fecha_proceso, DATE_FORMAT(p.mesCorrespondiente, '%d-%m-%Y') as mesCorrespondiente, p.monto_total, p.montoPagado, p.montoPendiente, p.montoExcedente, p.estado from pagos p where p.contribuyente_id = $id and p.estado != 'eliminado' order by p.id desc")->getResult();
 
         return $this->response->setJSON($pagos);
     }
@@ -82,7 +83,7 @@ class Pago extends BaseController
     {
         $pago = new PagosHonorariosModel();
 
-        $pagos = $pago->query("SELECT p.id, p.contribuyente_id, DATE_FORMAT(p.fecha , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.registro, '%d-%m-%Y %H-%i-%s') as registro, p.fecha, p.monto, p.estado, p.voucher, mp.metodo from pagos_honorarios p INNER JOIN metodos_pagos mp ON mp.id = p.metodo_pago_id where p.contribuyente_id = $id order by p.id desc")->getResult();
+        $pagos = $pago->query("SELECT p.id, p.contribuyente_id, DATE_FORMAT(p.fecha , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.registro, '%d-%m-%Y %H-%i-%s') as registro, p.fecha, p.monto, p.estado, p.voucher, mp.metodo from pagos_honorarios p INNER JOIN metodos_pagos mp ON mp.id = p.metodo_pago_id where p.contribuyente_id = $id and p.estado = 1 order by p.id desc")->getResult();
 
         return $this->response->setJSON($pagos);
     }
@@ -315,5 +316,39 @@ class Pago extends BaseController
 
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
+    }
+
+    public function deletePago($id)
+    {
+        $pago = new PagosModel();
+        $pagoHo = new PagosHonorariosModel();
+        $mov = new MovimientoModel();
+
+        $data = $pagoHo->find($id);
+
+        $contribId = $data['contribuyente_id'];
+        $monto = $data['monto'];
+        $moviId = $data['movimientoId'];
+
+        $mov->update($moviId, ['mov_estado' => 0]);
+
+        $pagoHo->update($id, ['estado' => 0]);
+
+        $dataPago = $pago->where('contribuyente_id', $contribId)->where('estado !=', 'eliminado')->orderBy('id', 'DESC')->findAll();
+
+        $i = 0;
+
+        while ($monto > 0) {
+            $monto = $monto - $dataPago[$i]['montoPagado'];
+
+            $pago->update($dataPago[$i]['id'], ['estado' => 'eliminado']);
+
+            $i++;
+        }
+
+        return $this->response->setJSON([
+            "status" => "success",
+            "message" => "Se elimino correctamente"
+        ]);
     }
 }
