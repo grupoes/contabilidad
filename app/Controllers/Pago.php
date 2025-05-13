@@ -94,7 +94,7 @@ class Pago extends BaseController
         $paHono = new PagosHonorariosModel();
 
         try {
-            $pago->db->transBegin();
+            //$pago->db->transBegin();
 
             $idContribuyente = $this->request->getvar('idcontribuyente');
             $metodoPago = $this->request->getvar('metodoPago');
@@ -121,9 +121,13 @@ class Pago extends BaseController
             if (isset($_POST['generarMovimiento'])) {
                 $descripcion = "Pago de Honorario de " . $dataContrib['razon_social'];
 
-                $dataSede = $this->obtenerCajaSedeVirtual();
+                $dataSede = $this->Aperturar();
 
-                $sesionId = $dataSede['id_sesion_caja'];
+                if ($metodoPago == 1) {
+                    $sesionId = $dataSede['idSesionFisica'];
+                } else {
+                    $sesionId = $dataSede['idSesionVirtual'];
+                }
 
                 $descripcion = "Pago de Honorario de " . $dataContrib['razon_social'];
 
@@ -227,12 +231,12 @@ class Pago extends BaseController
                 }
             }
 
-            if ($pago->db->transStatus() === false) {
+            /*if ($pago->db->transStatus() === false) {
                 $pago->db->transRollback();
                 throw new \Exception("Error al realizar la operación.");
             }
 
-            $pago->db->transCommit();
+            $pago->db->transCommit();*/
 
             return $this->response->setJSON([
                 "status" => "success",

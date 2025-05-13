@@ -38,105 +38,6 @@ class Caja extends BaseController
         return view('caja/index', compact('menu'));
     }
 
-    public function Aperturar()
-    {
-        $sesion = new SesionCajaModel();
-        $sedeCaja = new SedeCajaModel();
-
-        $sesion->db->transStart();
-
-        try {
-
-            $idUser = session()->id;
-
-            $sesions = $sesion->where('id_usuario', $idUser)->orderBy('id_sesion_caja', 'DESC')->findAll(2);
-
-            if ($sesions) {
-                $fechaApertura = date('Y-m-d', strtotime($sesions[0]['ses_fechaapertura']));
-
-                if ($fechaApertura == date('Y-m-d')) {
-                    return $this->response->setJSON([
-                        "status" => "error",
-                        "message" => "Podrá abrir caja el día de mañana"
-                    ]);
-                }
-            }
-
-            $getSedeCajaFisica = $sedeCaja->where('id_sede', session()->sede_id)->where('id_caja', 1)->first();
-            $getSedeCajaVirtual = $sedeCaja->where('id_sede', session()->sede_id)->where('id_caja', 2)->first();
-
-            if (!$getSedeCajaFisica || !$getSedeCajaVirtual) {
-                throw new \Exception("No se encontraron las configuraciones de caja.");
-            }
-
-            $fecha_apertura = date('Y-m-d H:i:s');
-
-            $datos_fisica = array(
-                "id_usuario" => session()->id,
-                "id_sede_caja" => $getSedeCajaFisica['id_sede_caja'],
-                "ses_fechaapertura" => $fecha_apertura,
-                "ses_montoapertura" => $getSedeCajaFisica['sede_caja_monto'],
-                "ses_montocierre" => 0,
-                "ses_estado" => 1,
-                "ses_fechacierre" => ""
-            );
-
-            $sesion->insert($datos_fisica);
-
-            $datos_virtual = array(
-                "id_usuario" => session()->id,
-                "id_sede_caja" => $getSedeCajaVirtual['id_sede_caja'],
-                "ses_fechaapertura" => $fecha_apertura,
-                "ses_montoapertura" => $getSedeCajaVirtual['sede_caja_monto'],
-                "ses_montocierre" => 0,
-                "ses_estado" => 1,
-                "ses_fechacierre" => ""
-            );
-
-            $sesion->insert($datos_virtual);
-
-            $idSesionVirtual = $sesion->insertID();
-
-            if (session()->perfil_id == 3 && session()->sede_id == 1) {
-                $sede = $this->obtenerCajaSedeVirtual();
-
-                if ($sede['sede'] === session()->sede_id) {
-                    $dataPendient = $this->listaVirtualPendientes();
-
-                    if ($dataPendient) {
-                        foreach ($dataPendient as $key => $value) {
-                            $movimiento = new MovimientoModel();
-
-                            $data_update = array(
-                                "id_sesion_caja" => $idSesionVirtual,
-                                "mov_estado" => 1
-                            );
-
-                            $movimiento->update($value->mov_id, $data_update);
-                        }
-                    }
-                }
-            }
-
-            $sesion->db->transComplete();
-
-            if ($sesion->db->transStatus() === false) {
-                throw new \Exception("Error al realizar la operación.");
-            }
-
-            return $this->response->setJSON([
-                "status" => "success",
-                "message" => "se aperturo caja satisfactoriamente"
-            ]);
-        } catch (\Exception $e) {
-            $sesion->db->transRollback(); // Revertir la transacción
-            return $this->response->setJSON([
-                "status" => "error",
-                "message" => "Ocurrió un error: " . $e->getMessage()
-            ]);
-        }
-    }
-
     public function cierreCaja()
     {
         $sesion = new SesionCajaModel();
@@ -322,7 +223,7 @@ class Caja extends BaseController
 
         $movimiento = new MovimientoModel();
 
-        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND id_metodo_pago = 1 AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado = 1 AND sede_caja.id_sede = $sede")->getRow();
+        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND id_metodo_pago = 1 AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado != 0 AND sede_caja.id_sede = $sede")->getRow();
 
         return $total->total;
     }
@@ -344,7 +245,7 @@ class Caja extends BaseController
 
         $movimiento = new MovimientoModel();
 
-        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND id_metodo_pago != 1 AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado = 1 AND sede_caja.id_sede = $sede")->getRow();
+        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja LEFT JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja LEFT JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja LEFT JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND id_metodo_pago != 1 AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado != 0 AND sede_caja.id_sede = $sede")->getRow();
 
         return $total->total;
     }
@@ -397,7 +298,7 @@ class Caja extends BaseController
 
         $movimiento = new MovimientoModel();
 
-        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND id_metodo_pago = 1 AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado = 1")->getRow();
+        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND id_metodo_pago = 1 AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado != 0")->getRow();
 
         return $total->total;
     }
@@ -419,7 +320,7 @@ class Caja extends BaseController
 
         $movimiento = new MovimientoModel();
 
-        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND id_metodo_pago != 1 AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado = 1")->getRow();
+        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND id_metodo_pago != 1 AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado != 0")->getRow();
 
         return $total->total;
     }

@@ -69,7 +69,7 @@ $routes->get('pagos/actualizar', 'Pago::insertContratos');
 $routes->get('all-ubigeo', 'Contribuyentes::listaUbigeo');
 
 $routes->get('caja-diaria', 'Caja::index');
-$routes->get('caja/apertura', 'Caja::Aperturar');
+$routes->get('caja/apertura/(:num)', 'Caja::Aperturar/$1');
 $routes->get('caja/cierreCaja', 'Caja::cierreCaja');
 $routes->get('caja/validar-caja', 'Caja::validarcaja');
 

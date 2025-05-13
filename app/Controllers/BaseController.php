@@ -16,6 +16,8 @@ use App\Models\ContribuyenteModel;
 use App\Models\PermisosModel;
 use App\Models\MovimientoModel;
 use App\Models\SedeModel;
+use App\Models\SedeCajaModel;
+use App\Models\UserModel;
 
 use DateTime;
 
@@ -164,20 +166,143 @@ abstract class BaseController extends Controller
     public function obtenerCajaSedeVirtual()
     {
         $sede = new SedeModel();
-        $sesionCaja = new SesionCajaModel();
+        $user = new UserModel();
 
         $sedeCaja = $sede->where('caja_virtual', 1)->first();
 
         $idsede = $sedeCaja['id'];
 
-        //traer la sesion caja de la sede virtual y del usuario admin sede
-        $sesionCaja = $sesionCaja->select('sesion_caja.id_sesion_caja')->join('sede_caja', 'sede_caja.id_sede_caja = sesion_caja.id_sede_caja')->where('sede_caja.id_sede', $idsede)->orderBy('sesion_caja.id_sesion_caja', 'desc')->findAll(2);
+        $usuario = $user->where('perfil_id', 3)->where('sede_id', $idsede)->where('estado', 1)->first();
 
-        $array = array(
-            'id_sesion_caja' => $sesionCaja[0]['id_sesion_caja'],
-            'sede' => $idsede
-        );
+        return [
+            'idUser' => $usuario['id'],
+            'idSede' => $idsede,
+        ];
+    }
 
-        return $array;
+    public function Aperturar()
+    {
+        $sesion = new SesionCajaModel();
+        $sedeCaja = new SedeCajaModel();
+
+        $sesion->db->transStart();
+
+        try {
+
+            $datos = $this->obtenerCajaSedeVirtual();
+
+            $idUser = $datos['idUser'];
+            $sede = $datos['idSede'];
+
+            $sesions = $sesion->where('id_usuario', $idUser)->orderBy('id_sesion_caja', 'DESC')->findAll(2);
+
+            $getSedeCajaFisica = $sedeCaja->where('id_sede', $sede)->where('id_caja', 1)->first();
+            $getSedeCajaVirtual = $sedeCaja->where('id_sede', $sede)->where('id_caja', 2)->first();
+
+            if (!$getSedeCajaFisica || !$getSedeCajaVirtual) {
+                throw new \Exception("No se encontraron las configuraciones de caja.");
+            }
+
+            $fecha_apertura = date('Y-m-d H:i:s');
+
+            if ($sesions) {
+
+                $spertura = date('Y-m-d', strtotime($sesions[0]['ses_fechaapertura']));
+
+                if ($sesions[0]['ses_estado'] == 1) {
+
+                    if ($spertura !== date('Y-m-d')) {
+                        foreach ($sesions as $key => $value) {
+                            $data_update = array(
+                                "ses_montocierre" => 0,
+                                "ses_estado" => 0,
+                                "ses_fechacierre" => date('Y-m-d H:i:s')
+                            );
+
+                            $sesion->update($value['id_sesion_caja'], $data_update);
+                        }
+
+                        $datos_fisica = array(
+                            "id_usuario" => $idUser,
+                            "id_sede_caja" => $getSedeCajaFisica['id_sede_caja'],
+                            "ses_fechaapertura" => $fecha_apertura,
+                            "ses_montoapertura" => $getSedeCajaFisica['sede_caja_monto'],
+                            "ses_montocierre" => 0,
+                            "ses_estado" => 1,
+                            "ses_fechacierre" => ""
+                        );
+
+                        $sesion->insert($datos_fisica);
+
+                        $idSesionFisica = $sesion->insertID();
+
+                        $datos_virtual = array(
+                            "id_usuario" => $idUser,
+                            "id_sede_caja" => $getSedeCajaVirtual['id_sede_caja'],
+                            "ses_fechaapertura" => $fecha_apertura,
+                            "ses_montoapertura" => $getSedeCajaVirtual['sede_caja_monto'],
+                            "ses_montocierre" => 0,
+                            "ses_estado" => 1,
+                            "ses_fechacierre" => ""
+                        );
+
+                        $sesion->insert($datos_virtual);
+
+                        $idSesionVirtual = $sesion->insertID();
+                    } else {
+                        return [
+                            "idSesionFisica" => $sesions[1]['id_sesion_caja'],
+                            "idSesionVirtual" => $sesions[0]['id_sesion_caja'],
+                            "status" => "success",
+                        ];
+                    }
+                }
+            } else {
+                $datos_fisica = array(
+                    "id_usuario" => $idUser,
+                    "id_sede_caja" => $getSedeCajaFisica['id_sede_caja'],
+                    "ses_fechaapertura" => $fecha_apertura,
+                    "ses_montoapertura" => $getSedeCajaFisica['sede_caja_monto'],
+                    "ses_montocierre" => 0,
+                    "ses_estado" => 1,
+                    "ses_fechacierre" => ""
+                );
+
+                $sesion->insert($datos_fisica);
+
+                $idSesionFisica = $sesion->insertID();
+
+                $datos_virtual = array(
+                    "id_usuario" => $idUser,
+                    "id_sede_caja" => $getSedeCajaVirtual['id_sede_caja'],
+                    "ses_fechaapertura" => $fecha_apertura,
+                    "ses_montoapertura" => $getSedeCajaVirtual['sede_caja_monto'],
+                    "ses_montocierre" => 0,
+                    "ses_estado" => 1,
+                    "ses_fechacierre" => ""
+                );
+
+                $sesion->insert($datos_virtual);
+
+                $idSesionVirtual = $sesion->insertID();
+            }
+
+            $sesion->db->transComplete();
+
+            if ($sesion->db->transStatus() === false) {
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            return [
+                "idSesionFisica" => $idSesionFisica,
+                "idSesionVirtual" => $idSesionVirtual,
+                "status" => "success",
+            ];
+        } catch (\Exception $e) {
+            $sesion->db->transRollback(); // Revertir la transacción
+            return [
+                "status" => "error",
+            ];
+        }
     }
 }

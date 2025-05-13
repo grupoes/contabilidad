@@ -86,6 +86,13 @@
                                     <input type="file" class="form-control" name="voucher" id="voucher" accept="image/*">
                                 </div>
                             </div>
+
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="fecha_proceso">F. PROCESO</label>
+                                    <input type="date" class="form-control" id="fecha_proceso" name="fecha_proceso" required>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row">
@@ -148,7 +155,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>PERIODO</th>
-                                                    <th>F. PAGO</th>
+                                                    <th>F. PROCESO</th>
                                                     <th>TOTAL</th>
                                                     <th>M. PAGADO</th>
                                                     <th>M. PENDIENTE</th>
