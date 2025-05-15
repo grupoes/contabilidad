@@ -89,7 +89,7 @@
 
                             <div class="col-md-3" id="proceso">
                                 <div class="mb-3">
-                                    <label class="form-label" for="fecha_proceso">F. Proceso</label>
+                                    <label class="form-label" for="fecha_proceso">Fecha Pago</label>
                                     <input type="date" class="form-control" id="fecha_proceso" name="fecha_proceso" max="<?= date('Y-m-d') ?>" required>
                                 </div>
                             </div>
