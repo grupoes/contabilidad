@@ -52,6 +52,7 @@
                                     <th>Moneda</th>
                                     <th>Nombre del Titular</th>
                                     <th>Numero de Cuenta</th>
+                                    <th>Saldo Inicial</th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
@@ -99,7 +100,12 @@
                                 <option value="DOLARES">DOLARES</option>
                             </select>
                         </div>
-                        
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="saldo_inicial">Saldo Inicial</label>
+                            <input type="number" class="form-control" id="saldo_inicial" name="saldo_inicial" value="0.00" step="0.01">
+                        </div>
+
                     </div>
 
                 </div>

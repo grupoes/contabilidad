@@ -42,6 +42,7 @@ class Bancos extends BaseController
             $titular = $data['titular'];
             $numeroCuenta = $data['numeroCuenta'];
             $moneda = $data['moneda'];
+            $saldoInicial = $data['saldo_inicial'];
 
             $idBanco = $data['idBanco'];
 
@@ -50,6 +51,7 @@ class Bancos extends BaseController
                 "moneda" => $moneda,
                 "nombre_titular" => $titular,
                 "numero_cuenta" => $numeroCuenta,
+                "saldo_inicial" => $saldoInicial,
                 "estado" => 1
             );
 

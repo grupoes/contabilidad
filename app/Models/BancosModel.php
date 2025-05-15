@@ -1,22 +1,21 @@
-<?php namespace App\Models;
+<?php
 
-    use CodeIgniter\Model;
+namespace App\Models;
 
-    class BancosModel extends Model
-    {
-        protected $table      = 'bancos';
-        protected $primaryKey = 'id';
+use CodeIgniter\Model;
 
-        protected $useAutoIncrement = true;
+class BancosModel extends Model
+{
+    protected $table      = 'bancos';
+    protected $primaryKey = 'id';
 
-        protected $returnType     = 'array';
+    protected $useAutoIncrement = true;
 
-        protected $allowedFields = ['id','nombre_banco', 'moneda', 'nombre_titular', 'numero_cuenta', 'estado'];
+    protected $returnType     = 'array';
 
-        protected $useTimestamps = false;
-        protected $createdField  = 'created_at';
-        protected $updatedField  = 'updated_at';
+    protected $allowedFields = ['id', 'nombre_banco', 'moneda', 'nombre_titular', 'numero_cuenta', 'estado', 'saldo_inicial'];
 
-    }
-
-?>
+    protected $useTimestamps = false;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+}
