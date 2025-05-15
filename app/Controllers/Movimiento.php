@@ -8,6 +8,7 @@ use App\Models\MovimientoModel;
 use App\Models\SedeModel;
 use App\Models\SesionCajaModel;
 use App\Models\BancosModel;
+use App\Models\PagosHonorariosModel;
 use DateTime;
 
 class Movimiento extends BaseController
@@ -60,6 +61,7 @@ class Movimiento extends BaseController
                 "id_metodo_pago" => $metodoPago,
                 "mov_concepto" => $conceptoCaja,
                 "mov_fecha" => date('Y-m-d'),
+                "mov_fecha_pago" => date('Y-m-d'),
                 "mov_monto" => $monto,
                 "mov_estado" => 1,
                 "mov_descripcion" => $descripcion,
@@ -169,6 +171,13 @@ class Movimiento extends BaseController
             $startDate = $this->request->getVar('desde');
             $endDate = $this->request->getVar('hasta');
 
+            if ($startDate == null || $endDate == null) {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "Debe seleccionar un rango de fechas"
+                ]);
+            }
+
             if ($startDate > $endDate) {
                 return $this->response->setJSON([
                     "status" => "error",
@@ -178,13 +187,67 @@ class Movimiento extends BaseController
 
             $bancos = $banco->where('estado', 1)->orderBy('id', 'asc')->findAll();
 
-            $datos = $mov->query("SELECT m.mov_id,m.mov_monto, m.mov_descripcion, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.id_banco, mp.metodo, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion FROM movimiento m
-            left join metodos_pagos mp on mp.id = m.id_metodo_pago
-            left join concepto c2 on c2.con_id = m.mov_concepto
-            left join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+            $datos = $mov->query("SELECT m.mov_id,m.mov_monto, m.mov_descripcion, m.mov_concepto, m.mov_fecha_pago, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.id_banco, mp.metodo, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion, c2.id_tipo_movimiento FROM movimiento m
+            inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+            inner join concepto c2 on c2.con_id = m.mov_concepto
+            inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
             where m.mov_estado = 1 and m.mov_fecha between '$startDate' and '$endDate' order by m.mov_id asc")->getResult();
 
+            $sumaEfectivoIngresos = $mov->query("SELECT sum(m.mov_monto) as saldo FROM movimiento m
+            inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+            inner join concepto c2 on c2.con_id = m.mov_concepto
+            inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+            where m.mov_estado = 1 and mp.id = 1 and m.mov_fecha < '$startDate' and tm.id_tipo_movimiento = 1")->getRow();
+
+            $sumaEfectivoEgresos = $mov->query("SELECT sum(m.mov_monto) as saldo FROM movimiento m
+            inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+            inner join concepto c2 on c2.con_id = m.mov_concepto
+            inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+            where m.mov_estado = 1 and mp.id = 1 and m.mov_fecha < '$startDate' and tm.id_tipo_movimiento = 2")->getRow();
+
+            $sumaEfectivo = $sumaEfectivoIngresos->saldo - $sumaEfectivoEgresos->saldo;
+
             $data = [];
+
+            $saldoInicialBanks = [];
+
+            foreach ($bancos as $indice => $valor) {
+
+                $idbanco = $valor['id'];
+
+                $sumaIngreso = $mov->query("SELECT sum(m.mov_monto) as saldo FROM movimiento m
+                inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+                inner join concepto c2 on c2.con_id = m.mov_concepto
+                inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+                where m.mov_estado = 1 and m.mov_fecha < '$startDate' and tm.id_tipo_movimiento = 1 and mp.id_banco = $idbanco")->getRow();
+
+                $sumaEgresos = $mov->query("SELECT sum(m.mov_monto) as saldo FROM movimiento m
+                inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+                inner join concepto c2 on c2.con_id = m.mov_concepto
+                inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+                where m.mov_estado = 1 and m.mov_fecha < '$startDate' and tm.id_tipo_movimiento = 2 and mp.id_banco = $idbanco")->getRow();
+
+                $saldoInicialBancos = $sumaIngreso->saldo - $sumaEgresos->saldo + $valor['saldo_inicial'];
+
+                array_push($saldoInicialBanks, $saldoInicialBancos);
+            }
+
+            $fechaSaldoAnterior = new DateTime($startDate);
+            $fechaSaldoAnterior->modify('-1 day');
+            $fechaSaldoAnterior = $fechaSaldoAnterior->format('d-m-Y');
+
+            $addInicial = [
+                "fecha_proceso" => $fechaSaldoAnterior,
+                "fecha_pago" => "",
+                "tipo" => "SALDO ANTERIOR",
+                "concepto" => "",
+                "descripcion" => "",
+                "metodo" => "",
+                "efectivo" => $sumaEfectivo,
+                "bancos" => $saldoInicialBanks
+            ];
+
+            array_push($data, $addInicial);
 
             foreach ($datos as $key => $value) {
 
@@ -193,7 +256,12 @@ class Movimiento extends BaseController
                 $banks = [];
 
                 if ($value->id_metodo_pago == 1) {
-                    $efectivo = $value->mov_monto;
+
+                    if ($value->id_tipo_movimiento == 1) {
+                        $efectivo = $value->mov_monto;
+                    } else {
+                        $efectivo = "-" . $value->mov_monto;
+                    }
 
                     foreach ($bancos as $key2 => $value2) {
 
@@ -203,7 +271,12 @@ class Movimiento extends BaseController
                     foreach ($bancos as $key2 => $value2) {
 
                         if ($value2['id'] == $value->id_banco) {
-                            array_push($banks, $value->mov_monto);
+
+                            if ($value->id_tipo_movimiento == 1) {
+                                array_push($banks, $value->mov_monto);
+                            } else {
+                                array_push($banks, "-" . $value->mov_monto);
+                            }
                         } else {
                             array_push($banks, 0.00);
                         }
@@ -212,7 +285,7 @@ class Movimiento extends BaseController
 
                 $add = [
                     "fecha_proceso" => $value->fecha,
-                    "fecha_pago" => $value->fecha,
+                    "fecha_pago" => $value->mov_fecha_pago,
                     "tipo" => $value->tipo_movimiento_descripcion,
                     "concepto" => $value->con_descripcion,
                     "descripcion" => $value->mov_descripcion,
@@ -223,6 +296,56 @@ class Movimiento extends BaseController
 
                 array_push($data, $add);
             }
+
+            $sumaEfectivoAllIngresos = $mov->query("SELECT sum(m.mov_monto) as saldo FROM movimiento m
+            inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+            inner join concepto c2 on c2.con_id = m.mov_concepto
+            inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+            where m.mov_estado = 1 and mp.id = 1 and m.mov_fecha between '$startDate' and '$endDate' and tm.id_tipo_movimiento = 1")->getRow();
+
+            $sumaEfectivoAllEgresos = $mov->query("SELECT sum(m.mov_monto) as saldo FROM movimiento m
+            inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+            inner join concepto c2 on c2.con_id = m.mov_concepto
+            inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+            where m.mov_estado = 1 and mp.id = 1 and m.mov_fecha between '$startDate' and '$endDate' and tm.id_tipo_movimiento = 2")->getRow();
+
+            $sumaEfectivoAll = $sumaEfectivoAllIngresos->saldo - $sumaEfectivoAllEgresos->saldo + $sumaEfectivo;
+
+            $saldoInicialBanksAll = [];
+
+            foreach ($bancos as $indices => $valors) {
+
+                $idbanco = $valors['id'];
+
+                $sumaIngresoAll = $mov->query("SELECT sum(m.mov_monto) as saldo FROM movimiento m
+                inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+                inner join concepto c2 on c2.con_id = m.mov_concepto
+                inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+                where m.mov_estado = 1 and m.mov_fecha between '$startDate' and '$endDate' and tm.id_tipo_movimiento = 1 and mp.id_banco = $idbanco")->getRow();
+
+                $sumaEgresosAll = $mov->query("SELECT sum(m.mov_monto) as saldo FROM movimiento m
+                inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+                inner join concepto c2 on c2.con_id = m.mov_concepto
+                inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+                where m.mov_estado = 1 and m.mov_fecha between '$startDate' and '$endDate' and tm.id_tipo_movimiento = 2 and mp.id_banco = $idbanco")->getRow();
+
+                $saldoInicialBancosAll = $sumaIngresoAll->saldo - $sumaEgresosAll->saldo + $saldoInicialBanks[$indices];
+
+                array_push($saldoInicialBanksAll, $saldoInicialBancosAll);
+            }
+
+            $addTotal = [
+                "fecha_proceso" => "",
+                "fecha_pago" => "",
+                "tipo" => "TOTALES",
+                "concepto" => "",
+                "descripcion" => "",
+                "metodo" => "",
+                "efectivo" => $sumaEfectivoAll,
+                "bancos" => $saldoInicialBanksAll
+            ];
+
+            array_push($data, $addTotal);
 
             return $this->response->setJSON($data);
         } catch (\Exception $e) {

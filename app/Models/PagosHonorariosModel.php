@@ -13,7 +13,7 @@ class PagosHonorariosModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'contribuyente_id', 'movimientoId', 'pagoId', 'registro', 'fecha', 'metodo_pago_id', 'monto', 'voucher', 'estado'];
+    protected $allowedFields = ['id', 'contribuyente_id', 'movimientoId', 'pagoId', 'registro', 'fecha', 'fecha_pago', 'metodo_pago_id', 'monto', 'voucher', 'estado'];
 
     protected $useTimestamps = false;
     protected $createdField  = 'created_at';

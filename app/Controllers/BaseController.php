@@ -137,7 +137,7 @@ abstract class BaseController extends Controller
         return $modulos;
     }
 
-    public function generarMovimiento($sesionCaja, $concepto, $formaPago, $metodoPago, $monto, $descripcion, $tipoComprobante, $descripcionComprobante, $estado)
+    public function generarMovimiento($sesionCaja, $concepto, $formaPago, $metodoPago, $monto, $descripcion, $tipoComprobante, $descripcionComprobante, $estado, $fecha_pago)
     {
         $mov = new MovimientoModel();
 
@@ -151,6 +151,7 @@ abstract class BaseController extends Controller
             'id_tipo_comprobante' => $tipoComprobante,
             'tipo_comprobante_descripcion' => $descripcionComprobante,
             'mov_fecha' => date('Y-m-d'),
+            'mov_fecha_pago' => $fecha_pago,
             'mov_hora' => date('H:i:s'),
             'mov_estado' => $estado,
             'mov_cobro' => 0,

@@ -132,13 +132,14 @@ class Pago extends BaseController
 
                 $descripcion = "Pago de Honorario de " . $dataContrib['razon_social'];
 
-                $idMovimiento = $this->generarMovimiento($sesionId, 1, 1, $metodoPago, $monto, $descripcion, 5, 'TICKET - 0001', 1);
+                $idMovimiento = $this->generarMovimiento($sesionId, 1, 1, $metodoPago, $monto, $descripcion, 5, 'TICKET - 0001', 1, $fecha_proceso);
 
                 $data_honorario = array(
                     "contribuyente_id" => $idContribuyente,
                     "movimientoId" => $idMovimiento,
                     "registro" => date('Y-m-d H:i:s'),
                     "fecha" => date('Y-m-d'),
+                    "fecha_pago" => $fecha_proceso,
                     "metodo_pago_id" => $metodoPago,
                     "monto" => $monto,
                     "voucher" => $nameFile,
