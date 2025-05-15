@@ -7,6 +7,7 @@ use App\Models\TipoComprobanteModel;
 use App\Models\MovimientoModel;
 use App\Models\SedeModel;
 use App\Models\SesionCajaModel;
+use App\Models\BancosModel;
 use DateTime;
 
 class Movimiento extends BaseController
@@ -144,7 +145,7 @@ class Movimiento extends BaseController
         ]);
     }
 
-    public function bancosMovimientos()
+    public function movimientosGenerales()
     {
         if (!session()->logged_in) {
             return redirect()->to(base_url());
@@ -152,6 +153,83 @@ class Movimiento extends BaseController
 
         $menu = $this->permisos_menu();
 
-        return view('movimiento/bancosMovimientos', compact('menu'));
+        $banco = new BancosModel();
+
+        $bancos = $banco->where('estado', 1)->orderBy('id', 'asc')->findAll();
+
+        return view('movimiento/movimientosGenerales', compact('menu', 'bancos'));
+    }
+
+    public function getMovimientosGenerales()
+    {
+        try {
+            $mov = new MovimientoModel();
+            $banco = new BancosModel();
+
+            $startDate = $this->request->getVar('desde');
+            $endDate = $this->request->getVar('hasta');
+
+            if ($startDate > $endDate) {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "La fecha de inicio debe ser menor a la fecha de fin"
+                ]);
+            }
+
+            $bancos = $banco->where('estado', 1)->orderBy('id', 'asc')->findAll();
+
+            $datos = $mov->query("SELECT m.mov_id,m.mov_monto, m.mov_descripcion, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.id_banco, mp.metodo, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion FROM movimiento m
+            left join metodos_pagos mp on mp.id = m.id_metodo_pago
+            left join concepto c2 on c2.con_id = m.mov_concepto
+            left join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+            where m.mov_estado = 1 and m.mov_fecha between '$startDate' and '$endDate' order by m.mov_id asc")->getResult();
+
+            $data = [];
+
+            foreach ($datos as $key => $value) {
+
+                $efectivo = 0.00;
+
+                $banks = [];
+
+                if ($value->id_metodo_pago == 1) {
+                    $efectivo = $value->mov_monto;
+
+                    foreach ($bancos as $key2 => $value2) {
+
+                        array_push($banks, 0.00);
+                    }
+                } else {
+                    foreach ($bancos as $key2 => $value2) {
+
+                        if ($value2['id'] == $value->id_banco) {
+                            array_push($banks, $value->mov_monto);
+                        } else {
+                            array_push($banks, 0.00);
+                        }
+                    }
+                }
+
+                $add = [
+                    "fecha_proceso" => $value->fecha,
+                    "fecha_pago" => $value->fecha,
+                    "tipo" => $value->tipo_movimiento_descripcion,
+                    "concepto" => $value->con_descripcion,
+                    "descripcion" => $value->mov_descripcion,
+                    "metodo" => $value->metodo,
+                    "efectivo" => $efectivo,
+                    "bancos" => $banks
+                ];
+
+                array_push($data, $add);
+            }
+
+            return $this->response->setJSON($data);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Ocurrió un error: " . $e->getMessage()
+            ]);
+        }
     }
 }

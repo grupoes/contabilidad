@@ -85,7 +85,8 @@ $routes->get('movimientos/metodos-pagos', 'Movimiento::allMetodoPagos');
 $routes->get('movimiento/extornar/(:num)', 'Movimiento::extornar/$1');
 $routes->post('movimiento/cambio-pago', 'Movimiento::cambioPago');
 
-$routes->get('movimiento-bancos', 'Movimiento::bancosMovimientos');
+$routes->get('movimientos-generales', 'Movimiento::movimientosGenerales');
+$routes->post('movimientos/getMovimientosGenerales', 'Movimiento::getMovimientosGenerales');
 
 $routes->get('conceptos', 'Concepto::index');
 $routes->post('concepto/guardar', 'Concepto::save');
