@@ -101,12 +101,12 @@ class Movimiento extends BaseController
         $mov = new MovimientoModel();
 
         $movimientos = $mov->query("SELECT m.mov_id,m.mov_monto, m.mov_descripcion, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.metodo, c.caja_descripcion, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion FROM movimiento m 
-        left join sesion_caja sc on sc.id_sesion_caja = m.id_sesion_caja
-        left join sede_caja sc2 on sc2.id_sede_caja = sc.id_sede_caja
-        left join caja c on c.id_caja = sc2.id_caja
-        left join metodos_pagos mp on mp.id = m.id_metodo_pago
-        left join concepto c2 on c2.con_id = m.mov_concepto
-        left join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+        inner join sesion_caja sc on sc.id_sesion_caja = m.id_sesion_caja
+        inner join sede_caja sc2 on sc2.id_sede_caja = sc.id_sede_caja
+        inner join caja c on c.id_caja = sc2.id_caja
+        inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+        inner join concepto c2 on c2.con_id = m.mov_concepto
+        inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
         where m.mov_estado != 0 and m.mov_fecha between '$startDateFormatted' and '$endDateFormatted' order by m.mov_id desc")->getResult();
 
         return $this->response->setJSON($movimientos);
@@ -348,6 +348,56 @@ class Movimiento extends BaseController
             array_push($data, $addTotal);
 
             return $this->response->setJSON($data);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Ocurrió un error: " . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function consulta()
+    {
+        $mov = new MovimientoModel();
+
+        try {
+            $idSede = $this->request->getVar('sede');
+            $desde = $this->request->getVar('desde');
+            $hasta = $this->request->getVar('hasta');
+
+            if ($idSede == null || $desde == null || $hasta == null) {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "Debe seleccionar una sede, un rango de fechas y un método de pago"
+                ]);
+            }
+
+            if ($desde > $hasta) {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "La fecha de inicio debe ser menor a la fecha de fin"
+                ]);
+            }
+
+            $sql = "";
+
+            if ($idSede !== "0") {
+                $sql = " AND sc2.id_sede = $idSede";
+            }
+
+            $datos = $mov->query("SELECT m.mov_id, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') as fecha, m.mov_fecha_pago, m.mov_descripcion, m.mov_monto, m.mov_estado, mp.id_banco, mp.metodo, c2.con_descripcion, tm.id_tipo_movimiento, tm.tipo_movimiento_descripcion, se.nombre_sede FROM movimiento m
+            inner join sesion_caja sc on sc.id_sesion_caja = m.id_sesion_caja
+            inner join sede_caja sc2 on sc2.id_sede_caja = sc.id_sede_caja
+            inner join sede se on se.id = sc2.id_sede
+            inner join metodos_pagos mp on mp.id = m.id_metodo_pago
+            inner join concepto c2 on c2.con_id = m.mov_concepto
+            inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+            where m.mov_estado = 1 and m.mov_fecha between '$desde' and '$hasta' $sql ORDER BY m.mov_fecha ASC")->getResult();
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "data" => $datos
+            ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 "status" => "error",
