@@ -6,7 +6,6 @@
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
 
-
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -215,7 +214,7 @@
     id="lightboxModal"
     tabindex="-1"
     aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <button
                 type="button"

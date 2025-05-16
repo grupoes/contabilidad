@@ -68,7 +68,8 @@ function viewPagosHonorarios(data) {
     if (index === 0) {
       if (currentDate === pago.fecha) {
         botonDelete = `
-              <a href="#" onclick="deletePago(event, ${pago.id})"> <i class="fas fa-trash text-danger"></i> </a>`;
+              <a href="#" onclick="deletePago(event, ${pago.id})" title="Eliminar Pago"> <i class="fas fa-trash text-danger"></i> </a>
+              <a href="#" class="ms-2" onclick="EditPago(event, ${pago.id})" title="Editar Pago"> <i class="fas fa-edit text-info"></i> </a>`;
       }
     }
 
@@ -168,7 +169,6 @@ function verVaucher(e) {
   e.preventDefault();
 
   var images_path = e.target;
-  console.log(images_path);
 
   if (images_path.tagName == "IMG") {
     images_path = images_path.parentNode;
