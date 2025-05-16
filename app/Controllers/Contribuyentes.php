@@ -612,15 +612,20 @@ class Contribuyentes extends BaseController
 
             $tarifa = new HistorialTarifaModel();
             $contri = new ContribuyenteModel();
+            $contrato = new ContratosModel();
 
             $idContribuyente = $data['idTableTarifa'];
             $fechaInicio = $data['fechaInicioTarifa'];
+
+            $dataContrato = $contrato->where('contribuyenteId', $idContribuyente)->where('estado', 1)->first();
+
+            $idContrato = $dataContrato['id'];
 
             $dataContri = $contri->select('diaCobro')->find($idContribuyente);
 
             $fechaInicio = $fechaInicio . "-" . $dataContri['diaCobro'];
 
-            $last_tarifa = $tarifa->where('contribuyente_id', $idContribuyente)->where('estado', 1)->orderBy('fecha_inicio', 'DESC')->first();
+            $last_tarifa = $tarifa->where('contratoId', $idContrato)->where('estado', 1)->orderBy('fecha_inicio', 'DESC')->first();
 
             if ($fechaInicio <= $last_tarifa['fecha_inicio']) {
                 return $this->response->setJSON(['status' => 'error', 'message' => "No puedes colocar una fecha menor o igual a la ultima fecha de la tarifa"]);
@@ -631,7 +636,7 @@ class Contribuyentes extends BaseController
             }
 
             $tarifa->insert([
-                'contribuyente_id' => $idContribuyente,
+                'contratoId' => $idContrato,
                 'fecha_inicio' => $fechaInicio,
                 'monto_mensual' => $data['montoMensualTarifa'],
                 'monto_anual' => $data['montoAnualTarifa'],
