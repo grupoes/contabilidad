@@ -290,6 +290,7 @@ class Contribuyentes extends BaseController
         $sistema = new SistemaContribuyenteModel();
         $model = new ContribuyenteModel();
         $codificacion = new CodificacionModel();
+        $contrato = new ContratosModel();
 
         $model->db->transStart();
 
@@ -368,8 +369,20 @@ class Contribuyentes extends BaseController
                 $fechaInit = new DateTime($data['fechaContrato']);
                 $fechaInicio = $fechaInit->format('Y-m') . "-" . $data['diaCobro'];
 
+                $dataContrato = [
+                    'contribuyenteId' => $contribuyente_id,
+                    'fechaInicio' => $data['fechaContrato'],
+                    'fechaFin' => "0000-00-00",
+                    'diaCobro' => $data['diaCobro'],
+                    'estado' => 1,
+                ];
+
+                $contrato->insert($dataContrato);
+
+                $idContrato = $contrato->insertID();
+
                 $tarifa->insert([
-                    'contribuyente_id' => $contribuyente_id,
+                    'contratoId' => $idContrato,
                     'fecha_inicio' => $fechaInicio,
                     'monto_mensual' => $data['costoMensual'],
                     'monto_anual' => $data['costoAnual'],
@@ -455,7 +468,18 @@ class Contribuyentes extends BaseController
                     }
                 }
 
-                $tarifaData = $tarifa->where('contribuyente_id', $idTabla)->orderBy('id', 'asc')->first();
+                $dataContrato = $contrato->where('contribuyenteId', $idTabla)->where('estado', 1)->first();
+
+                $idContrato = $dataContrato['id'];
+
+                $dataContratoUpdate = [
+                    'fechaInicio' => $data['fechaContrato'],
+                    'diaCobro' => $data['diaCobro']
+                ];
+
+                $contrato->update($idContrato, $dataContratoUpdate);
+
+                $tarifaData = $tarifa->where('contratoId', $idContrato)->orderBy('id', 'asc')->first();
 
                 $idTarifa = $tarifaData['id'];
 

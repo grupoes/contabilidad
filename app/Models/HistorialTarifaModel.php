@@ -13,7 +13,7 @@ class HistorialTarifaModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'contribuyente_id', 'contratoId', 'fecha_inicio', 'fecha_fin', 'monto_mensual', 'monto_anual', 'estado'];
+    protected $allowedFields = ['id', 'contratoId', 'fecha_inicio', 'fecha_fin', 'monto_mensual', 'monto_anual', 'estado'];
 
     protected $useTimestamps = false;
     protected $createdField  = 'created_at';
