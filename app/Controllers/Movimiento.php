@@ -331,7 +331,7 @@ class Movimiento extends BaseController
 
                 $saldoInicialBancosAll = $sumaIngresoAll->saldo - $sumaEgresosAll->saldo + $saldoInicialBanks[$indices];
 
-                array_push($saldoInicialBanksAll, $saldoInicialBancosAll);
+                array_push($saldoInicialBanksAll, round($saldoInicialBancosAll, 2));
             }
 
             $addTotal = [
