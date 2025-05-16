@@ -720,7 +720,13 @@ class Contribuyentes extends BaseController
                     // Obtiene cuántos meses han pasado (años * 12 + meses)
                     $mesesDebe = ($diferencia->y * 12) + $diferencia->m;
 
-                    $debe = ($mesesDebe) . " meses";
+                    $fecha_menos_7_dias = clone $hoy;
+                    $fecha_menos_7_dias->modify('-7 days');
+
+                    // Verificar si el mes cambió
+                    if ($fecha_menos_7_dias->format('m') === $hoy->format('m')) {
+                        $mesesDebe = $mesesDebe + 1;
+                    }
 
                     if ($mesesDebe > 1) {
                         $debe = ($mesesDebe) . " meses";
