@@ -720,7 +720,7 @@ class Contribuyentes extends BaseController
                     // Obtiene cuántos meses han pasado (años * 12 + meses)
                     $mesesDebe = ($diferencia->y * 12) + $diferencia->m;
 
-                    $mesesDebe = $mesesDebe - 1;
+                    $debe = ($mesesDebe) . " meses";
 
                     if ($mesesDebe > 1) {
                         $debe = ($mesesDebe) . " meses";
