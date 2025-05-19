@@ -80,7 +80,7 @@ function viewPagosHonorarios(data) {
             <td>${pago.metodo}</td>
             <td>${pago.monto}</td>
             <td> 
-                <a href="#" data-lightbox="${base_url}vouchers/${pago.voucher}" onclick="verVaucher(event)"> Ver vaucher </a>
+                <a href="#" data-lightbox="${base_url}vouchers/${pago.voucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
             </td>
             <td>
                 ${botonDelete}
@@ -165,8 +165,11 @@ var lightboxModal = new bootstrap.Modal(
   document.getElementById("lightboxModal")
 );
 
-function verVaucher(e) {
+function verVaucher(e, idPago) {
   e.preventDefault();
+
+  const pagoId = document.getElementById("pagoId");
+  pagoId.value = idPago;
 
   var images_path = e.target;
 
@@ -232,4 +235,31 @@ generarMovimiento.addEventListener("change", (e) => {
     document.getElementById("proceso").setAttribute("hidden", true);
     document.getElementById("fecha_proceso").removeAttribute("required");
   }
+});
+
+function editarVoucher() {
+  $("#lightboxModal").modal("hide");
+  $("#modalEditVoucher").modal("show");
+
+  const pagoId = document.getElementById("pagoId");
+  const idPago = document.getElementById("idPago");
+
+  idPago.value = pagoId.value;
+}
+
+const formEditImage = document.getElementById("formEditImage");
+
+formEditImage.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formEditImage);
+
+  fetch(`${base_url}pagos/update-voucher`, {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+    });
 });

@@ -208,7 +208,6 @@
     <!-- [ Main Content ] end -->
 </div>
 
-
 <div
     class="modal fade modal-lightbox"
     id="lightboxModal"
@@ -221,12 +220,46 @@
                 class="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"></button>
-            <div class="modal-body">
-                <img
-                    src="../assets/images/light-box/l1.jpg"
-                    alt="images"
-                    class="modal-image img-fluid" />
+            <div class="modal-body p-0">
+                <input type="hidden" id="pagoId">
+                <div class="image-wrapper position-relative">
+                    <img
+                        src="../assets/images/light-box/l1.jpg"
+                        alt="images"
+                        class="modal-image img-fluid" />
+                    <button
+                        class="btn btn-sm btn-primary position-absolute top-0 end-0 m-2"
+                        onclick="editarVoucher()"
+                        title="Editar Vaucher">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditVoucher" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4">Editar Voucher</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="formEditImage" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="idPago" id="idPago">
+                    <div class="mb-3">
+                        <label for="imagen" class="form-label">Imagen</label>
+                        <input type="file" class="form-control" name="imagen" id="imagen" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

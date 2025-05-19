@@ -352,4 +352,13 @@ class Pago extends BaseController
             "message" => "Se elimino correctamente"
         ]);
     }
+
+    public function updateVaucher()
+    {
+        try {
+            //code...
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
 }
