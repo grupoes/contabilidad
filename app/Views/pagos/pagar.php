@@ -240,7 +240,7 @@
 </div>
 
 <div class="modal fade" id="modalEditVoucher" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title h4">Editar Voucher</h5>
@@ -251,8 +251,8 @@
                 <div class="modal-body">
                     <input type="hidden" name="idPago" id="idPago">
                     <div class="mb-3">
-                        <label for="imagen" class="form-label">Imagen</label>
-                        <input type="file" class="form-control" name="imagen" id="imagen" accept="image/*">
+                        <label for="imagenVoucher" class="form-label">Imagen</label>
+                        <input type="file" class="form-control" name="imagenVoucher" id="imagenVoucher" accept="image/*">
                     </div>
                 </div>
                 <div class="modal-footer">

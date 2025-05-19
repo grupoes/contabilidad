@@ -355,10 +355,43 @@ class Pago extends BaseController
 
     public function updateVaucher()
     {
+        $pago = new PagosHonorariosModel();
+
         try {
-            //code...
-        } catch (\Throwable $th) {
-            //throw $th;
+            $idPago = $this->request->getVar('idPago');
+            $voucher = $this->request->getFile('imagenVoucher');
+
+            $dataPago = $pago->find($idPago);
+
+            $nameFileDelete = $dataPago['voucher'];
+
+            $filePath = FCPATH . 'vouchers/' . $nameFileDelete;
+
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+
+            $nameFile = "";
+
+            if ($voucher->isValid() && !$voucher->hasMoved()) {
+                $newName = $voucher->getRandomName();
+                $voucher->move(FCPATH . 'vouchers', $newName);
+
+                $nameFile = $newName;
+            }
+
+            $data = [
+                "voucher" => $nameFile
+            ];
+
+            $pago->update($idPago, $data);
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se guardo correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
 }

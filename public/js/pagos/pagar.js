@@ -260,6 +260,25 @@ formEditImage.addEventListener("submit", (e) => {
   })
     .then((res) => res.json())
     .then((data) => {
-      console.log(data);
+      if (data.status === "success") {
+        $("#modalEditVoucher").modal("hide");
+
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: data.message,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+
+        renderPagosHonorarios(idContribuyente.value);
+        return false;
+      }
+
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Ocurrio un error, recargue de nuevo la página o contáctase con el administrador!",
+      });
     });
 });
