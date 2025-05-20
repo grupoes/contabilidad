@@ -60,7 +60,11 @@ function viewPagosHonorarios(data) {
 
   let html = "";
 
-  const currentDate = new Date().toISOString().split("T")[0];
+  const currentDate = new Date()
+    .toLocaleString("en-CA", {
+      timeZone: "America/Lima",
+    })
+    .split(",")[0];
 
   data.forEach((pago, index) => {
     let botonDelete = "";
@@ -69,7 +73,7 @@ function viewPagosHonorarios(data) {
       if (currentDate === pago.fecha) {
         botonDelete = `
               <a href="#" onclick="deletePago(event, ${pago.id})" title="Eliminar Pago"> <i class="fas fa-trash text-danger"></i> </a>
-              <a href="#" class="ms-2" onclick="EditPago(event, ${pago.id})" title="Editar Pago"> <i class="fas fa-edit text-info"></i> </a>`;
+              <a href="#" class="ms-2" onclick="editPago(event, ${pago.id})" title="Editar Pago"> <i class="fas fa-edit text-info"></i> </a>`;
       }
     }
 
@@ -272,6 +276,67 @@ formEditImage.addEventListener("submit", (e) => {
         });
 
         renderPagosHonorarios(idContribuyente.value);
+        return false;
+      }
+
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Ocurrio un error, recargue de nuevo la página o contáctase con el administrador!",
+      });
+    });
+});
+
+function editPago(e, id) {
+  e.preventDefault();
+
+  $("#modalPago").modal("show");
+
+  const pagoId = document.getElementById("id_Pago");
+  pagoId.value = id;
+
+  fetch(`${base_url}pagos/get-pago/${id}`)
+    .then((res) => res.json())
+    .then((data) => {
+      const metodoPago = document.getElementById("metodo_pago");
+      const monto = document.getElementById("monto_mov");
+      const datePago = document.getElementById("datePago");
+      const montoActual = document.getElementById("montoActual");
+
+      montoActual.value = data.monto;
+
+      metodoPago.value = data.metodo_pago_id;
+      monto.value = data.monto;
+      datePago.value = data.fecha_pago;
+    });
+}
+
+const formEditPago = document.getElementById("formEditPago");
+
+formEditPago.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formEditPago);
+
+  fetch(`${base_url}pagos/update-pago`, {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        $("#modalPago").modal("hide");
+
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: data.message,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+
+        renderPagosHonorarios(idContribuyente.value);
+        renderPagos(idContribuyente.value);
         return false;
       }
 

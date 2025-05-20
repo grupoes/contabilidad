@@ -83,7 +83,7 @@ class Pago extends BaseController
     {
         $pago = new PagosHonorariosModel();
 
-        $pagos = $pago->query("SELECT p.id, p.contribuyente_id, DATE_FORMAT(p.fecha , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.registro, '%d-%m-%Y %H-%i-%s') as registro, p.fecha, p.monto, p.estado, p.voucher, mp.metodo from pagos_honorarios p INNER JOIN metodos_pagos mp ON mp.id = p.metodo_pago_id where p.contribuyente_id = $id and p.estado = 1 order by p.id desc")->getResult();
+        $pagos = $pago->query("SELECT p.id, p.contribuyente_id, DATE_FORMAT(p.fecha_pago , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.registro, '%d-%m-%Y %H-%i-%s') as registro, p.fecha, p.monto, p.estado, p.voucher, mp.metodo from pagos_honorarios p INNER JOIN metodos_pagos mp ON mp.id = p.metodo_pago_id where p.contribuyente_id = $id and p.estado = 1 order by p.id desc")->getResult();
 
         return $this->response->setJSON($pagos);
     }
@@ -385,6 +385,166 @@ class Pago extends BaseController
             ];
 
             $pago->update($idPago, $data);
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se guardo correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function getPago($id)
+    {
+        $pago = new PagosHonorariosModel();
+
+        $data = $pago->find($id);
+
+        return $this->response->setJSON($data);
+    }
+
+    public function updatePago()
+    {
+        try {
+            $pagoHono = new PagosHonorariosModel();
+            $mov = new MovimientoModel();
+            $pago = new PagosModel();
+            $contri = new ContribuyenteModel();
+
+            $id = $this->request->getVar('id_Pago');
+            $montoActual = $this->request->getVar('montoActual');
+            $monto = $this->request->getVar('monto_mov');
+            $datePago = $this->request->getVar('datePago');
+            $metodo_pago = $this->request->getVar('metodo_pago');
+
+            $montoDiferencia = $montoActual - $monto;
+
+            $dataPago = $pagoHono->find($id);
+
+            $contribId = $dataPago['contribuyente_id'];
+            $fecha_pago = $dataPago['fecha_pago'];
+
+            $dataContrib = $contri->find($contribId);
+
+            $montoMensual = $dataContrib['costoMensual'];
+            $diaCobro = $dataContrib['diaCobro'];
+
+            $montoDisponible = $monto;
+            $montoOriginal = $monto;
+            $montoOrigin = $montoActual;
+
+            if ($fecha_pago != $datePago && $montoDiferencia == 0) {
+                $dataPagosAc = $pago->where('contribuyente_id', $contribId)->where('estado !=', 'eliminado')->orderBy('id', 'DESC')->findAll();
+
+                $i = 0;
+
+                while ($montoOrigin > 0) {
+                    $montoOrigin = $montoOrigin - $dataPagosAc[$i]['montoPagado'];
+
+                    $pago->update($dataPagosAc[$i]['id'], ['fecha_proceso' => $datePago]);
+
+                    $i++;
+                }
+            }
+
+            if ($montoDiferencia != 0) {
+                $dataPagos = $pago->where('contribuyente_id', $contribId)->where('estado !=', 'eliminado')->orderBy('id', 'DESC')->findAll();
+
+                $i = 0;
+
+                while ($montoActual > 0) {
+                    $montoActual = $montoActual - $dataPagos[$i]['montoPagado'];
+
+                    $pago->update($dataPagos[$i]['id'], ['estado' => 'eliminado']);
+
+                    $i++;
+                }
+
+                $lastUtimo = $pago->query("SELECT * FROM pagos WHERE contribuyente_id = $contribId ORDER BY id DESC LIMIT 1")->getRow();
+
+                $mesCorrespondiente = $lastUtimo->mesCorrespondiente;
+
+                if ($lastUtimo->estado == "pendiente") {
+                    $montoPendiente = $lastUtimo->montoPendiente;
+
+                    $datos = array(
+                        "montoPagado" => $montoMensual,
+                        "montoPendiente" => 0,
+                        "montoExcedente" => 0,
+                        "estado" => "pagado"
+                    );
+
+                    $pago->update($lastUtimo->id, $datos);
+
+                    $montoDisponible = $montoDisponible - $montoPendiente;
+                }
+
+                while ($montoDisponible > 0) {
+
+                    $mesCorrespondiente = date('Y-m', strtotime($mesCorrespondiente . ' + 1 month'));
+
+                    $mesCorrespondiente = $mesCorrespondiente . "-" . $diaCobro;
+
+                    $fecha = new DateTime($mesCorrespondiente);
+
+                    $mesCorrespondiente = $fecha->format('Y-m-d');
+
+                    if ($montoDisponible >= $montoMensual) {
+                        $datos = array(
+                            "contribuyente_id" => $contribId,
+                            "mesCorrespondiente" => $mesCorrespondiente,
+                            "monto_total" => $montoMensual,
+                            "fecha_pago" => date('Y-m-d H:i:s'),
+                            "fecha_proceso" => $datePago,
+                            "montoPagado" => $montoMensual,
+                            "montoPendiente" => 0,
+                            "montoExcedente" => 0,
+                            "estado" => "pagado",
+                            "usuario_id_cobra" => session()->id
+                        );
+
+                        $pago->insert($datos);
+
+                        $montoDisponible = $montoDisponible - $montoMensual;
+                    } else {
+                        $datos = array(
+                            "contribuyente_id" => $contribId,
+                            "mesCorrespondiente" => $mesCorrespondiente,
+                            "fecha_pago" => date('Y-m-d H:i:s'),
+                            "fecha_proceso" => $datePago,
+                            "monto_total" => $montoMensual,
+                            "montoPagado" => $montoDisponible,
+                            "montoPendiente" => $montoMensual - $montoDisponible,
+                            "montoExcedente" => 0,
+                            "estado" => "pendiente",
+                            "usuario_id_cobra" => session()->id
+                        );
+
+                        $pago->insert($datos);
+
+                        $montoDisponible = 0;
+                    }
+                }
+            }
+
+            $dataPagoHono = [
+                "monto" => $montoOriginal,
+                "fecha_pago" => $datePago,
+                "metodo_pago_id" => $metodo_pago
+            ];
+
+            $pagoHono->update($id, $dataPagoHono);
+
+            $movId = $dataPago['movimientoId'];
+
+            $dataMov = [
+                "mov_monto" => $montoOriginal,
+                "mov_fecha_pago" => $datePago,
+                "id_metodo_pago" => $metodo_pago
+            ];
+
+            $mov->update($movId, $dataMov);
 
             return $this->response->setJSON([
                 "status" => "success",

@@ -264,6 +264,45 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalPago" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4">Editar Pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="formEditPago">
+                <div class="modal-body">
+                    <input type="hidden" name="id_Pago" id="id_Pago">
+                    <input type="hidden" name="montoActual" id="montoActual">
+                    <div class="mb-3">
+                        <label class="form-label" for="metodo_pago">Metodo de Pago</label>
+                        <select class="form-select" id="metodo_pago" name="metodo_pago" required="true">
+                            <option value="">Selecionar...</option>
+                            <?php foreach ($metodos as $metodo) : ?>
+                                <option value="<?= $metodo['id'] ?>"><?= $metodo['metodo'] ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="monto_mov">Monto</label>
+                        <input type="text" class="form-control" id="monto_mov" name="monto_mov" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="datePago">Fecha Pago</label>
+                        <input type="date" class="form-control" id="datePago" name="datePago" max="<?= date('Y-m-d') ?>" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>
