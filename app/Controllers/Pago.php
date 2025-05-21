@@ -95,7 +95,7 @@ class Pago extends BaseController
         $paHono = new PagosHonorariosModel();
 
         try {
-            //$pago->db->transBegin();
+            $pago->db->transBegin();
 
             $idContribuyente = $this->request->getvar('idcontribuyente');
             $metodoPago = $this->request->getvar('metodoPago');
@@ -236,19 +236,19 @@ class Pago extends BaseController
                 }
             }
 
-            /*if ($pago->db->transStatus() === false) {
+            if ($pago->db->transStatus() === false) {
                 $pago->db->transRollback();
                 throw new \Exception("Error al realizar la operación.");
             }
 
-            $pago->db->transCommit();*/
+            $pago->db->transCommit();
 
             return $this->response->setJSON([
                 "status" => "success",
                 "message" => "Se guardo correctamente el pago"
             ]);
         } catch (\Exception $e) {
-            //$pago->db->transRollback();
+            $pago->db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
