@@ -28,7 +28,21 @@ function renderPagosHonorarios(idcontribuyente) {
 function viewPagos(data) {
   let html = "";
 
-  data.forEach((pago) => {
+  const length = data.length;
+
+  const currentDate = new Date()
+    .toLocaleString("en-CA", {
+      timeZone: "America/Lima",
+    })
+    .split(",")[0];
+
+  data.forEach((pago, index) => {
+    console.log(pago.fechaPago);
+
+    if (currentDate == pago.fechaPago) {
+      console.log("hola");
+    }
+
     let estado = ``;
 
     if (pago.estado == "pagado") {
