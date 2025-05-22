@@ -709,9 +709,44 @@ class Contribuyentes extends BaseController
                         $debe = "No debe";
                     }
                 } else {
-                    $maxPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado' ")->getRow();
+                    $ultimoPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado' ")->getRow();
 
-                    $ultimoPago = new DateTime($maxPago->ultimoMes);
+                    if ($ultimoPago && !empty($ultimoPago->ultimoMes)) {
+                        // Convertimos a objeto DateTime
+                        $fechaUltimoPago = DateTime::createFromFormat('Y-m-d', $ultimoPago->ultimoMes);
+                        $fechaActual = new DateTime();
+
+                        if ($fechaUltimoPago) {
+                            // Normaliza ambos al primer día del mes
+                            $inicioUltimoMes = DateTime::createFromFormat('Y-m-d', $fechaUltimoPago->format('Y-m-01'));
+                            $inicioMesActual = DateTime::createFromFormat('Y-m-d', $fechaActual->format('Y-m-01'));
+
+                            if ($inicioUltimoMes && $inicioMesActual) {
+                                $diferencia = (($inicioMesActual->format('Y') - $inicioUltimoMes->format('Y')) * 12) +
+                                    ($inicioMesActual->format('m') - $inicioUltimoMes->format('m'));
+
+                                if ($diferencia > 1) {
+                                    $debe = $diferencia . " meses";
+                                } elseif ($diferencia == 1) {
+                                    $debe = $diferencia . " mes";
+                                } else {
+                                    $debe = "No debe";
+                                }
+                            } else {
+                                $debe = "Error al normalizar las fechas.";
+                            }
+                        } else {
+                            $debe = "Fecha inválida en último pago.";
+                        }
+
+                        //echo "Meses de deuda: " . $diferencia;
+                    } else {
+                        // No tiene pagos registrados, asumes que debe desde el inicio o todos
+                        //echo "No tiene pagos registrados. Se asume que debe todos los meses.";
+                        $debe = "No debe";
+                    }
+
+                    /*$ultimoPago = new DateTime($maxPago->ultimoMes);
                     $hoy = new DateTime(); // Toma la fecha actual
 
                     // Calcula la diferencia
@@ -735,8 +770,8 @@ class Contribuyentes extends BaseController
                     } elseif ($mesesDebe == 1) {
                         $debe = $mesesDebe . " mes";
                     } else {
-                        $debe = "No debe";
-                    }
+                        $debe = $diferencia->m . " dias";
+                    }*/
                 }
             }
 
