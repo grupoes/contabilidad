@@ -150,14 +150,16 @@ class Pago extends BaseController
             }
 
             if (isset($_POST['periodo'])) {
-                $periodo = $this->request->getvar('periodo') . "-" . $diaCobro;
+                //$periodo = $this->request->getvar('periodo') . "-" . $diaCobro;
+
+                $fecha_valida = $this->obtenerFechaValidaDeCobro($this->request->getvar('periodo'), $diaCobro);
 
                 $data = array(
                     "contribuyente_id" => $idContribuyente,
                     "fecha_pago" => date('Y-m-d H:i:s'),
                     "fecha_proceso" => $fecha_proceso,
                     "monto_total" => $monto,
-                    "mesCorrespondiente" => $periodo,
+                    "mesCorrespondiente" => $fecha_valida,
                     "montoPagado" => $monto,
                     "montoPendiente" => 0,
                     "montoExcedente" => 0,
@@ -190,13 +192,13 @@ class Pago extends BaseController
 
                 while ($montoDisponible > 0) {
 
-                    $mesCorrespondiente = date('Y-m', strtotime($mesCorrespondiente . ' + 1 month'));
+                    $dt = DateTime::createFromFormat('Y-m-d', $mesCorrespondiente);
+                    $dt->modify('first day of this month');
+                    $dt->modify('+1 month');
 
-                    $mesCorrespondiente = $mesCorrespondiente . "-" . $diaCobro;
+                    $periodo = $dt->format('Y-m');
 
-                    $fecha = new DateTime($mesCorrespondiente);
-
-                    $mesCorrespondiente = $fecha->format('Y-m-d');
+                    $mesCorrespondiente = $this->obtenerFechaValidaDeCobro($periodo, $diaCobro);
 
                     if ($montoDisponible >= $montoMensual) {
                         $datos = array(
@@ -252,6 +254,28 @@ class Pago extends BaseController
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
+    function obtenerFechaValidaDeCobro($periodo, $diaDeseado)
+    {
+        // Concatenamos la fecha
+        $fechaString = $periodo . '-' . str_pad($diaDeseado, 2, '0', STR_PAD_LEFT);
+
+        // Intentamos crear la fecha
+        $fecha = DateTime::createFromFormat('Y-m-d', $fechaString);
+
+        // Verificamos si la fecha es válida (coincide con lo que queríamos crear)
+        if ($fecha && $fecha->format('Y-m-d') === $fechaString) {
+            return $fecha->format('Y-m-d'); // Fecha válida
+        } else {
+            // No existe ese día en el mes, así que buscamos el último día del mes
+            $fechaBase = DateTime::createFromFormat('Y-m', $periodo);
+            if (!$fechaBase) return null; // Periodo inválido
+
+            $fechaBase->modify('last day of this month');
+            return $fechaBase->format('Y-m-d');
+        }
+    }
+
 
     public function renderPagos()
     {
