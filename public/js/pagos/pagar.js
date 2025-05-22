@@ -199,6 +199,16 @@ function verVaucher(e, idPago) {
   var image = document.querySelector(".modal-image");
   image.setAttribute("src", recipient);
   lightboxModal.show();
+
+  image.style.transform = "scale(1)";
+  let scale = 1;
+
+  image.onwheel = function (e) {
+    e.preventDefault();
+    scale += e.deltaY * -0.001;
+    scale = Math.min(Math.max(1, scale), 3); // Zoom entre 1x y 3x
+    image.style.transform = `scale(${scale})`;
+  };
 }
 
 function deletePago(e, id) {
