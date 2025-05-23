@@ -233,6 +233,13 @@
                         title="Editar Vaucher">
                         <i class="fas fa-edit"></i>
                     </button>
+                    <a
+                        id="btnDescargarVoucher"
+                        class="btn btn-sm btn-success position-absolute top-0 end-0 m-2 me-5"
+                        title="Descargar Voucher"
+                        download>
+                        <i class="fas fa-download"></i>
+                    </a>
                 </div>
             </div>
         </div>

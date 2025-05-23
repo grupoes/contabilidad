@@ -200,6 +200,10 @@ function verVaucher(e, idPago) {
   image.setAttribute("src", recipient);
   lightboxModal.show();
 
+  const btnDescargar = document.getElementById("btnDescargarVoucher");
+  btnDescargar.setAttribute("href", recipient);
+  btnDescargar.setAttribute("download", "voucher.jpg");
+
   image.style.transform = "scale(1)";
   let scale = 1;
 
