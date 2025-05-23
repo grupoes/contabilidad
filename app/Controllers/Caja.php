@@ -6,6 +6,7 @@ use App\Models\SesionCajaModel;
 use App\Models\SedeCajaModel;
 use App\Models\MovimientoModel;
 use App\Models\SedeModel;
+use App\Models\BancosModel;
 
 class Caja extends BaseController
 {
@@ -35,7 +36,13 @@ class Caja extends BaseController
             return view('caja/cajero', compact('estadoCaja', 'menu'));
         }
 
-        return view('caja/index', compact('menu'));
+        $saldos = $this->saldoInicialVirtualBancos();
+        $ingresosBancos = $this->ingresoVirtualBancos();
+        $egresosBancos = $this->egresoVirtualBancos();
+
+        $utilidadVirtual = floatval(str_replace(',', '', $saldos['total'])) + floatval(str_replace(',', '', $ingresosBancos['total'])) - floatval(str_replace(',', '', $egresosBancos['total']));
+
+        return view('caja/index', compact('menu', 'saldos', 'ingresosBancos', 'egresosBancos', 'utilidadVirtual'));
     }
 
     public function cierreCaja()
@@ -367,6 +374,95 @@ class Caja extends BaseController
         $datos = $mov->query("SELECT m.mov_id, m.mov_monto, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.metodo, m.mov_estado, m.mov_descripcion, m.nombreUser FROM movimiento m
         inner join metodos_pagos mp on mp.id = m.id_metodo_pago
         where m.mov_estado = 2")->getResult();
+
+        return $datos;
+    }
+
+    public function saldoInicialVirtualBancos()
+    {
+        $banco = new BancosModel();
+        $mov = new MovimientoModel();
+
+        $bancos = $banco->select("id, nombre_banco, saldo_inicial")->where('estado', 1)->findAll();
+
+        $hoy = new \DateTime();
+        $hoy->modify('-1 day');
+        $fecha = $hoy->format('Y-m-d');
+
+        $suma = 0;
+
+        foreach ($bancos as $key => $value) {
+            $id = $value['id'];
+
+            $data = $mov->query("SELECT IFNULL(SUM(m.mov_monto), 0) as total FROM movimiento as m INNER JOIN metodos_pagos as mp ON mp.id = m.id_metodo_pago WHERE mp.id_banco = $id AND m.mov_estado = 1 AND m.mov_fecha <= '$fecha' ")->getRow();
+            $saldo = number_format($data->total + $value['saldo_inicial'], 2);
+            $bancos[$key]['saldo'] = $saldo;
+
+            $suma += $saldo;
+        }
+
+        $datos = [
+            "bancos" => $bancos,
+            "total" => number_format($suma, 2)
+        ];
+
+        return $datos;
+    }
+
+    public function ingresoVirtualBancos()
+    {
+        $banco = new BancosModel();
+        $mov = new MovimientoModel();
+
+        $bancos = $banco->select("id, nombre_banco, saldo_inicial")->where('estado', 1)->findAll();
+
+        $fecha = date('Y-m-d');
+
+        $suma = 0;
+
+        foreach ($bancos as $key => $value) {
+            $id = $value['id'];
+
+            $datos = $mov->query("SELECT IFNULL(SUM(m.mov_monto), 0) as total FROM movimiento as m INNER JOIN metodos_pagos as mp ON mp.id = m.id_metodo_pago INNER JOIN concepto as c ON c.con_id = m.mov_concepto WHERE mp.id_banco = $id AND m.mov_estado = 1 AND c.id_tipo_movimiento = 1 AND m.mov_fecha = '$fecha' ")->getRow();
+            $saldo = number_format($datos->total, 2);
+            $bancos[$key]['saldo'] = $saldo;
+
+            $suma += $saldo;
+        }
+
+        $datos = [
+            "bancos" => $bancos,
+            "total" => number_format($suma, 2)
+        ];
+
+        return $datos;
+    }
+
+    public function egresoVirtualBancos()
+    {
+        $banco = new BancosModel();
+        $mov = new MovimientoModel();
+
+        $bancos = $banco->select("id, nombre_banco, saldo_inicial")->where('estado', 1)->findAll();
+
+        $fecha = date('Y-m-d');
+
+        $suma = 0;
+
+        foreach ($bancos as $key => $value) {
+            $id = $value['id'];
+
+            $datos = $mov->query("SELECT IFNULL(SUM(m.mov_monto), 0) as total FROM movimiento as m INNER JOIN metodos_pagos as mp ON mp.id = m.id_metodo_pago INNER JOIN concepto as c ON c.con_id = m.mov_concepto WHERE mp.id_banco = $id AND m.mov_estado = 1 AND c.id_tipo_movimiento = 2 AND m.mov_fecha = '$fecha' ")->getRow();
+            $saldo = number_format($datos->total, 2);
+            $bancos[$key]['saldo'] = $saldo;
+
+            $suma += $saldo;
+        }
+
+        $datos = [
+            "bancos" => $bancos,
+            "total" => number_format($suma, 2)
+        ];
 
         return $datos;
     }
