@@ -429,7 +429,7 @@ class Caja extends BaseController
             $saldo = number_format($datos->total, 2);
             $bancos[$key]['saldo'] = $saldo;
 
-            $suma += $saldo;
+            $suma = floatval(str_replace(',', '', $suma)) + floatval(str_replace(',', '', $saldo));
         }
 
         $datos = [
@@ -458,7 +458,7 @@ class Caja extends BaseController
             $saldo = number_format($datos->total, 2);
             $bancos[$key]['saldo'] = $saldo;
 
-            $suma += $saldo;
+            $suma = floatval(str_replace(',', '', $suma)) + floatval(str_replace(',', '', $saldo));
         }
 
         $datos = [
