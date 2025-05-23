@@ -109,8 +109,6 @@
                                         <?php foreach ($saldos['bancos'] as $key => $value) { ?>
                                             <div class="d-flex justify-content-between border-bottom py-1">
                                                 <span><?= $value['nombre_banco'] ?></span>
-                                                <span><?= number_format($value['saldo'] + $ingresosBancos['bancos'][$key]['saldo'] - $egresosBancos['bancos'][$key]['saldo'], 2) ?></span>
-
                                                 <span><?= number_format(floatval(str_replace(',', '', $value['saldo'])) + floatval(str_replace(',', '', $ingresosBancos['bancos'][$key]['saldo'])) - floatval(str_replace(',', '', $egresosBancos['bancos'][$key]['saldo'])), 2) ?></span>
                                             </div>
                                         <?php } ?>
