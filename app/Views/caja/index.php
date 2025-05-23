@@ -27,19 +27,19 @@
                                     <div class="ms-2 me-auto">
                                         <div>Ingresos Caja Fisica</div>
                                     </div>
-                                    <span class="badge bg-primary rounded-pill">S/ 0.00</span>
+                                    <span class="badge bg-primary rounded-pill">S/ <?= $ingresosFisicos ?></span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div class="ms-2 me-auto">
                                         <div>Egresos Caja Fisica</div>
                                     </div>
-                                    <span class="badge bg-danger rounded-pill">S/ 0.00</span>
+                                    <span class="badge bg-danger rounded-pill">S/ <?= $egresosFisicos ?></span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div class="ms-2 me-auto">
                                         <div class="fw-bold">Utilidad Caja Fisica</div>
                                     </div>
-                                    <span class="badge bg-success rounded-pill">S/ 0.00</span>
+                                    <span class="badge bg-success rounded-pill">S/ <?= number_format($utilidadFisica, 2) ?></span>
                                 </li>
 
                             </ul>

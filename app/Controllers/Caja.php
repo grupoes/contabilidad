@@ -40,9 +40,14 @@ class Caja extends BaseController
         $ingresosBancos = $this->ingresoVirtualBancos();
         $egresosBancos = $this->egresoVirtualBancos();
 
+        $ingresosFisicos = $this->ingresosFisicosDiaAll();
+        $egresosFisicos = $this->egresosFisicosDiaAll();
+
+        $utilidadFisica = floatval(str_replace(',', '', $ingresosFisicos)) - floatval(str_replace(',', '', $egresosFisicos));
+
         $utilidadVirtual = floatval(str_replace(',', '', $saldos['total'])) + floatval(str_replace(',', '', $ingresosBancos['total'])) - floatval(str_replace(',', '', $egresosBancos['total']));
 
-        return view('caja/index', compact('menu', 'saldos', 'ingresosBancos', 'egresosBancos', 'utilidadVirtual'));
+        return view('caja/index', compact('menu', 'saldos', 'ingresosBancos', 'egresosBancos', 'utilidadVirtual', 'ingresosFisicos', 'egresosFisicos', 'utilidadFisica'));
     }
 
     public function cierreCaja()
