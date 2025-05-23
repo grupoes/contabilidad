@@ -51,14 +51,14 @@
                                 <li class="list-group-item">
                                     <div class="d-flex justify-content-between pb-1 mb-1">
                                         <strong>SALDO INICIAL CAJA VIRTUAL</strong>
-                                        <span class="badge bg-primary rounded-pill"><?= $saldos['total'] ?></span>
+                                        <span class="badge bg-primary rounded-pill">S/ <?= $saldos['total'] ?></span>
                                     </div>
 
                                     <div class="border-top pt-1">
                                         <?php foreach ($saldos['bancos'] as $key => $value) { ?>
                                             <div class="d-flex justify-content-between border-bottom py-1">
                                                 <span><?= $value['nombre_banco'] ?></span>
-                                                <span><?= $value['saldo'] ?></span>
+                                                <span>S/ <?= $value['saldo'] ?></span>
                                             </div>
                                         <?php } ?>
                                     </div>
@@ -68,14 +68,14 @@
                                 <li class="list-group-item">
                                     <div class="d-flex justify-content-between pb-1 mb-1">
                                         <strong>INGRESO VIRTUAL</strong>
-                                        <span class="badge bg-primary rounded-pill"><?= $ingresosBancos['total'] ?></span>
+                                        <span class="badge bg-primary rounded-pill">S/ <?= $ingresosBancos['total'] ?></span>
                                     </div>
 
                                     <div class="border-top pt-1">
                                         <?php foreach ($ingresosBancos['bancos'] as $key => $value) { ?>
                                             <div class="d-flex justify-content-between border-bottom py-1">
                                                 <span><?= $value['nombre_banco'] ?></span>
-                                                <span><?= $value['saldo'] ?></span>
+                                                <span>S/ <?= $value['saldo'] ?></span>
                                             </div>
                                         <?php } ?>
                                     </div>
@@ -85,14 +85,14 @@
                                 <li class="list-group-item">
                                     <div class="d-flex justify-content-between pb-1 mb-1">
                                         <strong>EGRESO VIRTUAL</strong>
-                                        <span class="badge bg-danger rounded-pill"><?= $egresosBancos['total'] ?></span>
+                                        <span class="badge bg-danger rounded-pill">S/ <?= $egresosBancos['total'] ?></span>
                                     </div>
 
                                     <div class="border-top pt-1">
                                         <?php foreach ($egresosBancos['bancos'] as $key => $value) { ?>
                                             <div class="d-flex justify-content-between border-bottom py-1">
                                                 <span><?= $value['nombre_banco'] ?></span>
-                                                <span><?= $value['saldo'] ?></span>
+                                                <span>S/ <?= $value['saldo'] ?></span>
                                             </div>
                                         <?php } ?>
                                     </div>
@@ -102,14 +102,14 @@
                                 <li class="list-group-item">
                                     <div class="d-flex justify-content-between pb-1 mb-1">
                                         <strong>UTILIDAD CAJA VIRTUAL</strong>
-                                        <span class="badge bg-success rounded-pill"><?= number_format($utilidadVirtual, 2) ?></span>
+                                        <span class="badge bg-success rounded-pill">S/ <?= number_format($utilidadVirtual, 2) ?></span>
                                     </div>
 
                                     <div class="border-top pt-1">
                                         <?php foreach ($saldos['bancos'] as $key => $value) { ?>
                                             <div class="d-flex justify-content-between border-bottom py-1">
                                                 <span><?= $value['nombre_banco'] ?></span>
-                                                <span><?= number_format(floatval(str_replace(',', '', $value['saldo'])) + floatval(str_replace(',', '', $ingresosBancos['bancos'][$key]['saldo'])) - floatval(str_replace(',', '', $egresosBancos['bancos'][$key]['saldo'])), 2) ?></span>
+                                                <span>S/ <?= number_format(floatval(str_replace(',', '', $value['saldo'])) + floatval(str_replace(',', '', $ingresosBancos['bancos'][$key]['saldo'])) - floatval(str_replace(',', '', $egresosBancos['bancos'][$key]['saldo'])), 2) ?></span>
                                             </div>
                                         <?php } ?>
                                     </div>
