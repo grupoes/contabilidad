@@ -398,7 +398,9 @@ class Caja extends BaseController
             $saldo = number_format($data->total + $value['saldo_inicial'], 2);
             $bancos[$key]['saldo'] = $saldo;
 
-            $suma += $saldo;
+            $suma = floatval(str_replace(',', '', $suma)) + floatval(str_replace(',', '', $saldo));
+
+            //$suma = $suma + $saldo;
         }
 
         $datos = [
