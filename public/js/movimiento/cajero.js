@@ -2,7 +2,7 @@ const newcs = $($table).DataTable(optionsTableDefault);
 
 new $.fn.dataTable.Responsive(newcs);
 
-validarCaja();
+//validarCaja();
 
 flatpickr(document.querySelector("#rango-fecha-movimientos"), {
   mode: "range",
@@ -128,10 +128,15 @@ function tableMovimientos(data) {
 
     if (currentDate === mov.mov_fecha) {
       botonExtornar = `
-            <div class="btn-group" role="group" aria-label="Basic example">
-                <button type="button" class="btn btn-danger" onclick="extornar(${mov.mov_id})" title="EXTORNAR"><i class="fas fa-minus"></i></button>
-                <button type="button" class="btn btn-info" onclick="changePago(${mov.mov_id}, ${mov.id_metodo_pago})" title="CAMBIAR METODO DE PAGO"><i class="fas fa-arrows-alt-h"></i></button>
-            </div>`;
+          <ul class="list-inline me-auto mb-0">
+            <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="CAMBIAR METODO DE PAGO">
+              <a href="#" onclick="changePago(event,${mov.mov_id}, ${mov.id_metodo_pago})" class="avtar avtar-xs btn-link-success btn-pc-default"><i class="ti ti-edit-circle f-18"></i></a>
+            </li>
+            <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="EXTORNAR">
+              <a href="#" onclick="extornar(event,${mov.mov_id})" class="avtar avtar-xs btn-link-danger btn-pc-default"><i class="ti ti-trash f-18"></i></a>
+            </li>
+          </ul>
+          `;
     }
 
     html += `
@@ -162,7 +167,8 @@ rangoFechaMovimientos.addEventListener("change", (e) => {
   renderMovimientos();
 });
 
-function extornar(id) {
+function extornar(e, id) {
+  e.preventDefault();
   swalWithBootstrapButtons
     .fire({
       title: "¿Está seguro?",
@@ -191,7 +197,9 @@ function extornar(id) {
     });
 }
 
-function changePago(idmov, idMetodoPago) {
+function changePago(e, idmov, idMetodoPago) {
+  e.preventDefault();
+
   $("#modalChangePago").modal("show");
 
   const idmovi = document.getElementById("idmov");

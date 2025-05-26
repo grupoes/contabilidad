@@ -21,22 +21,19 @@ class Movimiento extends BaseController
 
         $menu = $this->permisos_menu();
 
-        if (session()->perfil_id == 3) {
+        $metodo = new MetodoPagoModel();
+        $tipoComp = new TipoComprobanteModel();
 
-            $metodo = new MetodoPagoModel();
-            $tipoComp = new TipoComprobanteModel();
+        $metodos = $metodo->where('estado', 1)->findAll();
+        $comprobantes = $tipoComp->where('tipo_comprobante_estado', 1)->findAll();
 
-            $metodos = $metodo->where('estado', 1)->findAll();
-            $comprobantes = $tipoComp->where('tipo_comprobante_estado', 1)->findAll();
+        return view('movimiento/cajero', compact('metodos', 'comprobantes', 'menu'));
 
-            return view('movimiento/cajero', compact('metodos', 'comprobantes', 'menu'));
-        }
-
-        $sede = new SedeModel();
+        /*$sede = new SedeModel();
 
         $sedes = $sede->where('estado', 1)->findAll();
 
-        return view('movimiento/index', compact('sedes', 'menu'));
+        return view('movimiento/index', compact('sedes', 'menu'));*/
     }
 
     public function guardar()
@@ -53,7 +50,13 @@ class Movimiento extends BaseController
             $monto = $this->request->getVar('monto');
             $comprobante = $this->request->getVar('comprobante');
 
-            $idSesionCaja = $this->idSesionCaja($metodoPago);
+            $dataSede = $this->Aperturar();
+
+            if ($metodoPago == 1) {
+                $idSesionCaja = $dataSede['idSesionFisica'];
+            } else {
+                $idSesionCaja = $dataSede['idSesionVirtual'];
+            }
 
             $datos = array(
                 "id_sesion_caja" => $idSesionCaja,
