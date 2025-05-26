@@ -292,11 +292,11 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3" id="idMonto">
                         <label class="form-label" for="monto_mov">Monto</label>
                         <input type="text" class="form-control" id="monto_mov" name="monto_mov" />
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3" id="idFechaPago">
                         <label class="form-label" for="datePago">Fecha Pago</label>
                         <input type="date" class="form-control" id="datePago" name="datePago" max="<?= date('Y-m-d') ?>" required />
                     </div>

@@ -84,12 +84,16 @@ function viewPagosHonorarios(data) {
     let botonDelete = "";
 
     if (index === 0) {
-      if (currentDate === pago.fecha) {
-        botonDelete = `
+      if (currentDate == pago.fecha) {
+        botonDelete += `
               <a href="#" onclick="deletePago(event, ${pago.id})" title="Eliminar Pago"> <i class="fas fa-trash text-danger"></i> </a>
-              <a href="#" class="ms-2" onclick="editPago(event, ${pago.id})" title="Editar Pago"> <i class="fas fa-edit text-info"></i> </a>`;
+              `;
       }
     }
+
+    botonDelete += `
+              <a href="#" class="ms-2" onclick="editPago(event, ${pago.id})" title="Editar Pago"> <i class="fas fa-edit text-info"></i> </a>
+              `;
 
     html += `
         <tr>
@@ -323,6 +327,12 @@ function editPago(e, id) {
   const pagoId = document.getElementById("id_Pago");
   pagoId.value = id;
 
+  const currentDate = new Date()
+    .toLocaleString("en-CA", {
+      timeZone: "America/Lima",
+    })
+    .split(",")[0];
+
   fetch(`${base_url}pagos/get-pago/${id}`)
     .then((res) => res.json())
     .then((data) => {
@@ -330,6 +340,17 @@ function editPago(e, id) {
       const monto = document.getElementById("monto_mov");
       const datePago = document.getElementById("datePago");
       const montoActual = document.getElementById("montoActual");
+
+      const idMonto = document.getElementById("idMonto");
+      const idFechaPago = document.getElementById("idFechaPago");
+
+      if (currentDate == data.fecha) {
+        idMonto.removeAttribute("hidden");
+        idFechaPago.removeAttribute("hidden");
+      } else {
+        idMonto.setAttribute("hidden", true);
+        idFechaPago.setAttribute("hidden", true);
+      }
 
       montoActual.value = data.monto;
 
