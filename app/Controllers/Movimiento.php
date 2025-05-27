@@ -49,8 +49,12 @@ class Movimiento extends BaseController
             $descripcion = $this->request->getVar('descripcion');
             $monto = $this->request->getVar('monto');
             $comprobante = $this->request->getVar('comprobante');
+            $serie = $this->request->getVar('serie');
+            $numero = $this->request->getVar('correlativo');
 
             $dataSede = $this->Aperturar();
+
+            $tipo_descripcion = $serie . "-" . $numero;
 
             if ($metodoPago == 1) {
                 $idSesionCaja = $dataSede['idSesionFisica'];
@@ -70,7 +74,7 @@ class Movimiento extends BaseController
                 "mov_descripcion" => $descripcion,
                 "mov_hora" => date('H:i:s'),
                 "id_tipo_comprobante" => $comprobante,
-                "tipo_comprobante_descripcion" => "",
+                "tipo_comprobante_descripcion" => $tipo_descripcion,
                 "mov_cobro" => ""
             );
 

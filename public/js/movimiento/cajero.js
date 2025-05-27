@@ -44,6 +44,8 @@ const tipo_movimiento = document.getElementById("tipo_movimiento");
 
 const formMovimiento = document.getElementById("formMovimiento");
 
+const ocultarMov = document.querySelectorAll(".ocultarMov");
+
 const rangoFechaMovimientos = document.getElementById(
   "rango-fecha-movimientos"
 );
@@ -51,6 +53,10 @@ const tableBody = document.getElementById("tableBody");
 
 const verMovimientosVirtual = document.getElementById("verMovimientosVirtual");
 const tableBodyVirtual = document.getElementById("tableBodyVirtual");
+
+const comprobante = document.getElementById("comprobante");
+const serieMov = document.getElementById("serieMov");
+const numero = document.getElementById("correlativo");
 
 btnNuevoIngreso.addEventListener("click", (e) => {
   $("#modalTipoMovimiento").modal("show");
@@ -60,6 +66,14 @@ btnNuevoIngreso.addEventListener("click", (e) => {
   formMovimiento.reset();
 
   conceptosTipoMovimiento(1);
+
+  ocultarMov.forEach((ocultar) => {
+    ocultar.classList.remove("d-none");
+  });
+
+  comprobante.setAttribute("required", "true");
+  serieMov.setAttribute("required", "true");
+  numero.setAttribute("required", "true");
 });
 
 btnNuevoEgreso.addEventListener("click", (e) => {
@@ -70,6 +84,14 @@ btnNuevoEgreso.addEventListener("click", (e) => {
   formMovimiento.reset();
 
   conceptosTipoMovimiento(2);
+
+  ocultarMov.forEach((ocultar) => {
+    ocultar.classList.add("d-none");
+  });
+
+  comprobante.removeAttribute("required");
+  serieMov.removeAttribute("required");
+  numero.removeAttribute("required");
 });
 
 function conceptosTipoMovimiento(tipo) {
@@ -121,7 +143,11 @@ function renderMovimientos() {
 function tableMovimientos(data) {
   let html = "";
 
-  const currentDate = new Date().toISOString().split("T")[0];
+  const currentDate = new Date()
+    .toLocaleString("en-CA", {
+      timeZone: "America/Lima",
+    })
+    .split(",")[0];
 
   const total = data.length;
 
