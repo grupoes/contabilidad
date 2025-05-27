@@ -35,11 +35,11 @@
                         <!-- Contenedor para los botones -->
                         <div class="d-flex flex-wrap align-items-center gap-2">
                             <button type="button" id="btnNuevoEgreso" class="btn btn-danger d-inline-flex align-items-center gap-2">
-                                <i class="ti ti-minus f-18"></i> Nuevo Egreso
+                                <i class="ti ti-minus f-18"></i> Egreso
                             </button>
 
                             <button type="button" id="btnNuevoIngreso" class="btn btn-success d-inline-flex align-items-center gap-2">
-                                <i class="ti ti-plus f-18"></i> Nuevo Ingreso
+                                <i class="ti ti-plus f-18"></i> Ingreso
                             </button>
                         </div>
 
