@@ -31,18 +31,9 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center p-2 pb-sm-2">
-                        <!-- Contenedor para el select -->
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="input-group">
-                                <input type="text" id="rango-fecha-movimientos" class="form-control" placeholder="Select date range">
-                                <span class="input-group-text"><i class="feather icon-calendar"></i></span>
-                            </div>
-                        </div>
-
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch gap-2 p-2 pb-sm-2">
                         <!-- Contenedor para los botones -->
-                        <div class="d-flex align-items-center gap-2 ms-auto">
-
+                        <div class="d-flex flex-wrap align-items-center gap-2">
                             <button type="button" id="btnNuevoEgreso" class="btn btn-danger d-inline-flex align-items-center gap-2">
                                 <i class="ti ti-minus f-18"></i> Nuevo Egreso
                             </button>
@@ -51,7 +42,16 @@
                                 <i class="ti ti-plus f-18"></i> Nuevo Ingreso
                             </button>
                         </div>
+
+                        <!-- Contenedor para el select de fechas -->
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="input-group">
+                                <input type="text" id="rango-fecha-movimientos" class="form-control" placeholder="Select date range">
+                                <span class="input-group-text"><i class="feather icon-calendar"></i></span>
+                            </div>
+                        </div>
                     </div>
+
 
                     <div class="table-responsive">
                         <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableData">
