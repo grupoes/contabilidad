@@ -1,52 +1,47 @@
-const newcs = $($table).DataTable(
-    optionsTableDefault
-);
+const newcs = $($table).DataTable(optionsTableDefault);
 
 new $.fn.dataTable.Responsive(newcs);
 
 const swalWithBootstrapButtons = Swal.mixin({
-    customClass: {
-      confirmButton: 'btn btn-success',
-      cancelButton: 'btn btn-danger'
-    },
-    showConfirmButton: true,
-    buttonsStyling: false
+  customClass: {
+    confirmButton: "btn btn-success",
+    cancelButton: "btn btn-danger",
+  },
+  showConfirmButton: true,
+  buttonsStyling: false,
 });
 
-const tableBody = document.getElementById('tableBody');
+const tableBody = document.getElementById("tableBody");
 
-const btnModal = document.getElementById('btnModal');
-const titleModal = document.getElementById('titleModal');
+const btnModal = document.getElementById("btnModal");
+const titleModal = document.getElementById("titleModal");
 
-const formConcepto = document.getElementById('formConcepto');
-const idConcepto = document.getElementById('idConcepto');
-const nameConcepto = document.getElementById('nameConcepto');
-const tipoMovimiento = document.getElementById('tipoMovimiento');
+const formConcepto = document.getElementById("formConcepto");
+const idConcepto = document.getElementById("idConcepto");
+const nameConcepto = document.getElementById("nameConcepto");
+const tipoMovimiento = document.getElementById("tipoMovimiento");
 
 renderConceptos();
 
-function renderConceptos()
-{
-    fetch(base_url+"render-conceptos")
-    .then(res => res.json())
-    .then(data => {
-        viewConceptos(data);
-        
-    })
+function renderConceptos() {
+  fetch(base_url + "render-conceptos")
+    .then((res) => res.json())
+    .then((data) => {
+      viewConceptos(data);
+    });
 }
 
 function viewConceptos(data) {
-    let html = "";
+  let html = "";
 
-    data.forEach((concepto, index) => {
+  data.forEach((concepto, index) => {
+    let opciones = "";
 
-        let opciones = "";
+    if (concepto.con_id > 4) {
+      opciones = `<button type="button" class="btn btn-info modificar" data-id="${concepto.con_id}" data-name="${concepto.con_descripcion}" data-tipo="${concepto.id_tipo_movimiento}">MODIFICAR</button> <button type="button" class="btn btn-danger eliminar" data-id="${concepto.con_id}">ELIMINAR</button>`;
+    }
 
-        if(concepto.con_id > 4) {
-            opciones = `<button type="button" class="btn btn-info modificar" data-id="${concepto.con_id}" data-name="${concepto.con_descripcion}" data-tipo="${concepto.id_tipo_movimiento}">MODIFICAR</button> <button type="button" class="btn btn-danger eliminar" data-id="${concepto.con_id}">ELIMINAR</button>`;
-        }
-
-        html += `
+    html += `
         <tr>
             <td>${index + 1}</td>
             <td>${concepto.con_descripcion}</td>
@@ -56,95 +51,97 @@ function viewConceptos(data) {
             </td>
         </tr>
         `;
-    });
+  });
 
-    $($table).DataTable().destroy();
+  $($table).DataTable().destroy();
 
-    tableBody.innerHTML = html;
+  tableBody.innerHTML = html;
 
-    const newcs = $($table).DataTable(
-        optionsTableDefault
-    );
-    
-    new $.fn.dataTable.Responsive(newcs);
+  const newcs = $($table).DataTable(optionsTableDefault);
+
+  new $.fn.dataTable.Responsive(newcs);
 }
 
-btnModal.addEventListener('click', () => {
+btnModal.addEventListener("click", () => {
+  $("#modalConcepto").modal("show");
+  titleModal.textContent = "AGREGAR CONCEPTO";
+
+  formConcepto.reset();
+
+  idConcepto.value = "0";
+});
+
+formConcepto.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formConcepto);
+
+  fetch(base_url + "concepto/guardar", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        $("#modalConcepto").modal("hide");
+        swalWithBootstrapButtons.fire("Muy bien!", data.message, "success");
+
+        renderConceptos();
+
+        return false;
+      }
+
+      swalWithBootstrapButtons.fire("Error!", data.message, "error");
+    });
+});
+
+tableBody.addEventListener("click", (e) => {
+  if (e.target.classList.contains("modificar")) {
+    titleModal.textContent = "EDITAR CONCEPTO";
+
     $("#modalConcepto").modal("show");
-    titleModal.textContent = "AGREGAR CONCEPTO";
-})
 
-formConcepto.addEventListener('submit', (e) => {
-    e.preventDefault();
+    const id = e.target.getAttribute("data-id");
+    idConcepto.value = id;
 
-    const formData = new FormData(formConcepto);
+    const name = e.target.getAttribute("data-name");
+    const tipo = e.target.getAttribute("data-tipo");
 
-    fetch(base_url+"concepto/guardar", {
-        method: 'POST',
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        
-        if(data.status === 'success') {
-            $("#modalConcepto").modal("hide");
-            swalWithBootstrapButtons.fire('Muy bien!', data.message, 'success');
+    nameConcepto.value = name;
+    tipoMovimiento.value = tipo;
+  }
 
-            renderConceptos();
+  if (e.target.classList.contains("eliminar")) {
+    const id = e.target.getAttribute("data-id");
 
-            return false;
+    swalWithBootstrapButtons
+      .fire({
+        title: "¿Seguro desea eliminarlo?",
+        text: "¡No podrá revertir después!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar!",
+        cancelButtonText: "No, cancelar!",
+        reverseButtons: true,
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          fetch(base_url + "concepto/delete/" + id)
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.status === "success") {
+                renderConceptos();
+                swalWithBootstrapButtons.fire(
+                  "Muy bien!",
+                  data.message,
+                  "success"
+                );
+                return false;
+              }
+
+              swalWithBootstrapButtons.fire("Error!", data.message, "error");
+            });
         }
-
-        swalWithBootstrapButtons.fire('Error!', data.message, 'error');
-        
-    })
-})
-
-tableBody.addEventListener('click', (e) => {
-    if(e.target.classList.contains('modificar')) {
-
-        titleModal.textContent = "EDITAR CONCEPTO";
-
-        $("#modalConcepto").modal("show");
-
-        const id = e.target.getAttribute('data-id');
-        idConcepto.value = id;
-
-        const name = e.target.getAttribute('data-name');
-        const tipo = e.target.getAttribute('data-tipo');
-        
-        nameConcepto.value = name;
-        tipoMovimiento.value = tipo;
-    }
-
-    if(e.target.classList.contains('eliminar')) {
-        const id = e.target.getAttribute('data-id');
-
-        swalWithBootstrapButtons
-        .fire({
-            title: '¿Seguro desea eliminarlo?',
-            text: "¡No podrá revertir después!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, eliminar!',
-            cancelButtonText: 'No, cancelar!',
-            reverseButtons: true
-        })
-        .then((result) => {
-            if (result.isConfirmed) {
-                
-                fetch(base_url+"concepto/delete/"+id)
-                .then(res => res.json())
-                .then(data => {
-                    if(data.status === 'success') {
-                        renderConceptos();
-                        swalWithBootstrapButtons.fire('Muy bien!', data.message, 'success');
-                        return false;
-                    }
-
-                    swalWithBootstrapButtons.fire('Error!', data.message, 'error');
-                })
-            }
-        });
-    }
-})
+      });
+  }
+});

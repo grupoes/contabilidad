@@ -194,7 +194,7 @@ class Movimiento extends BaseController
             inner join metodos_pagos mp on mp.id = m.id_metodo_pago
             inner join concepto c2 on c2.con_id = m.mov_concepto
             inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
-            where m.mov_estado = 1 and m.mov_fecha between '$startDate' and '$endDate' order by m.mov_id asc")->getResult();
+            where m.mov_estado = 1 and m.mov_fecha between '$startDate' and '$endDate' order by m.mov_id desc")->getResult();
 
             $sumaEfectivoIngresos = $mov->query("SELECT sum(m.mov_monto) as saldo FROM movimiento m
             inner join metodos_pagos mp on mp.id = m.id_metodo_pago

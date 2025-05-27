@@ -123,6 +123,8 @@ function tableMovimientos(data) {
 
   const currentDate = new Date().toISOString().split("T")[0];
 
+  const total = data.length;
+
   data.forEach((mov, i) => {
     let botonExtornar = "";
 
@@ -141,7 +143,7 @@ function tableMovimientos(data) {
 
     html += `
         <tr>
-            <td>${i + 1}</td>
+            <td>${total - i}</td>
             <td>${mov.caja_descripcion}</td>
             <td>${mov.metodo}</td>
             <td>${mov.tipo_movimiento_descripcion}</td>
