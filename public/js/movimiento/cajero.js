@@ -214,7 +214,33 @@ function tableMovimientos(data) {
 
   tableBody.innerHTML = html;
 
-  const newcs = $($table).DataTable(optionsTableDefault);
+  const newcs = $($table).DataTable({
+    language: language,
+    responsive: true, // Hace que la tabla sea responsiva
+    autoWidth: false, // Desactiva el ajuste automático de ancho
+    scrollX: false, // Evita el scroll horizontal
+    ordering: false,
+    columnDefs: [
+      { targets: "_all", className: "text-wrap" }, // Permite el ajuste de texto en las columnas
+    ],
+    dom:
+      "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
+      "<'row'<'col-sm-12'B>>" +
+      "<'row'<'col-sm-12'tr>>" +
+      "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+    buttons: [
+      {
+        extend: "excel",
+        text: "Excel",
+        className: "btn-excel-hidden",
+        filename: "movimientos",
+        title: "Reporte de Movimientos",
+        exportOptions: {
+          columns: ":not(:last-child)", // Excluye la última columna
+        },
+      },
+    ],
+  });
 
   new $.fn.dataTable.Responsive(newcs);
 }
@@ -342,3 +368,9 @@ function verVaucher(e, idPago) {
     image.style.transform = `scale(${scale})`;
   };
 }
+
+document
+  .getElementById("btnExportExcel")
+  .addEventListener("click", function () {
+    document.querySelector(".btn-excel-hidden").click(); // Simula el clic en el botón oculto
+  });

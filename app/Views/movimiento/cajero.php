@@ -6,6 +6,13 @@
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/notifier.css">
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/buttons.bootstrap5.min.css" />
+
+<style>
+    .btn-excel-hidden {
+        display: none !important;
+    }
+</style>
 
 <?= $this->endSection() ?>
 
@@ -266,6 +273,10 @@
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.responsive.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/dataTables.buttons.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/jszip.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/buttons.html5.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/buttons.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
 <script src="<?= base_url() ?>js/movimiento/cajero.js"></script>
 
