@@ -57,6 +57,23 @@ const tableBodyVirtual = document.getElementById("tableBodyVirtual");
 const comprobante = document.getElementById("comprobante");
 const serieMov = document.getElementById("serieMov");
 const numero = document.getElementById("correlativo");
+const vaucher = document.getElementById("vaucher");
+const fileVaucher = document.getElementById("fileVaucher");
+const metodoPago = document.getElementById("metodoPago");
+
+metodoPago.addEventListener("change", (e) => {
+  const metodo = e.target.value;
+
+  if (tipo_movimiento.value == "1") {
+    if (metodo == "1" || metodo == "") {
+      vaucher.removeAttribute("required");
+      fileVaucher.setAttribute("hidden", true);
+    } else {
+      fileVaucher.removeAttribute("hidden");
+      vaucher.setAttribute("required", "true");
+    }
+  }
+});
 
 btnNuevoIngreso.addEventListener("click", (e) => {
   $("#modalTipoMovimiento").modal("show");
@@ -92,6 +109,7 @@ btnNuevoEgreso.addEventListener("click", (e) => {
   comprobante.removeAttribute("required");
   serieMov.removeAttribute("required");
   numero.removeAttribute("required");
+  fileVaucher.setAttribute("hidden", "true");
 });
 
 function conceptosTipoMovimiento(tipo) {

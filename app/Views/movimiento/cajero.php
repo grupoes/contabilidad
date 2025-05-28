@@ -93,7 +93,7 @@
                 <h5 class="modal-title h4" id="titleModalMovimiento"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formMovimiento">
+            <form id="formMovimiento" enctype="multipart/form-data">
                 <div class="modal-body">
                     <input type="hidden" name="tipo_movimiento" id="tipo_movimiento" value="0">
                     <input type="hidden" name="idMovimiento" id="idMovimiento" value="0">
@@ -136,6 +136,11 @@
                         <div class="col-md-3 mb-3 ocultarMov">
                             <label class="form-label" for="correlativo">Número</label>
                             <input type="text" class="form-control" placeholder="Ingrese el número" name="correlativo" id="correlativo" />
+                        </div>
+
+                        <div class="col-md-12 mb-3" id="fileVaucher">
+                            <label for="vaucher" class="form-label">Ingrese el vaucher</label>
+                            <input type="file" class="form-control" name="vaucher" id="vaucher" />
                         </div>
                     </div>
 
