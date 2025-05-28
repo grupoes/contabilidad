@@ -97,7 +97,7 @@
 
                         <div class="col-md-6 mb-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="cargo" id="cargo">
+                                <input class="form-check-input" type="checkbox" name="cargo" id="cargo" checked>
                                 <label class="form-check-label" for="cargo">CARGO GRUPO ES CONSULTORES</label>
                             </div>
                         </div>
