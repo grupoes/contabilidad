@@ -66,7 +66,7 @@
 
                             <?php if (count($consulta_certificado_por_vencer) > 0) { ?>
                                 <button class="btn btn-danger d-inline-flex gap-2" id="btnCertificadoVencer">
-                                    <i class="ti ti-file f-18"></i> Certificados Digitales por vencer
+                                    <i class="ti ti-file f-18"></i> Certificados Digitales por vencer (<?= count($consulta_certificado_por_vencer) ?>)
                                 </button>
                             <?php } ?>
                         </div>
