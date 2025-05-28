@@ -137,7 +137,7 @@ abstract class BaseController extends Controller
         return $modulos;
     }
 
-    public function generarMovimiento($sesionCaja, $concepto, $formaPago, $metodoPago, $monto, $descripcion, $tipoComprobante, $descripcionComprobante, $estado, $fecha_pago)
+    public function generarMovimiento($sesionCaja, $concepto, $formaPago, $metodoPago, $monto, $descripcion, $tipoComprobante, $descripcionComprobante, $estado, $fecha_pago, $vaucher)
     {
         $mov = new MovimientoModel();
 
@@ -157,6 +157,7 @@ abstract class BaseController extends Controller
             'mov_cobro' => 0,
             'userRegister' => session()->id,
             'nombreUser' => session()->nombre . ' ' . session()->apellidos,
+            'vaucher' => $vaucher,
         ]);
 
         $id = $mov->insertID();

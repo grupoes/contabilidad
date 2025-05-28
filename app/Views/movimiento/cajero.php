@@ -140,7 +140,7 @@
 
                         <div class="col-md-12 mb-3" id="fileVaucher">
                             <label for="vaucher" class="form-label">Ingrese el vaucher</label>
-                            <input type="file" class="form-control" name="vaucher" id="vaucher" />
+                            <input type="file" class="form-control" name="vaucher" id="vaucher" accept="image/*" />
                         </div>
                     </div>
 
@@ -222,6 +222,35 @@
                     <button type="submit" class="btn btn-primary" id="btnFormPago">Guardar</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-lightbox" id="lightboxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+            <div class="modal-body p-0">
+                <input type="hidden" id="pagoId">
+                <div class="image-wrapper position-relative">
+                    <img
+                        src="../assets/images/light-box/l1.jpg"
+                        alt="images"
+                        class="modal-image img-fluid" />
+
+                    <a
+                        id="btnDescargarVoucher"
+                        class="btn btn-sm btn-success position-absolute top-0 end-0 m-2"
+                        title="Descargar Voucher"
+                        download>
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

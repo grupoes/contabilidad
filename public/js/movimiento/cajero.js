@@ -110,6 +110,8 @@ btnNuevoEgreso.addEventListener("click", (e) => {
   serieMov.removeAttribute("required");
   numero.removeAttribute("required");
   fileVaucher.setAttribute("hidden", "true");
+  vaucher.removeAttribute("required");
+  vaucher.value = "";
 });
 
 function conceptosTipoMovimiento(tipo) {
@@ -174,15 +176,23 @@ function tableMovimientos(data) {
 
     if (currentDate === mov.mov_fecha) {
       botonExtornar = `
-          <ul class="list-inline me-auto mb-0">
-            <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="CAMBIAR METODO DE PAGO">
-              <a href="#" onclick="changePago(event,${mov.mov_id}, ${mov.id_metodo_pago})" class="avtar avtar-xs btn-link-success btn-pc-default"><i class="ti ti-edit-circle f-18"></i></a>
-            </li>
-            <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="EXTORNAR">
-              <a href="#" onclick="extornar(event,${mov.mov_id})" class="avtar avtar-xs btn-link-danger btn-pc-default"><i class="ti ti-trash f-18"></i></a>
-            </li>
-          </ul>
-          `;
+      <a href="#" class="text-info" title="CAMBIAR METODO DE PAGO" onclick="changePago(event,${mov.mov_id}, ${mov.id_metodo_pago})">
+        <i class="ti ti-edit-circle f-18"></i>
+      </a>
+      <a href="#" class="text-danger" title="EXTORNAR" onclick="extornar(event,${mov.mov_id})">
+        <i class="ti ti-trash f-18"></i>
+      </a>
+      `;
+    }
+
+    if (mov.id_tipo_movimiento == 1) {
+      if (mov.id_metodo_pago != "1") {
+        botonExtornar += `
+        <a href="#" data-lightbox="${base_url}vouchers/${mov.vaucher}" onclick="verVaucher(event,${mov.mov_id})">
+          <i class="ti ti-photo f-18"></i>
+        </a>
+        `;
+      }
     }
 
     html += `
@@ -296,3 +306,39 @@ formCambioPago.addEventListener("submit", (e) => {
       swalWithBootstrapButtons.fire("Error!", data.message, "danger");
     });
 });
+
+var lightboxModal = new bootstrap.Modal(
+  document.getElementById("lightboxModal")
+);
+
+function verVaucher(e, idPago) {
+  e.preventDefault();
+
+  const pagoId = document.getElementById("pagoId");
+  pagoId.value = idPago;
+
+  var images_path = e.target.closest("a");
+
+  if (images_path.tagName == "IMG") {
+    images_path = images_path.parentNode;
+  }
+
+  var recipient = images_path.getAttribute("data-lightbox");
+  var image = document.querySelector(".modal-image");
+  image.setAttribute("src", recipient);
+  lightboxModal.show();
+
+  const btnDescargar = document.getElementById("btnDescargarVoucher");
+  btnDescargar.setAttribute("href", recipient);
+  btnDescargar.setAttribute("download", "voucher.jpg");
+
+  image.style.transform = "scale(1)";
+  let scale = 1;
+
+  image.onwheel = function (e) {
+    e.preventDefault();
+    scale += e.deltaY * -0.001;
+    scale = Math.min(Math.max(1, scale), 3); // Zoom entre 1x y 3x
+    image.style.transform = `scale(${scale})`;
+  };
+}
