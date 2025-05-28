@@ -51,7 +51,7 @@ class Contribuyentes extends BaseController
         $consulta_certificado_por_vencer = $certi->query('SELECT c.ruc, c.razon_social, cd.tipo_certificado, cd.fecha_inicio, cd.fecha_vencimiento
         FROM certificado_digital cd
         inner join contribuyentes c on c.id = cd.contribuyente_id
-        WHERE cd.fecha_vencimiento BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 30 DAY) and cd.estado = 1;')->getResult();
+        WHERE cd.fecha_vencimiento <= DATE_ADD(NOW(), INTERVAL 30 DAY) and cd.estado = 1;')->getResult();
 
         $numeros = new NumeroWhatsappModel();
         $numeros_whatsapp = $numeros->where('estado', 1)->findAll();
