@@ -703,6 +703,12 @@ function toggleSwitchStatus(switchElement, id) {
           .then((data) => {
             notifier.show("¡Bien hecho!", data.message, "success", "", 2000);
           });
+      } else {
+        if (checked == 1) {
+          switchElement.checked = false;
+        } else {
+          switchElement.checked = true;
+        }
       }
     });
 }
