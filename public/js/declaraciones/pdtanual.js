@@ -9,6 +9,8 @@ const formArchivo = document.getElementById("formArchivo");
 const anioDescarga = document.getElementById("anioDescarga");
 const tipoPdt = document.getElementById("tipoPdt");
 
+const listFiles = document.getElementById("listFiles");
+
 const desde = document.getElementById("desde");
 const hasta = document.getElementById("hasta");
 
@@ -118,6 +120,9 @@ const tableFiles = document.getElementById("tableFiles");
 
 function descargarArchivos(id) {
   $("#modalDescargarArchivo").modal("show");
+
+  anioDescarga.value = "";
+  listFiles.innerHTML = "";
 
   fetch(base_url + "contribuyentes/getId/" + id)
     .then((res) => res.json())
@@ -243,6 +248,12 @@ anioDescarga.addEventListener("change", (e) => {
   getBalance(anio, tipo_pdt.value);
 });
 
+tipoPdt.addEventListener("change", (e) => {
+  const pdt = e.target.value;
+
+  getBalance(anioDescarga.value, pdt);
+});
+
 function getBalance(anio, tipopdt) {
   const formData = new FormData();
   formData.append("anio", anio);
@@ -271,13 +282,12 @@ function viewBalance(data) {
               <a href="${base_url}public/archivos/pdt/${pdt.pdt}" class='btn btn-success btn-sm' target='_blank' title='Descargar PDT'>PDT</a> 
               <a href="${base_url}public/archivos/pdt/${pdt.constancia}" target='_blank' class='btn btn-primary btn-sm' title='Descargar constancia'>CONSTANCIA</a>
 
-              
+              <button type='button' class='btn btn-danger btn-sm' title='Rectificar Archivos' onclick='rectificar(${pdt.id_pdt_anual},${pdt.id_archivo_anual},${pdt.periodo},${pdt.id_pdt_tipo})'>RECT</button>
+              <button type='button' class='btn btn-warning btn-sm' title='Detalle' onclick='details_archivos(${pdt.id_pdt_anual})'>DET</button>
             </td>
         </tr>
         `;
   });
-
-  const listFiles = document.getElementById("listFiles");
 
   listFiles.innerHTML = html;
 }
