@@ -136,9 +136,9 @@ class Contribuyentes extends BaseController
             $sql = "AND c.tipoServicio = '$filtro'";
         }
 
-        if (session()->perfil_id > 2) {
+        /*if (session()->perfil_id > 2) {
             $asig = " AND cu.usuario_id = " . session()->id;
-        }
+        }*/
 
         if ($estado == 0) {
             $status = "c.estado > 0";
