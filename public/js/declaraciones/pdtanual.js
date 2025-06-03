@@ -133,7 +133,7 @@ function descargarArchivos(id) {
           let html = "";
 
           if (pdts.length > 0) {
-            html += `<option value="">Seleccione...</option>`;
+            html += `<option value="0">TODOS</option>`;
 
             pdts.forEach((pdt) => {
               html += `<option value="${pdt.id_pdt}">${pdt.pdt_descripcion}</option>`;
@@ -234,3 +234,50 @@ formConsulta.addEventListener("submit", (e) => {
       listfiles.innerHTML = html;
     });
 });
+
+anioDescarga.addEventListener("change", (e) => {
+  const anio = e.target.value;
+
+  const tipo_pdt = document.getElementById("tipoPdt");
+
+  getBalance(anio, tipo_pdt.value);
+});
+
+function getBalance(anio, tipopdt) {
+  const formData = new FormData();
+  formData.append("anio", anio);
+  formData.append("pdt", tipopdt);
+  formData.append("ruc", numRuc.value);
+
+  fetch(base_url + "pdtAnual/getBalance", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      viewBalance(data);
+    });
+}
+
+function viewBalance(data) {
+  let html = "";
+
+  data.forEach((pdt) => {
+    html += `
+        <tr>
+            <td>${pdt.anio_descripcion}</td>
+            <td>${pdt.pdt_descripcion}</td>
+            <td>
+              <a href="${base_url}public/archivos/pdt/${pdt.pdt}" class='btn btn-success btn-sm' target='_blank' title='Descargar PDT'>PDT</a> 
+              <a href="${base_url}public/archivos/pdt/${pdt.constancia}" target='_blank' class='btn btn-primary btn-sm' title='Descargar constancia'>CONSTANCIA</a>
+
+              
+            </td>
+        </tr>
+        `;
+  });
+
+  const listFiles = document.getElementById("listFiles");
+
+  listFiles.innerHTML = html;
+}

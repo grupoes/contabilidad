@@ -76,4 +76,28 @@ class PdtAnual extends BaseController
 
         return $this->response->setJSON($data);
     }
+
+    public function getBalance()
+    {
+        $pdtAnual = new PdtAnualModel();
+
+        $anio = $this->request->getVar('anio');
+        $ruc = $this->request->getVar('ruc');
+        $tipoPdt = $this->request->getVar('pdt');
+
+        $sql = "AND pdt_anual.periodo = $anio";
+
+        if ($tipoPdt != "0") {
+            $sql = "AND pdt_anual.periodo = $anio AND pdt_anual.id_pdt_tipo = $tipoPdt";
+        }
+
+        $consulta = $pdtAnual->query("SELECT pdt.pdt_descripcion,pdt_anual.ruc_empresa,pdt_anual.periodo,pdt_anual.id_pdt_tipo,archivos_pdtanual.id_pdt_anual,archivos_pdtanual.id_archivo_anual,archivos_pdtanual.pdt,archivos_pdtanual.constancia,anio.anio_descripcion
+        FROM pdt_anual
+        INNER JOIN pdt ON pdt_anual.id_pdt_tipo = pdt.id_pdt
+        INNER JOIN archivos_pdtanual ON pdt_anual.id_pdt_anual = archivos_pdtanual.id_pdt_anual
+        INNER JOIN anio ON pdt_anual.periodo = anio.id_anio
+        WHERE pdt_anual.ruc_empresa = $ruc AND archivos_pdtanual.estado = 1 $sql")->getResult();
+
+        return $this->response->setJSON($consulta);
+    }
 }
