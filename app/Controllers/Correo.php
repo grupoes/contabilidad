@@ -9,7 +9,7 @@ class Correo extends BaseController
         $email = \Config\Services::email();
 
         $email->setFrom('contabilidad@grupoesconsultores.com', 'GRUPO ES CONSULTORES S.A.C.');
-        $email->setTo('desarrollo.tecnologico.tarapoto@gmail.com');
+        $email->setTo('wlopezl@alumno.unsm.edu.pe');
 
         $email->setSubject('Correo de prueba desde CodeIgniter 4 + cPanel SMTP');
         $email->setMessage('<h3>Este es un correo enviado con SMTP desde tu VPS y cPanel.</h3>');
