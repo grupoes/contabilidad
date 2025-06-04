@@ -100,4 +100,31 @@ class PdtAnual extends BaseController
 
         return $this->response->setJSON($consulta);
     }
+
+    public function guardar()
+    {
+        $pdtAnual = new PdtAnualModel();
+
+        $anio = $this->request->getVar('anio');
+        $typePdt = $this->request->getVar('typePdt');
+        $pdt = $this->request->getVar('pdt');
+        $constancia = $this->request->getVar('constancia');
+        $cargo = $this->request->getVar('cargo');
+        $monto = $this->request->getVar('monto');
+        $descripcion = $this->request->getVar('descripcion');
+        $ruc = $this->request->getVar('idruc');
+
+        $consulta = $pdtAnual->where("ruc_empresa", $ruc)->where("id_pdt_tipo", $typePdt)->where("periodo", $anio)->first();
+
+        if ($consulta) {
+            $data = [
+                "status" => "error",
+                "message" => "Ya existe un registro para el año y tipo de PDT seleccionado"
+            ];
+
+            return $this->response->setJSON($data);
+        }
+
+        return $this->response->setJSON($cargo);
+    }
 }

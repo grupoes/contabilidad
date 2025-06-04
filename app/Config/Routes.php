@@ -129,6 +129,7 @@ $routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
 $routes->get('pdtAnual/verificar/(:num)', 'PdtAnual::verificar/$1');
 $routes->post('pdtAnual-consulta', 'PdtAnual::consulta');
 $routes->post('pdtAnual/getBalance', 'PdtAnual::getBalance');
+$routes->post('pdtAnual/guardar', 'PdtAnual::guardar');
 
 $routes->get('declaraciones/boleta-de-pago', 'BoletaPago::index');
 $routes->post('boleta-pago-save', 'BoletaPago::save');
@@ -175,3 +176,5 @@ $routes->get('configuracion/numeroWhatsapp/all', 'NumeroWhatsapp::allNumeroWhats
 $routes->post('configuracion/numeroWhatsapp/store', 'NumeroWhatsapp::saveNumeroWhatsapp');
 $routes->get('configuracion/numeroWhatsapp/(:num)', 'NumeroWhatsapp::getIdNumeroWhatsapp/$1');
 $routes->get('configuracion/deleteWhatsapp/(:num)', 'NumeroWhatsapp::deleteWhatsapp/$1');
+
+$routes->get('enviarCorreo', 'Correo::enviar');

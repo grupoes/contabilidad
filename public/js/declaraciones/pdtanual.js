@@ -61,9 +61,12 @@ function vistaContribuyentes(data) {
   new $.fn.dataTable.Responsive(newcs);
 }
 
+const idRuc = document.getElementById("idruc");
+
 function modalArchivo(id, ruc) {
   $("#modalArchivo").modal("show");
-  //$('#idContribuyente').val(id);
+
+  idRuc.value = ruc;
 
   formArchivo.reset();
 
@@ -291,3 +294,18 @@ function viewBalance(data) {
 
   listFiles.innerHTML = html;
 }
+
+formArchivo.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formArchivo);
+
+  fetch(base_url + "pdtAnual/guardar", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+    });
+});

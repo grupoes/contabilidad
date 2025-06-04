@@ -1,22 +1,21 @@
-<?php namespace App\Models;
+<?php
 
-    use CodeIgniter\Model;
+namespace App\Models;
 
-    class PdtAnualModel extends Model
-    {
-        protected $table      = 'pdt_anua';
-        protected $primaryKey = 'id_pdt_anual';
+use CodeIgniter\Model;
 
-        protected $useAutoIncrement = true;
+class PdtAnualModel extends Model
+{
+    protected $table      = 'pdt_anual';
+    protected $primaryKey = 'id_pdt_anual';
 
-        protected $returnType     = 'array';
+    protected $useAutoIncrement = true;
 
-        protected $allowedFields = ['id_pdt_anual','ruc_empresa', 'periodo', 'id_pdt_tipo', 'cargo', 'user_add', 'user_edit', 'user_delete', 'estado'];
+    protected $returnType     = 'array';
 
-        protected $useTimestamps = true;
-        protected $createdField  = 'created_at';
-        protected $updatedField  = 'updated_at';
+    protected $allowedFields = ['id_pdt_anual', 'ruc_empresa', 'periodo', 'id_pdt_tipo', 'cargo', 'user_add', 'user_edit', 'user_delete', 'estado'];
 
-    }
-
-?>
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+}
