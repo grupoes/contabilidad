@@ -28,17 +28,17 @@ class Email extends BaseConfig
     /**
      * SMTP Server Hostname
      */
-    public string $SMTPHost = 'mail.grupoesconsultores.com';
+    public string $SMTPHost = '';
 
     /**
      * SMTP Username
      */
-    public string $SMTPUser = 'contabilidad@grupoesconsultores.com';
+    public string $SMTPUser = '';
 
     /**
      * SMTP Password
      */
-    public string $SMTPPass = 'contabilidad2025';
+    public string $SMTPPass = '';
 
     /**
      * SMTP Port
@@ -118,4 +118,19 @@ class Email extends BaseConfig
      * Enable notify message from server
      */
     public bool $DSN = false;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->protocol     = env('email.protocol', 'smtp');
+        $this->SMTPHost     = env('email.SMTPHost', '');
+        $this->SMTPUser     = env('email.SMTPUser', '');
+        $this->SMTPPass     = env('email.SMTPPass', '');
+        $this->SMTPPort     = (int) env('email.SMTPPort', 465);
+        $this->SMTPCrypto   = env('email.SMTPCrypto', 'ssl');
+        $this->mailType     = env('email.mailType', 'html');
+        $this->charset      = env('email.charset', 'UTF-8');
+        $this->SMTPTimeout  = (int) env('email.SMTPTimeout', 5);
+    }
 }
