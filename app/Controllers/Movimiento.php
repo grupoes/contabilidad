@@ -75,6 +75,12 @@ class Movimiento extends BaseController
                 }
             }
 
+            if ($tipo_movimiento == 2) {
+                $idcomprobante = 3;
+            } else {
+                $idcomprobante = $comprobante;
+            }
+
             $datos = array(
                 "id_sesion_caja" => $idSesionCaja,
                 "mov_formapago" => 1,
@@ -84,9 +90,9 @@ class Movimiento extends BaseController
                 "mov_fecha_pago" => date('Y-m-d'),
                 "mov_monto" => $monto,
                 "mov_estado" => 1,
-                "mov_descripcion" => $descripcion,
+                "mov_descripcion" => strtoupper($descripcion),
                 "mov_hora" => date('H:i:s'),
-                "id_tipo_comprobante" => $comprobante,
+                "id_tipo_comprobante" => $idcomprobante,
                 "tipo_comprobante_descripcion" => $tipo_descripcion,
                 "mov_cobro" => "",
                 "vaucher" => $nameFile,

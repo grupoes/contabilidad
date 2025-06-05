@@ -124,7 +124,7 @@
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label" for="monto">Monto</label>
-                            <input type="number" class="form-control" placeholder="Ingrese el monto" name="monto" id="monto" required>
+                            <input type="number" class="form-control" placeholder="Ingrese el monto" name="monto" id="monto" step="0.01" required>
                         </div>
                         <div class="col-md-3 mb-3 ocultarMov d-none">
                             <label class="form-label" for="comprobante">Comprobante</label>
