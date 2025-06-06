@@ -239,18 +239,18 @@ function listaContribuyentes() {
 
 function optionsTable(id, ruc) {
   return `
-        <a class="dropdown-item" href="#"><i class="material-icons-two-tone">book</i>Lista de Boletas</a>
-        <a class="dropdown-item" href="#"><i class="material-icons-two-tone">library_books</i>Registrar Boletas</a>
-        <a class="dropdown-item" href="#" onclick="importarBoletas(event, ${id})"><i class="material-icons-two-tone">import_export</i>Importar Boletas</a>
-        <a class="dropdown-item" href="#" onclick="deleteEmpresa(event, ${id})"><i class="material-icons-two-tone">delete</i>Eliminar Empresa</a>
-        <a class="dropdown-item" href="#" onclick="configurarDeclaraciones(event, ${id})"><i class="material-icons-two-tone">settings</i>Configurar declaraciones</a>
-        <a class="dropdown-item" href="#"><i class="material-icons-two-tone">settings_applications</i>Declaración tributaria</a>
-        <a class="dropdown-item" href="#" onclick="verAcceso(event, ${id})"><i class="material-icons-two-tone">vpn_key</i>Ver contraseña</a>
-        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9094/maqueta-compras/${ruc}" target="__blank"><i class="material-icons-two-tone">insert_drive_file</i>Escanear y generar maquetas de compras</a>
-        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9093/reportes/${ruc}" target="__blank"><i class="material-icons-two-tone">file_copy</i>Reporte Comercial</a>
-        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9092/reportes/${ruc}" target="__blank"><i class="material-icons-two-tone">restaurant</i>Reporte Restaurante</a>
-        <a class="dropdown-item" href="https://grupoesconsultores.com/contagrupoes/maqueta-compras/${ruc}" target="__blank"><i class="material-icons-two-tone">attach_file</i>Enviar archivos</a>
-        <a class="dropdown-item" href="#" onclick="loadModalContactos(event, ${id})"><i class="material-icons-two-tone">account_box</i>Contactos</a>
+        <a class="dropdown-item" href="#"><i class="ti ti-notebook"></i>Lista de Boletas</a>
+        <a class="dropdown-item" href="#"><i class="ti ti-book"></i>Registrar Boletas</a>
+        <a class="dropdown-item" href="#" onclick="importarBoletas(event, ${id})"><i class="ti ti-file-import"></i>Importar Boletas</a>
+        <a class="dropdown-item" href="#" onclick="deleteEmpresa(event, ${id})"><i class="ti ti-trash"></i>Eliminar Empresa</a>
+        <a class="dropdown-item" href="#" onclick="configurarDeclaraciones(event, ${id})"><i class="ti ti-settings"></i>Configurar declaraciones</a>
+        <a class="dropdown-item" href="#"><i class="ti ti-settings-automation"></i>Declaración tributaria</a>
+        <a class="dropdown-item" href="#" onclick="verAcceso(event, ${id})"><i class="ti ti-key"></i>Ver contraseña</a>
+        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9094/maqueta-compras/${ruc}" target="__blank"><i class="ti ti-file-download"></i>Escanear y generar maquetas de compras</a>
+        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9093/reportes/${ruc}" target="__blank"><i class="ti ti-file-analytics"></i>Reporte Comercial</a>
+        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9092/reportes/${ruc}" target="__blank"><i class="ti ti-file-text"></i>Reporte Restaurante</a>
+        <a class="dropdown-item" href="https://grupoesconsultores.com/contagrupoes/maqueta-compras/${ruc}" target="__blank"><i class="ti ti-file-symlink"></i>Enviar archivos</a>
+        <a class="dropdown-item" href="#" onclick="loadModalContactos(event, ${id})"><i class="ti ti-accessible"></i>Contactos</a>
     `;
 }
 
