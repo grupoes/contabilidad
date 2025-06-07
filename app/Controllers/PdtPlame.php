@@ -162,7 +162,16 @@ class PdtPlame extends BaseController
         INNER JOIN archivos_pdtplame ON archivos_pdtplame.id_pdtplame = pdt_plame.id_pdt_plame
         INNER JOIN anio ON pdt_plame.anio = anio.id_anio
         INNER JOIN mes ON mes.id_mes = pdt_plame.periodo
-        WHERE pdt_plame.ruc_empresa = $ruc AND pdt_plame.anio = $anio AND pdt_plame.periodo = $periodo AND archivos_pdtplame.estado = 1")->getResult();
+        WHERE pdt_plame.ruc_empresa = $ruc AND pdt_plame.anio = $anio AND pdt_plame.periodo = $periodo AND archivos_pdtplame.estado = 1")->getRow();
+
+        return $this->response->setJSON($consulta);
+    }
+
+    public function consultaR08($idplame)
+    {
+        $r08 = new R08PlameModel();
+
+        $consulta = $r08->where('plameId', $idplame)->where('status', 1)->findAll();
 
         return $this->response->setJSON($consulta);
     }

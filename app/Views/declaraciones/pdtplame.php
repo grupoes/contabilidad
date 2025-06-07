@@ -88,11 +88,11 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_r01">Subir R01 (excel o pdf)</label>
-                            <input type="file" class="form-control" name="file_r01" id="file_r01" accept=".xlsx, .xls, .pdf" required>
+                            <input type="file" class="form-control" name="file_r01" id="file_r01" accept=".xlsx, .xls, .pdf">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_r12">Subir R12 (excel o pdf)</label>
-                            <input type="file" class="form-control" name="file_r12" id="file_r12" accept=".xlsx, .xls, .pdf" required>
+                            <input type="file" class="form-control" name="file_r12" id="file_r12" accept=".xlsx, .xls, .pdf">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_constancia">Subir Constancia (word o pdf)</label>
@@ -100,7 +100,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_r08">Subir R08 (txt, pdf)</label>
-                            <input type="file" class="form-control" accept="txt,.pdf" name="file_r08[]" id="file_r08" multiple required>
+                            <input type="file" class="form-control" accept="txt,.pdf" name="file_r08[]" id="file_r08" multiple>
                         </div>
                     </div>
                 </div>
@@ -156,6 +156,10 @@
                                 </thead>
                                 <tbody id="contentPdt"></tbody>
                             </table>
+                        </div>
+
+                        <div class="col-md-12" id="r08view">
+                            
                         </div>
                     </div>
                 </div>

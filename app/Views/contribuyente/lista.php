@@ -116,9 +116,9 @@
             <form id="formDatos">
                 <div class="modal-body">
                     <input type="hidden" name="idTable" id="idTable" value="0">
+                    <h5>Datos Empresa</h5>
+                    <hr>
                     <div class="row">
-                        <h5>Datos Empresa</h5>
-                        <hr>
                         <div class="col-md-4 mb-3">
                             <label class="form-label" for="numeroDocumento">R.U.C.</label>
                             <div class="input-group">
@@ -154,8 +154,10 @@
                             <label class="form-label" for="urbanizacion">Urbanización</label>
                             <input type="text" class="form-control" name="urbanizacion" id="urbanizacion">
                         </div>
-                        <h5>Servicio</h5>
-                        <hr>
+                    </div>
+                    <h5>Servicio</h5>
+                    <hr>
+                    <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label" for="tipoSuscripcion">Tipo de Suscripción</label>
                             <select class="form-select" name="tipoSuscripcion" id="tipoSuscripcion" required>
@@ -236,7 +238,24 @@
                                 <?php } ?>
                             </select>
                         </div>
-
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-1">
+                            <input type="checkbox" class="form-check-input" name="pagoServidor" id="pagoServidor">
+                            <label class="form-label" for="pagoServidor">Pago de Servidor</label>
+                        </div>
+                    </div>
+                    <div class="row" id="datosServidor">
+                        <div class="col-md-4 mb-3">
+                            <label for="fechaPagoServidor" class="form-label">Fecha de Pago</label>
+                            <input type="month" class="form-control" name="fechaPagoServidor" id="fechaPagoServidor">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="montoPago" class="form-label">Monto de Pago</label>
+                            <input type="number" step="0.01" class="form-control" name="montoPago" id="montoPago">
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-12 mb-3">
                             <label class="form-label" for="numeroNotificacion">Número de Notificación Whatsapp</label>
                             <select class="form-control" name="numeroNotificacion" id="numeroNotificacion" required>
@@ -246,9 +265,11 @@
                                 <?php } ?>
                             </select>
                         </div>
+                    </div>
 
-                        <h5>Boletas</h5>
-                        <hr>
+                    <h5>Boletas</h5>
+                    <hr>
+                    <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="clientesVarios">Clientes varios</label>
                             <input type="text" class="form-control" name="clientesVarios" id="clientesVarios" value="00000001" required>

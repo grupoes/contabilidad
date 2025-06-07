@@ -87,12 +87,12 @@
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="pdt">Subir Pdt</label>
-                            <input type="file" class="form-control" name="pdt" id="pdt">
+                            <input type="file" class="form-control" name="pdt" id="pdt" accept="application/pdf" required>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="constancia">Subir Constancia</label>
-                            <input type="file" class="form-control" name="constancia" id="constancia">
+                            <input type="file" class="form-control" name="constancia" id="constancia" accept="application/pdf" required>
                         </div>
 
                         <div class="col-md-6 mb-3">

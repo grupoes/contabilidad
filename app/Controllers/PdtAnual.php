@@ -8,6 +8,7 @@ use App\Models\PdtAnualModel;
 use App\Models\ArchivosPdtAnualModel;
 use App\Models\TributoModel;
 use App\Models\ContribuyenteModel;
+use App\Models\PdtModel;
 
 class PdtAnual extends BaseController
 {
@@ -104,11 +105,13 @@ class PdtAnual extends BaseController
     public function guardar()
     {
         $pdtAnual = new PdtAnualModel();
+        $archivosPdtAnual = new ArchivosPdtAnualModel();
+        $pdt = new PdtModel();
+        $anio = new AnioModel();
 
-        $anio = $this->request->getVar('anio');
+        $anio_post = $this->request->getVar('anio');
         $typePdt = $this->request->getVar('typePdt');
-        $pdt = $this->request->getVar('pdt');
-        $constancia = $this->request->getVar('constancia');
+
         $cargo = $this->request->getVar('cargo');
         $monto = $this->request->getVar('monto');
         $descripcion = $this->request->getVar('descripcion');
@@ -125,6 +128,67 @@ class PdtAnual extends BaseController
             return $this->response->setJSON($data);
         }
 
-        return $this->response->setJSON($cargo);
+        $isCargo = 0;
+
+        if (isset($cargo)) {
+            $isCargo = 1;
+        }
+
+        $data_pdt_anual = [
+            "ruc_empresa" => $ruc,
+            "periodo" => $anio,
+            "id_pdt_tipo" => $typePdt,
+            "cargo" => $isCargo,
+            "user_add" => session()->id_usuario,
+            "estado" => 1
+        ];
+
+        $pdtAnual->insert($data_pdt_anual);
+
+        $id = $pdtAnual->getInsertID();
+
+        $pdt_file = $this->request->getFile('pdt');
+        $constancia = $this->request->getFile('constancia');
+
+        if (!$pdt_file) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de pdt']);
+        }
+
+        if (!$constancia) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de constancia']);
+        }
+
+        if (!$pdt_file->isValid() || !$constancia->isValid()) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
+        }
+
+        if ($pdt_file->getClientMimeType() !== 'application/pdf' || $constancia->getClientMimeType() !== 'application/pdf') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos PDF']);
+        }
+
+        $dataPdt = $pdt->select("pdt_descripcion")->find($typePdt);
+        $nombre_pdt = $dataPdt['pdt_descripcion'];
+
+        $dataAnio = $anio->select("anio_descripcion")->find($anio_post);
+        $anio_descripcion = $dataAnio['anio_descripcion'];
+
+        $data_archivos_pdt_anual = [
+            "id_pdt_anual" => $id,
+            "pdt" => $pdt,
+            "constancia" => $constancia,
+            "monto" => $monto,
+            "descripcion" => $descripcion,
+            "user_add" => session()->id_usuario,
+            "estado" => 1
+        ];
+
+        $archivosPdtAnual->insert($data_archivos_pdt_anual);
+
+        $data = [
+            "status" => "success",
+            "message" => "Registro guardado correctamente"
+        ];
+
+        return $this->response->setJSON($data);
     }
 }
