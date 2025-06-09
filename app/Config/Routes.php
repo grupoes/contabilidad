@@ -125,6 +125,7 @@ $routes->get('declaraciones/pdt-plame', 'PdtPlame::index');
 $routes->post('contribuyentes/file-save-pdtplame', 'PdtPlame::filesSave');
 $routes->post('consulta-pdt-plame', 'PdtPlame::consulta');
 $routes->get('consulta-pdt-plame/r08/(:num)', 'PdtPlame::consultaR08/$1');
+$routes->get('descargarR08All/(:num)', 'PdtPlame::descargarR08All/$1');
 
 $routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
 $routes->get('pdtAnual/verificar/(:num)', 'PdtAnual::verificar/$1');

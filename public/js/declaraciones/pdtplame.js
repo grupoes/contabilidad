@@ -20,6 +20,8 @@ const loadFiles = document.getElementById("contentPdt");
 const anioDescarga = document.getElementById("anioDescarga");
 const periodoDescarga = document.getElementById("periodoDescarga");
 
+const r08view = document.getElementById("r08view");
+
 renderContribuyentes();
 
 function renderContribuyentes() {
@@ -92,6 +94,7 @@ function descargarArchivos(ruc, id) {
   periodoDescarga.value = "";
 
   loadFiles.innerHTML = "";
+  r08view.innerHTML = "";
 
   const titleModalDescargar = document.getElementById("titleModalDescargar");
 
@@ -208,21 +211,29 @@ function viewR08(id) {
 }
 
 function viewR08_archivo(data) {
-  const r08view = document.getElementById("r08view");
+  let tr = "";
+
+  data.forEach((item) => {
+    tr += `
+        <tr>
+            <td><a href="${base_url}archivos/pdt/${item.nameFile}" target="__blank">${item.nameFile}</a></>
+        </tr>
+        `;
+  });
 
   let html = `
     <h4 class="d-flex justify-content-between align-items-center">
         R08
-        <a href="ruta/al/archivo" download title="Descargar">
-            <i class="bi bi-download"></i>
+        <a href="${base_url}descargarR08All/${data[0].plameId}" download title="Descargar Todo">
+            <i class="fas fa-cloud-download-alt"></i>
         </a>
     </h4>
     <table class="table">
         <tbody>
-            <tr>
-                <td>jbjfdfsdfsdfsdfsdfs.pdf</td>
-            </tr>
+            ${tr}
         </tbody>
     </table>
     `;
+
+  r08view.innerHTML = html;
 }

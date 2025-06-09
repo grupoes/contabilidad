@@ -175,4 +175,28 @@ class PdtPlame extends BaseController
 
         return $this->response->setJSON($consulta);
     }
+
+    public function descargarR08All($id)
+    {
+        $r08 = new R08PlameModel();
+
+        $consulta = $r08->where('plameId', $id)->where('status', 1)->findAll();
+
+        $zip = new \ZipArchive();
+        $zipName = 'r08_' . $id . '.zip';
+
+        $zipPath = FCPATH . 'archivos/pdt/' . $zipName;
+
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            return $this->response->setJSON(['error' => 'No se pudo crear el archivo ZIP']);
+        }
+
+        foreach ($consulta as $key => $value) {
+            $zip->addFile(FCPATH . 'archivos/pdt/' . $value['nameFile'], $value['nameFile']);
+        }
+
+        $zip->close();
+
+        return $this->response->download($zipName, null);
+    }
 }
