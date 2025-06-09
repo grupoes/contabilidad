@@ -47,28 +47,15 @@ class PdtPlame extends BaseController
             $file_r12 = $this->request->getFile('file_r12');
             $file_constancia = $this->request->getFile('file_constancia');
 
-            if (!$file_r01) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo r01']);
-            }
-
-            if (!$file_r12) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo r12']);
-            }
+            $name_r01 = "";
+            $name_r12 = "";
 
             if (!$file_constancia) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de constancia']);
             }
 
-            if (!$file_r01->isValid() || !$file_r12->isValid() || !$file_constancia->isValid()) {
+            if (!$file_constancia->isValid()) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
-            }
-
-            if ($file_r01->getClientMimeType() !== 'application/pdf' && $file_r01->getClientMimeType() !== 'application/vnd.ms-excel' && $file_r01->getClientMimeType() !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos PDF o Excel en R01']);
-            }
-
-            if ($file_r12->getClientMimeType() !== 'application/pdf' && $file_r12->getClientMimeType() !== 'application/vnd.ms-excel' && $file_r12->getClientMimeType() !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos PDF o Excel en R12']);
             }
 
             if ($file_constancia->getClientMimeType() !== 'application/pdf' && $file_constancia->getClientMimeType() !== 'application/msword' && $file_constancia->getClientMimeType() !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
@@ -85,12 +72,18 @@ class PdtPlame extends BaseController
                 return $this->response->setJSON(['error' => 'success', 'message' => "El periodo y año ya existe."]);
             }
 
-            $name_r01 = $file_r01->getName();
-            $name_r12 = $file_r12->getName();
+            if ($file_r01 && $file_r01->isValid()) {
+                $name_r01 = $file_r01->getName();
+                $file_r01->move(FCPATH . 'archivos/pdt', $name_r01);
+            }
+
+            if ($file_r12 && $file_r12->isValid()) {
+                $name_r12 = $file_r12->getName();
+                $file_r12->move(FCPATH . 'archivos/pdt', $name_r12);
+            }
+
             $name_constancia = $file_constancia->getName();
 
-            $file_r01->move(FCPATH . 'archivos/pdt', $name_r01);
-            $file_r12->move(FCPATH . 'archivos/pdt', $name_r12);
             $file_constancia->move(FCPATH . 'archivos/pdt', $name_constancia);
 
             $datos_pdt = array(
@@ -118,19 +111,21 @@ class PdtPlame extends BaseController
 
             $file_r08 = $this->request->getFileMultiple('file_r08');
 
-            for ($i = 0; $i < count($file_r08); $i++) {
-                $name = $file_r08[$i]->getName();
+            if ($file_r08) {
+                for ($i = 0; $i < count($file_r08); $i++) {
+                    $name = $file_r08[$i]->getName();
 
-                $file_r08[$i]->move(FCPATH . 'archivos/pdt', $name);
+                    $file_r08[$i]->move(FCPATH . 'archivos/pdt', $name);
 
-                $data_r08 = array(
-                    "plameId" => $pdtPlameId,
-                    "nameFile" => $name,
-                    "status" => 1,
-                    "user_id" => session()->id
-                );
+                    $data_r08 = array(
+                        "plameId" => $pdtPlameId,
+                        "nameFile" => $name,
+                        "status" => 1,
+                        "user_id" => session()->id
+                    );
 
-                $r08->insert($data_r08);
+                    $r08->insert($data_r08);
+                }
             }
 
             $pdtPlame->db->transComplete();
@@ -141,7 +136,6 @@ class PdtPlame extends BaseController
 
             return $this->response->setJSON(['status' => 'success', 'message' => "Se guardo correctamente"]);
         } catch (\Exception $e) {
-            log_message('error', 'Error en la transacción: ' . $e->getMessage());
             $pdtPlame->db->transRollback();
 
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
