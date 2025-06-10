@@ -179,7 +179,9 @@ function renderArchivos(periodo, anio, ruc) {
   })
     .then((res) => res.json())
     .then((data) => {
-      viewArchivos(data);
+      if (data != null) {
+        viewArchivos(data);
+      }
     });
 }
 
