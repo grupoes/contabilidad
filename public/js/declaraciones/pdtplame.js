@@ -181,6 +181,8 @@ function renderArchivos(periodo, anio, ruc) {
     .then((data) => {
       if (data != null) {
         viewArchivos(data);
+      } else {
+        loadFiles.innerHTML = "";
       }
     });
 }
@@ -188,13 +190,36 @@ function renderArchivos(periodo, anio, ruc) {
 function viewArchivos(data) {
   let html = "";
 
+  let r01 = "";
+  let r12 = "";
+  let constancia = "";
+  let r08 = "";
+
+  if (data.archivo_planilla != "") {
+    r01 = `<a href='${base_url}archivos/pdt/${data.archivo_planilla}' class='btn btn-success btn-sm' target='_blank' title='Descargar Renta'>R01</a>`;
+  }
+
+  if (data.archivo_honorarios != "") {
+    r12 = `<a href='${base_url}archivos/pdt/${data.archivo_honorarios}' target='_blank' class='btn btn-info btn-sm' title='Descargar constancia'>R12</a>`;
+  }
+
+  if (data.archivo_constancia != "") {
+    constancia = `<a href='${base_url}archivos/pdt/${data.archivo_constancia}' target='_blank' class='btn btn-warning btn-sm' title='Descargar constancia'>CONST</a>`;
+  }
+
+  if (data.r08 == "1") {
+    r08 = `<button type="button" class='btn btn-primary btn-sm' onclick="viewR08(${data.id_pdtplame})" data-id="${data.id_pdtplame}" title='Descargar R08'>R08</button>`;
+  }
+
   html += `
         <tr>
             <td>${data.mes_descripcion}</td>
             <td>${data.anio_descripcion}</td>
-            <td><a href='${base_url}archivos/pdt/${data.archivo_planilla}' class='btn btn-success btn-sm' target='_blank' title='Descargar Renta'>R01</a> <a href='${base_url}archivos/pdt/${data.archivo_honorarios}' target='_blank' class='btn btn-info btn-sm' title='Descargar constancia'>R12</a>
-                <a href='${base_url}archivos/pdt/${data.archivo_constancia}' target='_blank' class='btn btn-warning btn-sm' title='Descargar constancia'>CONST</a>
-                <button type="button" class='btn btn-primary btn-sm' onclick="viewR08(${data.id_pdtplame})" data-id="${data.id_pdtplame}" title='Descargar txt'>R08</button>
+            <td>
+              ${r01}
+              ${r12}
+              ${constancia}
+              ${r08}
             </td>
             <td> <button type='button' class='btn btn-danger' title='Rectificar Archivos' onclick='rectificar(${data.id_pdtplame},${data.id_archivos_pdtplame},${data.periodo},${data.anio})'>RECT</button>
                 <button type='button' class='btn btn-warning' title='Detalle' onclick='details_archivos(${data.id_pdtplame})'>DET</button></td>

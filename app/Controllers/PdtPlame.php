@@ -120,8 +120,18 @@ class PdtPlame extends BaseController
 
             $file_r08 = $this->request->getFileMultiple('file_r08');
 
-            if ($file_r08) {
-                for ($i = 0; $i < count($file_r08); $i++) {
+            if (empty($file_r08) || (count($file_r08) === 1 && empty($file_r08[0]->getName()))) {
+                $pdtPlame->db->transComplete();
+
+                if ($pdtPlame->db->transStatus() === false) {
+                    throw new \Exception("Error al realizar la operación.");
+                }
+
+                return $this->response->setJSON(['status' => 'success', 'message' => "Se guardo correctamente"]);
+            }
+
+            for ($i = 0; $i < count($file_r08); $i++) {
+                if ($file_r08[$i]->isValid() && !$file_r08[$i]->hasMoved()) {
                     $name_original = $file_r08[$i]->getName();
                     $extension_r08 = $file_r08[$i]->getExtension();
                     $name = $ruc . '_' . $anio . '_' . $periodo . '_' . $name_original . '.' . $extension_r08;
@@ -136,6 +146,8 @@ class PdtPlame extends BaseController
                     );
 
                     $r08->insert($data_r08);
+                } else {
+                    return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
                 }
             }
 
@@ -162,12 +174,26 @@ class PdtPlame extends BaseController
         $ruc = $this->request->getVar('ruc');
 
         $consulta = $pdtPlame->query("SELECT
-        pdt_plame.periodo,pdt_plame.anio,archivos_pdtplame.id_archivos_pdtplame,archivos_pdtplame.archivo_planilla,archivos_pdtplame.archivo_honorarios,archivos_pdtplame.archivo_constancia,archivos_pdtplame.estado,archivos_pdtplame.id_pdtplame,anio.anio_descripcion,mes.mes_descripcion
+        pdt_plame.periodo,pdt_plame.anio,archivos_pdtplame.id_archivos_pdtplame,archivos_pdtplame.archivo_planilla,archivos_pdtplame.archivo_honorarios,archivos_pdtplame.archivo_constancia,archivos_pdtplame.estado,archivos_pdtplame.id_pdtplame,anio.anio_descripcion,mes.mes_descripcion, pdt_plame.id_pdt_plame
         FROM pdt_plame
         INNER JOIN archivos_pdtplame ON archivos_pdtplame.id_pdtplame = pdt_plame.id_pdt_plame
         INNER JOIN anio ON pdt_plame.anio = anio.id_anio
         INNER JOIN mes ON mes.id_mes = pdt_plame.periodo
         WHERE pdt_plame.ruc_empresa = $ruc AND pdt_plame.anio = $anio AND pdt_plame.periodo = $periodo AND archivos_pdtplame.estado = 1")->getRow();
+
+        if ($consulta) {
+            $idpdt = $consulta->id_pdt_plame;
+
+            $r08 = new R08PlameModel();
+
+            $consultaR08 = $r08->where('plameId', $idpdt)->where('status', 1)->findAll();
+
+            if ($consultaR08) {
+                $consulta->r08 = "1";
+            } else {
+                $consulta->r08 = "0";
+            }
+        }
 
         return $this->response->setJSON($consulta);
     }
