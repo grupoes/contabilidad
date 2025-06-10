@@ -72,17 +72,26 @@ class PdtPlame extends BaseController
                 return $this->response->setJSON(['error' => 'success', 'message' => "El periodo y año ya existe."]);
             }
 
+            //20329049982_201910_r01.pdf
+
             if ($file_r01 && $file_r01->isValid()) {
-                $name_r01 = $file_r01->getName();
+                //$name_r01 = $file_r01->getName();
+                $extension_r01 = $file_r01->getExtension();
+
+                $name_r01 = $ruc . '_' . $anio . '_' . $periodo . '_r01.' . $extension_r01;
                 $file_r01->move(FCPATH . 'archivos/pdt', $name_r01);
             }
 
             if ($file_r12 && $file_r12->isValid()) {
-                $name_r12 = $file_r12->getName();
+                //$name_r12 = $file_r12->getName();
+                $extension_r12 = $file_r12->getExtension();
+                $name_r12 = $ruc . '_' . $anio . '_' . $periodo . '_r12.' . $extension_r12;
                 $file_r12->move(FCPATH . 'archivos/pdt', $name_r12);
             }
 
-            $name_constancia = $file_constancia->getName();
+            //$name_constancia = $file_constancia->getName();
+            $extension_constancia = $file_constancia->getExtension();
+            $name_constancia = $ruc . '_' . $anio . '_' . $periodo . '_constancia.' . $extension_constancia;
 
             $file_constancia->move(FCPATH . 'archivos/pdt', $name_constancia);
 
@@ -113,7 +122,9 @@ class PdtPlame extends BaseController
 
             if ($file_r08) {
                 for ($i = 0; $i < count($file_r08); $i++) {
-                    $name = $file_r08[$i]->getName();
+                    $name_original = $file_r08[$i]->getName();
+                    $extension_r08 = $file_r08[$i]->getExtension();
+                    $name = $ruc . '_' . $anio . '_' . $periodo . '_' . $name_original . '.' . $extension_r08;
 
                     $file_r08[$i]->move(FCPATH . 'archivos/pdt', $name);
 
