@@ -7,6 +7,7 @@ use App\Models\SedeCajaModel;
 use App\Models\MovimientoModel;
 use App\Models\SedeModel;
 use App\Models\BancosModel;
+use App\Models\CajaInicialModel;
 
 class Caja extends BaseController
 {
@@ -19,6 +20,8 @@ class Caja extends BaseController
         $menu = $this->permisos_menu();
 
         $sesionCaja = new SesionCajaModel();
+        $sede = new SedeModel();
+        $cajaInicial = new CajaInicialModel();
 
         if (session()->perfil_id == 3) {
 
@@ -32,7 +35,6 @@ class Caja extends BaseController
                 $estadoCaja = $getDataSesionCaja['ses_estado'] == 1 ? 'cerrar' : 'abrir';
             }
 
-
             return view('caja/cajero', compact('estadoCaja', 'menu'));
         }
 
@@ -40,14 +42,38 @@ class Caja extends BaseController
         $ingresosBancos = $this->ingresoVirtualBancos();
         $egresosBancos = $this->egresoVirtualBancos();
 
-        $ingresosFisicos = $this->ingresosFisicosDiaAll();
-        $egresosFisicos = $this->egresosFisicosDiaAll();
-
-        $utilidadFisica = floatval(str_replace(',', '', $ingresosFisicos)) - floatval(str_replace(',', '', $egresosFisicos));
-
         $utilidadVirtual = floatval(str_replace(',', '', $saldos['total'])) + floatval(str_replace(',', '', $ingresosBancos['total'])) - floatval(str_replace(',', '', $egresosBancos['total']));
 
-        return view('caja/index', compact('menu', 'saldos', 'ingresosBancos', 'egresosBancos', 'utilidadVirtual', 'ingresosFisicos', 'egresosFisicos', 'utilidadFisica'));
+        $sedes = $sede->where("estado", 1)->findAll();
+
+        foreach ($sedes as $key => $value) {
+            $sedeId = $value['id'];
+
+            $inicial = $cajaInicial->where('sede_id', $sedeId)->first();
+
+            if (!$inicial) {
+                $montoInicial = 0;
+            } else {
+                $montoInicial = $inicial['monto_inicial'];
+            }
+
+            $ingresosAnterior = $this->ingresosAnterior($sedeId);
+            $egresosAnterior = $this->egresosAnterior($sedeId);
+
+            $saldoAnterior = floatval(str_replace(',', '', $montoInicial)) + floatval(str_replace(',', '', $ingresosAnterior)) - floatval(str_replace(',', '', $egresosAnterior));
+
+            $ingresosFisicos = $this->ingresosFisicosDiaAll($sedeId);
+            $egresosFisicos = $this->egresosFisicosDiaAll($sedeId);
+
+            $utilidadFisica = floatval(str_replace(',', '', $saldoAnterior)) + floatval(str_replace(',', '', $ingresosFisicos)) - floatval(str_replace(',', '', $egresosFisicos));
+
+            $sedes[$key]['ingresosFisicos'] = $ingresosFisicos;
+            $sedes[$key]['egresosFisicos'] = $egresosFisicos;
+            $sedes[$key]['utilidadFisica'] = $utilidadFisica;
+            $sedes[$key]['saldoAnterior'] = $saldoAnterior;
+        }
+
+        return view('caja/index', compact('menu', 'saldos', 'ingresosBancos', 'egresosBancos', 'utilidadVirtual', 'ingresosFisicos', 'egresosFisicos', 'utilidadFisica', 'sedes'));
     }
 
     public function cierreCaja()
@@ -304,24 +330,50 @@ class Caja extends BaseController
         return $this->response->setJSON($dataSede);
     }
 
-    public function ingresosFisicosDiaAll()
+    public function ingresosAnterior($idsede)
     {
-        $dia = date('Y-m-d');
+        $hoy = new \DateTime();
+        $hoy->modify('-1 day');
+        $fecha = $hoy->format('Y-m-d');
 
         $movimiento = new MovimientoModel();
 
-        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND movimiento.id_metodo_pago = 1 AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado != 0")->getRow();
+        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha <= '$fecha' AND movimiento.id_metodo_pago = 1 AND sede_caja.id_sede = $idsede AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado = 1")->getRow();
 
         return $total->total;
     }
 
-    public function egresosFisicosDiaAll()
+    public function egresosAnterior($idsede)
+    {
+        $hoy = new \DateTime();
+        $hoy->modify('-1 day');
+        $fecha = $hoy->format('Y-m-d');
+
+        $movimiento = new MovimientoModel();
+
+        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha <= '$fecha' AND movimiento.id_metodo_pago = 1 AND sede_caja.id_sede = $idsede AND concepto.id_tipo_movimiento = 2 AND movimiento.mov_estado = 1")->getRow();
+
+        return $total->total;
+    }
+
+    public function ingresosFisicosDiaAll($idsede)
     {
         $dia = date('Y-m-d');
 
         $movimiento = new MovimientoModel();
 
-        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND movimiento.id_metodo_pago = 1 AND concepto.id_tipo_movimiento = 2 AND movimiento.mov_estado = 1")->getRow();
+        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND movimiento.id_metodo_pago = 1 AND sede_caja.id_sede = $idsede AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado != 0")->getRow();
+
+        return $total->total;
+    }
+
+    public function egresosFisicosDiaAll($idsede)
+    {
+        $dia = date('Y-m-d');
+
+        $movimiento = new MovimientoModel();
+
+        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND movimiento.id_metodo_pago = 1 AND sede_caja.id_sede = $idsede AND concepto.id_tipo_movimiento = 2 AND movimiento.mov_estado = 1")->getRow();
 
         return $total->total;
     }
@@ -350,7 +402,7 @@ class Caja extends BaseController
 
     public function resumenCajaDiaAll()
     {
-        $ingresosFisicos = $this->ingresosFisicosDiaAll();
+        /*$ingresosFisicos = $this->ingresosFisicosDiaAll();
         $egresosFisicos = $this->egresosFisicosDiaAll();
         $ingresosVirtual = $this->ingresosVirtualDiaAll();
         $egresosVirtual = $this->egresosVirtualDiaAll();
@@ -369,7 +421,7 @@ class Caja extends BaseController
             "egresosVirtual" => $egresosVirtual,
             "utilidadVirtual" => $utilidadVirtual,
             "utilidadHoy" => $utilidad_hoy
-        ]);
+        ]);*/
     }
 
     public function listaVirtualPendientes()

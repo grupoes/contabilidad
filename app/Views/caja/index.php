@@ -4,50 +4,53 @@
 
 <div class="pc-content">
     <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-2">Caja Grupo ESconsultores - TARAPOTO</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-4">
-                        <span style="font-size: 18px">Estado de la caja física Grupo ESconsultores</span>
+        <?php foreach ($sedes as $key => $value) { ?>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-2">Caja Grupo ESconsultores - <?= $value['nombre_sede'] ?></h5>
                     </div>
-                    <div class="row g-4">
-                        <div class="col-md-12">
-                            <ul class="list-group">
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <div class="ms-2 me-auto">
-                                        <div>Saldo Inicial Caja Fisica</div>
-                                    </div>
-                                    <span class="badge bg-primary rounded-pill">S/ 0.00</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <div class="ms-2 me-auto">
-                                        <div>Ingresos Caja Fisica</div>
-                                    </div>
-                                    <span class="badge bg-primary rounded-pill">S/ <?= $ingresosFisicos ?></span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <div class="ms-2 me-auto">
-                                        <div>Egresos Caja Fisica</div>
-                                    </div>
-                                    <span class="badge bg-danger rounded-pill">S/ <?= $egresosFisicos ?></span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <div class="ms-2 me-auto">
-                                        <div class="fw-bold">Utilidad Caja Fisica</div>
-                                    </div>
-                                    <span class="badge bg-success rounded-pill">S/ <?= number_format($utilidadFisica, 2) ?></span>
-                                </li>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <span style="font-size: 18px">Estado de la caja física Grupo ESconsultores</span>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-12">
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div>Saldo Inicial Caja Fisica</div>
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">S/ <?= number_format($value['saldoAnterior'], 2) ?></span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div>Ingresos Caja Fisica</div>
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">S/ <?= $value['ingresosFisicos'] ?></span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div>Egresos Caja Fisica</div>
+                                        </div>
+                                        <span class="badge bg-danger rounded-pill">S/ <?= $value['egresosFisicos'] ?></span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">Utilidad Caja Fisica</div>
+                                        </div>
+                                        <span class="badge bg-success rounded-pill">S/ <?= number_format($value['utilidadFisica'], 2) ?></span>
+                                    </li>
 
-                            </ul>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
 
+                </div>
             </div>
-        </div>
+
+        <?php } ?>
     </div>
 
     <div class="row" id="detalleCajaDiaAll">
