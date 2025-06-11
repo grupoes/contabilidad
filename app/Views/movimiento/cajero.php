@@ -39,6 +39,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch gap-2 p-2 pb-sm-2">
+
                         <!-- Contenedor para los botones -->
                         <div class="d-flex flex-wrap align-items-center gap-2">
                             <button type="button" id="btnNuevoEgreso" class="btn btn-danger d-inline-flex align-items-center gap-2">

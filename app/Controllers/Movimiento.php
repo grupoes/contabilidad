@@ -125,6 +125,12 @@ class Movimiento extends BaseController
             $endDateFormatted = DateTime::createFromFormat('d-m-Y', $dateRange)->format('Y-m-d');
         }
 
+        if (session()->perfil_id == 1 || session()->perfil_id == 2) {
+            $sql = "";
+        } else {
+            $sql = "and m.userRegister = " . session()->id;
+        }
+
         $mov = new MovimientoModel();
 
         $movimientos = $mov->query("SELECT m.mov_id,m.mov_monto, m.vaucher, m.mov_descripcion, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.metodo, c.caja_descripcion, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion, tm.id_tipo_movimiento FROM movimiento m 
@@ -134,7 +140,7 @@ class Movimiento extends BaseController
         inner join metodos_pagos mp on mp.id = m.id_metodo_pago
         inner join concepto c2 on c2.con_id = m.mov_concepto
         inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
-        where m.mov_estado != 0 and m.mov_fecha between '$startDateFormatted' and '$endDateFormatted' order by m.mov_id desc")->getResult();
+        where m.mov_estado != 0 $sql and m.mov_fecha between '$startDateFormatted' and '$endDateFormatted' order by m.mov_id desc")->getResult();
 
         return $this->response->setJSON($movimientos);
     }
