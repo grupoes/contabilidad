@@ -122,7 +122,7 @@ class Pago extends BaseController
 
             if (isset($_POST['generarMovimiento'])) {
 
-                $dataSede = $this->Aperturar();
+                $dataSede = $this->Aperturar($metodoPago);
 
                 if ($metodoPago == 1) {
                     $sesionId = $dataSede['idSesionFisica'];

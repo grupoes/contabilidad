@@ -3,16 +3,15 @@
 <?= $this->section('content') ?>
 
 <div class="pc-content">
-
-    <div class="row" id="detalleCajaDiaAll">
-        <div class="col-md-8 mx-auto">
+    <div class="row">
+        <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-2">Caja Grupo ESconsultores</h5>
+                    <h5 class="mb-2">Caja Grupo ESconsultores - TARAPOTO</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
-                        <span style="font-size: 18px">Estado de la caja Grupo ESconsultores</span>
+                        <span style="font-size: 18px">Estado de la caja física Grupo ESconsultores</span>
                     </div>
                     <div class="row g-4">
                         <div class="col-md-12">
@@ -44,6 +43,24 @@
 
                             </ul>
                         </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="detalleCajaDiaAll">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-2">Caja Grupo ESconsultores - Bancos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <span style="font-size: 18px">Estado de la caja Grupo ESconsultores</span>
+                    </div>
+                    <div class="row g-4">
 
                         <div class="col-md-12">
                             <ul class="list-group">

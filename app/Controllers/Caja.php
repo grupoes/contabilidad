@@ -310,7 +310,7 @@ class Caja extends BaseController
 
         $movimiento = new MovimientoModel();
 
-        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND id_metodo_pago = 1 AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado != 0")->getRow();
+        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND movimiento.id_metodo_pago = 1 AND concepto.id_tipo_movimiento = 1 AND movimiento.mov_estado != 0")->getRow();
 
         return $total->total;
     }
@@ -321,7 +321,7 @@ class Caja extends BaseController
 
         $movimiento = new MovimientoModel();
 
-        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND id_metodo_pago = 1 AND concepto.id_tipo_movimiento = 2 AND movimiento.mov_estado = 1")->getRow();
+        $total = $movimiento->query("SELECT IFNULL(SUM(movimiento.mov_monto), 0) as total FROM sede_caja INNER JOIN sesion_caja ON sede_caja.id_sede_caja = sesion_caja.id_sede_caja INNER JOIN movimiento ON sesion_caja.id_sesion_caja = movimiento.id_sesion_caja INNER JOIN concepto ON movimiento.mov_concepto = concepto.con_id WHERE movimiento.mov_fecha = '$dia' AND movimiento.id_metodo_pago = 1 AND concepto.id_tipo_movimiento = 2 AND movimiento.mov_estado = 1")->getRow();
 
         return $total->total;
     }

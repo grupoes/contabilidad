@@ -52,7 +52,7 @@ class Movimiento extends BaseController
             $serie = $this->request->getVar('serie');
             $numero = $this->request->getVar('correlativo');
 
-            $dataSede = $this->Aperturar();
+            $dataSede = $this->Aperturar($metodoPago);
 
             $tipo_descripcion = $serie . "-" . $numero;
 
@@ -124,7 +124,6 @@ class Movimiento extends BaseController
             $startDateFormatted = DateTime::createFromFormat('d-m-Y', $dateRange)->format('Y-m-d');
             $endDateFormatted = DateTime::createFromFormat('d-m-Y', $dateRange)->format('Y-m-d');
         }
-
 
         $mov = new MovimientoModel();
 
