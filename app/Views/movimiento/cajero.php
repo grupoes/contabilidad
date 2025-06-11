@@ -77,6 +77,9 @@
                                     <th>Monto</th>
                                     <th>Descripción</th>
                                     <th>Fecha</th>
+                                    <?php if (session()->perfil_id == 1 || session()->perfil_id == 2) { ?>
+                                        <th>Usuario</th>
+                                    <?php } ?>
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>

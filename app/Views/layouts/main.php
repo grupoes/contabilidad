@@ -72,6 +72,7 @@
     <!-- [ Pre-loader ] End --><!-- [ Sidebar Menu ] start -->
 
     <input type="hidden" id="base_url" value="<?= base_url() ?>">
+    <input type="hidden" id="perfilId" value="<?= session()->perfil_id ?>">
     <nav class="pc-sidebar">
         <div class="navbar-wrapper">
             <div class="m-header" style="margin-bottom: 15px;">

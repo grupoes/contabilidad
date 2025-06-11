@@ -96,7 +96,8 @@ class Movimiento extends BaseController
                 "tipo_comprobante_descripcion" => $tipo_descripcion,
                 "mov_cobro" => "",
                 "vaucher" => $nameFile,
-                "userRegister" => session()->id
+                "userRegister" => session()->id,
+                "nombreUser" => session()->nombre . ' ' . session()->apellidos,
             );
 
             $mov->insert($datos);
@@ -133,13 +134,14 @@ class Movimiento extends BaseController
 
         $mov = new MovimientoModel();
 
-        $movimientos = $mov->query("SELECT m.mov_id,m.mov_monto, m.vaucher, m.mov_descripcion, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.metodo, c.caja_descripcion, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion, tm.id_tipo_movimiento FROM movimiento m 
+        $movimientos = $mov->query("SELECT m.mov_id,m.mov_monto, m.vaucher, m.mov_descripcion, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.metodo, c.caja_descripcion, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion, tm.id_tipo_movimiento, u.nombres, u.perfil_id FROM movimiento m 
         inner join sesion_caja sc on sc.id_sesion_caja = m.id_sesion_caja
         inner join sede_caja sc2 on sc2.id_sede_caja = sc.id_sede_caja
         inner join caja c on c.id_caja = sc2.id_caja
         inner join metodos_pagos mp on mp.id = m.id_metodo_pago
         inner join concepto c2 on c2.con_id = m.mov_concepto
         inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
+        inner join usuario u on u.id = m.userRegister
         where m.mov_estado != 0 $sql and m.mov_fecha between '$startDateFormatted' and '$endDateFormatted' order by m.mov_id desc")->getResult();
 
         return $this->response->setJSON($movimientos);

@@ -1,3 +1,5 @@
+const perfilId = document.getElementById("perfilId").value;
+
 const newcs = $($table).DataTable(optionsTableDefault);
 
 new $.fn.dataTable.Responsive(newcs);
@@ -196,6 +198,14 @@ function tableMovimientos(data) {
       }
     }
 
+    let tdUser = "";
+
+    if (perfilId == 1 || perfilId == 2) {
+      tdUser = `
+      <td>${mov.nombres}</td>
+      `;
+    }
+
     html += `
         <tr>
             <td>${total - i}</td>
@@ -206,6 +216,7 @@ function tableMovimientos(data) {
             <td>${mov.mov_monto}</td>
             <td>${mov.mov_descripcion}</td>
             <td>${mov.fecha}</td>
+            ${tdUser}
             <td>${botonExtornar}</td>
         </tr>
         `;
