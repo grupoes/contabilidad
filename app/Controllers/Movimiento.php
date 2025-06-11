@@ -96,6 +96,7 @@ class Movimiento extends BaseController
                 "tipo_comprobante_descripcion" => $tipo_descripcion,
                 "mov_cobro" => "",
                 "vaucher" => $nameFile,
+                "userRegister" => session()->id
             );
 
             $mov->insert($datos);
