@@ -9,6 +9,7 @@ flatpickr(document.querySelector("#rango-fecha-movimientos"), {
   dateFormat: "d-m-Y",
   defaultDate: getDefaultDate(),
   allowInput: true,
+  locale: "es",
   onClose: function (selectedDates, dateStr, instance) {
     const selectedDate = instance.selectedDates[0];
     console.log("Fecha seleccionada:", selectedDate);

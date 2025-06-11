@@ -115,8 +115,8 @@ class Movimiento extends BaseController
 
     public function showCajero($dateRange)
     {
-        if (strpos($dateRange, ' to ') !== false) {
-            list($startDate, $endDate) = explode(' to ', $dateRange);
+        if (strpos($dateRange, ' a ') !== false) {
+            list($startDate, $endDate) = explode(' a ', $dateRange);
 
             $startDateFormatted = DateTime::createFromFormat('d-m-Y', $startDate)->format('Y-m-d');
             $endDateFormatted = DateTime::createFromFormat('d-m-Y', $endDate)->format('Y-m-d');
