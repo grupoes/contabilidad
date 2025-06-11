@@ -399,8 +399,11 @@ class Caja extends BaseController
         foreach ($bancos as $key => $value) {
             $id = $value['id'];
 
-            $data = $mov->query("SELECT IFNULL(SUM(m.mov_monto), 0) as total FROM movimiento as m INNER JOIN metodos_pagos as mp ON mp.id = m.id_metodo_pago WHERE mp.id_banco = $id AND m.mov_estado = 1 AND m.mov_fecha <= '$fecha' ")->getRow();
-            $saldo = number_format($data->total + $value['saldo_inicial'], 2);
+            $data_ingreso = $mov->query("SELECT IFNULL(SUM(m.mov_monto), 0) as total FROM movimiento as m INNER JOIN metodos_pagos as mp ON mp.id = m.id_metodo_pago INNER JOIN concepto as c ON c.con_id = m.mov_concepto WHERE mp.id_banco = $id AND m.mov_estado = 1 AND c.id_tipo_movimiento = 1 AND m.mov_fecha <= '$fecha' ")->getRow();
+
+            $data_egreso = $mov->query("SELECT IFNULL(SUM(m.mov_monto), 0) as total FROM movimiento as m INNER JOIN metodos_pagos as mp ON mp.id = m.id_metodo_pago INNER JOIN concepto as c ON c.con_id = m.mov_concepto WHERE mp.id_banco = $id AND m.mov_estado = 1 AND c.id_tipo_movimiento = 2 AND m.mov_fecha <= '$fecha' ")->getRow();
+
+            $saldo = number_format($data_ingreso->total + $value['saldo_inicial'] - $data_egreso->total, 2);
             $bancos[$key]['saldo'] = $saldo;
 
             $suma = floatval(str_replace(',', '', $suma)) + floatval(str_replace(',', '', $saldo));
