@@ -140,9 +140,11 @@ class Auth extends BaseController
         } else {
             $data = $model->getUserByEmail($correo);
 
-            if ($correo !== $data['correo']) {
-                if ($model->getUserByEmail($correo)) {
-                    return $this->response->setJSON(['status' => 'error', 'message' => 'El correo electrónico ya está registrado.']);
+            if ($data) {
+                if ($correo !== $data['correo']) {
+                    if ($model->getUserByEmail($correo)) {
+                        return $this->response->setJSON(['status' => 'error', 'message' => 'El correo electrónico ya está registrado.']);
+                    }
                 }
             }
         }
@@ -154,9 +156,11 @@ class Auth extends BaseController
         } else {
             $data = $model->getUserByUsername($username);
 
-            if ($username !== $data['username']) {
-                if ($model->getUserByUsername($username)) {
-                    return $this->response->setJSON(['status' => 'error', 'message' => 'El usuario ya está registrado.']);
+            if ($data) {
+                if ($username !== $data['username']) {
+                    if ($model->getUserByUsername($username)) {
+                        return $this->response->setJSON(['status' => 'error', 'message' => 'El usuario ya está registrado.']);
+                    }
                 }
             }
         }
