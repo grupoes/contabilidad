@@ -683,7 +683,7 @@ class Contribuyentes extends BaseController
             if (!$pagos) {
                 $debe = "No tiene pagos";
             } else {
-                /*if ($value->tipoPago == 'ADELANTADO') {
+                if ($value->tipoPago == 'ATRASADO') {
                     $maxPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado' ")->getRow();
 
                     $max = $pago->query("SELECT MAX(estado) as estado FROM pagos WHERE contribuyente_id = $id ")->getRow();
@@ -699,7 +699,7 @@ class Contribuyentes extends BaseController
                     $diferencia = $ultimoPago->diff($hoy);
 
                     // Obtiene cuántos meses han pasado (años * 12 + meses)
-                    $mesesDebe = ($diferencia->y * 12) + $diferencia->m;
+                    $mesesDebe = ($diferencia->y * 12) + $diferencia->m - 1;
 
                     if ($mesesDebe > 1) {
                         $debe = $mesesDebe . " meses";
@@ -708,44 +708,50 @@ class Contribuyentes extends BaseController
                     } else {
                         $debe = "No debe";
                     }
-                } else {*/
-                $ultimoPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado' ")->getRow();
+                } else {
+                    $ultimoPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado' ")->getRow();
 
-                if ($ultimoPago && !empty($ultimoPago->ultimoMes)) {
-                    // Convertimos a objeto DateTime
-                    $fechaUltimoPago = DateTime::createFromFormat('Y-m-d', $ultimoPago->ultimoMes);
-                    $fechaActual = new DateTime();
+                    $max = $pago->query("SELECT MAX(estado) as estado FROM pagos WHERE contribuyente_id = $id ")->getRow();
 
-                    if ($fechaUltimoPago) {
-                        // Normaliza ambos al primer día del mes
-                        $inicioUltimoMes = DateTime::createFromFormat('Y-m-d', $fechaUltimoPago->format('Y-m-01'));
-                        $inicioMesActual = DateTime::createFromFormat('Y-m-d', $fechaActual->format('Y-m-01'));
-
-                        if ($inicioUltimoMes && $inicioMesActual) {
-                            $diferencia = (($inicioMesActual->format('Y') - $inicioUltimoMes->format('Y')) * 12) +
-                                ($inicioMesActual->format('m') - $inicioUltimoMes->format('m'));
-
-                            if ($diferencia > 1) {
-                                $debe = $diferencia . " meses";
-                            } elseif ($diferencia == 1) {
-                                $debe = $diferencia . " mes";
-                            } else {
-                                $debe = "No debe";
-                            }
-                        } else {
-                            $debe = "Error al normalizar las fechas.";
-                        }
-                    } else {
-                        $debe = "Fecha inválida en último pago.";
+                    if ($max->estado === 'pendiente') {
+                        $amortizo = 1;
                     }
 
-                    //echo "Meses de deuda: " . $diferencia;
-                } else {
-                    // No tiene pagos registrados, asumes que debe desde el inicio o todos
-                    //echo "No tiene pagos registrados. Se asume que debe todos los meses.";
-                    $debe = "No debe";
+                    if ($ultimoPago && !empty($ultimoPago->ultimoMes)) {
+                        // Convertimos a objeto DateTime
+                        $fechaUltimoPago = DateTime::createFromFormat('Y-m-d', $ultimoPago->ultimoMes);
+                        $fechaActual = new DateTime();
+
+                        if ($fechaUltimoPago) {
+                            // Normaliza ambos al primer día del mes
+                            $inicioUltimoMes = DateTime::createFromFormat('Y-m-d', $fechaUltimoPago->format('Y-m-01'));
+                            $inicioMesActual = DateTime::createFromFormat('Y-m-d', $fechaActual->format('Y-m-01'));
+
+                            if ($inicioUltimoMes && $inicioMesActual) {
+                                $diferencia = (($inicioMesActual->format('Y') - $inicioUltimoMes->format('Y')) * 12) +
+                                    ($inicioMesActual->format('m') - $inicioUltimoMes->format('m'));
+
+                                if ($diferencia > 1) {
+                                    $debe = $diferencia . " meses";
+                                } elseif ($diferencia == 1) {
+                                    $debe = $diferencia . " mes";
+                                } else {
+                                    $debe = "No debe";
+                                }
+                            } else {
+                                $debe = "Error al normalizar las fechas.";
+                            }
+                        } else {
+                            $debe = "Fecha inválida en último pago.";
+                        }
+
+                        //echo "Meses de deuda: " . $diferencia;
+                    } else {
+                        // No tiene pagos registrados, asumes que debe desde el inicio o todos
+                        //echo "No tiene pagos registrados. Se asume que debe todos los meses.";
+                        $debe = "No debe";
+                    }
                 }
-                //}
             }
 
             $value->debe = $debe;
