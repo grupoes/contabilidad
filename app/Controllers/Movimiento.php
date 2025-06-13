@@ -222,7 +222,7 @@ class Movimiento extends BaseController
 
             $bancos = $banco->where('estado', 1)->orderBy('id', 'asc')->findAll();
 
-            $datos = $mov->query("SELECT m.mov_id,m.mov_monto, m.mov_descripcion, m.mov_concepto, m.mov_fecha_pago, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.id_banco, mp.metodo, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion, c2.id_tipo_movimiento FROM movimiento m
+            $datos = $mov->query("SELECT m.mov_id,m.mov_monto, m.mov_descripcion, m.mov_concepto, DATE_FORMAT(m.mov_fecha_pago, '%d-%m-%Y') as mov_fecha_pago, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.id_banco, mp.metodo, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion, c2.id_tipo_movimiento FROM movimiento m
             inner join metodos_pagos mp on mp.id = m.id_metodo_pago
             inner join concepto c2 on c2.con_id = m.mov_concepto
             inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento

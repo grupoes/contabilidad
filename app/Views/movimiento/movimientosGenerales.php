@@ -7,6 +7,43 @@
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/buttons.bootstrap5.min.css" />
 
+<style>
+    /* En tu archivo CSS */
+    table#tableData th.columna-concepto,
+    table#tableData td.columna-concepto {
+        width: 200px !important;
+        min-width: 200px !important;
+        max-width: 200px !important;
+        white-space: normal;
+        /* Permite que el texto se divida en varias líneas */
+        word-wrap: break-word;
+        /* Divide palabras largas si es necesario */
+        overflow-wrap: break-word;
+    }
+
+    table#tableData th.columna-description,
+    table#tableData td.columna-description {
+        width: 200px !important;
+        min-width: 200px !important;
+        max-width: 200px !important;
+        white-space: normal;
+        /* Permite que el texto se divida en varias líneas */
+        word-wrap: break-word;
+        /* Divide palabras largas si es necesario */
+        overflow-wrap: break-word;
+    }
+
+    table#tableData th.columna-metodo,
+    table#tableData td.columna-metodo {
+        width: 200px !important;
+        min-width: 200px !important;
+        max-width: 200px !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>

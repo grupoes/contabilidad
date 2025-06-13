@@ -98,7 +98,52 @@ function viewMovimientos(data) {
         text: '<i class="fas fa-file-excel"></i> Excel',
         titleAttr: "Exportar a Excel",
         className: "btn btn-success",
+        customize: function (xlsx) {
+          var sheet = xlsx.xl.worksheets["sheet1.xml"];
+
+          // 1. Definir anchos de columna (ejemplo para 3 columnas)
+          const colWidths = [15, 15, 17, 20, 20]; // Ajusta los valores según necesites
+          $("col", sheet).each(function (index) {
+            $(this).attr("width", colWidths[index] || 15); // Default: 15
+          });
+
+          // 2. Crear un estilo personalizado (alineación izquierda + sin wrap)
+          var styleElement =
+            '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">' +
+            '<alignment horizontal="left" vertical="center" wrapText="0"/>' +
+            "</xf>";
+
+          // Agregar el estilo al XML
+          $("cellXfs", xlsx.xl["styles.xml"]).append(styleElement);
+          var newStyleIndex = $("cellXfs xf", xlsx.xl["styles.xml"]).length - 1;
+
+          // 3. Aplicar el estilo a todas las celdas
+          $("row", sheet).each(function (rowIndex) {
+            if (rowIndex > 0) {
+              // Saltar la primera fila (índice 0)
+              $("c", this).attr("s", newStyleIndex);
+            }
+          });
+        },
       },
     ],
+    columnDefs: [
+      {
+        targets: 3, // Índice de la columna "CONCEPTO" (empieza en 0)
+        width: "200px", // Ancho fijo
+        className: "columna-concepto", // Clase adicional
+      },
+      {
+        targets: 4,
+        width: "200px", // Ancho fijo
+        className: "columna-description",
+      },
+      {
+        targets: 5,
+        width: "200px", // Ancho fijo
+        className: "columna-metodo",
+      },
+    ],
+    //autoWidth: false, // ¡IMPORTANTE!
   });
 }
