@@ -26,14 +26,10 @@ function viewListContribuyentes(data) {
       monto = `GRATUITO`;
     } else {
       if (emp.tipoServicio === "ALQUILER") {
-        monto = `
-                    <p class="f-14 mb-0">M: ${emp.costoMensual}</p>
-                `;
+        monto = `<p class="f-14 mb-0">M: ${emp.costoMensual}</p>`;
       } else {
-        monto = `
-                    <p class="f-14 mb-0">M: ${emp.costoMensual}</p>
-                    <p class="f-14 mb-0">A: ${emp.costoAnual}</p>
-                `;
+        monto = `<p class="f-14 mb-0">M: ${emp.costoMensual}</p>
+        <p class="f-14 mb-0">A: ${emp.costoAnual}</p>`;
       }
     }
 
