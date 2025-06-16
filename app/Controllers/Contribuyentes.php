@@ -695,34 +695,28 @@ class Contribuyentes extends BaseController
                     if (!$maxPago->ultimoMes) {
                         $debe = "No hay registros de pago";
                     } else {
-                        $ultimoPeriodoPagado = new DateTime($maxPago->ultimoMes); // Período que está pagado (ej: Abril)
+                        $ultimoPago = new DateTime($maxPago->ultimoMes);
                         $hoy = new DateTime();
-                        $diaVencimiento = 3; // El día en que vence el pago
+                        $diaVencimiento = $value->diaCobro;
 
-                        // Calculamos desde el próximo período después del último pagado
-                        $proximoPeriodo = clone $ultimoPeriodoPagado;
-                        $proximoPeriodo->modify('+1 month first day of this month');
+                        // Calculamos desde el mes siguiente al último pago
+                        $mesInicio = clone $ultimoPago;
+                        $mesInicio->modify('+1 month first day of this month');
 
                         $mesesDebe = 0;
-                        $periodo = clone $proximoPeriodo;
+                        $mesActual = clone $mesInicio;
 
-                        // Iteramos período por período
-                        while ($periodo->format('Y-m') <= $hoy->format('Y-m')) {
-                            // El período X vence el día especificado del mes X+1
-                            $vencimiento = clone $periodo;
-                            $vencimiento->modify('+1 month');
-                            $vencimiento->setDate(
-                                $vencimiento->format('Y'),
-                                $vencimiento->format('m'),
-                                $diaVencimiento
-                            );
+                        // Contamos cuántos meses han vencido
+                        while ($mesActual->format('Y-m') <= $hoy->format('Y-m')) {
+                            // Crear fecha de vencimiento para este mes
+                            $vencimiento = new DateTime($mesActual->format('Y-m') . '-' . $diaVencimiento);
 
-                            // Si ya venció, cuenta como período debido
-                            if ($vencimiento <= $hoy) {
+                            // Si el vencimiento ya pasó, cuenta como mes debido
+                            if ($vencimiento < $hoy) {
                                 $mesesDebe++;
                             }
 
-                            $periodo->modify('+1 month');
+                            $mesActual->modify('+1 month');
                         }
 
                         if ($mesesDebe <= 0) {
