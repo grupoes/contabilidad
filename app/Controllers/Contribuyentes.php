@@ -684,29 +684,54 @@ class Contribuyentes extends BaseController
                 $debe = "No tiene pagos";
             } else {
                 if ($value->tipoPago == 'ATRASADO') {
-                    $maxPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado' ")->getRow();
+                    $maxPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado'")->getRow();
 
-                    $max = $pago->query("SELECT MAX(estado) as estado FROM pagos WHERE contribuyente_id = $id ")->getRow();
+                    $max = $pago->query("SELECT MAX(estado) as estado FROM pagos WHERE contribuyente_id = $id")->getRow();
 
                     if ($max->estado === 'pendiente') {
                         $amortizo = 1;
                     }
 
-                    $ultimoPago = new DateTime($maxPago->ultimoMes);
-                    $hoy = new DateTime(); // Toma la fecha actual
-
-                    // Calcula la diferencia
-                    $diferencia = $ultimoPago->diff($hoy);
-
-                    // Obtiene cuántos meses han pasado (años * 12 + meses)
-                    $mesesDebe = ($diferencia->y * 12) + $diferencia->m - 1;
-
-                    if ($mesesDebe > 1) {
-                        $debe = $mesesDebe . " meses";
-                    } elseif ($mesesDebe == 1) {
-                        $debe = $mesesDebe . " mes";
+                    if (!$maxPago->ultimoMes) {
+                        $debe = "No hay registros de pago";
                     } else {
-                        $debe = "No debe";
+                        $ultimoPeriodoPagado = new DateTime($maxPago->ultimoMes); // Período que está pagado (ej: Abril)
+                        $hoy = new DateTime();
+                        $diaVencimiento = 3; // El día en que vence el pago
+
+                        // Calculamos desde el próximo período después del último pagado
+                        $proximoPeriodo = clone $ultimoPeriodoPagado;
+                        $proximoPeriodo->modify('+1 month first day of this month');
+
+                        $mesesDebe = 0;
+                        $periodo = clone $proximoPeriodo;
+
+                        // Iteramos período por período
+                        while ($periodo->format('Y-m') <= $hoy->format('Y-m')) {
+                            // El período X vence el día especificado del mes X+1
+                            $vencimiento = clone $periodo;
+                            $vencimiento->modify('+1 month');
+                            $vencimiento->setDate(
+                                $vencimiento->format('Y'),
+                                $vencimiento->format('m'),
+                                $diaVencimiento
+                            );
+
+                            // Si ya venció, cuenta como período debido
+                            if ($vencimiento <= $hoy) {
+                                $mesesDebe++;
+                            }
+
+                            $periodo->modify('+1 month');
+                        }
+
+                        if ($mesesDebe <= 0) {
+                            $debe = "No debe";
+                        } elseif ($mesesDebe == 1) {
+                            $debe = "1 mes";
+                        } else {
+                            $debe = $mesesDebe . " meses";
+                        }
                     }
                 } else {
                     $ultimoPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado' ")->getRow();
