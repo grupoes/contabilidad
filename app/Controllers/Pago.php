@@ -10,6 +10,7 @@ use App\Models\PagosModel;
 use App\Models\PagosHonorariosModel;
 use App\Models\ContratosModel;
 use App\Models\MovimientoModel;
+use App\Models\DetallePagosModel;
 
 use DateTime;
 
@@ -96,6 +97,8 @@ class Pago extends BaseController
         $contrib = new ContribuyenteModel();
         $paHono = new PagosHonorariosModel();
 
+        $detallePagos = new DetallePagosModel();
+
         try {
             $pago->db->transBegin();
 
@@ -121,6 +124,8 @@ class Pago extends BaseController
             $dataContrib = $contrib->where('id', $idContribuyente)->first();
 
             $montoMensual = $dataContrib['costoMensual'];
+
+            $idPagoHonorario = 0;
 
             if (isset($_POST['generarMovimiento'])) {
 
@@ -149,6 +154,8 @@ class Pago extends BaseController
                 );
 
                 $paHono->insert($data_honorario);
+
+                $idPagoHonorario = $paHono->getInsertID();
             }
 
             if (isset($_POST['periodo'])) {
@@ -189,6 +196,14 @@ class Pago extends BaseController
 
                     $pago->update($lastUtimo->id, $datos);
 
+                    $datosPagos = array(
+                        "pago_id" => $lastUtimo->id,
+                        "honorario_id" => $idPagoHonorario,
+                        "monto" => $montoPendiente,
+                    );
+
+                    $detallePagos->insert($datosPagos);
+
                     $montoDisponible = $montoDisponible - $montoPendiente;
                 }
 
@@ -219,6 +234,14 @@ class Pago extends BaseController
                         $pago->insert($datos);
 
                         $montoDisponible = $montoDisponible - $montoMensual;
+
+                        $datosPagos = array(
+                            "pago_id" => $pago->getInsertID(),
+                            "honorario_id" => $idPagoHonorario,
+                            "monto" => $montoMensual,
+                        );
+
+                        $detallePagos->insert($datosPagos);
                     } else {
                         $datos = array(
                             "contribuyente_id" => $idContribuyente,
@@ -234,6 +257,14 @@ class Pago extends BaseController
                         );
 
                         $pago->insert($datos);
+
+                        $datosPagos = array(
+                            "pago_id" => $pago->getInsertID(),
+                            "honorario_id" => $idPagoHonorario,
+                            "monto" => $montoDisponible,
+                        );
+
+                        $detallePagos->insert($datosPagos);
 
                         $montoDisponible = 0;
                     }
