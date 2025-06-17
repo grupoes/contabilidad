@@ -185,6 +185,7 @@ function renderArchivos(periodo, anio, ruc) {
         viewArchivos(data);
       } else {
         loadFiles.innerHTML = "";
+        r08view.innerHTML = "";
       }
     });
 }
