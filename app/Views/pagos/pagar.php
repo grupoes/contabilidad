@@ -182,6 +182,7 @@
                                                 <tr>
                                                     <th>REGISTRO</th>
                                                     <th>FECHA</th>
+                                                    <th>PERIODO</th>
                                                     <th>METODO PAGO</th>
                                                     <th>MONTO</th>
                                                     <th>VOUCHER</th>

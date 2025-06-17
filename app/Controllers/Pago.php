@@ -85,8 +85,19 @@ class Pago extends BaseController
     public function listaPagosHonorarios($id)
     {
         $pago = new PagosHonorariosModel();
+        $detallePagos = new DetallePagosModel();
+
+        $pago->query("SET lc_time_names = 'es_ES'");
 
         $pagos = $pago->query("SELECT p.id, p.contribuyente_id, DATE_FORMAT(p.fecha_pago , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.registro, '%d-%m-%Y %H-%i-%s') as registro, p.fecha, p.monto, p.estado, p.voucher, mp.metodo from pagos_honorarios p INNER JOIN metodos_pagos mp ON mp.id = p.metodo_pago_id where p.contribuyente_id = $id and p.estado = 1 order by p.id desc")->getResult();
+
+        foreach ($pagos as $key => $value) {
+            $id = $value->id;
+
+            $detalle = $detallePagos->query("SELECT pa.monto, DATE_FORMAT(p.mesCorrespondiente, '%M-%Y') as mesCorrespondiente FROM pagos_amortizaciones as pa INNER JOIN pagos as p ON p.id = pa.pago_id WHERE pa.honorario_id = $id")->getResult();
+
+            $pagos[$key]->pagos = $detalle;
+        }
 
         return $this->response->setJSON($pagos);
     }

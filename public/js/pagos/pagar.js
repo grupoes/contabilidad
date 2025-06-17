@@ -81,6 +81,16 @@ function viewPagosHonorarios(data) {
     .split(",")[0];
 
   data.forEach((pago, index) => {
+    let pagos = pago.pagos;
+
+    let pagosHtml = `<ul>`;
+
+    pagos.forEach((item) => {
+      pagosHtml += `<li> ${item.mesCorrespondiente} (${item.monto})</li>`;
+    });
+
+    pagosHtml += `</ul>`;
+
     let botonDelete = "";
 
     if (index === 0) {
@@ -99,6 +109,7 @@ function viewPagosHonorarios(data) {
         <tr>
             <td>${pago.registro}</td>
             <td>${pago.fecha_pago}</td>
+            <td>${pagosHtml}</td>
             <td>${pago.metodo}</td>
             <td>${pago.monto}</td>
             <td> 
