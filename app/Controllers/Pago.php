@@ -351,32 +351,66 @@ class Pago extends BaseController
         $pagoHo = new PagosHonorariosModel();
         $mov = new MovimientoModel();
 
-        $data = $pagoHo->find($id);
+        $pago->db->transStart();
 
-        $contribId = $data['contribuyente_id'];
-        $monto = $data['monto'];
-        $moviId = $data['movimientoId'];
+        try {
+            $data = $pagoHo->find($id);
 
-        $mov->update($moviId, ['mov_estado' => 0]);
+            $contribId = $data['contribuyente_id'];
+            $monto = $data['monto'];
+            $moviId = $data['movimientoId'];
 
-        $pagoHo->update($id, ['estado' => 0]);
+            $mov->update($moviId, ['mov_estado' => 0]);
 
-        $dataPago = $pago->where('contribuyente_id', $contribId)->where('estado !=', 'eliminado')->orderBy('id', 'DESC')->findAll();
+            $pagoHo->update($id, ['estado' => 0]);
 
-        $i = 0;
+            $dataPago = $pago->where('contribuyente_id', $contribId)->where('estado !=', 'eliminado')->orderBy('id', 'DESC')->findAll();
 
-        while ($monto > 0) {
-            $monto = $monto - $dataPago[$i]['montoPagado'];
+            $montoRestante = $monto;
 
-            $pago->update($dataPago[$i]['id'], ['estado' => 'eliminado']);
+            foreach ($dataPago as $key => $value) {
+                if ($montoRestante <= 0) {
+                    break;
+                }
 
-            $i++;
+                $montoPagado = $value['montoPagado'];
+                $montoTotal = $value['monto_total'];
+
+                if ($montoRestante >= $montoPagado) {
+                    $pago->update($value['id'], ['estado' => 'eliminado']);
+                    $montoRestante -= $montoPagado;
+                } else {
+                    $nuevoMontoPagado = $montoPagado - $montoRestante;
+                    $nuevoMontoPendiente = $montoTotal - $nuevoMontoPagado;
+
+                    $pago->update($value['id'], [
+                        'montoPagado' => $nuevoMontoPagado,
+                        'montoPendiente' => $nuevoMontoPendiente,
+                        'estado' => 'pendiente'
+                    ]);
+
+                    $montoRestante = 0;
+                }
+            }
+
+            $pago->db->transComplete();
+
+            if ($pago->db->transStatus() === false) {
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se elimino correctamente"
+            ]);
+        } catch (\Exception $e) {
+            $pago->db->transRollback();
+
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => $e->getMessage()
+            ]);
         }
-
-        return $this->response->setJSON([
-            "status" => "success",
-            "message" => "Se elimino correctamente"
-        ]);
     }
 
     public function updateVaucher()

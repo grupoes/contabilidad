@@ -692,7 +692,10 @@ class Contribuyentes extends BaseController
                         $amortizo = 1;
                     }
 
-                    $ultimoPago = new DateTime($maxPago->ultimoMes);
+                    $ultimo = $maxPago->ultimoMes;
+                    //$ultimo = "2025-04-28";
+
+                    $ultimoPago = new DateTime($ultimo);
                     $hoy = new DateTime(); // Toma la fecha actual 
 
                     // Calcula la diferencia
@@ -702,9 +705,9 @@ class Contribuyentes extends BaseController
                     $mesesDebe = ($diferencia->y * 12) + $diferencia->m - 1;
 
                     if ($mesesDebe > 1) {
-                        $debe = $mesesDebe . " meses";
+                        $debe = $diferencia->m . " meses";
                     } elseif ($mesesDebe == 1) {
-                        $debe = $mesesDebe . " mes";
+                        $debe = $diferencia->m . " mes";
                     } else {
                         $debe = "No debe";
                     }
