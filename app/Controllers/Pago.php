@@ -171,7 +171,7 @@ class Pago extends BaseController
 
                 $pago->insert($data);
             } else {
-                $lastUtimo = $pago->query("SELECT * FROM pagos WHERE contribuyente_id = $idContribuyente ORDER BY id DESC LIMIT 1")->getRow();
+                $lastUtimo = $pago->query("SELECT * FROM pagos WHERE contribuyente_id = $idContribuyente and estado != 'eliminado' ORDER BY id DESC LIMIT 1")->getRow();
 
                 $montoDisponible = $monto;
 
