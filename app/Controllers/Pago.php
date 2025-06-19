@@ -416,9 +416,23 @@ class Pago extends BaseController
         $data = $contrib->query("SELECT c.contribuyenteId, ht.fecha_inicio, ht.monto_mensual
         FROM historial_tarifas ht
         INNER JOIN contratos c ON ht.contratoId = c.id
-        WHERE c.contribuyenteId = $id ht.estado = 1 ORDER BY ht.fecha_inicio DESC;")->getResult();
+        WHERE c.contribuyenteId = $id and ht.estado = 1 ORDER BY ht.fecha_inicio DESC;")->getResult();
 
         return $data[0]->monto_mensual;
+    }
+
+    public function historialPagos($id)
+    {
+        $contrib = new ContribuyenteModel();
+
+        $contrib->query("SET lc_time_names = 'es_ES'");
+
+        $data = $contrib->query("SELECT c.id, c.contribuyenteId, DATE_FORMAT(ht.fecha_inicio, '%M-%Y') as fechaInicio, ht.fecha_fin, ht.monto_mensual, ht.monto_anual, ht.estado
+        FROM historial_tarifas ht
+        INNER JOIN contratos c ON ht.contratoId = c.id
+        WHERE c.contribuyenteId = $id and ht.estado = 1 ORDER BY ht.fecha_inicio DESC;")->getResult();
+
+        return $this->response->setJSON($data);
     }
 
     public function renderPagos()

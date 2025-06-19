@@ -31,84 +31,96 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <form id="formPago" enctype="multipart/form-data">
-                        <input type="hidden" name="idcontribuyente" id="idcontribuyente" value="<?= $id ?>">
-                        <input type="hidden" name="countPagos" id="countPagos" value="<?= $countPagos ?>">
+                    <div class="row">
+                        <div class="col-md-9 order-md-1 order-2">
+                            <form id="formPago" enctype="multipart/form-data">
+                                <input type="hidden" name="idcontribuyente" id="idcontribuyente" value="<?= $id ?>">
+                                <input type="hidden" name="countPagos" id="countPagos" value="<?= $countPagos ?>">
 
-                        <div class="row">
-                            <div class="col-md-4" <?php echo $countPagos == 1 ? 'hidden' : '' ?>>
-                                <div class="mb-3 form-check">
-                                    <input type="checkbox" class="form-check-input" name="generarMovimiento" id="generarMovimiento" value="1" checked>
-                                    <label for="generarMovimiento">Generar Movimiento</label>
-                                </div>
-                            </div>
+                                <div class="row">
+                                    <div class="col-md-4" <?php echo $countPagos == 1 ? 'hidden' : '' ?>>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" name="generarMovimiento" id="generarMovimiento" value="1" checked>
+                                            <label for="generarMovimiento">Generar Movimiento</label>
+                                        </div>
+                                    </div>
 
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <input type="hidden" name="diaCobro" id="diaCobro" value="<?= $datos['diaCobro'] ?>">
-                                    <label class="form-label" for="tipoPago">Dia de Cobro: <strong><?= $datos['diaCobro'] ?> de cada mes</strong> </label>
-                                </div>
-                            </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <input type="hidden" name="diaCobro" id="diaCobro" value="<?= $datos['diaCobro'] ?>">
+                                            <label class="form-label" for="tipoPago">Dia de Cobro: <strong><?= $datos['diaCobro'] ?> de cada mes</strong> </label>
+                                        </div>
+                                    </div>
 
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label" for="tipoPago">Tipo Pago: <strong><?= $datos['tipoPago'] ?></strong> </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label class="form-label" for="metodoPago">Metodo de Pago</label>
-                                    <select class="form-select" id="metodoPago" name="metodoPago" required="true">
-                                        <option value="">Selecionar...</option>
-                                        <?php foreach ($metodos as $metodo) : ?>
-                                            <option value="<?= $metodo['id'] ?>"><?= $metodo['metodo'] ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label class="form-label" for="monto">Monto</label>
-                                    <input type="text" class="form-control" id="monto" name="monto" />
-                                </div>
-                            </div>
-
-                            <?php if ($countPagos == 0) { ?>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label" for="periodo">Periodo</label>
-                                        <input type="month" class="form-control" id="periodo" name="periodo" required>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="tipoPago">Tipo Pago: <strong><?= $datos['tipoPago'] ?></strong> </label>
+                                        </div>
                                     </div>
                                 </div>
-                            <?php } ?>
 
-                            <div class="col-md-3" id="div-voucher" hidden>
-                                <div class="mb-3">
-                                    <label for="voucher" class="form-label">Voucher</label>
-                                    <input type="file" class="form-control" name="voucher" id="voucher" accept="image/*">
-                                </div>
-                            </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="metodoPago">Metodo de Pago</label>
+                                            <select class="form-select" id="metodoPago" name="metodoPago" required="true">
+                                                <option value="">Selecionar...</option>
+                                                <?php foreach ($metodos as $metodo) : ?>
+                                                    <option value="<?= $metodo['id'] ?>"><?= $metodo['metodo'] ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="monto">Monto</label>
+                                            <input type="text" class="form-control" id="monto" name="monto" />
+                                        </div>
+                                    </div>
 
-                            <div class="col-md-3" id="proceso">
-                                <div class="mb-3">
-                                    <label class="form-label" for="fecha_proceso">Fecha Pago</label>
-                                    <input type="date" class="form-control" id="fecha_proceso" name="fecha_proceso" max="<?= date('Y-m-d') ?>" required>
+                                    <?php if ($countPagos == 0) { ?>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="periodo">Periodo</label>
+                                                <input type="month" class="form-control" id="periodo" name="periodo" required>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
+
+                                    <div class="col-md-12" id="div-voucher" hidden>
+                                        <div class="mb-3">
+                                            <label for="voucher" class="form-label">Voucher</label>
+                                            <input type="file" class="form-control" name="voucher" id="voucher" accept="image/*">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4" id="proceso">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="fecha_proceso">Fecha Pago</label>
+                                            <input type="date" class="form-control" id="fecha_proceso" name="fecha_proceso" max="<?= date('Y-m-d') ?>" required>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mx-auto">
+                                        <div class="mb-3 text-center">
+                                            <button type="submit" class="btn btn-success">Guardar</button>
+                                            <a href="<?= base_url('cobros') ?>" class="btn btn-danger">Cancelar</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-4 mx-auto">
-                                <div class="mb-3 text-center">
-                                    <button type="submit" class="btn btn-success">Guardar</button>
-                                    <a href="<?= base_url('cobros') ?>" class="btn btn-danger">Cancelar</a>
-                                </div>
-                            </div>
+                        <div class="col-md-3 order-md-2 order-1 mb-3">
+                            <h5>Historial de Suscripción</h5>
+                            <ul class="list-group" id="historialSuscripcion">
+
+                            </ul>
                         </div>
-                    </form>
+
+                    </div>
 
                     <div class="row">
                         <div class="col-md-12">

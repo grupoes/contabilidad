@@ -422,3 +422,23 @@ function getMontoPendiente() {
 }
 
 getMontoPendiente();
+
+function historialPagos() {
+  const historialSuscripcion = document.getElementById("historialSuscripcion");
+
+  fetch(`${base_url}pagos/historial-pagos/${idContribuyente.value}`)
+    .then((res) => res.json())
+    .then((data) => {
+      let html = "";
+
+      data.forEach((item) => {
+        html += `
+          <li class="list-group-item d-flex justify-content-between align-items-center" style="padding: 10px"> ${item.fechaInicio} <span class="badge bg-primary rounded-pill">${item.monto_mensual}</span></li>
+        `;
+      });
+
+      historialSuscripcion.innerHTML = html;
+    });
+}
+
+historialPagos();

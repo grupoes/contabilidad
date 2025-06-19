@@ -70,6 +70,7 @@ $routes->post('pagos/update-voucher', 'Pago::updateVaucher');
 $routes->get('pagos/get-pago/(:num)', 'Pago::getPago/$1');
 $routes->post('pagos/update-pago', 'Pago::updatePago');
 $routes->get('pagos/get-monto-pendiente/(:num)', 'Pago::getMontoPendiente/$1');
+$routes->get('pagos/historial-pagos/(:num)', 'Pago::historialPagos/$1');
 
 $routes->get('all-ubigeo', 'Contribuyentes::listaUbigeo');
 
