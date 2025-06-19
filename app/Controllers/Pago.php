@@ -56,7 +56,7 @@ class Pago extends BaseController
         // Formatear la fecha al formato deseado
         $fechaRestada = $fechaActual->format('Y-m-d');
 
-        $verificarPago = $pagos->where('contribuyente_id', $id)->findAll();
+        $verificarPago = $pagos->where('contribuyente_id', $id)->where('estado !=', 'eliminado')->orderBy('id', 'desc')->findAll();
 
         $countPagos = "";
 
@@ -69,6 +69,42 @@ class Pago extends BaseController
         $menu = $this->permisos_menu();
 
         return view('pagos/pagar', compact('id', 'metodos', 'tipos', 'datos', 'fechaRestada', 'countPagos', 'menu'));
+    }
+
+    public function getMontoPendiente($id)
+    {
+        $pagos = new PagosModel();
+        $contri = new ContribuyenteModel();
+
+        $datos = $contri->find($id);
+
+        $verificarPago = $pagos->where('contribuyente_id', $id)->where('estado !=', 'eliminado')->orderBy('id', 'desc')->findAll();
+
+        if ($verificarPago) {
+            if ($verificarPago[0]['estado'] == "pendiente") {
+                $montoPagar = $verificarPago[0]['montoPendiente'];
+            } else {
+
+                $dt = DateTime::createFromFormat('Y-m-d', $verificarPago[0]['mesCorrespondiente']);
+                $dt->modify('first day of this month');
+                $dt->modify('+1 month');
+
+                $periodo = $dt->format('Y-m');
+
+                $mesCorrespondiente = $this->obtenerFechaValidaDeCobro($periodo, $datos['diaCobro']);
+
+                $montoMensual = $this->getMontoMensualHistorial($id, $mesCorrespondiente);
+
+                $montoPagar = $montoMensual;
+            }
+        } else {
+            $montoPagar = $datos['costoMensual'];
+        }
+
+        return $this->response->setJSON([
+            "status" => "success",
+            "montoPagar" => $montoPagar
+        ]);
     }
 
     public function listaPagos($id)
@@ -174,59 +210,103 @@ class Pago extends BaseController
 
                 $fecha_valida = $this->obtenerFechaValidaDeCobro($this->request->getvar('periodo'), $diaCobro);
 
+                $montoMensual = $this->getMontoMensualHistorial($idContribuyente, $fecha_valida);
+
+                if ($monto >= $montoMensual) {
+                    $estado = "pagado";
+                    $newMonto = $montoMensual;
+                    $pendientePago = 0;
+                } else {
+                    $estado = "pendiente";
+                    $newMonto = $monto;
+                    $pendientePago = $montoMensual - $monto;
+                }
+
                 $data = array(
                     "contribuyente_id" => $idContribuyente,
                     "fecha_pago" => date('Y-m-d H:i:s'),
                     "fecha_proceso" => $fecha_proceso,
-                    "monto_total" => $monto,
+                    "monto_total" => $montoMensual,
                     "mesCorrespondiente" => $fecha_valida,
-                    "montoPagado" => $monto,
-                    "montoPendiente" => 0,
+                    "montoPagado" => $newMonto,
+                    "montoPendiente" => $pendientePago,
                     "montoExcedente" => 0,
-                    "usuario_id_cobra" => 1,
-                    "estado" => "pagado"
+                    "usuario_id_cobra" => session()->id,
+                    "estado" => $estado,
                 );
 
                 $pago->insert($data);
-            } else {
+
+                $datosPagos = array(
+                    "pago_id" => $pago->getInsertID(),
+                    "honorario_id" => $idPagoHonorario,
+                    "monto" => $newMonto,
+                );
+
+                $detallePagos->insert($datosPagos);
+
+                $monto = $monto - $montoMensual;
+            }
+
+            $montoDisponible = $monto;
+
+            while ($montoDisponible > 0) {
                 $lastUtimo = $pago->query("SELECT * FROM pagos WHERE contribuyente_id = $idContribuyente and estado != 'eliminado' ORDER BY id DESC LIMIT 1")->getRow();
-
-                $montoDisponible = $monto;
-
-                $mesCorrespondiente = $lastUtimo->mesCorrespondiente;
 
                 if ($lastUtimo->estado == "pendiente") {
                     $montoPendiente = $lastUtimo->montoPendiente;
+                    $montoPagado = $lastUtimo->montoPagado;
+                    $montoTotal = $lastUtimo->monto_total;
 
-                    $datos = array(
-                        "montoPagado" => $montoMensual,
-                        "montoPendiente" => 0,
-                        "montoExcedente" => 0,
-                        "estado" => "pagado"
-                    );
+                    if ($montoDisponible >= $montoPendiente) {
+                        $datos = array(
+                            "montoPagado" => $montoTotal,
+                            "montoPendiente" => 0,
+                            "montoExcedente" => 0,
+                            "estado" => "pagado"
+                        );
 
-                    $pago->update($lastUtimo->id, $datos);
+                        $pago->update($lastUtimo->id, $datos);
 
-                    $datosPagos = array(
-                        "pago_id" => $lastUtimo->id,
-                        "honorario_id" => $idPagoHonorario,
-                        "monto" => $montoPendiente,
-                    );
+                        $datosPagos = array(
+                            "pago_id" => $lastUtimo->id,
+                            "honorario_id" => $idPagoHonorario,
+                            "monto" => $montoPendiente,
+                        );
 
-                    $detallePagos->insert($datosPagos);
+                        $detallePagos->insert($datosPagos);
 
-                    $montoDisponible = $montoDisponible - $montoPendiente;
-                }
+                        $montoDisponible = $montoDisponible - $montoPendiente;
+                    } else {
+                        $datos = array(
+                            "montoPagado" => $montoPagado + $montoDisponible,
+                            "montoPendiente" => $montoPendiente - $montoDisponible,
+                            "montoExcedente" => 0,
+                            "estado" => "pendiente"
+                        );
 
-                while ($montoDisponible > 0) {
+                        $pago->update($lastUtimo->id, $datos);
 
-                    $dt = DateTime::createFromFormat('Y-m-d', $mesCorrespondiente);
+                        $datosPagos = array(
+                            "pago_id" => $lastUtimo->id,
+                            "honorario_id" => $idPagoHonorario,
+                            "monto" => $montoDisponible,
+                        );
+
+                        $detallePagos->insert($datosPagos);
+
+                        $montoDisponible = 0;
+                    }
+                } else {
+                    $dt = DateTime::createFromFormat('Y-m-d', $lastUtimo->mesCorrespondiente);
                     $dt->modify('first day of this month');
                     $dt->modify('+1 month');
 
                     $periodo = $dt->format('Y-m');
 
                     $mesCorrespondiente = $this->obtenerFechaValidaDeCobro($periodo, $diaCobro);
+
+                    $montoMensual = $this->getMontoMensualHistorial($idContribuyente, $mesCorrespondiente);
 
                     if ($montoDisponible >= $montoMensual) {
                         $datos = array(
@@ -320,6 +400,26 @@ class Pago extends BaseController
         }
     }
 
+    public function getMontoMensualHistorial($id, $fecha)
+    {
+        $contrib = new ContribuyenteModel();
+
+        $data = $contrib->query("SELECT c.contribuyenteId, ht.fecha_inicio, ht.monto_mensual
+        FROM historial_tarifas ht
+        INNER JOIN contratos c ON ht.contratoId = c.id
+        WHERE c.contribuyenteId = $id AND ht.fecha_inicio <= '$fecha' and ht.estado = 1 ORDER BY ht.fecha_inicio DESC;")->getResult();
+
+        if ($data) {
+            return $data[0]->monto_mensual;
+        }
+
+        $data = $contrib->query("SELECT c.contribuyenteId, ht.fecha_inicio, ht.monto_mensual
+        FROM historial_tarifas ht
+        INNER JOIN contratos c ON ht.contratoId = c.id
+        WHERE c.contribuyenteId = $id ht.estado = 1 ORDER BY ht.fecha_inicio DESC;")->getResult();
+
+        return $data[0]->monto_mensual;
+    }
 
     public function renderPagos()
     {
@@ -513,6 +613,7 @@ class Pago extends BaseController
             $mov = new MovimientoModel();
             $pago = new PagosModel();
             $contri = new ContribuyenteModel();
+            $detalle = new DetallePagosModel();
 
             $id = $this->request->getVar('id_Pago');
             $montoActual = $this->request->getVar('montoActual');
@@ -563,7 +664,7 @@ class Pago extends BaseController
                     $i++;
                 }
 
-                $lastUtimo = $pago->query("SELECT * FROM pagos WHERE contribuyente_id = $contribId ORDER BY id DESC LIMIT 1")->getRow();
+                $lastUtimo = $pago->query("SELECT * FROM pagos WHERE contribuyente_id = $contribId and estado != eliminado ORDER BY id DESC LIMIT 1")->getRow();
 
                 $mesCorrespondiente = $lastUtimo->mesCorrespondiente;
 
@@ -578,6 +679,9 @@ class Pago extends BaseController
                     );
 
                     $pago->update($lastUtimo->id, $datos);
+
+                    $detalle->where('pago_id', $lastUtimo->id)->where('honorario_id', $id)->set(['monto' => $montoMensual])->update();
+
 
                     $montoDisponible = $montoDisponible - $montoPendiente;
                 }
@@ -608,7 +712,11 @@ class Pago extends BaseController
 
                         $pago->insert($datos);
 
+                        $idPago = $pago->getInsertID();
+
                         $montoDisponible = $montoDisponible - $montoMensual;
+
+                        $detalle->where('pago_id', $idPago)->where('honorario_id', $id)->set(['monto' => $montoMensual])->update();
                     } else {
                         $datos = array(
                             "contribuyente_id" => $contribId,
@@ -625,7 +733,11 @@ class Pago extends BaseController
 
                         $pago->insert($datos);
 
+                        $idPago = $pago->getInsertID();
+
                         $montoDisponible = 0;
+
+                        $detalle->where('pago_id', $idPago)->where('honorario_id', $id)->set(['monto' => $montoDisponible])->update();
                     }
                 }
             }

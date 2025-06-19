@@ -49,6 +49,12 @@
                                     <label class="form-label" for="tipoPago">Dia de Cobro: <strong><?= $datos['diaCobro'] ?> de cada mes</strong> </label>
                                 </div>
                             </div>
+
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label" for="tipoPago">Tipo Pago: <strong><?= $datos['tipoPago'] ?></strong> </label>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row">
@@ -66,7 +72,7 @@
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" for="monto">Monto</label>
-                                    <input type="text" class="form-control" id="monto" name="monto" value="<?= $datos['costoMensual'] ?>">
+                                    <input type="text" class="form-control" id="monto" name="monto" />
                                 </div>
                             </div>
 

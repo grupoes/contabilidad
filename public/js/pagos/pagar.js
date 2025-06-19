@@ -167,6 +167,8 @@ formPago.addEventListener("submit", (e) => {
             } else {
               renderPagos(idContribuyente.value);
               renderPagosHonorarios(idContribuyente.value);
+
+              getMontoPendiente();
             }
 
             return false;
@@ -258,6 +260,7 @@ function deletePago(e, id) {
             if (data.status === "success") {
               renderPagos(idContribuyente.value);
               renderPagosHonorarios(idContribuyente.value);
+              getMontoPendiente();
 
               Swal.fire({
                 position: "top-end",
@@ -407,3 +410,15 @@ formEditPago.addEventListener("submit", (e) => {
       });
     });
 });
+
+function getMontoPendiente() {
+  const monto = document.getElementById("monto");
+
+  fetch(`${base_url}pagos/get-monto-pendiente/${idContribuyente.value}`)
+    .then((res) => res.json())
+    .then((data) => {
+      monto.value = data.montoPagar;
+    });
+}
+
+getMontoPendiente();
