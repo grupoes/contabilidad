@@ -94,7 +94,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-12" id="div-voucher" hidden>
+                                    <div class="<?php echo ($countPagos == 0) ? 'col-md-8' : 'col-md-12' ?>" id="div-voucher" hidden>
                                         <div class="mb-3">
                                             <label for="voucher" class="form-label">Voucher</label>
                                             <input type="file" class="form-control" name="voucher" id="voucher" accept="image/*">
