@@ -87,6 +87,13 @@
                                         </div>
                                     <?php } ?>
 
+                                    <div class="col-md-4" id="proceso">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="fecha_proceso">Fecha Pago</label>
+                                            <input type="date" class="form-control" id="fecha_proceso" name="fecha_proceso" max="<?= date('Y-m-d') ?>" required>
+                                        </div>
+                                    </div>
+
                                     <div class="col-md-12" id="div-voucher" hidden>
                                         <div class="mb-3">
                                             <label for="voucher" class="form-label">Voucher</label>
@@ -94,12 +101,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-4" id="proceso">
-                                        <div class="mb-3">
-                                            <label class="form-label" for="fecha_proceso">Fecha Pago</label>
-                                            <input type="date" class="form-control" id="fecha_proceso" name="fecha_proceso" max="<?= date('Y-m-d') ?>" required>
-                                        </div>
-                                    </div>
+
                                 </div>
 
                                 <div class="row">
