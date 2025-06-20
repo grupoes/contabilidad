@@ -7,8 +7,8 @@ use App\Models\TipoComprobanteModel;
 use App\Models\MovimientoModel;
 use App\Models\BancosModel;
 use App\Models\PagosHonorariosModel;
+use App\Models\DetallePagosModel;
 use DateTime;
-use PhpParser\Node\Stmt\TryCatch;
 
 class Movimiento extends BaseController
 {
@@ -168,6 +168,7 @@ class Movimiento extends BaseController
     {
         $mov = new MovimientoModel();
         $pagosHono = new PagosHonorariosModel();
+        $detalle = new DetallePagosModel();
 
         try {
 
@@ -176,9 +177,12 @@ class Movimiento extends BaseController
             $verificar = $pagosHono->where('movimientoId', $id)->first();
 
             if ($verificar) {
+
                 $this->deletePagoArray($verificar['contribuyente_id'], $verificar['monto']);
 
                 $idpago = $verificar['id'];
+
+                $detalle->where('honorario_id', $idpago)->delete();
 
                 $pagosHono->update($idpago, ['estado' => 0]);
             }
