@@ -88,7 +88,7 @@ $routes->post('movimiento/guardar', 'Movimiento::guardar');
 $routes->get('movimientos/lista-cajero/(:any)', 'Movimiento::showCajero/$1');
 $routes->get('movimientos/metodos-pagos', 'Movimiento::allMetodoPagos');
 $routes->get('movimiento/extornar/(:num)', 'Movimiento::extornar/$1');
-$routes->post('movimiento/cambio-pago', 'Movimiento::cambioPago');
+$routes->post('movimiento/editar-movimiento', 'Movimiento::editMovimiento');
 $routes->post('movimientos/consulta', 'Movimiento::Consulta');
 
 $routes->get('movimientos-generales', 'Movimiento::movimientosGenerales');

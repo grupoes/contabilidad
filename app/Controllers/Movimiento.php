@@ -5,11 +5,10 @@ namespace App\Controllers;
 use App\Models\MetodoPagoModel;
 use App\Models\TipoComprobanteModel;
 use App\Models\MovimientoModel;
-use App\Models\SedeModel;
-use App\Models\SesionCajaModel;
 use App\Models\BancosModel;
 use App\Models\PagosHonorariosModel;
 use DateTime;
+use PhpParser\Node\Stmt\TryCatch;
 
 class Movimiento extends BaseController
 {
@@ -41,6 +40,8 @@ class Movimiento extends BaseController
         $mov = new MovimientoModel();
 
         try {
+
+            $mov->db->transBegin();
 
             $idMovimiento = $this->request->getVar('idMovimiento');
             $tipo_movimiento = $this->request->getVar('tipo_movimiento');
@@ -102,11 +103,19 @@ class Movimiento extends BaseController
 
             $mov->insert($datos);
 
+            if ($mov->db->transStatus() === false) {
+                $mov->db->transRollback();
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            $mov->db->transCommit();
+
             return $this->response->setJSON([
                 "status"  => "success",
                 "message" => "Se agrego correctamente el movimiento"
             ]);
         } catch (\Exception $e) {
+            $mov->db->transRollback();
             return $this->response->setJSON([
                 "status" => "error",
                 "message" => "Ocurrió un error: " . $e->getMessage()
@@ -134,7 +143,7 @@ class Movimiento extends BaseController
 
         $mov = new MovimientoModel();
 
-        $movimientos = $mov->query("SELECT m.mov_id,m.mov_monto, m.vaucher, m.mov_descripcion, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.id_metodo_pago, mp.metodo, c.caja_descripcion, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion, tm.id_tipo_movimiento, u.nombres, u.perfil_id FROM movimiento m 
+        $movimientos = $mov->query("SELECT m.mov_id,m.mov_monto, m.vaucher, m.mov_descripcion, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.mov_concepto, m.id_metodo_pago, mp.metodo, c.caja_descripcion, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion, tm.id_tipo_movimiento, u.nombres, u.perfil_id FROM movimiento m 
         inner join sesion_caja sc on sc.id_sesion_caja = m.id_sesion_caja
         inner join sede_caja sc2 on sc2.id_sede_caja = sc.id_sede_caja
         inner join caja c on c.id_caja = sc2.id_caja
@@ -158,28 +167,83 @@ class Movimiento extends BaseController
     public function extornar($id)
     {
         $mov = new MovimientoModel();
+        $pagosHono = new PagosHonorariosModel();
 
-        $mov->update($id, ['mov_estado' => 0]);
+        try {
 
-        return $this->response->setJSON([
-            "status" => "success",
-            "message" => "Se extornó correctamente el movimiento"
-        ]);
+            $mov->db->transBegin();
+
+            $verificar = $pagosHono->where('movimientoId', $id)->first();
+
+            if ($verificar) {
+                $this->deletePagoArray($verificar['contribuyente_id'], $verificar['monto']);
+
+                $idpago = $verificar['id'];
+
+                $pagosHono->update($idpago, ['estado' => 0]);
+            }
+
+            $mov->update($id, ['mov_estado' => 0]);
+
+            if ($mov->db->transStatus() === false) {
+                $mov->db->transRollback();
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            $mov->db->transCommit();
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se extornó correctamente el movimiento"
+            ]);
+        } catch (\Exception $e) {
+            $mov->db->transRollback();
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Ocurrió un error: " . $e->getMessage()
+            ]);
+        }
     }
 
-    public function cambioPago()
+    public function editMovimiento()
     {
         $mov = new MovimientoModel();
+        $pagosHono = new PagosHonorariosModel();
 
-        $idMovimiento = $this->request->getVar('idmov');
-        $nuevoMetodoPago = $this->request->getVar('nuevo_metodo_pago');
+        try {
 
-        $mov->update($idMovimiento, ['id_metodo_pago' => $nuevoMetodoPago]);
+            $mov->db->transBegin();
 
-        return $this->response->setJSON([
-            "status" => "success",
-            "message" => "Se cambió correctamente el método de pago"
-        ]);
+            $idMovimiento = $this->request->getVar('idmov');
+            $nuevoMetodoPago = $this->request->getVar('nuevo_metodo_pago');
+            $monto = $this->request->getVar('montoEditar');
+
+            $verificar = $pagosHono->where('movimientoId', $idMovimiento)->first();
+
+            if ($verificar) {
+                $pagosHono->update($verificar['id'], ['metodo_pago_id' => $nuevoMetodoPago]);
+            }
+
+            $mov->update($idMovimiento, ['id_metodo_pago' => $nuevoMetodoPago, 'mov_monto' => $monto]);
+
+            if ($mov->db->transStatus() === false) {
+                $mov->db->transRollback();
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            $mov->db->transCommit();
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se editó correctamente"
+            ]);
+        } catch (\Exception $e) {
+            $mov->db->transRollback();
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Ocurrió un error: " . $e->getMessage()
+            ]);
+        }
     }
 
     public function movimientosGenerales()

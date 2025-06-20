@@ -179,7 +179,7 @@ function tableMovimientos(data) {
 
     if (currentDate === mov.mov_fecha) {
       botonExtornar = `
-      <a href="#" class="text-info" title="CAMBIAR METODO DE PAGO" onclick="changePago(event,${mov.mov_id}, ${mov.id_metodo_pago})">
+      <a href="#" class="text-info" title="EDITAR" onclick="changePago(event,${mov.mov_id}, ${mov.id_metodo_pago}, ${mov.mov_monto}, ${mov.mov_concepto})">
         <i class="ti ti-edit-circle f-18"></i>
       </a>
       <a href="#" class="text-danger" title="EXTORNAR" onclick="extornar(event,${mov.mov_id})">
@@ -291,10 +291,21 @@ function extornar(e, id) {
     });
 }
 
-function changePago(e, idmov, idMetodoPago) {
+function changePago(e, idmov, idMetodoPago, monto, idConcepto) {
   e.preventDefault();
 
   $("#modalChangePago").modal("show");
+
+  const montoEditar = document.getElementById("montoEditar");
+  montoEditar.value = monto.toFixed(2);
+
+  const viewMonto = document.getElementById("viewMonto");
+
+  if (idConcepto == 1) {
+    viewMonto.classList.add("d-none");
+  } else {
+    viewMonto.classList.remove("d-none");
+  }
 
   const idmovi = document.getElementById("idmov");
   idmovi.value = idmov;
@@ -319,14 +330,14 @@ function changePago(e, idmov, idMetodoPago) {
     });
 }
 
-const formCambioPago = document.getElementById("formCambioPago");
+const formEditMovimiento = document.getElementById("formEditMovimiento");
 
-formCambioPago.addEventListener("submit", (e) => {
+formEditMovimiento.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  const formData = new FormData(formCambioPago);
+  const formData = new FormData(formEditMovimiento);
 
-  fetch(base_url + "movimiento/cambio-pago", {
+  fetch(base_url + "movimiento/editar-movimiento", {
     method: "POST",
     body: formData,
   })

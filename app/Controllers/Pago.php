@@ -553,40 +553,6 @@ class Pago extends BaseController
         }
     }
 
-    public function deletePagoArray($contribId, $monto)
-    {
-        $pago = new PagosModel();
-
-        $dataPago = $pago->where('contribuyente_id', $contribId)->where('estado !=', 'eliminado')->orderBy('id', 'DESC')->findAll();
-
-        $montoRestante = $monto;
-
-        foreach ($dataPago as $key => $value) {
-            if ($montoRestante <= 0) {
-                break;
-            }
-
-            $montoPagado = $value['montoPagado'];
-            $montoTotal = $value['monto_total'];
-
-            if ($montoRestante >= $montoPagado) {
-                $pago->update($value['id'], ['estado' => 'eliminado']);
-                $montoRestante -= $montoPagado;
-            } else {
-                $nuevoMontoPagado = $montoPagado - $montoRestante;
-                $nuevoMontoPendiente = $montoTotal - $nuevoMontoPagado;
-
-                $pago->update($value['id'], [
-                    'montoPagado' => $nuevoMontoPagado,
-                    'montoPendiente' => $nuevoMontoPendiente,
-                    'estado' => 'pendiente'
-                ]);
-
-                $montoRestante = 0;
-            }
-        }
-    }
-
     public function updateVaucher()
     {
         $pago = new PagosHonorariosModel();
