@@ -695,19 +695,27 @@ class Contribuyentes extends BaseController
                     $ultimo = $maxPago->ultimoMes;
                     //$ultimo = "2025-04-28";
 
-                    $ultimoPago = new DateTime($ultimo);
-                    $hoy = new DateTime(); // Toma la fecha actual 
+                    $ultimoPagoFecha = date('Y-m', strtotime($ultimo));
+                    $fechaActual = date('Y-m');
 
-                    // Calcula la diferencia
-                    $diferencia = $ultimoPago->diff($hoy);
+                    list($ultimoAnio, $ultimoMes) = explode('-', $ultimoPagoFecha);
+                    list($actualAnio, $actualMes) = explode('-', $fechaActual);
 
-                    // Obtiene cuántos meses han pasado (años * 12 + meses)
-                    $mesesDebe = ($diferencia->y * 12) + $diferencia->m - 1;
+                    $ultimoAnio = (int) $ultimoAnio;
+                    $ultimoMes = (int) $ultimoMes;
+                    $actualAnio = (int) $actualAnio;
+                    $actualMes = (int) $actualMes;
 
-                    if ($mesesDebe > 1) {
-                        $debe = $diferencia->m . " meses";
-                    } elseif ($mesesDebe == 1) {
-                        $debe = $diferencia->m . " mes";
+                    // Calcular la diferencia en meses
+                    $mesesTranscurridos = ($actualAnio - $ultimoAnio) * 12 + ($actualMes - $ultimoMes);
+
+                    // Restar 1 porque el mes actual no cuenta (aún no ha terminado)
+                    $meses = max(0, $mesesTranscurridos - 1);
+
+                    if ($meses > 1) {
+                        $debe = $meses . " meses";
+                    } elseif ($meses == 1) {
+                        $debe = $meses . " mes";
                     } else {
                         $debe = "No debe";
                     }
