@@ -122,6 +122,8 @@ $routes->post('consulta-pdt-renta', 'Pdt0621::consulta');
 $routes->post('contribuyentes/file-save-pdt0621', 'Pdt0621::filesSave');
 $routes->post('consulta-pdt-rango', 'Pdt0621::consultaPdt');
 $routes->post('send-file-pdt621', 'Pdt0621::sendMessageFiles');
+$routes->post('rectificacion-pdt-renta', 'Pdt0621::pdtRectificacion');
+$routes->get('pdt-0621/get-files-details/(:num)', 'Pdt0621::getArchivos/$1');
 
 $routes->get('declaraciones/pdt-plame', 'PdtPlame::index');
 $routes->post('contribuyentes/file-save-pdtplame', 'PdtPlame::filesSave');
@@ -157,6 +159,7 @@ $routes->get('permisos', 'Permisos::index');
 $routes->get('permisos-perfil/(:num)', 'Permisos::show/$1');
 $routes->post('save-permisos', 'Permisos::guardar');
 $routes->get('menu-nav', 'Permisos::permisos_menu');
+$routes->get('generar-facturas', 'Permisos::generarFacturas');
 
 $routes->get('declaracion', 'Declaracion::index');
 $routes->get('listaDeclaracion/(:num)', 'Declaracion::listaDeclaracion/$1');
@@ -168,6 +171,9 @@ $routes->get('empresas-notificacion', 'Api\Notificaciones::index');
 $routes->get('mensajes-pendientes', 'Api\Notificaciones::mensajesPendientes');
 $routes->post('update-mensaje', 'Api\Notificaciones::updateMessage');
 $routes->get('send-email', 'Api\Notificaciones::sendEmail');
+$routes->post('api/send-factura', 'Api\Notificaciones::sendFacturas');
+$routes->get('api/listEmpresas', 'Api\Notificaciones::listEmpresas');
+$routes->post('api/saveHonorario', 'Api\Notificaciones::saveHonorario');
 
 $routes->get('mensajes-masivos', 'Mensajes::index');
 $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');

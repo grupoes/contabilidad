@@ -11,6 +11,11 @@ use App\Models\FechaDeclaracionModel;
 use App\Models\ContribuyenteModel;
 use App\Models\ContactosContribuyenteModel;
 use App\Models\EnviosModel;
+use App\Models\ContratosModel;
+use App\Models\HonorariosModel;
+use App\Models\FacturasHonorariosModel;
+
+use DateTime;
 
 class Notificaciones extends ResourceController
 {
@@ -141,7 +146,7 @@ class Notificaciones extends ResourceController
     public function sendEmail()
     {
 
-        $resend = Resend::client('re_5wjnGFy9_2269kCpAmET27oqTKKa1eSQv');
+        /*$resend = Resend::client('re_5wjnGFy9_2269kCpAmET27oqTKKa1eSQv');
 
         $result = $resend->emails->send([
             'from' => 'Acme <contabilidad@grupoesconsultores.com>',
@@ -150,7 +155,255 @@ class Notificaciones extends ResourceController
             'html' => '<strong>it works!</strong>',
         ]);
 
-        return $this->respond($result);
+        return $this->respond($result);*/
+    }
+
+    public function sendFacturas()
+    {
+        try {
+            $datos = $this->request->getJSON();
+
+            $ruc = $datos->ruc ?? null;
+            $razonSocial = $datos->razonSocial ?? null;
+            $productoName = $datos->productoName ?? null;
+            $precio = $datos->precio ?? null;
+
+            $fecha_comprobante = date('d/m/Y');
+
+            $data["contribuyente"] = array(
+                "token_contribuyente"           => getenv("API_KEY_GENERAR_FACTURA"), //Token del contribuyente
+                "id_usuario_vendedor"           => 1, //Debes ingresar el ID de uno de tus vendedores (opcional)
+                "tipo_proceso"                  => getenv("TIPO_ENVIO_SUNAT"), //Funcional en una siguiente versión. El ambiente al que se enviará, puede ser: {prueba, produccion}
+                "tipo_envio"                    => "inmediato" //funcional en una siguiente versión. Aquí puedes definir si se enviará de inmediato a sunat
+            );
+
+            $data["cliente"] = array(
+                "tipo_docidentidad"             => 6, //{0: SINDOC, 1: DNI, 6: RUC}
+                "numerodocumento"               => $ruc, //Es opcional solo cuando tipo_docidentidad es 0, caso contrario se debe ingresar el número de ruc
+                "nombre"                        => $razonSocial, //Es opcional solo cuando tipo_docidentidad es 1, caso contrario es obligatorio ingresar aquí la razón social
+                "email"                         => "", //opcional: (si tiene correo se enviará automáticamente el email)
+                "direccion"                     => "", //opcional: 
+                "ubigeo"                        => "",
+                "sexo"                          => "", //opcional: masculino
+                "fecha_nac"                     => "", //opcional: 
+                "celular"                       => "" //opcional
+            );
+
+            $data["cabecera_comprobante"] = array(
+                "tipo_documento"                => "01",  //{"01": FACTURA, "03": BOLETA}
+                "moneda"                        => "PEN",  //{"USD", "PEN"}
+                "idsucursal"                    => 1,  //{ID DE SUCURSAL}
+                "id_condicionpago"              => "",  //condicionpago_comprobante
+                "fecha_comprobante"             => $fecha_comprobante,  //fecha_comprobante
+                "nro_placa"                     => "",  //nro_placa_vehiculo
+                "nro_orden"                     => "",  //nro_orden
+                "guia_remision"                 => "",  //guia_remision_manual
+                "descuento_monto"               => 0,  // (máximo 2 decimales) (monto total del descuento)
+                "descuento_porcentaje"          => 0,  // (máximo 2 decimales) (porcentaje total del descuento)
+                "observacion"                   => "",  //observacion_documento
+            );
+
+            $detalle[] = array(
+                "idproducto"                    => 91282,  //(opcional, puede ser cero) (si el idproducto coincide con la BD se llevará control del stock)
+                "codigo"                        => getenv("CODIGO_PRODUCTO"), //codigo del producto (requerido)
+                "afecto_icbper"                 => "no",  //"afecto_icbper":"no",
+                "id_tipoafectacionigv"          => 20,  //"id_tipoafectacionigv":"10",
+                "descripcion"                   => $productoName,  //"descripcion":"Zapatos",
+                "idunidadmedida"                => 'NIU',  //{NIU para unidades, ZZ para servicio}
+                "precio_venta"                  => $precio,  //Precio unitario de venta (inc. IGV),
+                "cantidad"                      => 1,  //"cantidad":"1"
+            );
+
+            $data["detalle"] = $detalle;
+
+            $ruta = getenv("API_GENERAR_FACTURA");
+            $data_json = json_encode($data);
+
+            if (!$ruta) {
+                return $this->respond([
+                    'respuesta' => 'error',
+                    'mensaje' => 'No se definió la URL de la API'
+                ], 500);
+            }
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $ruta);
+            curl_setopt(
+                $ch,
+                CURLOPT_HTTPHEADER,
+                array(
+                    "Authorization: Bearer " . getenv("API_KEY_GENERAR_FACTURA"),
+                    "Content-Type: application/json",
+                    "cache-control: no-cache"
+                )
+            );
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            $respuesta  = curl_exec($ch);
+            $errorCurl = curl_error($ch);
+
+            curl_close($ch);
+
+            if ($errorCurl) {
+                return $this->respond([
+                    'respuesta' => 'error',
+                    'mensaje' => 'Error en conexión CURL',
+                    'detalle' => $errorCurl
+                ], 500);
+            }
+
+            $respuestaDecodificada = json_decode($respuesta, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return $this->respond([
+                    'respuesta' => 'error',
+                    'mensaje' => 'Respuesta de API inválida (JSON mal formado)',
+                    'raw' => $respuesta
+                ], 500);
+            }
+
+            return $this->respond($respuestaDecodificada);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'respuesta' => 'error',
+                'mensaje' => 'Error inesperado en el servidor',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function listEmpresas()
+    {
+        $contrib = new ContribuyenteModel();
+
+        $periodo = date('Y-m');
+
+        $ids = [259, 258, 257, 256];
+
+        $empresas = $contrib->select('id, ruc, razon_social, tipoServicio, tipoPago')->where('estado', 1)->whereIn('id', $ids)->findAll();
+
+        foreach ($empresas as $key => $value) {
+            $id = $value['id'];
+
+            $monto = $this->verificar_monto_mensual($id, $periodo);
+
+            $empresas[$key]['monto_mensual'] = $monto;
+
+            if ($value['tipoServicio'] == 'ALQUILER') {
+                $descripcion = "SERVICIO DE ARRENDAMIENTO DEL SOFTWARE DEL MES DE JUNIO 2025";
+            } else {
+                if ($value['tipoPago'] == 'ATRASADO') {
+                    $fecha = DateTime::createFromFormat('Y-m', $periodo);
+                    $fecha->modify('-1 month');
+
+                    $mes = $fecha->format('m');
+                    $anio = $fecha->format('Y');
+                    $mesLetra = $this->getMes($mes) . ' ' . $anio;
+
+                    $descripcion = "SERVICIO DE CONTABILIDAD DEL MES DE " . $mesLetra;
+                } else {
+                    $mes = date('m');
+                    $anio = date('Y');
+                    $mesLetra = $this->getMes($mes) . ' ' . $anio;
+                    $descripcion = "SERVICIO DE CONTABILIDAD DEL MES DE " . $mesLetra;
+                }
+            }
+
+            $empresas[$key]['descripcion'] = $descripcion;
+        }
+
+        return $this->respond($empresas);
+    }
+
+    public function verificar_monto_mensual($id, $periodo)
+    {
+        $contratos = new ContratosModel();
+
+        $mensual = $contratos->query("SELECT c.contribuyenteId, ht.fecha_inicio, ht.monto_mensual
+        FROM historial_tarifas ht
+        INNER JOIN contratos c ON ht.contratoId = c.id
+        WHERE c.contribuyenteId = $id AND c.estado = 1 AND DATE_FORMAT(ht.fecha_inicio, '%Y-%m') <= '$periodo' and ht.estado = 1 ORDER BY ht.fecha_inicio DESC;")->getResult();
+
+        return $mensual[0]->monto_mensual;
+    }
+
+    public function saveHonorario()
+    {
+        try {
+            $honorario = new HonorariosModel();
+
+            $datos = $this->request->getJSON();
+
+            $ruc = $datos->ruc;
+
+            $anio = date('Y');
+            $mes = date('m');
+
+            $descripcion = $this->getMes($mes) . ' ' . $anio;
+
+            $insert = [
+                'descripcion' => $descripcion,
+                'mes' => $mes,
+                'year' => $anio,
+                'estado' => 1
+            ];
+
+            $honorario->insert($insert);
+
+            $id = $honorario->getInsertID();
+            $registro = $honorario->find($id);
+
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'Honorario creado correctamente',
+                'registro' => $registro
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'Error al crear el honorario',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function saveFactura()
+    {
+        try {
+            $datos = $this->request->getJSON();
+
+            $ruc = $datos->ruc ?? null;
+            $razonSocial = $datos->razonSocial ?? null;
+            $productoName = $datos->productoName ?? null;
+            $precio = $datos->precio ?? null;
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
+
+    public function getMes($mes)
+    {
+        setlocale(LC_TIME, 'es_ES.UTF-8');
+
+        $meses = [
+            '01' => 'ENERO',
+            '02' => 'FEBRERO',
+            '03' => 'MARZO',
+            '04' => 'ABRIL',
+            '05' => 'MAYO',
+            '06' => 'JUNIO',
+            '07' => 'JULIO',
+            '08' => 'AGOSTO',
+            '09' => 'SEPTIEMBRE',
+            '10' => 'OCTUBRE',
+            '11' => 'NOVIEMBRE',
+            '12' => 'DICIEMBRE',
+        ];
+
+        return $meses[$mes];
     }
 
     /**

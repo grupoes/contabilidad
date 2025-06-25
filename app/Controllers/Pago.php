@@ -415,7 +415,7 @@ class Pago extends BaseController
         $data = $contrib->query("SELECT c.contribuyenteId, ht.fecha_inicio, ht.monto_mensual
         FROM historial_tarifas ht
         INNER JOIN contratos c ON ht.contratoId = c.id
-        WHERE c.contribuyenteId = $id AND ht.fecha_inicio <= '$fecha' and ht.estado = 1 ORDER BY ht.fecha_inicio DESC;")->getResult();
+        WHERE c.contribuyenteId = $id AND c.estado = 1 AND ht.fecha_inicio <= '$fecha' and ht.estado = 1 ORDER BY ht.fecha_inicio DESC;")->getResult();
 
         if ($data) {
             return $data[0]->monto_mensual;
@@ -424,7 +424,7 @@ class Pago extends BaseController
         $data = $contrib->query("SELECT c.contribuyenteId, ht.fecha_inicio, ht.monto_mensual
         FROM historial_tarifas ht
         INNER JOIN contratos c ON ht.contratoId = c.id
-        WHERE c.contribuyenteId = $id and ht.estado = 1 ORDER BY ht.fecha_inicio DESC;")->getResult();
+        WHERE c.contribuyenteId = $id AND c.estado = 1 and ht.estado = 1 ORDER BY ht.fecha_inicio DESC;")->getResult();
 
         return $data[0]->monto_mensual;
     }

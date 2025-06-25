@@ -143,6 +143,7 @@
                                     <th>Periodo</th>
                                     <th>Año</th>
                                     <th>Archivos</th>
+                                    <th>Acción</th>
                                 </tr>
                             </thead>
                             <tbody id="loadFiles"></tbody>
@@ -241,6 +242,79 @@
 
             </div>
 
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-sm" id="modalRectificacion" tabindex="-1" role="dialog"
+    aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="mySmallModalLabel">Rectificar Archivos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formRectificacion" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="idpdtrenta" id="idpdtrenta" value="0" />
+                    <input type="hidden" name="idarchivos" id="idarchivos" value="0" />
+                    <input type="hidden" name="periodoRectificacion" id="periodoRectificacion" value="0" />
+                    <input type="hidden" name="anioRectificacion" id="anioRectificacion" value="0" />
+                    <input type="hidden" name="rucRect" id="rucRect" value="0" />
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="filePdt" class="form-label">Elige el nuevo pdt</label>
+                            <input type="file" name="filePdt" id="filePdt" class="form-control" accept=".pdf" />
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label for="fileConstancia" class="form-label">Elige la nueva constancia</label>
+                            <input type="file" name="fileConstancia" id="fileConstancia" class="form-control" accept=".pdf" />
+                        </div>
+
+                        <div class="col-md-12" id="viewAlert">
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" id="btnFormRectificacion">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-sm" id="modalDetalle" tabindex="-1" role="dialog"
+    aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="mySmallModalLabel">Detalle Archivos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Archivo Pdt</th>
+                                <th>Archivo Constancia</th>
+                            </tr>
+                        </thead>
+                        <tbody id="getFilesDetails">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-primary" id="btnFormRectificacion">Guardar</button>
+            </div>
 
         </div>
     </div>

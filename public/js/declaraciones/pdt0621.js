@@ -24,6 +24,8 @@ const contentPdts = document.getElementById("contentPdts");
 
 const envio_archivos = document.getElementById("envio_archivos");
 
+const rucEmpresa = document.getElementById("rucEmpresa");
+
 function validarNumero(input) {
   input.value = input.value.replace(/\D/g, "").slice(0, 9);
 }
@@ -98,7 +100,7 @@ function modalArchivo(id, ruc) {
 
 function descargarArchivos(id, ruc) {
   $("#modalDescargarArchivo").modal("show");
-  const rucEmpresa = document.getElementById("rucEmpresa");
+
   rucEmpresa.value = ruc;
 
   periodo_file.value = "";
@@ -172,15 +174,12 @@ formArchivo.addEventListener("submit", (e) => {
         })
         .then((result) => {
           if (result.isConfirmed) {
-            console.log("El usuario hizo clic en OK");
             $("#modalArchivo").modal("show");
             // Aquí puedes realizar cualquier acción adicional
           }
         });
     });
 });
-
-const rucEmpresa = document.getElementById("rucEmpresa");
 
 periodo_file.addEventListener("change", (e) => {
   const valor = e.target.value;
@@ -210,11 +209,11 @@ function renderArchivos(periodo, anio, ruc) {
   })
     .then((res) => res.json())
     .then((data) => {
-      viewArchivos(data);
+      viewArchivos(data, ruc);
     });
 }
 
-function viewArchivos(data) {
+function viewArchivos(data, ruc) {
   let html = "";
 
   data.forEach((archivo) => {
@@ -223,9 +222,10 @@ function viewArchivos(data) {
             <td>${archivo.mes_descripcion}</td>
             <td>${archivo.anio_descripcion}</td>
             <td>
-            
                 <a href='${base_url}archivos/pdt/${archivo.nombre_pdt}' class='btn btn-success btn-sm' target='_blank' title='Descargar Renta'>PDT</a> <a href='${base_url}archivos/pdt/${archivo.nombre_constancia}' target='_blank' class='btn btn-primary btn-sm' title='Descargar constancia'>CONSTANCIA</a>
-                <button type='button' class='btn btn-danger' title='Rectificar Archivos' onclick='rectificar(${archivo.id_pdt_renta},${archivo.id_archivos_pdt},${archivo.periodo},${archivo.anio})'>RECT</button>
+            </td>
+            <td>
+              <button type='button' class='btn btn-danger' title='Rectificar Archivos' onclick='rectificar(${archivo.id_pdt_renta},${archivo.id_archivos_pdt},${archivo.periodo},${archivo.anio}, ${ruc})'>RECT</button>
                 <button type='button' class='btn btn-warning' title='Detalle' onclick='details_archivos(${archivo.id_pdt_renta})'>DET</button>
             </td>
         </tr>
@@ -375,4 +375,99 @@ async function verificarInput() {
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
+}
+
+const idpdtrenta = document.getElementById("idpdtrenta");
+const idarchivos = document.getElementById("idarchivos");
+const periodoRectificacion = document.getElementById("periodoRectificacion");
+const anioRectificacion = document.getElementById("anioRectificacion");
+const rucRect = document.getElementById("rucRect");
+const alertRect = document.getElementById("alertRect");
+const viewAlert = document.getElementById("viewAlert");
+
+const formRectificacion = document.getElementById("formRectificacion");
+
+function rectificar(id_pdt_renta, id_archivos_pdt, periodo, anio, ruc) {
+  $("#modalRectificacion").modal("show");
+  idpdtrenta.value = id_pdt_renta;
+  idarchivos.value = id_archivos_pdt;
+  periodoRectificacion.value = periodo;
+  anioRectificacion.value = anio;
+  rucRect.value = ruc;
+
+  formRectificacion.reset();
+}
+
+formRectificacion.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formRectificacion);
+
+  fetch(base_url + "rectificacion-pdt-renta", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "error") {
+        viewAlert.innerHTML = `<div class="alert alert-danger" role="alert" id="alertRect">${data.message}</div>`;
+        return false;
+      }
+
+      $("#modalRectificacion").modal("hide");
+      $("#modalDescargarArchivo").modal("hide");
+
+      swalWithBootstrapButtons
+        .fire({
+          title: "Exitoso!",
+          text: data.message,
+          icon: "success",
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            renderArchivos(
+              periodoRectificacion.value,
+              anioRectificacion.value,
+              rucEmpresa.value
+            );
+            $("#modalDescargarArchivo").modal("show");
+          }
+        });
+    });
+});
+
+const getFilesDetails = document.getElementById("getFilesDetails");
+
+function details_archivos(id_pdt_renta) {
+  $("#modalDetalle").modal("show");
+
+  fetch(base_url + "pdt-0621/get-files-details/" + id_pdt_renta)
+    .then((res) => res.json())
+    .then((data) => {
+      let html = "";
+
+      data.forEach((file) => {
+        if (file.estado == 1) {
+          html += `
+            <tr>
+                <td>
+                    <a href='${base_url}archivos/pdt/${file.nombre_pdt}' target='_blank'>${file.nombre_pdt}</a>
+                </td>
+                <td>
+                  <a href='${base_url}archivos/pdt/${file.nombre_constancia}' target='_blank'>${file.nombre_constancia}</a>
+                </td>
+            </tr>
+            `;
+        } else {
+          html += `
+            <tr>
+                <td>${file.nombre_pdt}</td>
+                <td>${file.nombre_constancia}</td>
+            </tr>
+            `;
+        }
+      });
+
+      getFilesDetails.innerHTML = html;
+    });
 }

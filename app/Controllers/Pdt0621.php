@@ -231,4 +231,103 @@ class Pdt0621 extends BaseController
             ]);
         }
     }
+
+    public function pdtRectificacion()
+    {
+        $mes = new MesModel();
+        $anio_ = new AnioModel();
+        $files = new ArchivosPdt0621Model();
+
+        try {
+            $files->db->transBegin();
+
+            $idpdt = $this->request->getVar('idpdtrenta');
+            $idarchivo = $this->request->getVar('idarchivos');
+            $periodo = $this->request->getVar('periodoRectificacion');
+            $anio = $this->request->getVar('anioRectificacion');
+            $ruc = $this->request->getVar('rucRect');
+
+            $file1 = $this->request->getFile('filePdt');
+            $file2 = $this->request->getFile('fileConstancia');
+
+            // Verificar que al menos uno de los archivos esté presente
+            if ((!$file1 || !$file1->isValid()) && (!$file2 || !$file2->isValid())) {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "Debe seleccionar al menos un archivo"
+                ]);
+            }
+
+            $data_periodo = $mes->find($periodo);
+
+            $data_anio = $anio_->find($anio);
+
+            $per = strtoupper($data_periodo['mes_descripcion']);
+            $ani = $data_anio['anio_descripcion'];
+
+            $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+
+            $archivo_pdt = "";
+            $archivo_constancia = "";
+
+            $dataArchivo = $files->find($idarchivo);
+
+            if ($file1->isValid()) {
+                $ext_pdt = $file1->getExtension();
+                $archivo_pdt = "PDT0621_" . $ruc . "_" . $per . $ani . "_RECT_" . $codigo . "." . $ext_pdt;
+                $file1->move(FCPATH . 'archivos/pdt', $archivo_pdt);
+            } else {
+                $archivo_pdt = $dataArchivo['nombre_pdt'];
+            }
+
+            if ($file2->isValid()) {
+                $ext_constancia = $file2->getExtension();
+                $archivo_constancia = "CONST_" . $ruc . "_" . $per . $ani . "_RECT_" . $codigo . "." . $ext_constancia;
+                $file2->move(FCPATH . 'archivos/pdt', $archivo_constancia);
+            } else {
+                $archivo_constancia = $dataArchivo['nombre_constancia'];
+            }
+
+            $datos_files = array(
+                "id_pdt_renta" => $idpdt,
+                "nombre_pdt" => $archivo_pdt,
+                "nombre_constancia" => $archivo_constancia,
+                "estado" => 1,
+                "user_id" => session()->id
+            );
+
+            $files->insert($datos_files);
+
+            $files->update($idarchivo, array(
+                "estado" => 0
+            ));
+
+            if ($files->db->transStatus() === false) {
+                $files->db->transRollback();
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            $files->db->transCommit();
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se registro correctamente"
+            ]);
+        } catch (\Exception $e) {
+            $files->db->transRollback();
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Ocurrio un error " . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getArchivos($id_pdt_renta)
+    {
+        $files = new ArchivosPdt0621Model();
+
+        $data = $files->where('id_pdt_renta', $id_pdt_renta)->orderBy('id_archivos_pdt', 'desc')->findAll();
+
+        return $this->response->setJSON($data);
+    }
 }
