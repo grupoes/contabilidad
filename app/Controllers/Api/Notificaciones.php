@@ -372,14 +372,50 @@ class Notificaciones extends ResourceController
 
     public function saveFactura()
     {
+        $facturas = new FacturasHonorariosModel();
+
         try {
             $datos = $this->request->getJSON();
 
-            $ruc = $datos->ruc ?? null;
-            $razonSocial = $datos->razonSocial ?? null;
-            $productoName = $datos->productoName ?? null;
-            $precio = $datos->precio ?? null;
-        } catch (\Throwable $th) {
+            $honorario_id = $datos->honorario_id ?? null;
+            $contribuyente_id = $datos->contribuyente_id ?? null;
+            $tipo_doc = $datos->tipo_doc ?? null;
+            $serie_comprobante = $datos->serie_comprobante ?? null;
+            $numero_comprobante = $datos->numero_comprobante ?? null;
+            $tipo_envio_sunat = $datos->tipo_envio_sunat ?? null;
+            $titulo = $datos->titulo ?? null;
+            $mensaje = $datos->mensaje ?? null;
+            $url_absoluta_a4 = $datos->url_absoluta_a4 ?? null;
+            $url_absoluta_ticket = $datos->url_absoluta_ticket ?? null;
+            $anio = $datos->anio ?? null;
+            $mes = $datos->mes ?? null;
+            $descripcion = $datos->descripcion ?? null;
+            $estado = $datos->estado ?? null;
+
+            $datos = [
+                'honorario_id' => $honorario_id,
+                'contribuyente_id' => $contribuyente_id,
+                'tipo_doc' => $tipo_doc,
+                'serie_comprobante' => $serie_comprobante,
+                'numero_comprobante' => $numero_comprobante,
+                'tipo_envio_sunat' => $tipo_envio_sunat,
+                'titulo' => $titulo,
+                'mensaje' => $mensaje,
+                'url_absoluta_a4' => $url_absoluta_a4,
+                'url_absoluta_ticket' => $url_absoluta_ticket,
+                'anio' => $anio,
+                'mes' => $mes,
+                'descripcion' => $descripcion,
+                'estado' => $estado
+            ];
+
+            $facturas->insert($datos);
+
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'Factura creada correctamente'
+            ]);
+        } catch (\Exception $e) {
             //throw $th;
         }
     }
