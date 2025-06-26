@@ -281,7 +281,7 @@ class Notificaciones extends ResourceController
 
         $periodo = date('Y-m');
 
-        $empresas = $contrib->select('id, ruc, razon_social, tipoServicio, tipoPago')->where('estado', 1)->findAll();
+        $empresas = $contrib->select('id, ruc, razon_social, tipoServicio, tipoPago')->where('estado', 1)->where("tipoSuscripcion", 'NO GRATUITO')->findAll();
 
         foreach ($empresas as $key => $value) {
             $id = $value['id'];
