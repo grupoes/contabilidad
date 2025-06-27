@@ -211,7 +211,7 @@ function viewArchivos(data) {
   }
 
   if (data.r08 == "1") {
-    r08 = `<button type="button" class='btn btn-primary btn-sm' onclick="viewR08(${data.id_pdtplame}, '${data.mes_descripcion}', '${data.anio_descripcion}')" data-id="${data.id_pdtplame}" title='Descargar R08'>R08</button>`;
+    r08 = `<button type="button" class='btn btn-primary btn-sm' onclick="viewR08(${data.id_pdtplame})" data-id="${data.id_pdtplame}" title='Descargar R08'>R08</button>`;
   }
 
   html += `
@@ -234,7 +234,7 @@ function viewArchivos(data) {
   loadFiles.innerHTML = html;
 }
 
-function viewR08(id, mes, anio) {
+function viewR08(id) {
   fetch(base_url + "consulta-pdt-plame/r08/" + id)
     .then((res) => res.json())
     .then((data) => {
@@ -251,7 +251,7 @@ function viewR08_archivo(data) {
             <td><a href="${base_url}archivos/pdt/${item.nameFile}" target="__blank">${item.nameFile}</a></td>
             <td>
               <a href="#" style="font-size: 16px" title="RECTIFICAR" onclick="rectificarR08(event, ${item.id})"> <i class="fas fa-edit"> </i> </a>
-              <a href="#" style="font-size: 16px" title="ELIMINAR"> <i class="fas fa-trash-alt text-danger" style="font-size: 16px" > </i> </a>
+              <a href="#" style="font-size: 16px" title="ELIMINAR" onclick="eliminarR08(event, ${item.id})"> <i class="fas fa-trash-alt text-danger" style="font-size: 16px" > </i> </a>
             </td>
         </tr>
         `;
@@ -411,6 +411,79 @@ formRectR08.addEventListener("submit", (e) => {
   })
     .then((res) => res.json())
     .then((data) => {
-      console.log(data);
+      if (data.status === "ok") {
+        cerrarR08 = true;
+
+        $("#modalRectR08").modal("hide");
+        swalWithBootstrapButtons
+          .fire({
+            icon: "success",
+            title: "Bien...",
+            text: data.message,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            confirmButtonText: "OK",
+          })
+          .then((result) => {
+            if (result.isConfirmed) {
+              $("#modalDescargarArchivo").modal("show");
+              viewR08(data.idplame);
+            }
+          });
+
+        return false;
+      }
+
+      cerrarR08 = true;
+      $("#modalRectR08").modal("hide");
+
+      swalWithBootstrapButtons
+        .fire({
+          icon: "error",
+          title: "Oops...",
+          text: data.message,
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          confirmButtonText: "OK",
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            $("#modalRectR08").modal("show");
+          }
+        });
     });
 });
+
+function eliminarR08(e, id) {
+  e.preventDefault();
+
+  $("#modalDescargarArchivo").modal("hide");
+
+  swalWithBootstrapButtons
+    .fire({
+      title: "¿Esta seguro de eliminar el archivo R08?",
+      text: "Ya no podrá revertir después!",
+      icon: "error",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, eliminar!",
+      cancelButtonText: "Cancelar",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        fetch(`${base_url}eliminar-pdt-plame/r08/${id}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "ok") {
+              $("#modalDescargarArchivo").modal("show");
+              viewR08(data.idplame);
+            }
+          });
+      } else {
+        $("#modalDescargarArchivo").modal("show");
+      }
+    });
+}

@@ -141,8 +141,7 @@ class PdtPlame extends BaseController
             for ($i = 0; $i < count($file_r08); $i++) {
                 if ($file_r08[$i]->isValid() && !$file_r08[$i]->hasMoved()) {
                     $name_original = $file_r08[$i]->getName();
-                    $extension_r08 = $file_r08[$i]->getExtension();
-                    $name = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_' . $name_original . '.' . $extension_r08;
+                    $name = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_' . $name_original;
 
                     $file_r08[$i]->move(FCPATH . 'archivos/pdt', $name);
 
@@ -339,8 +338,7 @@ class PdtPlame extends BaseController
                 for ($i = 0; $i < count($file_r08); $i++) {
                     if ($file_r08[$i]->isValid() && !$file_r08[$i]->hasMoved()) {
                         $name_original = $file_r08[$i]->getName();
-                        $extension_r08 = $file_r08[$i]->getExtension();
-                        $name = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_' . $name_original . '.' . $extension_r08;
+                        $name = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_' . $name_original;
 
                         $file_r08[$i]->move(FCPATH . 'archivos/pdt', $name);
 
@@ -380,6 +378,7 @@ class PdtPlame extends BaseController
     public function rectificarR08()
     {
         $r08 = new R08PlameModel();
+        $plame = new PdtPlameModel();
 
         try {
             $idr08 = $this->request->getVar('idR08');
@@ -392,11 +391,73 @@ class PdtPlame extends BaseController
                     "message" => "Debe seleccionar un archivo"
                 ]);
             }
+
+            $dataR08 = $r08->find($idr08);
+
+            $idplame = $dataR08['plameId'];
+
+            $dataPlame = $plame->find($idplame);
+
+            $periodo = $dataPlame['periodo'];
+            $anio = $dataPlame['anio'];
+            $ruc = $dataPlame['ruc_empresa'];
+
+            $year = new AnioModel();
+            $month = new MesModel();
+
+            $dataAnio = $year->find($anio);
+            $dataMes = $month->find($periodo);
+
+            $desPeriodo = strtoupper($dataMes['mes_descripcion']);
+            $desAnio = $dataAnio['anio_descripcion'];
+
+            $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+
+            $name_original = $file_r08->getName();
+
+            $name = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_' . $codigo . '_' . $name_original;
+
+            $file_r08->move(FCPATH . 'archivos/pdt', $name);
+
+            $dataUpdate = array(
+                "nameFile" => $name,
+                "user_edit" => session()->id,
+            );
+
+            $r08->update($idr08, $dataUpdate);
+
+            return $this->response->setJSON([
+                "status" => "ok",
+                "message" => "archivo rectificado correctamente",
+                "idplame" => $idplame
+            ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => 'Error al rectificar el plame, ' . $e->getMessage()
             ]);
         }
+    }
+
+    public function eliminarR08($id)
+    {
+        $r08 = new R08PlameModel();
+
+        $dataR08 = $r08->find($id);
+
+        $idplame = $dataR08['plameId'];
+
+        $dataUpdate = array(
+            "status" => 0,
+            "user_delete" => session()->id,
+        );
+
+        $r08->update($id, $dataUpdate);
+
+        return $this->response->setJSON([
+            "status" => "ok",
+            "message" => "archivo eliminado correctamente",
+            "idplame" => $idplame
+        ]);
     }
 }
