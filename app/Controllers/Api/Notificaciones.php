@@ -389,6 +389,7 @@ class Notificaciones extends ResourceController
             $mes = $datos->mes ?? null;
             $descripcion = $datos->descripcion ?? null;
             $estado = $datos->estado ?? null;
+            $monto = $datos->monto ?? null;
 
             $datos = [
                 'honorario_id' => $honorario_id,
@@ -404,7 +405,8 @@ class Notificaciones extends ResourceController
                 'anio' => $anio,
                 'mes' => $mes,
                 'descripcion' => $descripcion,
-                'estado' => $estado
+                'estado' => $estado,
+                'monto' => $monto
             ];
 
             $facturas->insert($datos);

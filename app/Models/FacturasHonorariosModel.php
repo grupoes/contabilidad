@@ -13,7 +13,7 @@ class FacturasHonorariosModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'honorario_id', 'contribuyente_id', 'tipo_doc', 'serie_comprobante', 'numero_comprobante', 'tipo_envio_sunat', 'titulo', 'mensaje', 'url_absoluta_a4', 'url_absoluta_ticket', 'anio', 'mes', 'descripcion', 'estado', 'created_at', 'updated_at'];
+    protected $allowedFields = ['id', 'honorario_id', 'contribuyente_id', 'tipo_doc', 'serie_comprobante', 'numero_comprobante', 'tipo_envio_sunat', 'titulo', 'mensaje', 'url_absoluta_a4', 'url_absoluta_ticket', 'anio', 'mes', 'descripcion', 'estado', 'monto', 'created_at', 'updated_at'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

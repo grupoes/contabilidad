@@ -188,4 +188,8 @@ $routes->post('configuracion/numeroWhatsapp/store', 'NumeroWhatsapp::saveNumeroW
 $routes->get('configuracion/numeroWhatsapp/(:num)', 'NumeroWhatsapp::getIdNumeroWhatsapp/$1');
 $routes->get('configuracion/deleteWhatsapp/(:num)', 'NumeroWhatsapp::deleteWhatsapp/$1');
 
+$routes->get('facturas', 'Facturas::index');
+$routes->get('facturas/listar-periodo', 'Facturas::listarFacturasPeriodo');
+$routes->get('facturas/ver/(:num)', 'Facturas::facturasLista/$1');
+
 $routes->get('enviarCorreo', 'Correo::enviar');
