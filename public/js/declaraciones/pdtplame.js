@@ -211,7 +211,7 @@ function viewArchivos(data) {
   }
 
   if (data.r08 == "1") {
-    r08 = `<button type="button" class='btn btn-primary btn-sm' onclick="viewR08(${data.id_pdtplame})" data-id="${data.id_pdtplame}" title='Descargar R08'>R08</button>`;
+    r08 = `<button type="button" class='btn btn-primary btn-sm' onclick="viewR08(${data.id_pdtplame}, '${data.mes_descripcion}', '${data.anio_descripcion}')" data-id="${data.id_pdtplame}" title='Descargar R08'>R08</button>`;
   }
 
   html += `
@@ -224,15 +224,17 @@ function viewArchivos(data) {
               ${constancia}
               ${r08}
             </td>
-            <td> <button type='button' class='btn btn-danger' title='Rectificar Archivos' onclick='rectificar(${data.id_pdtplame},${data.id_archivos_pdtplame},${data.periodo},${data.anio})'>RECT</button>
-                <button type='button' class='btn btn-warning' title='Detalle' onclick='details_archivos(${data.id_pdtplame})'>DET</button></td>
+            <td> 
+              <button type='button' class='btn btn-danger btn-sm' title='Rectificar Archivos' onclick='rectificar(${data.id_pdtplame},${data.id_archivos_pdtplame},${data.periodo},${data.anio}, "${data.mes_descripcion}", "${data.anio_descripcion}")'>RECT</button>
+              
+            </td>
         </tr>
         `;
 
   loadFiles.innerHTML = html;
 }
 
-function viewR08(id) {
+function viewR08(id, mes, anio) {
   fetch(base_url + "consulta-pdt-plame/r08/" + id)
     .then((res) => res.json())
     .then((data) => {
@@ -246,7 +248,11 @@ function viewR08_archivo(data) {
   data.forEach((item) => {
     tr += `
         <tr>
-            <td><a href="${base_url}archivos/pdt/${item.nameFile}" target="__blank">${item.nameFile}</a></>
+            <td><a href="${base_url}archivos/pdt/${item.nameFile}" target="__blank">${item.nameFile}</a></td>
+            <td>
+              <a href="#" style="font-size: 16px" title="RECTIFICAR" onclick="rectificarR08(event, ${item.id})"> <i class="fas fa-edit"> </i> </a>
+              <a href="#" style="font-size: 16px" title="ELIMINAR"> <i class="fas fa-trash-alt text-danger" style="font-size: 16px" > </i> </a>
+            </td>
         </tr>
         `;
   });
@@ -267,3 +273,144 @@ function viewR08_archivo(data) {
 
   r08view.innerHTML = html;
 }
+
+const formRectificacion = document.getElementById("formRectificacion");
+
+let cerroPorGuardar = false;
+
+function rectificar(idPlame, idArchivoPlame, periodo, anio, mes, year) {
+  $("#modalDescargarArchivo").modal("hide");
+  $("#modalRectificacion").modal("show");
+
+  const rucEmpresa = document.getElementById("rucEmpresa");
+  const idplame = document.getElementById("idplame");
+  const idPlameFiles = document.getElementById("idPlameFiles");
+  const periodo_rect = document.getElementById("periodo_rect");
+  const anio_rect = document.getElementById("anio_rect");
+
+  rucEmpresa.value = ruc_emp.value;
+  idplame.value = idPlame;
+  idPlameFiles.value = idArchivoPlame;
+  periodo_rect.value = periodo;
+  anio_rect.value = anio;
+
+  const titleModalRectificacion = document.getElementById(
+    "titleModalRectificacion"
+  );
+  titleModalRectificacion.textContent = `Rectificar Archivos - ${mes} ${year}`;
+}
+
+const modalRect = document.getElementById("modalRectificacion");
+
+modalRect.addEventListener("hidden.bs.modal", function () {
+  formRectificacion.reset();
+
+  if (!cerroPorGuardar) {
+    $("#modalDescargarArchivo").modal("show");
+  }
+
+  // Reinicia la bandera
+  cerroPorGuardar = false;
+});
+
+formRectificacion.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formRectificacion);
+
+  fetch(`${base_url}rectificar-pdt-plame`, {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "ok") {
+        cerroPorGuardar = true;
+
+        $("#modalRectificacion").modal("hide");
+        swalWithBootstrapButtons
+          .fire({
+            icon: "success",
+            title: "Bien...",
+            text: data.message,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            confirmButtonText: "OK",
+          })
+          .then((result) => {
+            if (result.isConfirmed) {
+              $("#modalDescargarArchivo").modal("show");
+              renderArchivos(
+                periodo_rect.value,
+                anio_rect.value,
+                ruc_emp.value
+              );
+            }
+          });
+
+        return false;
+      }
+
+      cerroPorGuardar = true;
+      $("#modalRectificacion").modal("hide");
+
+      swalWithBootstrapButtons
+        .fire({
+          icon: "error",
+          title: "Oops...",
+          text: data.message,
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          confirmButtonText: "OK",
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            $("#modalRectificacion").modal("show");
+          }
+        });
+    });
+});
+
+function rectificarR08(e, id) {
+  e.preventDefault();
+
+  const idR08 = document.getElementById("idR08");
+
+  idR08.value = id;
+
+  $("#modalDescargarArchivo").modal("hide");
+
+  $("#modalRectR08").modal("show");
+}
+
+let cerrarR08 = false;
+
+const formRectR08 = document.getElementById("formRectR08");
+
+const modalRectR08 = document.getElementById("modalRectR08");
+
+modalRectR08.addEventListener("hidden.bs.modal", function () {
+  formRectR08.reset();
+
+  if (!cerrarR08) {
+    $("#modalDescargarArchivo").modal("show");
+  }
+
+  // Reinicia la bandera
+  cerrarR08 = false;
+});
+
+formRectR08.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formRectR08);
+
+  fetch(`${base_url}rectificar-pdt-plame/r08`, {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+    });
+});

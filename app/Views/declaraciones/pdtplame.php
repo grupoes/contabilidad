@@ -171,6 +171,78 @@
     </div>
 </div>
 
+<div id="modalRectificacion" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="titleModalRectificacion"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formRectificacion" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="ruc" id="rucEmpresa" value="0">
+                    <input type="hidden" name="idplame" id="idplame" value="0">
+                    <input type="hidden" name="idPlameFiles" id="idPlameFiles" value="0">
+                    <input type="hidden" name="periodo" id="periodo_rect" value="0">
+                    <input type="hidden" name="anio" id="anio_rect" value="0">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="file_r01">Subir R01 (excel o pdf)</label>
+                            <input type="file" class="form-control" name="file_r01" id="file_r01_rect" accept=".xlsx, .xls, .pdf" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="file_r12">Subir R12 (excel o pdf)</label>
+                            <input type="file" class="form-control" name="file_r12" id="file_r12_rect" accept=".xlsx, .xls, .pdf" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="file_constancia">Subir Constancia (word o pdf)</label>
+                            <input type="file" class="form-control" accept="doc,.docx, .pdf" name="file_constancia" id="file_constancia_rect" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="file_r08">Subir R08 (txt, pdf)</label>
+                            <input type="file" class="form-control" accept="txt,.pdf" name="file_r08[]" id="file_r08_rect" multiple />
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" id="btnRect">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="modalRectR08" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="titleModalRectificacion">Rectificar R08</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formRectR08" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="idR08" id="idR08" value="0">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label" for="file_r01">Subir archivo R08</label>
+                            <input type="file" class="form-control" name="file_r08" id="file_r08_rect" accept=".pdf" />
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" id="btnRect">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>

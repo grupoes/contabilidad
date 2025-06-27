@@ -33,6 +33,8 @@ class PdtPlame extends BaseController
         $pdtPlame = new PdtPlameModel();
         $files = new ArchivosPdtPlameModel();
         $r08 = new R08PlameModel();
+        $year = new AnioModel();
+        $month = new MesModel();
 
         $pdtPlame->db->transStart();
 
@@ -72,26 +74,32 @@ class PdtPlame extends BaseController
                 return $this->response->setJSON(['error' => 'success', 'message' => "El periodo y año ya existe."]);
             }
 
+            $dataAnio = $year->find($anio);
+            $dataMes = $month->find($periodo);
+
+            $desPeriodo = strtoupper($dataMes['mes_descripcion']);
+            $desAnio = $dataAnio['anio_descripcion'];
+
             //20329049982_201910_r01.pdf
 
             if ($file_r01 && $file_r01->isValid()) {
                 //$name_r01 = $file_r01->getName();
                 $extension_r01 = $file_r01->getExtension();
 
-                $name_r01 = $ruc . '_' . $anio . '_' . $periodo . '_r01.' . $extension_r01;
+                $name_r01 = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_r01.' . $extension_r01;
                 $file_r01->move(FCPATH . 'archivos/pdt', $name_r01);
             }
 
             if ($file_r12 && $file_r12->isValid()) {
                 //$name_r12 = $file_r12->getName();
                 $extension_r12 = $file_r12->getExtension();
-                $name_r12 = $ruc . '_' . $anio . '_' . $periodo . '_r12.' . $extension_r12;
+                $name_r12 = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_r12.' . $extension_r12;
                 $file_r12->move(FCPATH . 'archivos/pdt', $name_r12);
             }
 
             //$name_constancia = $file_constancia->getName();
             $extension_constancia = $file_constancia->getExtension();
-            $name_constancia = $ruc . '_' . $anio . '_' . $periodo . '_constancia.' . $extension_constancia;
+            $name_constancia = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_constancia.' . $extension_constancia;
 
             $file_constancia->move(FCPATH . 'archivos/pdt', $name_constancia);
 
@@ -134,7 +142,7 @@ class PdtPlame extends BaseController
                 if ($file_r08[$i]->isValid() && !$file_r08[$i]->hasMoved()) {
                     $name_original = $file_r08[$i]->getName();
                     $extension_r08 = $file_r08[$i]->getExtension();
-                    $name = $ruc . '_' . $anio . '_' . $periodo . '_' . $name_original . '.' . $extension_r08;
+                    $name = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_' . $name_original . '.' . $extension_r08;
 
                     $file_r08[$i]->move(FCPATH . 'archivos/pdt', $name);
 
@@ -228,6 +236,167 @@ class PdtPlame extends BaseController
 
         $zip->close();
 
-        return $this->response->download($zipName, null);
+        return $this->response->download($zipPath, null);
+    }
+
+    public function rectificarPlame()
+    {
+        $files = new ArchivosPdtPlameModel();
+        $year = new AnioModel();
+        $month = new MesModel();
+
+        try {
+
+            $files->db->transBegin();
+
+            $idplame = $this->request->getVar('idplame');
+            $idPlameFiles = $this->request->getVar('idPlameFiles');
+            $ruc = $this->request->getVar('ruc');
+            $periodo = $this->request->getVar('periodo');
+            $anio = $this->request->getVar('anio');
+
+            $file_r01 = $this->request->getFile('file_r01');
+            $file_r12 = $this->request->getFile('file_r12');
+            $file_constancia = $this->request->getFile('file_constancia');
+            $file_r08 = $this->request->getFileMultiple('file_r08');
+
+            $hayArchivoR08 = false;
+
+            if (!empty($file_r08)) {
+                foreach ($file_r08 as $archivo) {
+                    if ($archivo->isValid() && !$archivo->hasMoved()) {
+                        $hayArchivoR08 = true;
+                        break;
+                    }
+                }
+            }
+
+            // Verificar que al menos uno de los archivos esté presente
+            if ((!$file_r01 || !$file_r01->isValid()) && (!$file_r12 || !$file_r12->isValid()) && (!$file_constancia || !$file_constancia->isValid()) && !$hayArchivoR08) {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "Debe seleccionar al menos un archivo"
+                ]);
+            }
+
+            $dataAnio = $year->find($anio);
+            $dataMes = $month->find($periodo);
+            $dataFiles = $files->find($idPlameFiles);
+
+            $name_r01 = "";
+            $name_r12 = "";
+            $name_constancia = "";
+
+            $desPeriodo = strtoupper($dataMes['mes_descripcion']);
+            $desAnio = $dataAnio['anio_descripcion'];
+
+            $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+
+            if ($file_r01 && $file_r01->isValid()) {
+                $extension_r01 = $file_r01->getExtension();
+                $name_r01 = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_r01_' . $codigo . '.' . $extension_r01;
+                $file_r01->move(FCPATH . 'archivos/pdt', $name_r01);
+            } else {
+                $name_r01 = $dataFiles['archivo_planilla'];
+            }
+
+            if ($file_r12 && $file_r12->isValid()) {
+                $extension_r12 = $file_r12->getExtension();
+                $name_r12 = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_r12_' . $codigo . '.' . $extension_r12;
+                $file_r12->move(FCPATH . 'archivos/pdt', $name_r12);
+            } else {
+                $name_r12 = $dataFiles['archivo_honorarios'];
+            }
+
+            if ($file_constancia && $file_constancia->isValid()) {
+                $extension_constancia = $file_constancia->getExtension();
+                $name_constancia = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_constancia_' . $codigo . '.' . $extension_constancia;
+                $file_constancia->move(FCPATH . 'archivos/pdt', $name_constancia);
+            } else {
+                $name_constancia = $dataFiles['archivo_constancia'];
+            }
+
+            $dataUpdate = array(
+                "estado" => 0,
+            );
+
+            $files->update($idPlameFiles, $dataUpdate);
+
+            $dataArchi = array(
+                "archivo_planilla" => $name_r01,
+                "archivo_honorarios" => $name_r12,
+                "archivo_constancia" => $name_constancia,
+                "estado" => 1,
+                "user_id" => session()->id,
+                "id_pdtplame" => $idplame
+            );
+
+            $files->insert($dataArchi);
+
+            if ($hayArchivoR08) {
+                $r08 = new R08PlameModel();
+
+                for ($i = 0; $i < count($file_r08); $i++) {
+                    if ($file_r08[$i]->isValid() && !$file_r08[$i]->hasMoved()) {
+                        $name_original = $file_r08[$i]->getName();
+                        $extension_r08 = $file_r08[$i]->getExtension();
+                        $name = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_' . $name_original . '.' . $extension_r08;
+
+                        $file_r08[$i]->move(FCPATH . 'archivos/pdt', $name);
+
+                        $data_r08 = array(
+                            "plameId" => $idplame,
+                            "nameFile" => $name,
+                            "status" => 1,
+                            "user_id" => session()->id
+                        );
+
+                        $r08->insert($data_r08);
+                    }
+                }
+            }
+
+            if ($files->db->transStatus() === false) {
+                $files->db->transRollback();
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            $files->db->transCommit();
+
+            return $this->response->setJSON([
+                "status" => "ok",
+                "message" => "archivos rectificados correctamente",
+            ]);
+        } catch (\Exception $e) {
+            $files->db->transRollback();
+
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Error al rectificar el plame, ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function rectificarR08()
+    {
+        $r08 = new R08PlameModel();
+
+        try {
+            $idr08 = $this->request->getVar('idR08');
+
+            $file_r08 = $this->request->getFile('file_r08');
+
+            if (!$file_r08 || !$file_r08->isValid()) {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "Debe seleccionar un archivo"
+                ]);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Error al rectificar el plame, ' . $e->getMessage()
+            ]);
+        }
     }
 }
