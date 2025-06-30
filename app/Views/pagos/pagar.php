@@ -116,7 +116,7 @@
                         </div>
 
                         <div class="col-md-3 order-md-2 order-1 mb-3">
-                            <h5>Historial de Suscripción</h5>
+                            <h5>Historial de Tarifas</h5>
                             <ul class="list-group" id="historialSuscripcion">
 
                             </ul>
