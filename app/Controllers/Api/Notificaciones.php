@@ -172,7 +172,7 @@ class Notificaciones extends ResourceController
 
             $data["contribuyente"] = array(
                 "token_contribuyente"           => getenv("API_KEY_GENERAR_FACTURA"), //Token del contribuyente
-                "id_usuario_vendedor"           => 43, //Debes ingresar el ID de uno de tus vendedores (opcional)
+                "id_usuario_vendedor"           => getenv("ID_USUARIO_VENDEDOR"), //Debes ingresar el ID de uno de tus vendedores (opcional)
                 "tipo_proceso"                  => getenv("TIPO_ENVIO_SUNAT"), //Funcional en una siguiente versión. El ambiente al que se enviará, puede ser: {prueba, produccion}
                 "tipo_envio"                    => "inmediato" //funcional en una siguiente versión. Aquí puedes definir si se enviará de inmediato a sunat
             );
@@ -192,7 +192,7 @@ class Notificaciones extends ResourceController
             $data["cabecera_comprobante"] = array(
                 "tipo_documento"                => "01",  //{"01": FACTURA, "03": BOLETA}
                 "moneda"                        => "PEN",  //{"USD", "PEN"}
-                "idsucursal"                    => 35,  //{ID DE SUCURSAL}
+                "idsucursal"                    => getenv("ID_SUCURSAL"),  //{ID DE SUCURSAL}
                 "id_condicionpago"              => "",  //condicionpago_comprobante
                 "fecha_comprobante"             => $fecha_comprobante,  //fecha_comprobante
                 "nro_placa"                     => "",  //nro_placa_vehiculo
