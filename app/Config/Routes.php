@@ -196,3 +196,7 @@ $routes->get('facturas/listar-periodo', 'Facturas::listarFacturasPeriodo');
 $routes->get('facturas/ver/(:num)', 'Facturas::facturasLista/$1');
 
 $routes->get('enviarCorreo', 'Correo::enviar');
+
+$routes->get('/reporte-ventas/(:any)', 'Ventas::buscarPorRuc/$1');
+$routes->post('/sucursales', 'Ventas::sucursales');
+$routes->post('/reporte-detallado', 'Ventas::ventaDetallada');
