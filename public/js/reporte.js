@@ -233,6 +233,7 @@ btn_maq_venta.addEventListener("click", (e) => {
   formData.append("cuenta", cuenta.value);
   formData.append("glosa", glosa.value);
   formData.append("ruc", ruc.value);
+  formData.append("shema", shema.value);
 
   fetch(url_base + "/maqueta-ventas", {
     method: "POST",
