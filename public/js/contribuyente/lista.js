@@ -248,7 +248,7 @@ function optionsTable(id, ruc) {
         <a class="dropdown-item" href="#" onclick="verAcceso(event, ${id})"><i class="ti ti-key"></i>Ver contraseña</a>
         <a class="dropdown-item" href="https://esconsultoresyasesores.com:9094/maqueta-compras/${ruc}" target="__blank"><i class="ti ti-file-download"></i>Escanear y generar maquetas de compras</a>
         <a class="dropdown-item" href="https://esconsultoresyasesores.com:9093/reportes/${ruc}" target="__blank"><i class="ti ti-file-analytics"></i>Reporte Comercial</a>
-        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9092/reportes/${ruc}" target="__blank"><i class="ti ti-file-text"></i>Reporte Restaurante</a>
+        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9300/reporte-ventas/${ruc}" target="__blank"><i class="ti ti-file-text"></i>Reporte Restaurante</a>
         <a class="dropdown-item" href="https://grupoesconsultores.com/contagrupoes/maqueta-compras/${ruc}" target="__blank"><i class="ti ti-file-symlink"></i>Enviar archivos</a>
         <a class="dropdown-item" href="#" onclick="loadModalContactos(event, ${id})"><i class="ti ti-accessible"></i>Contactos</a>
     `;
