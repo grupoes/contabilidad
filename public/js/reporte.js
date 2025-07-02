@@ -222,11 +222,6 @@ btn_venta.addEventListener("click", (e) => {
 btn_maq_venta.addEventListener("click", (e) => {
   e.preventDefault();
 
-  if (sucursal.value == 0) {
-    alert("Seleccionar una sucursal");
-    return false;
-  }
-
   if (fecha_inicio.value == "") {
     alert("Ingresar una fecha de inicio");
     return false;
