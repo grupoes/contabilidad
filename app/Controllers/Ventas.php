@@ -209,7 +209,7 @@ class ventas extends BaseController
 
             $boletas = $dataBoletas->getResultArray();
 
-            $dataNotasCredito = $db->query("SELECT nc.nocv_id as id, TO_CHAR(nc.nocv_fecha, 'DD/MM/YYYY') as fecha, 'S' as tipo_moneda, tc.tico_descripcion, CONCAT(nc.nocv_serie,'-',nc.nocv_numero) as numero_documento, c.clie_numero_documento, c.clie_nombre_razon_social, nc.nocv_total_exonerado as total_exonerado, nc.nocv_total_gravado as total_gravado, nc.nocv_total_inafecto as total_inafecto, nc.nocv_subtotal as subtotal, nc.nocv_total_igv as total_igv, nc.nocv_total_icbper as total_icbper, nc.nocv_total as total, nc.nocv_homologacion_estado as homologacion_estado, cs.sede_id, cs.tico_id, nc.nocv_estado as estado, CONCAT(nc.nocv_modifica_serie, '-', nc.nocv_modifica_numero) as referencia, TO_CHAR(v.vent_fecha, 'DD/MM/YYYY') as fecha_referencia, 'nota_credito' as origen
+            $dataNotasCredito = $db->query("SELECT nc.nocv_id as id, TO_CHAR(nc.nocv_fecha, 'DD/MM/YYYY') as fecha, 'S' as tipo_moneda, tc.tico_descripcion, nc.tico_modifica, CONCAT(nc.nocv_serie,'-',nc.nocv_numero) as numero_documento, c.clie_numero_documento, c.clie_nombre_razon_social, nc.nocv_total_exonerado as total_exonerado, nc.nocv_total_gravado as total_gravado, nc.nocv_total_inafecto as total_inafecto, nc.nocv_subtotal as subtotal, nc.nocv_total_igv as total_igv, nc.nocv_total_icbper as total_icbper, nc.nocv_total as total, nc.nocv_homologacion_estado as homologacion_estado, cs.sede_id, cs.tico_id, nc.nocv_estado as estado, CONCAT(nc.nocv_modifica_serie, '-', nc.nocv_modifica_numero) as referencia, TO_CHAR(v.vent_fecha, 'DD/MM/YYYY') as fecha_referencia, 'nota_credito' as origen, tc.tico_codigo_sunat as codigo_sunat
             FROM {$shema}.nota_credito_venta nc 
             INNER JOIN {$shema}.cliente c ON c.clie_id = nc.clie_id 
             INNER JOIN {$shema}.comprobante_sede cs ON cs.cose_id = nc.cose_id 
@@ -348,6 +348,12 @@ class ventas extends BaseController
 
             foreach ($notasCredito as $keys => $values) {
 
+                if ($values['tico_modifica'] == 1) {
+                    $tipo_referencia = "03";
+                } else {
+                    $tipo_referencia = "01";
+                }
+
                 $add = array(
                     "fecha" => $values['fecha'],
                     "tipo_moneda" => $tipo_moneda,
@@ -365,7 +371,7 @@ class ventas extends BaseController
                     "tipo_cambio" => $tipo_cambio,
                     "glosa" => strtoupper($glosa),
                     "cuenta" => $cuenta,
-                    "tipo" => "",
+                    "tipo" => $tipo_referencia,
                     "referencia" => $values['referencia'],
                     "referenciafecha" => $values['fecha_referencia']
                 );
