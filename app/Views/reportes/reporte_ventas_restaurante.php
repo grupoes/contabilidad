@@ -177,7 +177,7 @@
                                     <input type="hidden" name="idempresa" id="idempresa" value="<?= $rpta->empr_id ?>">
                                     <div class="col-md-2">
                                         <div class="mb-3">
-                                            <label for="" class="form-label">SUCURSAL</label>
+                                            <label for="sucursal_venta" class="form-label">SUCURSAL</label>
                                             <select name="sucursal_venta" id="sucursal_venta" class="form-control">
 
                                             </select>
@@ -186,27 +186,27 @@
 
                                     <div class="col-md-2">
                                         <div class="mb-3">
-                                            <label for="" class="form-label">FECHA DE INICIO</label>
+                                            <label for="fecha_inicio_ventas" class="form-label">FECHA DE INICIO</label>
                                             <input type="date" class="form-control" name="fecha_inicio_ventas" id="fecha_inicio_ventas">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
                                         <div class="mb-3">
-                                            <label for="" class="form-label">FECHA DE FIN</label>
+                                            <label for="fecha_fin_ventas" class="form-label">FECHA DE FIN</label>
                                             <input type="date" class="form-control" name="fecha_fin_ventas" id="fecha_fin_ventas">
                                         </div>
                                     </div>
 
                                     <div class="col-md-1">
                                         <div class="mb-3">
-                                            <label for="" class="form-label">CUENTA</label>
+                                            <label for="cuenta_ventas" class="form-label">CUENTA</label>
                                             <input type="number" class="form-control" name="cuenta_ventas" id="cuenta_ventas">
                                         </div>
                                     </div>
 
                                     <div class="col-md-3">
                                         <div class="mb-3">
-                                            <label for="" class="form-label">GLOSA</label>
+                                            <label for="glosa_ventas" class="form-label">GLOSA</label>
                                             <input type="text" class="form-control" name="glosa_ventas" id="glosa_ventas">
                                         </div>
                                     </div>

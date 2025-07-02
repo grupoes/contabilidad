@@ -99,7 +99,7 @@ class ventas extends BaseController
             INNER JOIN {$shema}.comprobante_sede cs ON cs.cose_id = v.cose_id 
             INNER JOIN {$shema}.tipo_comprobante tc ON tc.tico_id = cs.tico_id 
             WHERE cs.tico_id IN(1, 2, 3, 4) 
-            AND v.vent_fecha BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal
+            AND DATE(v.vent_fecha) BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal
             AND v.vent_tipo_envio = 'PRODUCCION'
 
             UNION ALL
@@ -131,7 +131,7 @@ class ventas extends BaseController
             INNER JOIN {$shema}.comprobante_sede cs ON cs.cose_id = nc.cose_id 
             INNER JOIN {$shema}.tipo_comprobante tc ON tc.tico_id = cs.tico_id 
             INNER JOIN {$shema}.venta v ON v.vent_id = nc.vent_id
-            WHERE nc.nocv_fecha BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal
+            WHERE DATE(nc.nocv_fecha) BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal
             AND nc.nocv_tipo_envio = 'PRODUCCION'
         ) AS subconsulta
 
@@ -178,7 +178,7 @@ class ventas extends BaseController
             INNER JOIN {$shema}.comprobante_sede cs ON cs.cose_id = v.cose_id 
             INNER JOIN {$shema}.tipo_comprobante tc ON tc.tico_id = cs.tico_id 
             WHERE cs.tico_id = 2
-            AND v.vent_fecha BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal AND v.vent_tipo_envio = 'PRODUCCION' ORDER BY cs.sede_id ASC, v.vent_fecha ASC, v.vent_numero ASC");
+            AND DATE(v.vent_fecha) BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal AND v.vent_tipo_envio = 'PRODUCCION' ORDER BY v.vent_fecha ASC, v.vent_numero ASC");
 
         $facturas = $dataFacturas->getResultArray();
 
@@ -188,7 +188,7 @@ class ventas extends BaseController
             INNER JOIN {$shema}.comprobante_sede cs ON cs.cose_id = v.cose_id 
             INNER JOIN {$shema}.tipo_comprobante tc ON tc.tico_id = cs.tico_id 
             WHERE cs.tico_id = 1
-            AND v.vent_fecha BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal AND v.vent_tipo_envio = 'PRODUCCION' ORDER BY cs.sede_id ASC, v.vent_fecha ASC, v.vent_numero ASC");
+            AND DATE(v.vent_fecha) BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal AND v.vent_tipo_envio = 'PRODUCCION' ORDER BY v.vent_fecha ASC, v.vent_numero ASC");
 
         $boletas = $dataBoletas->getResultArray();
 
@@ -198,8 +198,8 @@ class ventas extends BaseController
             INNER JOIN {$shema}.comprobante_sede cs ON cs.cose_id = nc.cose_id 
             INNER JOIN {$shema}.tipo_comprobante tc ON tc.tico_id = cs.tico_id 
             INNER JOIN {$shema}.venta v ON v.vent_id = nc.vent_id
-            WHERE nc.nocv_fecha BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal
-            AND nc.nocv_tipo_envio = 'PRODUCCION' ORDER BY cs.sede_id ASC, nc.nocv_fecha ASC, nc.nocv_numero ASC");
+            WHERE DATE(nc.nocv_fecha) BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal
+            AND nc.nocv_tipo_envio = 'PRODUCCION' ORDER BY nc.nocv_fecha ASC, nc.nocv_numero ASC");
 
         $notasCredito = $dataNotasCredito->getResultArray();
 
@@ -241,7 +241,7 @@ class ventas extends BaseController
         }
 
         foreach ($boletas as $key => $value) {
-            $total += $value['total'];
+            $total += $value['subtotal'];
             $total_igv += $value['total_igv'];
             $total_sub += $value['subtotal'];
             $total_icbper += 0;
@@ -317,7 +317,10 @@ class ventas extends BaseController
                     $total_icbper = 0;
                 }
             } else {
-                if (date('d-m-Y', strtotime($value['fecha'])) == date('d-m-Y', strtotime($boletas[$key + 1]['fecha']))) {
+                $fecha1 = \DateTime::createFromFormat('d/m/Y', $value['fecha']);
+                $fecha2 = \DateTime::createFromFormat('d/m/Y', $boletas[$key + 1]['fecha']);
+
+                if ($fecha1 == $fecha2) {
                     if ($value['total'] >= 700) {
                         $add = array(
                             "fecha" => $value['fecha'],
