@@ -74,10 +74,12 @@ class ventas extends BaseController
         $query = $db->query("SELECT * FROM (
             SELECT 
                 v.vent_id as id, 
-                TO_CHAR(v.vent_fecha, 'DD/MM/YYYY') as fecha, 
+                TO_CHAR(v.vent_fecha, 'DD/MM/YYYY') as fecha,
+                v.vent_fecha AS fecha_real, 
                 'S' as tipo_moneda, 
                 tc.tico_descripcion, 
-                CONCAT(v.vent_serie,'-',v.vent_numero) as numero_documento, 
+                CONCAT(v.vent_serie,'-',v.vent_numero) as numero_documento,
+                v.vent_numero as correlativo,
                 c.clie_numero_documento, 
                 c.clie_nombre_razon_social, 
                 v.vent_total_exonerado as total_exonerado, 
@@ -107,9 +109,11 @@ class ventas extends BaseController
             SELECT 
                 nc.nocv_id as id, 
                 TO_CHAR(nc.nocv_fecha, 'DD/MM/YYYY') as fecha, 
+                nc.nocv_fecha AS fecha_real,
                 'S' as tipo_moneda, 
                 tc.tico_descripcion, 
-                CONCAT(nc.nocv_serie,'-',nc.nocv_numero) as numero_documento, 
+                CONCAT(nc.nocv_serie,'-',nc.nocv_numero) as numero_documento,
+                nc.nocv_numero as correlativo,
                 c.clie_numero_documento, 
                 c.clie_nombre_razon_social, 
                 nc.nocv_total_exonerado as total_exonerado, 
@@ -140,12 +144,10 @@ class ventas extends BaseController
                 WHEN 'venta' THEN 1 
                 WHEN 'nota_credito' THEN 2 
             END,
-            sede_id ASC, 
-            fecha ASC, 
-            numero_documento ASC;
+            sede_id ASC,
+            fecha_real ASC,
+            CAST(correlativo AS INTEGER) ASC;
         ");
-
-        /*$query = $db->query("SELECT nc.nocv_id as id, TO_CHAR(nc.nocv_fecha, 'DD/MM/YYYY') as fecha, 'S' as tipo_moneda, tc.tico_descripcion, CONCAT(nc.nocv_serie,'-',nc.nocv_numero) as numero_documento, c.clie_numero_documento, c.clie_nombre_razon_social, nc.nocv_total_exonerado as total_exonerado, nc.nocv_total_gravado as total_gravado, nc.nocv_total_inafecto as total_inafecto, nc.nocv_subtotal as subtotal, nc.nocv_total_igv as total_igv, nc.nocv_total_icbper as total_icbper, nc.nocv_total as total, nc.nocv_homologacion_estado as homologacion_estado, cs.sede_id, nc.nocv_estado as estado FROM {$shema}.nota_credito_venta nc INNER JOIN {$shema}.cliente c ON c.clie_id = nc.clie_id INNER JOIN {$shema}.comprobante_sede cs ON cs.cose_id = nc.cose_id INNER JOIN {$shema}.tipo_comprobante tc ON tc.tico_id = cs.tico_id WHERE nc.nocv_fecha BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal AND nc.nocv_tipo_envio = 'PRODUCCION' ORDER BY cs.sede_id ASC, nc.nocv_fecha ASC, nc.nocv_numero ASC");*/
 
         $ventas = $query->getResultArray();
 
@@ -205,12 +207,6 @@ class ventas extends BaseController
 
         $maqueta = [];
 
-        $total = 0;
-        $total_igv = 0;
-        $total_sub = 0;
-        $total_icbper = 0;
-        $cont = 0;
-
         $tipo_moneda = 'S';
         $tipo_cambio = 1;
 
@@ -240,223 +236,82 @@ class ventas extends BaseController
             array_push($maqueta, $add);
         }
 
-        foreach ($boletas as $key => $value) {
-            $total += $value['subtotal'];
-            $total_igv += $value['total_igv'];
-            $total_sub += $value['subtotal'];
-            $total_icbper += 0;
-            $inicial = $boletas[$key - $cont]['vent_numero'];
+        //algoritmo nuevo
 
-            if ($key == (count($boletas) - 1)) {
-                if ($value['total'] >= 700) {
-                    $add = array(
-                        "fecha" => $value['fecha'],
-                        "tipo_moneda" => $tipo_moneda,
-                        "documento" => 'BOLETA DE VENTA',
-                        "numero" => $value['numero_documento'],
-                        "condicion" => "A",
-                        "ruc" => $value['clie_numero_documento'],
-                        "razon_social" => $value['clie_nombre_razon_social'],
-                        "vventa" => number_format($value['subtotal'], 2, '.', ''),
-                        "valor_venta" => number_format($value['subtotal'], 2, '.', ''),
-                        "igv" => number_format($value['total_igv'], 2, '.', ''),
-                        "bolsa" => "0.00",
-                        "icb" => $value['total_icbper'],
-                        "total" => number_format($value['total'], 2, '.', ''),
-                        "tipo_cambio" => $tipo_cambio,
-                        "glosa" => strtoupper($glosa),
-                        "cuenta" => $cuenta,
-                        "tipo" => "",
-                        "referencia" => "",
-                        "referenciafecha" => ""
-                    );
+        $resultado = [];
+        $grupoActual = null;
 
-                    array_push($maqueta, $add);
-
-                    $cont = 0;
-
-                    $total = 0;
-                    $total_igv = 0;
-                    $total_sub = 0;
-                    $total_icbper = 0;
-                } else {
-                    if ($cont == 0) {
-                        $serie_numero = $value['vent_serie'] . "-" . $value['vent_numero'];
-                    } else {
-                        $serie_numero = $value['vent_serie'] . "-" . $inicial . "/" . $value['vent_numero'];
-                    }
-
-                    $add = array(
-                        "fecha" => $value['fecha'],
-                        "tipo_moneda" => $tipo_moneda,
-                        "documento" => 'BOLETA DE VENTA',
-                        "numero" => $serie_numero,
-                        "condicion" => "A",
-                        "ruc" => "00000001",
-                        "razon_social" => "CLIENTE VARIOS",
-                        "vventa" => number_format($total_sub, 2, '.', ''),
-                        "valor_venta" => number_format($total_sub, 2, '.', ''),
-                        "igv" => number_format($total_igv, 2, '.', ''),
-                        "bolsa" => "0.00",
-                        "icb" => number_format($total_icbper, 2, '.', ''),
-                        "total" => number_format($total, 2, '.', ''),
-                        "tipo_cambio" => $tipo_cambio,
-                        "glosa" => strtoupper($glosa),
-                        "cuenta" => $cuenta,
-                        "tipo" => "",
-                        "referencia" => "",
-                        "referenciafecha" => ""
-                    );
-
-                    array_push($maqueta, $add);
-
-                    $cont = 0;
-                    $total = 0;
-                    $total_igv = 0;
-                    $total_sub = 0;
-                    $total_icbper = 0;
+        foreach ($boletas as $fila) {
+            // Si es condición 'I' o monto > 700, agregar directamente
+            if ($fila['estado'] === 'f' || $fila['total'] >= 700) {
+                // Si hay un grupo pendiente, agregarlo primero
+                if ($grupoActual !== null) {
+                    $maqueta[] =  $this->finalizarGrupo($grupoActual);
+                    $grupoActual = null;
                 }
-            } else {
-                $fecha1 = \DateTime::createFromFormat('d/m/Y', $value['fecha']);
-                $fecha2 = \DateTime::createFromFormat('d/m/Y', $boletas[$key + 1]['fecha']);
 
-                if ($fecha1 == $fecha2) {
-                    if ($value['total'] >= 700) {
-                        $add = array(
-                            "fecha" => $value['fecha'],
-                            "tipo_moneda" => $tipo_moneda,
-                            "documento" => 'BOLETA DE VENTA',
-                            "numero" => $value['numero_documento'],
-                            "condicion" => "A",
-                            "ruc" => $value['clie_numero_documento'],
-                            "razon_social" => $value['clie_nombre_razon_social'],
-                            "vventa" => number_format($value['subtotal'], 2, '.', ''),
-                            "valor_venta" => number_format($value['subtotal'], 2, '.', ''),
-                            "igv" => number_format($value['total_igv'], 2, '.', ''),
-                            "bolsa" => "0.00",
-                            "icb" => $value['total_icbper'],
-                            "total" => number_format($value['total'], 2, '.', ''),
-                            "tipo_cambio" => $tipo_cambio,
-                            "glosa" => strtoupper($glosa),
-                            "cuenta" => $cuenta,
-                            "tipo" => "",
-                            "referencia" => "",
-                            "referenciafecha" => ""
-                        );
+                $add = $this->agregarFila($fila, $glosa, $cuenta);
+                array_push($maqueta, $add);
+                //$resultado[] = $fila;
 
-                        array_push($maqueta, $add);
-
-                        $cont = 0;
-
-                        $total = 0;
-                        $total_igv = 0;
-                        $total_sub = 0;
-                        $total_icbper = 0;
-                    } else {
-                        if ($boletas[$key + 1]['total'] >= 700) {
-                            if ($cont == 0) {
-                                $serie_numero = $value['vent_serie'] . "-" . $value['vent_numero'];
-                            } else {
-                                $serie_numero = $value['vent_serie'] . "-" . $inicial . "/" . ($value['vent_numero']);
-                            }
-
-                            $adds = array(
-                                "fecha" => $value['fecha'],
-                                "tipo_moneda" => $tipo_moneda,
-                                "documento" => 'BOLETA DE VENTA',
-                                "numero" => $serie_numero,
-                                "condicion" => "A",
-                                "ruc" => "00000001",
-                                "razon_social" => "CLIENTE VARIOS",
-                                "vventa" => number_format($total_sub, 2, '.', ''),
-                                "valor_venta" => number_format($total_sub, 2, '.', ''),
-                                "igv" => number_format($total_igv, 2, '.', ''),
-                                "bolsa" => "0.00",
-                                "icb" => number_format($total_icbper, 2, '.', ''),
-                                "total" => number_format($total, 2, '.', ''),
-                                "tipo_cambio" => $tipo_cambio,
-                                "glosa" => strtoupper($glosa),
-                                "cuenta" => $cuenta,
-                                "tipo" => "",
-                                "referencia" => "",
-                                "referenciafecha" => ""
-                            );
-
-                            array_push($maqueta, $adds);
-                            $cont = 0;
-
-                            $total = 0;
-                            $total_igv = 0;
-                            $total_sub = 0;
-                            $total_icbper = 0;
-                        } else {
-                            $cont += 1;
-                        }
-                    }
-                } else {
-                    if ($value['total'] >= 700) {
-                        $add = array(
-                            "fecha" => $value['fecha'],
-                            "tipo_moneda" => $tipo_moneda,
-                            "documento" => 'BOLETA DE VENTA',
-                            "numero" => $value['numero_documento'],
-                            "condicion" => "A",
-                            "ruc" => $value['clie_numero_documento'],
-                            "razon_social" => $value['clie_nombre_razon_social'],
-                            "vventa" => number_format($value['subtotal'], 2, '.', ''),
-                            "valor_venta" => number_format($value['subtotal'], 2, '.', ''),
-                            "igv" => number_format($value['total_igv'], 2, '.', ''),
-                            "bolsa" => "0.00",
-                            "icb" => number_format(0, 2, '.', ''),
-                            "total" => number_format($value['total'], 2, '.', ''),
-                            "tipo_cambio" => $tipo_cambio,
-                            "glosa" => strtoupper($glosa),
-                            "cuenta" => $cuenta,
-                            "tipo" => "",
-                            "referencia" => "",
-                            "referenciafecha" => ""
-                        );
-
-                        array_push($maqueta, $add);
-                    } else {
-                        if ($cont == 0) {
-                            $serie_numero = $value['vent_serie'] . "-" . $value['vent_numero'];
-                        } else {
-                            $serie_numero = $value['vent_serie'] . "-" . $inicial . "/" . $value['vent_numero'];
-                        }
-
-                        $add = array(
-                            "fecha" => $value['fecha'],
-                            "tipo_moneda" => $tipo_moneda,
-                            "documento" => 'BOLETA DE VENTA',
-                            "numero" => $serie_numero,
-                            "condicion" => "A",
-                            "ruc" => "00000001",
-                            "razon_social" => "CLIENTE VARIOS",
-                            "vventa" => number_format($total_sub, 2, '.', ''),
-                            "valor_venta" => number_format($total_sub, 2, '.', ''),
-                            "igv" => number_format($total_igv, 2, '.', ''),
-                            "bolsa" => "0.00",
-                            "icb" => number_format($total_icbper, 2, '.', ''),
-                            "total" => number_format($total, 2, '.', ''),
-                            "tipo_cambio" => $tipo_cambio,
-                            "glosa" => strtoupper($glosa),
-                            "cuenta" => $cuenta,
-                            "tipo" => "",
-                            "referencia" => "",
-                            "referenciafecha" => ""
-                        );
-
-                        array_push($maqueta, $add);
-                    }
-
-                    $cont = 0;
-                    $total = 0;
-                    $total_igv = 0;
-                    $total_sub = 0;
-                    $total_icbper = 0;
-                }
+                continue;
             }
+
+            // Si no hay grupo actual, iniciar uno nuevo
+            if ($grupoActual === null) {
+                $grupoActual = [
+                    'fecha' => $fila['fecha'],
+                    'serie' => $fila['vent_serie'],
+                    'nums' => [$fila['vent_numero']],
+                    'cond' => $fila['estado'],
+                    'monto' => $fila['total'],
+                    'num_clie' => $fila['clie_numero_documento'],
+                    'nombre_clien' => $fila['clie_nombre_razon_social'],
+                    'glosa' => $glosa,
+                    'cuenta' => $cuenta,
+                    'subtotal' => $fila['subtotal'],
+                    'total_igv' => $fila['total_igv'],
+                    'total_icbper' => $fila['total_icbper']
+                ];
+
+                continue;
+            }
+
+            // Verificar si podemos agregar al grupo actual (misma fecha, serie, cond)
+            if (
+                $grupoActual['fecha'] === $fila['fecha'] &&
+                $grupoActual['serie'] === $fila['vent_serie'] &&
+                $grupoActual['cond'] === $fila['estado']
+            ) {
+                // Agregar al grupo actual
+                $grupoActual['monto'] += $fila['total'];
+                $grupoActual['subtotal'] += $fila['subtotal'];
+                $grupoActual['total_igv'] += $fila['total_igv'];
+                $grupoActual['total_icbper'] += $fila['total_icbper'];
+                $grupoActual['nums'][] = $fila['vent_numero'];
+            } else {
+                // No se puede agregar, cerrar grupo actual y empezar nuevo
+                $maqueta[] =  $this->finalizarGrupo($grupoActual);
+                $grupoActual = [
+                    'fecha' => $fila['fecha'],
+                    'serie' => $fila['vent_serie'],
+                    'nums' => [$fila['vent_numero']],
+                    'cond' => $fila['estado'],
+                    'monto' => $fila['total'],
+                    'num_clie' => $fila['clie_numero_documento'],
+                    'nombre_clien' => $fila['clie_nombre_razon_social'],
+                    'glosa' => $glosa,
+                    'cuenta' => $cuenta,
+                    'subtotal' => $fila['subtotal'],
+                    'total_igv' => $fila['total_igv'],
+                    'total_icbper' => $fila['total_icbper']
+                ];
+            }
+        }
+
+        // Agregar el último grupo si existe
+        if ($grupoActual !== null) {
+            $maqueta[] = $this->finalizarGrupo($grupoActual);
         }
 
         foreach ($notasCredito as $keys => $values) {
@@ -487,5 +342,88 @@ class ventas extends BaseController
         }
 
         return $this->response->setJSON($maqueta);
+    }
+
+    public function finalizarGrupo($grupo)
+    {
+        $result = [
+            'fecha' => $grupo['fecha'],
+            'tipo_moneda' => "S",
+            'documento' => "BOLETA DE VENTA ELECTRONICA",
+            'condicion' => "A",
+            'ruc' => $grupo['num_clie'],
+            'razon_social' => $grupo['nombre_clien'],
+            "vventa" => $grupo['subtotal'],
+            "valor_venta" => $grupo['subtotal'],
+            "igv" => $grupo['total_igv'],
+            "bolsa" => "0.00",
+            "icb" => $grupo['total_icbper'],
+            'total' => $grupo['monto'],
+            "tipo_cambio" => "1",
+            "glosa" => strtoupper($grupo['glosa']),
+            "cuenta" => $grupo['cuenta'],
+            "tipo" => "",
+            "referencia" => "",
+            "referenciafecha" => ""
+        ];
+
+        if (count($grupo['nums']) > 1) {
+            $result['numero'] = $grupo['serie'] . "-" . $grupo['nums'][0] . '/' . end($grupo['nums']);
+        } else {
+            $result['numero'] = $grupo['serie'] . "-" . $grupo['nums'][0];
+        }
+
+        return $result;
+    }
+
+    public function agregarFila($fila, $glosa, $cuenta)
+    {
+        if ($fila['estado'] == 'f') {
+            $add = array(
+                "fecha" => $fila['fecha'],
+                "tipo_moneda" => "S",
+                "documento" => 'BOLETA DE VENTA',
+                "numero" => $fila['numero_documento'],
+                "condicion" => "A",
+                "ruc" => $fila['clie_numero_documento'],
+                "razon_social" => $fila['clie_nombre_razon_social'],
+                "vventa" => "0.00",
+                "valor_venta" => "0.00",
+                "igv" => "0.00",
+                "bolsa" => "0.00",
+                "icb" => "0.00",
+                "total" => "0.00",
+                "tipo_cambio" => "1",
+                "glosa" => strtoupper($glosa),
+                "cuenta" => $cuenta,
+                "tipo" => "",
+                "referencia" => "",
+                "referenciafecha" => ""
+            );
+        } else {
+            $add = array(
+                "fecha" => $fila['fecha'],
+                "tipo_moneda" => "S",
+                "documento" => 'BOLETA DE VENTA',
+                "numero" => $fila['numero_documento'],
+                "condicion" => "A",
+                "ruc" => $fila['clie_numero_documento'],
+                "razon_social" => $fila['clie_nombre_razon_social'],
+                "vventa" => "-" . number_format($fila['subtotal'], 2, '.', ''),
+                "valor_venta" => "-" . number_format($fila['subtotal'], 2, '.', ''),
+                "igv" => "-" . number_format($fila['total_igv'], 2, '.', ''),
+                "bolsa" => "0.00",
+                "icb" => number_format(0, 2, '.', ''),
+                "total" => "-" . number_format($fila['total'], 2, '.', ''),
+                "tipo_cambio" => "1",
+                "glosa" => strtoupper($glosa),
+                "cuenta" => $cuenta,
+                "tipo" => "",
+                "referencia" => "",
+                "referenciafecha" => ""
+            );
+        }
+
+        return $add;
     }
 }

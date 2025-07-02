@@ -127,14 +127,35 @@ btn_venta.addEventListener("click", (e) => {
       data.forEach((venta, index) => {
         let condicion = "A";
 
+        let total_exonerado = venta.total_exonerado;
+        let total_gravado = venta.total_gravado;
+        let total_inafecto = venta.total_inafecto;
+        let subtotal = venta.subtotal;
+        let total_igv = venta.total_igv;
+        let total_icbper = venta.total_icbper;
+        let total = venta.total;
+
         if (venta.estado == "f") {
           condicion = "I";
+          total_exonerado = "0.00";
+          total_gravado = "0.00";
+          total_inafecto = "0.00";
+          subtotal = "0.00";
+          total_igv = "0.00";
+          total_icbper = "0.00";
+          total = "0.00";
         }
 
         let afectacion = "NO";
 
         if (parseFloat(venta.total_igv) > 0) {
           afectacion = "SI";
+        }
+
+        let numIdentidad = venta.clie_numero_documento;
+
+        if (venta.clie_numero_documento === "00000000") {
+          numIdentidad = "00000001";
         }
 
         html += `
@@ -145,17 +166,17 @@ btn_venta.addEventListener("click", (e) => {
                     <td>${venta.tico_descripcion}</td>
                     <td>${venta.numero_documento}</td>
                     <td>${condicion}</td>
-                    <td>${venta.clie_numero_documento}</td>
+                    <td>${numIdentidad}</td>
                     <td>${venta.clie_nombre_razon_social}</td>
-                    <td>${venta.total_exonerado}</td>
-                    <td>${venta.total_gravado}</td>
-                    <td>${venta.total_inafecto}</td>
-                    <td>${venta.subtotal}</td>
-                    <td>${venta.subtotal}</td>
-                    <td>${venta.total_igv}</td>
+                    <td>${total_exonerado}</td>
+                    <td>${total_gravado}</td>
+                    <td>${total_inafecto}</td>
+                    <td>${subtotal}</td>
+                    <td>${subtotal}</td>
+                    <td>${total_igv}</td>
                     <td>0.00</td>
-                    <td>${venta.total_icbper}</td>
-                    <td>${venta.total}</td>
+                    <td>${total_icbper}</td>
+                    <td>${total}</td>
                     <td>1</td>
                     <td>${glosa.value}</td>
                     <td>${cuenta.value}</td>
@@ -182,6 +203,7 @@ btn_venta.addEventListener("click", (e) => {
 
       $("#data_venta")
         .DataTable({
+          ordering: false,
           lengthChange: !1,
           buttons: [
             {
@@ -199,6 +221,11 @@ btn_venta.addEventListener("click", (e) => {
 
 btn_maq_venta.addEventListener("click", (e) => {
   e.preventDefault();
+
+  if (sucursal.value == 0) {
+    alert("Seleccionar una sucursal");
+    return false;
+  }
 
   if (fecha_inicio.value == "") {
     alert("Ingresar una fecha de inicio");
@@ -271,6 +298,12 @@ btn_maq_venta.addEventListener("click", (e) => {
       let html = ``;
 
       data.forEach((venta, index) => {
+        let numRuc = venta.ruc;
+
+        if (venta.ruc === "00000000") {
+          numRuc = "00000001";
+        }
+
         html += `
                 <tr>
                     <td>${index + 1}</td>
@@ -279,7 +312,7 @@ btn_maq_venta.addEventListener("click", (e) => {
                     <td>${venta.documento}</td>
                     <td>${venta.numero}</td>
                     <td>A</td>
-                    <td>${venta.ruc}</td>
+                    <td>${numRuc}</td>
                     <td>${venta.razon_social}</td>
                     <td>${venta.vventa}</td>
                     <td>${venta.valor_venta}</td>
@@ -310,6 +343,7 @@ btn_maq_venta.addEventListener("click", (e) => {
 
       $("#data_venta")
         .DataTable({
+          ordering: false,
           lengthChange: !1,
           dom: "Bfrtip",
           buttons: [
