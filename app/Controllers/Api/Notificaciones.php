@@ -137,8 +137,9 @@ class Notificaciones extends ResourceController
 
         $id = $data->id ?? null;
         $fecha_envio = $data->fecha_envio ?? null;
+        $estado = $data->estado ?? null;
 
-        $envio->update($id, ['fecha_envio' => $fecha_envio, 'estado' => 'enviado']);
+        $envio->update($id, ['fecha_envio' => $fecha_envio, 'estado' => $estado]);
 
         return $this->respond(['message' => "Mensaje actualizado correctamente"]);
     }

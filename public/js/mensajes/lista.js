@@ -75,8 +75,10 @@ function viewMensajesId(data) {
 
     if (message.estado === "pendiente") {
       estado = `<span class="badge bg-primary">${message.estado}</span>`;
-    } else {
+    } else if (message.estado === "enviado") {
       estado = `<span class="badge bg-success">${message.estado}</span>`;
+    } else {
+      estado = `<span class="badge bg-danger">${message.estado}</span>`;
     }
 
     let mensaje = message.message;
