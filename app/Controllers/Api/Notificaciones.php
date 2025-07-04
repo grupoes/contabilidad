@@ -292,7 +292,10 @@ class Notificaciones extends ResourceController
             $empresas[$key]['monto_mensual'] = $monto;
 
             if ($value['tipoServicio'] == 'ALQUILER') {
-                $descripcion = "SERVICIO DE ARRENDAMIENTO DEL SOFTWARE DEL MES DE JUNIO 2025";
+                $mes = date('m');
+                $anio = date('Y');
+                $mesLetra = $this->getMes($mes) . ' ' . $anio;
+                $descripcion = "SERVICIO DE ARRENDAMIENTO DEL SOFTWARE DEL MES DE " . $mesLetra;
             } else {
                 if ($value['tipoPago'] == 'ATRASADO') {
                     $fecha = DateTime::createFromFormat('Y-m', $periodo);
