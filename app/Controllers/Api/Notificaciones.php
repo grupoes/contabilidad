@@ -420,7 +420,11 @@ class Notificaciones extends ResourceController
                 'message' => 'Factura creada correctamente'
             ]);
         } catch (\Exception $e) {
-            //throw $th;
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'Error al crear la factura',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
