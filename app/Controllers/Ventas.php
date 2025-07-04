@@ -390,8 +390,6 @@ class ventas extends BaseController
             'tipo_moneda' => "S",
             'documento' => "BOLETA DE VENTA ELECTRONICA",
             'condicion' => "A",
-            'ruc' => $grupo['num_clie'],
-            'razon_social' => $grupo['nombre_clien'],
             "vventa" => $grupo['subtotal'],
             "valor_venta" => $grupo['subtotal'],
             "igv" => $grupo['total_igv'],
@@ -407,8 +405,18 @@ class ventas extends BaseController
         ];
 
         if (count($grupo['nums']) > 1) {
+            $result['ruc'] = "00000001";
+            $result['razon_social'] = "CLIENTES VARIOS";
             $result['numero'] = $grupo['serie'] . "-" . $grupo['nums'][0] . '/' . end($grupo['nums']);
         } else {
+            if ($grupo['monto'] < 700) {
+                $result['ruc'] = "00000001";
+                $result['razon_social'] = "CLIENTES VARIOS";
+            } else {
+                $result['ruc'] = $grupo['num_clie'];
+                $result['razon_social'] = $grupo['nombre_clien'];
+            }
+
             $result['numero'] = $grupo['serie'] . "-" . $grupo['nums'][0];
         }
 
