@@ -146,6 +146,16 @@ btn_venta.addEventListener("click", (e) => {
           total = "0.00";
         }
 
+        if (venta.origen === "nota_credito") {
+          total_exonerado = "-" + venta.total_exonerado;
+          total_gravado = "-" + venta.total_gravado;
+          total_inafecto = "-" + venta.total_inafecto;
+          subtotal = "-" + venta.subtotal;
+          total_igv = "-" + venta.total_igv;
+          total_icbper = "-" + venta.total_icbper;
+          total = "-" + venta.total;
+        }
+
         let afectacion = "NO";
 
         if (parseFloat(venta.total_igv) > 0) {
