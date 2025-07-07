@@ -332,7 +332,7 @@ class Movimiento extends BaseController
 
                 $saldoInicialBancos = $sumaIngreso->saldo - $sumaEgresos->saldo + $valor['saldo_inicial'];
 
-                array_push($saldoInicialBanks, $saldoInicialBancos);
+                array_push($saldoInicialBanks, round($saldoInicialBancos, 2));
             }
 
             $fechaSaldoAnterior = new DateTime($startDate);
