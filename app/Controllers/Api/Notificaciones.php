@@ -14,6 +14,9 @@ use App\Models\EnviosModel;
 use App\Models\ContratosModel;
 use App\Models\HonorariosModel;
 use App\Models\FacturasHonorariosModel;
+use App\Models\MesModel;
+use App\Models\AnioModel;
+use App\Models\PdtRentaModel;
 
 use DateTime;
 
@@ -63,7 +66,7 @@ class Notificaciones extends ResourceController
             $letraFecha = $formatter->format($fecha_obj);
 
             $digito = $value->id_numero - 1;
-            $emp = $contrib->query("SELECT c.id, c.ruc, c.razon_social, c.nombre_comercial, c.direccion_fiscal, nw.link FROM contribuyentes as c inner join numeros_whatsapp as nw ON nw.id = c.numeroWhatsappId WHERE c.tipoServicio = 'CONTABLE' AND c.estado = 1 and RIGHT(c.ruc, 1) = '$digito'")->getResult();
+            $emp = $contrib->query("SELECT c.id, c.ruc, c.razon_social, c.nombre_comercial, c.direccion_fiscal, nw.link FROM contribuyentes as c inner join numeros_whatsapp as nw ON nw.id = c.numeroWhatsappId WHERE c.tipoServicio = 'CONTABLE' AND c.estado = 1 and RIGHT(c.ruc, 1) = '$digito' and c.numeroWhatsappId = 2")->getResult();
 
             foreach ($emp as $key1 => $value1) {
                 $contactos = $contacto->where('contribuyente_id', $value1->id)->where('estado', 1)->findAll();
@@ -448,6 +451,39 @@ class Notificaciones extends ResourceController
         ];
 
         return $meses[$mes];
+    }
+
+    public function notificationPdtRenta()
+    {
+        $mes = new MesModel();
+        $year = new AnioModel();
+        $fechaDeclaracion = new FechaDeclaracionModel();
+        $cont = new ContribuyenteModel();
+        $pdt = new PdtRentaModel();
+
+        $fecha = new DateTime();
+        $fecha->modify('-2 day');
+        $hasta = $fecha->format('Y-m-d');
+
+        $array = [];
+
+        $contribuyentes = $cont->where('estado', 1)->where('tipoServicio', 'CONTABLE')->orderBy('RIGHT(ruc, 1) ASC')->findAll();
+
+        foreach ($contribuyentes as $key => $value) {
+            $id = $value['id'];
+            $ruc = $value['ruc'];
+            $razonSocial = $value['razon_social'];
+
+            $ultimo = $pdt->where('ruc_empresa', $ruc)->orderBy('id_pdt_renta', 'DESC')->limit(1)->first();
+
+            if (!$ultimo) {
+                array_push($array, $ruc);
+            } else {
+                //array_push($array, $ultimo);
+            }
+        }
+
+        return $this->respond($array);
     }
 
     /**
