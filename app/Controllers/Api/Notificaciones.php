@@ -66,7 +66,7 @@ class Notificaciones extends ResourceController
             $letraFecha = $formatter->format($fecha_obj);
 
             $digito = $value->id_numero - 1;
-            $emp = $contrib->query("SELECT c.id, c.ruc, c.razon_social, c.nombre_comercial, c.direccion_fiscal, nw.link FROM contribuyentes as c inner join numeros_whatsapp as nw ON nw.id = c.numeroWhatsappId WHERE c.tipoServicio = 'CONTABLE' AND c.estado = 1 and RIGHT(c.ruc, 1) = '$digito' and c.numeroWhatsappId = 2")->getResult();
+            $emp = $contrib->query("SELECT c.id, c.ruc, c.razon_social, c.nombre_comercial, c.direccion_fiscal, nw.link FROM contribuyentes as c inner join numeros_whatsapp as nw ON nw.id = c.numeroWhatsappId WHERE c.tipoServicio = 'CONTABLE' AND c.estado = 1 and RIGHT(c.ruc, 1) = '$digito' ")->getResult();
 
             foreach ($emp as $key1 => $value1) {
                 $contactos = $contacto->where('contribuyente_id', $value1->id)->where('estado', 1)->findAll();
