@@ -488,12 +488,41 @@ class Notificaciones extends ResourceController
                         'fecha_exacta' => $value['fecha_exacta'],
                         'fechaContrato' => $values['fechaContrato'],
                         'tipo_contrato' => $values['tipo_contrato'],
+                        'id_anio' => $id_anio,
+                        'id_mes' => $id_mes
                     ];
                 }
             }
         }
 
         return $this->respond($array);
+    }
+
+    public function excluirPeriodoPdtRenta()
+    {
+        $pdt = new PdtRentaModel();
+
+        $datos = $this->request->getJSON();
+
+        $id_anio = $datos->id_anio;
+        $id_mes = $datos->id_mes;
+        $ruc = $datos->ruc;
+
+        $datos = [
+            'ruc_empresa' => $ruc,
+            'periodo' => $id_mes,
+            'anio' => $id_anio,
+            'estado' => 1,
+            'user_id' => session()->id,
+            'excluido' => 'SI'
+        ];
+
+        $pdt->insert($datos);
+
+        return $this->respond([
+            'status' => 'success',
+            'message' => 'Periodo excluido correctamente'
+        ]);
     }
 
     /**

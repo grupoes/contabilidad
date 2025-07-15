@@ -398,6 +398,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 
-<script src="<?= base_url() ?>js/home/admin.js"></script>
+<script src="<?= base_url() ?>js/home/admin.js?v=1"></script>
 
 <?= $this->endSection() ?>

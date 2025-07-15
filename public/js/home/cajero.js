@@ -1,5 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
   loadPdtsSubir();
+
+  const newcs = $($table).DataTable(optionsTableDefault);
+
+  new $.fn.dataTable.Responsive(newcs);
+});
+
+const swalWithBootstrapButtons = Swal.mixin({
+  customClass: {
+    confirmButton: "btn btn-success",
+    cancelButton: "btn btn-danger",
+  },
+  showConfirmButton: true,
+  buttonsStyling: false,
 });
 
 function loadPdtsSubir() {
@@ -13,7 +26,7 @@ function loadPdtsSubir() {
       if (quanty > 0) {
         const html = `
         <div class="col-md-6 col-xl-3">
-            <div class="card social-widget-card alerta-card">
+            <div class="card social-widget-card alerta-card" onclick="viewContribuyentesPdts()">
                 <div class="card-body">
                     <h3 class="text-black m-0">${quanty}</h3>
                     <span class="m-t-10 text-black">PDT RENTA</span>
@@ -29,6 +42,102 @@ function loadPdtsSubir() {
 
         // Insertar como primer hijo del contenedor
         listCards.insertBefore(nuevoNodo, listCards.firstElementChild);
+      }
+    });
+}
+
+function viewContribuyentesPdts() {
+  $("#modalPdts").modal("show");
+  fetch(base_url + "api/notificacion-pdt-renta")
+    .then((res) => res.json())
+    .then((data) => {
+      const listPdts = document.getElementById("listPdts");
+
+      let html = "";
+
+      data.forEach((pdt) => {
+        let button = "";
+
+        if (pdt.tipo_contrato == "actual") {
+          button = `
+            <button type="button" class="btn btn-info btn-sm" onclick="excluirPeriodo('${pdt.ruc}', ${pdt.id_mes}, ${pdt.id_anio})">
+              <i class="fas fa-minus"></i>
+            </button>
+          `;
+        }
+
+        html += `
+        <tr>
+          <td>${pdt.razon_social}</td>
+          <td>${pdt.mes} ${pdt.anio}</td>
+          <td>
+            ${button}
+          </td>
+        </tr>
+        `;
+      });
+
+      $($table).DataTable().destroy();
+
+      listPdts.innerHTML = html;
+
+      const newcs = $($table).DataTable(optionsTableDefault);
+
+      new $.fn.dataTable.Responsive(newcs);
+    });
+}
+
+function excluirPeriodo(ruc, id_mes, id_anio) {
+  $("#modalPdts").modal("hide");
+
+  swalWithBootstrapButtons
+    .fire({
+      title: "¿Estás seguro de excluir este periodo?",
+      text: "¡No podrá revertir después!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Si, excluir!",
+      cancelButtonText: "No, cancelar!",
+      reverseButtons: true,
+      allowOutsideClick: false,
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        const params = {
+          ruc: ruc,
+          id_mes: id_mes,
+          id_anio: id_anio,
+        };
+
+        fetch(base_url + "api/excluir-periodo-pdt-renta", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              swalWithBootstrapButtons
+                .fire({
+                  title: "¡Eliminado!",
+                  text: data.message,
+                  icon: "success",
+                  confirmButtonText: "Entendido",
+                  allowOutsideClick: false,
+                })
+                .then((result) => {
+                  if (result.isConfirmed) {
+                    viewContribuyentesPdts();
+                  }
+                });
+            } else {
+              swalWithBootstrapButtons.fire("Error", data.msg, "error");
+            }
+          });
+      } else {
+        $("#modalPdts").modal("show");
       }
     });
 }

@@ -1,22 +1,21 @@
-<?php namespace App\Models;
+<?php
 
-    use CodeIgniter\Model;
+namespace App\Models;
 
-    class PdtRentaModel extends Model
-    {
-        protected $table      = 'pdt_renta';
-        protected $primaryKey = 'id_pdt_renta';
+use CodeIgniter\Model;
 
-        protected $useAutoIncrement = true;
+class PdtRentaModel extends Model
+{
+    protected $table      = 'pdt_renta';
+    protected $primaryKey = 'id_pdt_renta';
 
-        protected $returnType     = 'array';
+    protected $useAutoIncrement = true;
 
-        protected $allowedFields = ['id_pdt_renta','ruc_empresa', 'periodo', 'anio', 'user_id', 'user_edit', 'user_delete', 'estado'];
+    protected $returnType     = 'array';
 
-        protected $useTimestamps = true;
-        protected $createdField  = 'created_at';
-        protected $updatedField  = 'updated_at';
+    protected $allowedFields = ['id_pdt_renta', 'ruc_empresa', 'periodo', 'anio', 'excluido', 'user_id', 'user_edit', 'user_delete', 'estado'];
 
-    }
-
-?>
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+}
