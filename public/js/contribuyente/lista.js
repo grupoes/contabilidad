@@ -1207,3 +1207,125 @@ formClave.addEventListener("submit", (e) => {
       notifier.show("¡Sorry!", data.message, "danger", "", 4000);
     });
 });
+
+getPdtsSubir();
+
+function getPdtsSubir() {
+  fetch(base_url + "api/notificacion-pdt-renta")
+    .then((res) => res.json())
+    .then((data) => {
+      const titulo = document.getElementById("titleListaContribuyentes");
+
+      const quanty = data.length;
+
+      if (quanty > 0) {
+        titulo.innerHTML = `
+          Lista de Contribuyentes 
+          <button type="button" class="btn btn-danger btn-sm" onclick="viewContribuyentesPdts()">
+            Pdt Renta (${quanty})
+          </button>
+        `;
+      }
+    });
+}
+
+const newcs2 = $("#tableData2").DataTable(optionsTableDefault);
+
+new $.fn.dataTable.Responsive(newcs2);
+
+function viewContribuyentesPdts() {
+  $("#modalPdts").modal("show");
+  fetch(base_url + "api/notificacion-pdt-renta")
+    .then((res) => res.json())
+    .then((data) => {
+      const listPdts = document.getElementById("listPdts");
+
+      let html = "";
+
+      data.forEach((pdt) => {
+        let button = "";
+
+        if (pdt.tipo_contrato == "actual") {
+          button = `
+            <button type="button" class="btn btn-info btn-sm" onclick="excluirPeriodo('${pdt.ruc}', ${pdt.id_mes}, ${pdt.id_anio})">
+              <i class="fas fa-minus"></i>
+            </button>
+          `;
+        }
+
+        html += `
+        <tr>
+          <td>${pdt.razon_social}</td>
+          <td>${pdt.mes} ${pdt.anio}</td>
+          <td>
+            ${button}
+          </td>
+        </tr>
+        `;
+      });
+
+      $("#tableData2").DataTable().destroy();
+
+      listPdts.innerHTML = html;
+
+      const newcs2 = $("#tableData2").DataTable(optionsTableDefault);
+
+      new $.fn.dataTable.Responsive(newcs2);
+    });
+}
+
+function excluirPeriodo(ruc, id_mes, id_anio) {
+  $("#modalPdts").modal("hide");
+
+  swalWithBootstrapButtons
+    .fire({
+      title: "¿Estás seguro de excluir este periodo?",
+      text: "¡No podrá revertir después!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Si, excluir!",
+      cancelButtonText: "No, cancelar!",
+      reverseButtons: true,
+      allowOutsideClick: false,
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        const params = {
+          ruc: ruc,
+          id_mes: id_mes,
+          id_anio: id_anio,
+        };
+
+        fetch(base_url + "api/excluir-periodo-pdt-renta", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              swalWithBootstrapButtons
+                .fire({
+                  title: "¡Eliminado!",
+                  text: data.message,
+                  icon: "success",
+                  confirmButtonText: "Entendido",
+                  allowOutsideClick: false,
+                })
+                .then((result) => {
+                  if (result.isConfirmed) {
+                    viewContribuyentesPdts();
+                    getPdtsSubir();
+                  }
+                });
+            } else {
+              swalWithBootstrapButtons.fire("Error", data.msg, "error");
+            }
+          });
+      } else {
+        $("#modalPdts").modal("show");
+      }
+    });
+}

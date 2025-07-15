@@ -32,7 +32,7 @@
             <div class="row align-items-center">
                 <div class="col-md-12">
                     <div class="page-header-title">
-                        <h3 class="mb-0">Lista de Contribuyentes</h3>
+                        <h3 class="mb-0" id="titleListaContribuyentes">Lista de Contribuyentes</h3>
                     </div>
                 </div>
             </div>
@@ -713,6 +713,37 @@
     </div>
 </div>
 
+<div id="modalPdts" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="titleModal">PDT RENTA SUBIR</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableData2">
+                        <thead>
+                            <tr>
+                                <th>Contribuyente</th>
+                                <th>Periodo</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listPdts">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>
@@ -724,6 +755,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/contribuyente/lista.js"></script>
+<script src="<?= base_url() ?>js/contribuyente/lista.js?v=1"></script>
 
 <?= $this->endSection() ?>
