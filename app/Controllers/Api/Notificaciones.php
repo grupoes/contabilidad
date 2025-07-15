@@ -455,31 +455,41 @@ class Notificaciones extends ResourceController
 
     public function notificationPdtRenta()
     {
-        $mes = new MesModel();
-        $year = new AnioModel();
         $fechaDeclaracion = new FechaDeclaracionModel();
         $cont = new ContribuyenteModel();
         $pdt = new PdtRentaModel();
 
-        $fecha = new DateTime();
-        $fecha->modify('-2 day');
-        $hasta = $fecha->format('Y-m-d');
-
         $array = [];
 
-        $contribuyentes = $cont->where('estado', 1)->where('tipoServicio', 'CONTABLE')->orderBy('RIGHT(ruc, 1) ASC')->findAll();
+        $vencimientos = $fechaDeclaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, DATE_SUB(fd.fecha_exacta, INTERVAL 2 DAY) AS nueva_fecha, m.mes_descripcion, a.anio_descripcion FROM fecha_declaracion fd INNER JOIN mes m ON m.id_mes = fd.id_mes INNER JOIN anio a ON a.id_anio = fd.id_anio where fd.id_tributo = 2 and fd.fecha_exacta BETWEEN '2025-07-01' and CURDATE() + INTERVAL 2 DAY")->getResultArray();
 
-        foreach ($contribuyentes as $key => $value) {
-            $id = $value['id'];
-            $ruc = $value['ruc'];
-            $razonSocial = $value['razon_social'];
+        foreach ($vencimientos as $key => $value) {
+            $id_anio = $value['id_anio'];
+            $id_mes = $value['id_mes'];
+            $id_numero = $value['id_numero'];
 
-            $ultimo = $pdt->where('ruc_empresa', $ruc)->orderBy('id_pdt_renta', 'DESC')->limit(1)->first();
+            $digito = $id_numero - 1;
 
-            if (!$ultimo) {
-                array_push($array, $ruc);
-            } else {
-                //array_push($array, $ultimo);
+            $contribuyentes = $cont->select('id, razon_social, ruc, fechaContrato, IF(MONTH(fechaContrato) = MONTH(CURDATE()) AND YEAR(fechaContrato) = YEAR(CURDATE()), "actual", "antiguo") AS tipo_contrato')->where('estado', 1)->where('RIGHT(ruc, 1)', $digito)->findAll();
+
+            foreach ($contribuyentes as $keys => $values) {
+                $ruc = $values['ruc'];
+
+                $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getResultArray();
+
+                if (!$pdtRenta) {
+                    $array[] = [
+                        'contribuyente_id' => $values['id'],
+                        'ruc' => $ruc,
+                        'razon_social' => $values['razon_social'],
+                        'anio' => $value['anio_descripcion'],
+                        'mes' => $value['mes_descripcion'],
+                        'numero' => $id_numero - 1,
+                        'fecha_exacta' => $value['fecha_exacta'],
+                        'fechaContrato' => $values['fechaContrato'],
+                        'tipo_contrato' => $values['tipo_contrato'],
+                    ];
+                }
             }
         }
 

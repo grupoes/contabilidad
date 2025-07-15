@@ -1,6 +1,35 @@
 <?= $this->extend('layouts/main') ?>
 
+<?= $this->section('css') ?>
+
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
+<link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
+
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
+
+<style>
+    .alerta-card {
+        border: 2px solid red;
+        animation: parpadeo 1s infinite;
+        box-shadow: 0 0 10px red;
+        border-radius: 0.5rem;
+        cursor: pointer;
+    }
+
+    @keyframes parpadeo {
+
+        0%,
+        100% {
+            box-shadow: 0 0 10px red;
+        }
+
+        50% {
+            box-shadow: 0 0 20px red, 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+    }
+</style>
 
 <div class="pc-content">
 
@@ -18,7 +47,7 @@
     </div>
     <!-- [ breadcrumb ] end -->
     <!-- [ Main Content ] start -->
-    <div class="row">
+    <div class="row" id="listCards">
 
         <div class="col-md-6 col-xl-3">
             <div class="card social-widget-card bg-primary">
@@ -87,7 +116,7 @@
                 <div class="card-body border-bottom pb-0">
                     <div class="d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Estados Clientes</h5>
-                        
+
                     </div>
                     <ul
                         class="nav nav-tabs analytics-tab"
@@ -313,11 +342,11 @@
                         aria-labelledby="analytics-tab-3"
                         tabindex="0">
                         <ul class="list-group list-group-flush">
-                            
+
                         </ul>
                     </div>
                 </div>
-                
+
             </div>
         </div>
     </div>
@@ -325,11 +354,50 @@
     <!-- [ Main Content ] end -->
 </div>
 
+
+<div id="modalPdts" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="titleModal">PDT RENTA SUBIR</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableData">
+                        <thead>
+                            <tr>
+                                <th>Contribuyente</th>
+                                <th>Periodo</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listPdts">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>
 
 <script src="<?= base_url('assets/js/plugins/apexcharts.min.js') ?>"></script>
+
+<script src="<?= base_url() ?>assets/js/plugins/dataTables.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/dataTables.bootstrap5.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/dataTables.responsive.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
+
 <script src="<?= base_url() ?>js/home/admin.js"></script>
 
 <?= $this->endSection() ?>

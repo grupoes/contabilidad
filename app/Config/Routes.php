@@ -178,6 +178,7 @@ $routes->post('api/send-factura', 'Api\Notificaciones::sendFacturas');
 $routes->get('api/listEmpresas', 'Api\Notificaciones::listEmpresas');
 $routes->post('api/saveHonorario', 'Api\Notificaciones::saveHonorario');
 $routes->post('api/save-factura', 'Api\Notificaciones::saveFactura');
+$routes->get('api/notificacion-pdt-renta', 'Api\Notificaciones::notificationPdtRenta');
 
 $routes->get('mensajes-masivos', 'Mensajes::index');
 $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');

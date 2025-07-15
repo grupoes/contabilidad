@@ -2,6 +2,28 @@
 
 <?= $this->section('content') ?>
 
+<style>
+    .alerta-card {
+        border: 2px solid red;
+        animation: parpadeo 1s infinite;
+        box-shadow: 0 0 10px red;
+        border-radius: 0.5rem;
+        cursor: pointer;
+    }
+
+    @keyframes parpadeo {
+
+        0%,
+        100% {
+            box-shadow: 0 0 10px red;
+        }
+
+        50% {
+            box-shadow: 0 0 20px red, 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+    }
+</style>
+
 <div class="pc-content">
 
     <!-- [ breadcrumb ] start -->
@@ -18,6 +40,47 @@
     </div>
     <!-- [ breadcrumb ] end -->
     <!-- [ Main Content ] start -->
+
+    <div class="row" id="listCards">
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card social-widget-card bg-primary">
+                <div class="card-body">
+                    <h3 class="text-white m-0">88</h3>
+                    <span class="m-t-10">Empresas Activas</span>
+                    <i class="fas fa-home"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card social-widget-card bg-info">
+                <div class="card-body">
+                    <h3 class="text-white m-0">1323949.77</h3>
+                    <span class="m-t-10">Ingresos Totales</span>
+                    <i class="ti ti-trending-up"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card social-widget-card bg-danger">
+                <div class="card-body">
+                    <h3 class="text-white m-0">1317165.44</h3>
+                    <span class="m-t-10">Egresos Totales</span>
+                    <i class="ti ti-trending-down"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card social-widget-card bg-success">
+                <div class="card-body">
+                    <h3 class="text-white m-0">6784.33</h3>
+                    <span class="m-t-10">Saldo Actual</span>
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
     <div class="row">
         <div class="col-lg-6">
