@@ -13,7 +13,7 @@ class PdtRentaModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id_pdt_renta', 'ruc_empresa', 'periodo', 'anio', 'excluido', 'user_id', 'user_edit', 'user_delete', 'estado'];
+    protected $allowedFields = ['id_pdt_renta', 'ruc_empresa', 'periodo', 'anio', 'excluido', 'total_compras', 'total_ventas', 'user_id', 'user_edit', 'user_delete', 'estado'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

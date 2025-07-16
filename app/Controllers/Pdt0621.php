@@ -86,6 +86,8 @@ class Pdt0621 extends BaseController
             $file_renta->move(FCPATH . 'archivos/pdt', $archivo_pdt);
             $file_constancia->move(FCPATH . 'archivos/pdt', $archivo_constancia);
 
+            $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
+
             $datos_pdt = array(
                 "ruc_empresa" => $ruc,
                 "periodo" => $periodo,
@@ -108,10 +110,56 @@ class Pdt0621 extends BaseController
 
             $files->insert($datos_files);
 
+            $datos = $this->apiLoadPdtFile($rutaPdt);
+
+            $totalVentas = 0;
+            $totalCompras = 0;
+
+            if ($datos['status'] === 'success') {
+                $compras = $datos['igv_compras'];
+                $ventas = $datos['igv_ventas'];
+
+                $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
+
+                $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
+
+                $data_update = array(
+                    "total_ventas" => $totalVentas,
+                    "total_compras" => $totalCompras
+                );
+
+                $pdtRenta->update($pdtRentaId, $data_update);
+            }
+
             return $this->response->setJSON(['status' => 'success', 'message' => "Se registro correctamente"]);
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
+    }
+
+    public function apiLoadPdtFile($rutaFile)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => getenv("API_LOAD_PDT_FILE"),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array('archivo' => new \CURLFILE($rutaFile)),
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: multipart/form-data'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        return json_decode($response, true);
     }
 
     public function consulta()
@@ -237,6 +285,7 @@ class Pdt0621 extends BaseController
         $mes = new MesModel();
         $anio_ = new AnioModel();
         $files = new ArchivosPdt0621Model();
+        $pdtRenta = new PdtRentaModel();
 
         try {
             $files->db->transBegin();
@@ -276,6 +325,29 @@ class Pdt0621 extends BaseController
                 $ext_pdt = $file1->getExtension();
                 $archivo_pdt = "PDT0621_" . $ruc . "_" . $per . $ani . "_RECT_" . $codigo . "." . $ext_pdt;
                 $file1->move(FCPATH . 'archivos/pdt', $archivo_pdt);
+
+                $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
+
+                $datos = $this->apiLoadPdtFile($rutaPdt);
+
+                $totalVentas = 0;
+                $totalCompras = 0;
+
+                if ($datos['status'] === 'success') {
+                    $compras = $datos['igv_compras'];
+                    $ventas = $datos['igv_ventas'];
+
+                    $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
+
+                    $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
+
+                    $data_update = array(
+                        "total_ventas" => $totalVentas,
+                        "total_compras" => $totalCompras
+                    );
+
+                    $pdtRenta->update($dataArchivo['id_pdt_renta'], $data_update);
+                }
             } else {
                 $archivo_pdt = $dataArchivo['nombre_pdt'];
             }
