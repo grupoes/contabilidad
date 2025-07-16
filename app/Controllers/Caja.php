@@ -144,7 +144,9 @@ class Caja extends BaseController
 
         $idUser = session()->id;
 
-        $sesions = $sesion->select('sesion_caja.id_sesion_caja, sesion_caja.ses_estado, sede_caja.id_caja')->join('sede_caja', 'sede_caja.id_sede_caja = sesion_caja.id_sede_caja')->where('sesion_caja.id_usuario', $idUser)->orderBy('sesion_caja.id_sesion_caja', 'DESC')->findAll(2);
+        $fecha = date('Y-m-d');
+
+        $sesions = $sesion->select('sesion_caja.id_sesion_caja, sesion_caja.ses_estado, sede_caja.id_caja')->join('sede_caja', 'sede_caja.id_sede_caja = sesion_caja.id_sede_caja')->where('sesion_caja.id_usuario', $idUser)->where('DATE(sesion_caja.ses_fechaapertura)', $fecha)->orderBy('sesion_caja.id_sesion_caja', 'DESC')->findAll(2);
 
         if ($sesions) {
             $fisico = "";

@@ -11,15 +11,6 @@
                     <h5 class="mb-2">Estado de la caja hoy</h5>
                 </div>
                 <div class="card-body">
-                    <div class="mb-4">
-                        <?php if($estadoCaja === 'abrir') { ?>
-                            <button type="button" class="btn btn-success" id="statusCaja" data-text="abrir">ABRIR CAJA</button>
-                        <?php } else { ?>
-                            <button type="button" class="btn btn-danger" id="statusCaja" data-text="cerrar">CERRAR CAJA</button>
-                        <?php } ?>
-                        <span style="font-size: 18px">Montos antes del cierre de caja</span>
-                    </div>
-
                     <div class="row g-4">
                         <div class="col-md-12">
                             <ul class="list-group">
@@ -164,6 +155,6 @@
 
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 
-<script src="<?= base_url() ?>js/caja/cajero.js"></script>
+<script src="<?= base_url() ?>js/caja/cajero.js?v=1"></script>
 
 <?= $this->endSection() ?>
