@@ -525,6 +525,15 @@ class Notificaciones extends ResourceController
         ]);
     }
 
+    public function getMontosPdtRenta()
+    {
+        $pdt = new PdtRentaModel();
+
+        $pdts = $pdt->query("SELECT * FROM pdt_renta pr INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.estado = 1 AND ap.estado = 1 AND pr.anio = 11 order by pr.periodo asc")->getResultArray();
+
+        return $this->respond($pdts);
+    }
+
     /**
      * Return the properties of a resource object.
      *
