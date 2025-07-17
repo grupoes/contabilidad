@@ -6,6 +6,7 @@ use App\Models\AnioModel;
 use App\Models\MesModel;
 use App\Models\PdtRentaModel;
 use App\Models\ArchivosPdt0621Model;
+use App\Models\ContribuyenteModel;
 
 class Pdt0621 extends BaseController
 {
@@ -374,6 +375,44 @@ class Pdt0621 extends BaseController
         $files = new ArchivosPdt0621Model();
 
         $data = $files->where('id_pdt_renta', $id_pdt_renta)->orderBy('id_archivos_pdt', 'desc')->findAll();
+
+        return $this->response->setJSON($data);
+    }
+
+    public function transacciones()
+    {
+        if (!session()->logged_in) {
+            return redirect()->to(base_url());
+        }
+
+        $anio = new AnioModel();
+        $mes = new MesModel();
+
+        $anios = $anio->query("SELECT * FROM anio WHERE anio_estado = 1 AND anio_descripcion BETWEEN '2025' AND YEAR(CURDATE()) ORDER BY anio_descripcion DESC")->getResult();
+
+        $menu = $this->permisos_menu();
+
+        return view('declaraciones/pdt_renta_transacciones', compact('anios', 'menu'));
+    }
+
+    public function listEmpresas()
+    {
+        $contri = new ContribuyenteModel();
+        $data = $this->request->getPost();
+
+        $anio = $data['anio'];
+        $search = $data['search'];
+
+        $data = $contri->query("SELECT c.ruc, c.razon_social, (SELECT IFNULL(SUM(total_compras), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1) AS total_compras, (SELECT IFNULL(SUM(total_ventas), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1) AS total_ventas FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo = 2 and c.estado = 1 AND (c.razon_social LIKE '%$search%' OR c.ruc like '%$search%') ORDER BY (total_compras + total_ventas) DESC;")->getResultArray();
+
+        return $this->response->setJSON($data);
+    }
+
+    public function listaPeriodos($ruc, $anio)
+    {
+        $pdt = new PdtRentaModel();
+
+        $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, pr.total_compras, pr.total_ventas, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
 
         return $this->response->setJSON($data);
     }

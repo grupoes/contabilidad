@@ -125,6 +125,10 @@ $routes->post('send-file-pdt621', 'Pdt0621::sendMessageFiles');
 $routes->post('rectificacion-pdt-renta', 'Pdt0621::pdtRectificacion');
 $routes->get('pdt-0621/get-files-details/(:num)', 'Pdt0621::getArchivos/$1');
 
+$routes->get('declaraciones/pdt-renta-transacciones', 'Pdt0621::transacciones');
+$routes->post('declaraciones/obtenerDatosPdtRentaTransacciones', 'Pdt0621::listEmpresas');
+$routes->get('declaraciones/periodosPdtRenta/(:num)/(:num)', 'Pdt0621::listaPeriodos/$1/$2');
+
 $routes->get('declaraciones/pdt-plame', 'PdtPlame::index');
 $routes->post('contribuyentes/file-save-pdtplame', 'PdtPlame::filesSave');
 $routes->post('consulta-pdt-plame', 'PdtPlame::consulta');
