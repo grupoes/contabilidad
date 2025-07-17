@@ -533,7 +533,7 @@ class Notificaciones extends ResourceController
 
         $array = [];
 
-        /*foreach ($pdts as $key => $value) {
+        foreach ($pdts as $key => $value) {
             $rutaPdt = FCPATH . 'archivos/pdt/' . $value['nombre_pdt'];
 
             if (file_exists($rutaPdt)) {
@@ -565,9 +565,9 @@ class Notificaciones extends ResourceController
                     ];
                 }
             }
-        }*/
+        }
 
-        return $this->respond($pdts);
+        return $this->respond($array);
     }
 
     public function apiLoadPdtFile($rutaFile)
