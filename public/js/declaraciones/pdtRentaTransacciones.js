@@ -53,7 +53,7 @@ function viewEmpresas(data) {
                                 </div>
                             </div>
                             <h6 class="mb-0 text-warning">
-                                S/ ${item.total_compras}
+                                S/ ${item.total_compras_decimal}
                             </h6>
                         </div>
                     </div>
@@ -65,7 +65,7 @@ function viewEmpresas(data) {
                                 </div>
                             </div>
                             <h6 class="mb-0 text-success">
-                                S/ ${item.total_ventas}
+                                S/ ${item.total_ventas_decimal}
                             </h6>
                         </div>
                     </div>
@@ -117,8 +117,8 @@ function viewPeriodos(data) {
     html += `
     <tr>
         <td>${item.mes_descripcion}</td>
-        <td>${item.total_compras}</td>
-        <td>${item.total_ventas}</td>
+        <td>${item.total_ventas_decimal}</td>
+        <td>${item.total_compras_decimal}</td>
         <td>
             <a href="${base_url}archivos/pdt/${item.nombre_pdt}" target="__blank" class="btn btn-danger btn-sm" title="Ver">
                 <i class="ti ti-file-text f-26"></i>
@@ -131,8 +131,14 @@ function viewPeriodos(data) {
   html += `
     <tr>
         <td></td>
-        <td> <strong>${total_compras.toFixed(2)}</strong></>
-        <td> <strong>${total_ventas.toFixed(2)}</strong></td>
+        <td> <strong>${total_ventas.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}</strong></td>
+        <td> <strong>${total_compras.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}</strong></>
         <td></td>
     </tr>
     `;

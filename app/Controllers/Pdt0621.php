@@ -403,7 +403,7 @@ class Pdt0621 extends BaseController
         $anio = $data['anio'];
         $search = $data['search'];
 
-        $data = $contri->query("SELECT c.ruc, c.razon_social, (SELECT IFNULL(SUM(total_compras), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1) AS total_compras, (SELECT IFNULL(SUM(total_ventas), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1) AS total_ventas FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo = 2 and c.estado = 1 AND (c.razon_social LIKE '%$search%' OR c.ruc like '%$search%') ORDER BY (total_compras + total_ventas) DESC;")->getResultArray();
+        $data = $contri->query("SELECT c.ruc, c.razon_social, FORMAT((SELECT IFNULL(SUM(total_compras), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1), 2) AS total_compras_decimal, FORMAT((SELECT IFNULL(SUM(total_ventas), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1), 2) AS total_ventas_decimal, (SELECT IFNULL(SUM(total_compras), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1) AS total_compras, (SELECT IFNULL(SUM(total_ventas), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1) AS total_ventas FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo = 2 and c.estado = 1 AND (c.razon_social LIKE '%$search%' OR c.ruc like '%$search%') ORDER BY (total_compras + total_ventas) DESC;")->getResultArray();
 
         return $this->response->setJSON($data);
     }
@@ -412,7 +412,7 @@ class Pdt0621 extends BaseController
     {
         $pdt = new PdtRentaModel();
 
-        $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, pr.total_compras, pr.total_ventas, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
+        $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, FORMAT(pr.total_compras, 2, 'es_PE') as total_compras_decimal, FORMAT(pr.total_ventas, 2, 'es_PE') as total_ventas_decimal, pr.total_compras, pr.total_ventas, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
 
         return $this->response->setJSON($data);
     }

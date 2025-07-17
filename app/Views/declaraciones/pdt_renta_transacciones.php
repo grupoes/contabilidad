@@ -83,8 +83,8 @@
                         <thead>
                             <tr>
                                 <th>Periodo</th>
-                                <th>Total Compras</th>
                                 <th>Total Ventas</th>
+                                <th>Total Compras</th>
                                 <th>Archivo</th>
                             </tr>
                         </thead>
