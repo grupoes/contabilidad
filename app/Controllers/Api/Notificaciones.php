@@ -537,38 +537,34 @@ class Notificaciones extends ResourceController
             $rutaPdt = FCPATH . 'archivos/pdt/' . $value['nombre_pdt'];
 
             if (file_exists($rutaPdt)) {
-                $array[] = "EXISTE";
-            } else {
-                $array[] = "NO EXISTE";
+                $datos = $this->apiLoadPdtFile($rutaPdt);
+
+                if ($datos['status'] === 'success') {
+                    $compras = $datos['igv_compras'];
+                    $ventas = $datos['igv_ventas'];
+
+                    $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
+
+                    $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
+
+                    $data_update = array(
+                        "total_ventas" => $totalVentas,
+                        "total_compras" => $totalCompras
+                    );
+
+                    $pdtRenta->update($value['id_pdt_renta'], $data_update);
+
+                    $array[] = [
+                        'ruc' => $value['ruc_empresa'],
+                        'actualizado' => 'SI'
+                    ];
+                } else {
+                    $array[] = [
+                        'ruc' => $value['ruc_empresa'],
+                        'actualizado' => 'NO'
+                    ];
+                }
             }
-
-            /*$datos = $this->apiLoadPdtFile($rutaPdt);
-
-            if ($datos['status'] === 'success') {
-                $compras = $datos['igv_compras'];
-                $ventas = $datos['igv_ventas'];
-
-                $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
-
-                $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
-
-                $data_update = array(
-                    "total_ventas" => $totalVentas,
-                    "total_compras" => $totalCompras
-                );
-
-                $pdtRenta->update($value['id_pdt_renta'], $data_update);
-
-                $array[] = [
-                    'ruc' => $value['ruc_empresa'],
-                    'actualizado' => 'SI'
-                ];
-            } else {
-                $array[] = [
-                    'ruc' => $value['ruc_empresa'],
-                    'actualizado' => 'NO'
-                ];
-            }*/
         }
 
         return $this->respond($array);
