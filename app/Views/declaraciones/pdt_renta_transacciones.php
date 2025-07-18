@@ -42,6 +42,17 @@
                                 </select>
                             </li>
 
+                            <li class="list-inline-item">
+                                <select class="form-select" name="filterTotales" id="filterTotales">
+                                    <option value="1">MAYOR TOTALES</option>
+                                    <option value="2">MENORES TOTALES</option>
+                                    <option value="3">MAYOR COMPRAS</option>
+                                    <option value="4">MENOR COMPRAS</option>
+                                    <option value="5">MAYOR VENTAS</option>
+                                    <option value="6">MENOR VENTAS</option>
+                                </select>
+                            </li>
+
                         </ul>
 
                         <ul class="list-inline ms-auto my-1">

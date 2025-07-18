@@ -402,8 +402,33 @@ class Pdt0621 extends BaseController
 
         $anio = $data['anio'];
         $search = $data['search'];
+        $filter = $data['filter'];
 
-        $data = $contri->query("SELECT c.ruc, c.razon_social, FORMAT((SELECT IFNULL(SUM(total_compras), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1), 2) AS total_compras_decimal, FORMAT((SELECT IFNULL(SUM(total_ventas), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1), 2) AS total_ventas_decimal, (SELECT IFNULL(SUM(total_compras), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1) AS total_compras, (SELECT IFNULL(SUM(total_ventas), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1) AS total_ventas FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo = 2 and c.estado = 1 AND (c.razon_social LIKE '%$search%' OR c.ruc like '%$search%') ORDER BY (total_compras + total_ventas) DESC;")->getResultArray();
+        switch ($filter) {
+            case 1:
+                $order = "ORDER BY (total_compras + total_ventas) DESC";
+                break;
+            case 2:
+                $order = "ORDER BY (total_compras + total_ventas) ASC";
+                break;
+            case 3:
+                $order = "ORDER BY total_compras DESC";
+                break;
+            case 4:
+                $order = "ORDER BY total_compras ASC";
+                break;
+            case 5:
+                $order = "ORDER BY total_ventas DESC";
+                break;
+            case 6:
+                $order = "ORDER BY total_ventas ASC";
+                break;
+            default:
+                $order = "";
+                break;
+        }
+
+        $data = $contri->query("SELECT c.ruc, c.razon_social, FORMAT((SELECT IFNULL(SUM(total_compras), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1), 2) AS total_compras_decimal, FORMAT((SELECT IFNULL(SUM(total_ventas), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1), 2) AS total_ventas_decimal, (SELECT IFNULL(SUM(total_compras), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1) AS total_compras, (SELECT IFNULL(SUM(total_ventas), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1) AS total_ventas FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo = 2 and c.estado = 1 AND (c.razon_social LIKE '%$search%' OR c.ruc like '%$search%') $order;")->getResultArray();
 
         return $this->response->setJSON($data);
     }

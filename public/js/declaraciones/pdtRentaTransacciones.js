@@ -4,11 +4,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const anios = document.getElementById("anios");
 const searchContribuyente = document.getElementById("searchContribuyente");
+const filterTotales = document.getElementById("filterTotales");
+
+const listaEmpresasMontos = document.getElementById("listaEmpresasMontos");
 
 function obtenerDatos() {
+  listaEmpresasMontos.innerHTML = `<p class="text-center fw-bold">Cargando datos...</p>`;
+
   const formData = new FormData();
   formData.append("anio", anios.value);
   formData.append("search", searchContribuyente.value);
+  formData.append("filter", filterTotales.value);
 
   fetch(`${base_url}declaraciones/obtenerDatosPdtRentaTransacciones`, {
     method: "POST",
@@ -21,8 +27,6 @@ function obtenerDatos() {
 }
 
 function viewEmpresas(data) {
-  const listaEmpresasMontos = document.getElementById("listaEmpresasMontos");
-
   let html = "";
 
   data.forEach((item) => {
@@ -81,6 +85,7 @@ function viewEmpresas(data) {
 
 anios.addEventListener("change", obtenerDatos);
 searchContribuyente.addEventListener("keyup", obtenerDatos);
+filterTotales.addEventListener("change", obtenerDatos);
 
 const listaPeriodos = document.getElementById("list-periodos");
 
