@@ -239,7 +239,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row">
+                    <!--<div class="row">
                         <div class="col-md-12 mb-1">
                             <input type="checkbox" class="form-check-input" name="pagoServidor" id="pagoServidor">
                             <label class="form-label" for="pagoServidor">Pago de Servidor</label>
@@ -254,7 +254,7 @@
                             <label for="montoPago" class="form-label">Monto de Pago</label>
                             <input type="number" step="0.01" class="form-control" name="montoPago" id="montoPago">
                         </div>
-                    </div>
+                    </div>-->
                     <div class="row">
                         <div class="col-md-12 mb-3">
                             <label class="form-label" for="numeroNotificacion">Número de Notificación Whatsapp</label>
