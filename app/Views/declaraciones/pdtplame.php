@@ -96,11 +96,11 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_constancia">Subir Constancia (word o pdf)</label>
-                            <input type="file" class="form-control" accept="doc,.docx, .pdf" name="file_constancia" id="file_constancia" required>
+                            <input type="file" class="form-control" accept="doc,.docx, .pdf" name="file_constancia" id="file_constancia">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_r08">Subir R08 (txt, pdf)</label>
-                            <input type="file" class="form-control" accept="txt,.pdf" name="file_r08[]" id="file_r08" multiple>
+                            <input type="file" class="form-control" accept="txt,.pdf" name="file_r08[]" id="file_r08" multiple required>
                         </div>
                     </div>
                 </div>

@@ -51,18 +51,7 @@ class PdtPlame extends BaseController
 
             $name_r01 = "";
             $name_r12 = "";
-
-            if (!$file_constancia) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de constancia']);
-            }
-
-            if (!$file_constancia->isValid()) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
-            }
-
-            if ($file_constancia->getClientMimeType() !== 'application/pdf' && $file_constancia->getClientMimeType() !== 'application/msword' && $file_constancia->getClientMimeType() !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos PDF o Excel en Constancia']);
-            }
+            $name_constancia = "";
 
             $ruc = $data['ruc_empresa'];
             $periodo = $data['periodo'];
@@ -97,11 +86,13 @@ class PdtPlame extends BaseController
                 $file_r12->move(FCPATH . 'archivos/pdt', $name_r12);
             }
 
-            //$name_constancia = $file_constancia->getName();
-            $extension_constancia = $file_constancia->getExtension();
-            $name_constancia = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_constancia.' . $extension_constancia;
+            if ($file_constancia && $file_constancia->isValid()) {
+                //$name_r12 = $file_r12->getName();
+                $extension_constancia = $file_constancia->getExtension();
+                $name_constancia = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_constancia.' . $extension_constancia;
 
-            $file_constancia->move(FCPATH . 'archivos/pdt', $name_constancia);
+                $file_constancia->move(FCPATH . 'archivos/pdt', $name_constancia);
+            }
 
             $datos_pdt = array(
                 "ruc_empresa" => $ruc,
@@ -127,6 +118,10 @@ class PdtPlame extends BaseController
             $files->insert($datos_files);
 
             $file_r08 = $this->request->getFileMultiple('file_r08');
+
+            if (empty($file_r08)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de constancia']);
+            }
 
             if (empty($file_r08) || (count($file_r08) === 1 && empty($file_r08[0]->getName()))) {
                 $pdtPlame->db->transComplete();
@@ -292,6 +287,22 @@ class PdtPlame extends BaseController
             $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
 
             if ($file_r01 && $file_r01->isValid()) {
+                $archivo = trim($dataFiles['archivo_planilla'] ?? '');
+
+                if ($archivo !== '') {
+                    $ruta = FCPATH . 'archivos/pdt/' . $archivo;
+                    $ruta = str_replace('/', DIRECTORY_SEPARATOR, $ruta);
+
+                    echo file_get_contents($ruta);
+                    exit;
+
+                    clearstatcache();
+
+                    if (file_exists($ruta)) {
+                        unlink($ruta);
+                    }
+                }
+
                 $extension_r01 = $file_r01->getExtension();
                 $name_r01 = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_r01_' . $codigo . '.' . $extension_r01;
                 $file_r01->move(FCPATH . 'archivos/pdt', $name_r01);
@@ -300,6 +311,20 @@ class PdtPlame extends BaseController
             }
 
             if ($file_r12 && $file_r12->isValid()) {
+
+                $archivo_hono = trim($dataFiles['archivo_honorarios'] ?? '');
+
+                if ($archivo_hono !== '') {
+                    $ruta_hono = FCPATH . 'archivos/pdt/' . $archivo_hono;
+                    $ruta_hono = str_replace('/', DIRECTORY_SEPARATOR, $ruta_hono);
+
+                    clearstatcache();
+
+                    if (file_exists($ruta_hono)) {
+                        unlink($ruta_hono);
+                    }
+                }
+
                 $extension_r12 = $file_r12->getExtension();
                 $name_r12 = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_r12_' . $codigo . '.' . $extension_r12;
                 $file_r12->move(FCPATH . 'archivos/pdt', $name_r12);
@@ -308,6 +333,20 @@ class PdtPlame extends BaseController
             }
 
             if ($file_constancia && $file_constancia->isValid()) {
+
+                $archivo_const = trim($dataFiles['archivo_constancia'] ?? '');
+
+                if ($archivo_const !== '') {
+                    $ruta_constancia = FCPATH . 'archivos/pdt/' . $archivo_const;
+                    $ruta_constancia = str_replace('/', DIRECTORY_SEPARATOR, $ruta_constancia);
+
+                    clearstatcache();
+
+                    if (file_exists($ruta_constancia)) {
+                        unlink($ruta_constancia);
+                    }
+                }
+
                 $extension_constancia = $file_constancia->getExtension();
                 $name_constancia = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_constancia_' . $codigo . '.' . $extension_constancia;
                 $file_constancia->move(FCPATH . 'archivos/pdt', $name_constancia);
