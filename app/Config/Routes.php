@@ -162,6 +162,8 @@ $routes->get('metodo-pago/delete/(:num)', 'MetodoPago::delete/$1');
 
 $routes->get('asignar-contribuyentes', 'Auth::asignarContribuyentes');
 
+$routes->get('all-sedes', 'Sede::show');
+
 $routes->get('permisos', 'Permisos::index');
 $routes->get('permisos-perfil/(:num)', 'Permisos::show/$1');
 $routes->post('save-permisos', 'Permisos::guardar');
@@ -185,6 +187,8 @@ $routes->post('api/save-factura', 'Api\Notificaciones::saveFactura');
 $routes->get('api/notificacion-pdt-renta', 'Api\Notificaciones::notificationPdtRenta');
 $routes->post('api/excluir-periodo-pdt-renta', 'Api\Notificaciones::excluirPeriodoPdtRenta');
 $routes->get('api/getMontos', 'Api\Notificaciones::getMontosPdtRenta');
+$routes->get('api/notificacion-pdt-plame', 'Api\Notificaciones::notificationPdtPlame');
+$routes->post('api/excluir-periodo-pdt-plame', 'Api\Notificaciones::excluirPeriodoPdtPlame');
 
 $routes->get('mensajes-masivos', 'Mensajes::index');
 $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');

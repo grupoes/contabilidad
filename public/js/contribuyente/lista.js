@@ -1210,23 +1210,52 @@ formClave.addEventListener("submit", (e) => {
 
 getPdtsSubir();
 
-function getPdtsSubir() {
-  fetch(base_url + "api/notificacion-pdt-renta")
-    .then((res) => res.json())
-    .then((data) => {
-      const titulo = document.getElementById("titleListaContribuyentes");
+async function getPdtsSubir() {
+  try {
+    const responseRenta = await fetch(base_url + "api/notificacion-pdt-renta");
+    const dataRenta = await responseRenta.json();
 
-      const quanty = data.length;
+    const quantyRenta = dataRenta.length;
 
-      if (quanty > 0) {
-        titulo.innerHTML = `
-          Lista de Contribuyentes 
-          <button type="button" class="btn btn-danger btn-sm" onclick="viewContribuyentesPdts()">
-            Pdt Renta (${quanty})
-          </button>
-        `;
-      }
-    });
+    const responsePlame = await fetch(base_url + "api/notificacion-pdt-plame");
+    const dataPlame = await responsePlame.json();
+
+    const quantyPlame = dataPlame.length;
+
+    const titulo = document.getElementById("titleListaContribuyentes");
+
+    if (quantyRenta > 0 || quantyPlame > 0) {
+      titulo.innerHTML = `
+        Lista de Contribuyentes
+        <button type="button" class="btn btn-danger btn-sm" onclick="viewContribuyentesPdts()">
+          Pdt Renta (${quantyRenta})
+        </button>
+        <button type="button" class="btn btn-danger btn-sm" onclick="viewContribuyentesPdtsPlame()">
+          Pdt Plame (${quantyPlame})
+        </button>
+      `;
+    } else if (quantyRenta > 0) {
+      titulo.innerHTML = `
+        Lista de Contribuyentes
+        <button type="button" class="btn btn-danger btn-sm" onclick="viewContribuyentesPdts()">
+          Pdt Renta (${quantyRenta})
+        </button>
+      `;
+    } else if (quantyPlame > 0) {
+      titulo.innerHTML = `
+        Lista de Contribuyentes
+        <button type="button" class="btn btn-danger btn-sm" onclick="viewContribuyentesPdtsPlame()">
+          Pdt Plame (${quantyPlame})
+        </button>
+      `;
+    } else {
+      titulo.innerHTML = `
+        Lista de Contribuyentes
+      `;
+    }
+  } catch (error) {
+    console.error("Error al cargar notificaciones PDT:", error);
+  }
 }
 
 const newcs2 = $("#tableData2").DataTable(optionsTableDefault);
@@ -1326,6 +1355,107 @@ function excluirPeriodo(ruc, id_mes, id_anio) {
           });
       } else {
         $("#modalPdts").modal("show");
+      }
+    });
+}
+
+const newcs3 = $("#tableData3").DataTable(optionsTableDefault);
+
+new $.fn.dataTable.Responsive(newcs2);
+
+function viewContribuyentesPdtsPlame() {
+  $("#modalPdtsPlame").modal("show");
+  fetch(base_url + "api/notificacion-pdt-plame")
+    .then((res) => res.json())
+    .then((data) => {
+      const listPdts = document.getElementById("listPdtsPlame");
+
+      let html = "";
+
+      data.forEach((pdt) => {
+        let button = "";
+
+        if (pdt.tipo_contrato == "actual") {
+          button = `
+            <button type="button" class="btn btn-info btn-sm" onclick="excluirPeriodoPlame('${pdt.ruc}', ${pdt.id_mes}, ${pdt.id_anio})">
+              <i class="fas fa-minus"></i>
+            </button>
+          `;
+        }
+
+        html += `
+        <tr>
+          <td>${pdt.razon_social}</td>
+          <td>${pdt.mes} ${pdt.anio}</td>
+          <td>
+            ${button}
+          </td>
+        </tr>
+        `;
+      });
+
+      $("#tableData3").DataTable().destroy();
+
+      listPdts.innerHTML = html;
+
+      const newcs2 = $("#tableData3").DataTable(optionsTableDefault);
+
+      new $.fn.dataTable.Responsive(newcs2);
+    });
+}
+
+function excluirPeriodoPlame(ruc, id_mes, id_anio) {
+  $("#modalPdtsPlame").modal("hide");
+
+  swalWithBootstrapButtons
+    .fire({
+      title: "¿Estás seguro de excluir este periodo?",
+      text: "¡No podrá revertir después!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Si, excluir!",
+      cancelButtonText: "No, cancelar!",
+      reverseButtons: true,
+      allowOutsideClick: false,
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        const params = {
+          ruc: ruc,
+          id_mes: id_mes,
+          id_anio: id_anio,
+        };
+
+        fetch(base_url + "api/excluir-periodo-pdt-plame", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              swalWithBootstrapButtons
+                .fire({
+                  title: "¡Eliminado!",
+                  text: data.message,
+                  icon: "success",
+                  confirmButtonText: "Entendido",
+                  allowOutsideClick: false,
+                })
+                .then((result) => {
+                  if (result.isConfirmed) {
+                    viewContribuyentesPdtsPlame();
+                    getPdtsSubir();
+                  }
+                });
+            } else {
+              swalWithBootstrapButtons.fire("Error", data.msg, "error");
+            }
+          });
+      } else {
+        $("#modalPdtsPlame").modal("show");
       }
     });
 }

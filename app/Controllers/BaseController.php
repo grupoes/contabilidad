@@ -182,7 +182,7 @@ abstract class BaseController extends Controller
         ];
     }
 
-    public function Aperturar($metodoPago)
+    public function Aperturar($metodoPago, $idsede = null)
     {
         $sesion = new SesionCajaModel();
         $sedeCaja = new SedeCajaModel();
@@ -193,7 +193,7 @@ abstract class BaseController extends Controller
         try {
 
             if ($metodoPago == "1") {
-                $sede = session()->sede_id;
+                $sede = $idsede;
                 $usuario = $user->where('perfil_id', 3)->where('sede_id', $sede)->where('estado', 1)->first();
                 $idUser = $usuario['id'];
             } else {
