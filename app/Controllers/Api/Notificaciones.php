@@ -16,6 +16,7 @@ use App\Models\HonorariosModel;
 use App\Models\FacturasHonorariosModel;
 use App\Models\PdtRentaModel;
 use App\Models\PdtPlameModel;
+use App\Models\TipoCambioModel;
 
 use DateTime;
 
@@ -680,6 +681,94 @@ class Notificaciones extends ResourceController
             'status' => 'success',
             'message' => 'Periodo excluido correctamente'
         ]);
+    }
+
+    public function getCambios()
+    {
+        $cambio = new TipoCambioModel();
+
+        $fechas = [
+            '2025-07-23',
+            '2025-07-24',
+            '2025-07-25',
+            '2025-07-26',
+            '2025-07-27',
+            '2025-07-28',
+            '2025-07-29',
+            '2025-07-30',
+            '2025-07-31',
+            '2025-08-01'
+        ];
+
+        for ($i = 0; $i < count($fechas); $i++) {
+            $tipo = $this->apiTipoCambio($fechas[$i]);
+
+            $datos = [
+                'compra' => $tipo->compra,
+                'venta' => $tipo->venta,
+                'origien' => $tipo->origen,
+                'moneda' => $tipo->moneda,
+                'fecha' => $tipo->fecha
+            ];
+
+            $cambio->insert($datos);
+
+            sleep(5);
+        }
+
+        return $this->respond([
+            'status' => 'success',
+            'message' => 'Agregado correctamente'
+        ]);
+    }
+
+    function apiTipoCambio($fecha)
+    {
+        $token = 'apis-token-1.aTSI1U7KEuT-6bbbCguH-4Y8TI6KS73N';
+
+        // Iniciar llamada a API
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.apis.net.pe/v1/tipo-cambio-sunat?fecha=' . $fecha,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 2,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => array(
+                'Referer: https://apis.net.pe/tipo-de-cambio-sunat-api',
+                'Authorization: Bearer ' . $token
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        // Datos listos para usar
+        $tipoCambioSunat = json_decode($response);
+        return $tipoCambioSunat;
+    }
+
+    public function getConsultaTipoCambio($fecha)
+    {
+        $tipoCambio = new TipoCambioModel();
+
+        $tipo_cambio = $tipoCambio->select('compra, venta, fecha')->where('fecha', $fecha)->first();
+
+        if ($tipo_cambio) {
+            return $this->respond([
+                'status' => 'success',
+                'data' => $tipo_cambio
+            ]);
+        } else {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'No se encontro el tipo de cambio'
+            ]);
+        }
     }
 
     /**

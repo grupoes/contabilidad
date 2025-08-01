@@ -190,6 +190,9 @@ $routes->get('api/getMontos', 'Api\Notificaciones::getMontosPdtRenta');
 $routes->get('api/notificacion-pdt-plame', 'Api\Notificaciones::notificationPdtPlame');
 $routes->post('api/excluir-periodo-pdt-plame', 'Api\Notificaciones::excluirPeriodoPdtPlame');
 
+$routes->get('api/insert-tipo-cambio', 'Api\Notificaciones::getCambios');
+$routes->get('api/consulta-tipo-cambio/(:any)', 'Api\Notificaciones::getConsultaTipoCambio/$1');
+
 $routes->get('mensajes-masivos', 'Mensajes::index');
 $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');
 $routes->get('lista-mensajes', 'Mensajes::listaMensajes');
