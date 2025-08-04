@@ -53,7 +53,7 @@ class Movimiento extends BaseController
             $serie = $this->request->getVar('serie');
             $numero = $this->request->getVar('correlativo');
 
-            $dataSede = $this->Aperturar($metodoPago);
+            $dataSede = $this->Aperturar($metodoPago, session()->sede_id);
 
             $tipo_descripcion = $serie . "-" . $numero;
 
