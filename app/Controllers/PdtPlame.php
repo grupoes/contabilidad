@@ -293,9 +293,6 @@ class PdtPlame extends BaseController
                     $ruta = FCPATH . 'archivos/pdt/' . $archivo;
                     $ruta = str_replace('/', DIRECTORY_SEPARATOR, $ruta);
 
-                    echo file_get_contents($ruta);
-                    exit;
-
                     clearstatcache();
 
                     if (file_exists($ruta)) {
