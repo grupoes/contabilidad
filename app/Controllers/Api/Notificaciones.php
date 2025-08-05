@@ -470,7 +470,7 @@ class Notificaciones extends ResourceController
 
             $digito = $id_numero - 1;
 
-            $contribuyentes = $cont->select('id, razon_social, ruc, fechaContrato, IF(MONTH(fechaContrato) = MONTH(CURDATE()) AND YEAR(fechaContrato) = YEAR(CURDATE()), "actual", "antiguo") AS tipo_contrato')->where('estado', 1)->where('RIGHT(ruc, 1)', $digito)->where('tipoServicio', 'CONTABLE')->findAll();
+            $contribuyentes = $cont->select('id, razon_social, ruc, fechaContrato, IF(MONTH(fechaContrato) >= MONTH(CURDATE()) AND YEAR(fechaContrato) >= YEAR(CURDATE()), "actual", "antiguo") AS tipo_contrato')->where('estado', 1)->where('RIGHT(ruc, 1)', $digito)->where('tipoServicio', 'CONTABLE')->findAll();
 
             foreach ($contribuyentes as $keys => $values) {
                 $ruc = $values['ruc'];
@@ -614,7 +614,7 @@ class Notificaciones extends ResourceController
 
             /*$contribuyentes = $cont->select('id, razon_social, ruc, fechaContrato, IF(MONTH(fechaContrato) = MONTH(CURDATE()) AND YEAR(fechaContrato) = YEAR(CURDATE()), "actual", "antiguo") AS tipo_contrato')->where('estado', 1)->where('RIGHT(ruc, 1)', $digito)->where('tipoServicio', 'CONTABLE')->findAll();*/
 
-            $contribuyentes = $cont->query("SELECT c.ruc, MAX(c.id) AS id, MAX(c.razon_social) AS razon_social, MAX(c.fechaContrato) AS fechaContrato, IF(MONTH(MAX(c.fechaContrato)) = MONTH(CURDATE()) AND YEAR(MAX(c.fechaContrato)) = YEAR(CURDATE()), 'actual', 'antiguo') AS tipo_contrato FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc INNER JOIN tributo t ON t.id_tributo = cn.id_tributo WHERE c.estado = 1 AND RIGHT(c.ruc, 1) = $digito AND c.tipoServicio = 'CONTABLE' AND t.id_pdt = 2 GROUP BY c.ruc")->getResultArray();
+            $contribuyentes = $cont->query("SELECT c.ruc, MAX(c.id) AS id, MAX(c.razon_social) AS razon_social, MAX(c.fechaContrato) AS fechaContrato, IF(MONTH(MAX(c.fechaContrato)) >= MONTH(CURDATE()) AND YEAR(MAX(c.fechaContrato)) >= YEAR(CURDATE()), 'actual', 'antiguo') AS tipo_contrato FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc INNER JOIN tributo t ON t.id_tributo = cn.id_tributo WHERE c.estado = 1 AND RIGHT(c.ruc, 1) = $digito AND c.tipoServicio = 'CONTABLE' AND t.id_pdt = 2 GROUP BY c.ruc")->getResultArray();
 
             foreach ($contribuyentes as $keys => $values) {
                 $ruc = $values['ruc'];
