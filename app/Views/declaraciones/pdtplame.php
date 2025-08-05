@@ -100,7 +100,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_r08">Subir R08 (txt, pdf)</label>
-                            <input type="file" class="form-control" accept="txt,.pdf" name="file_r08[]" id="file_r08" multiple required>
+                            <input type="file" class="form-control" accept="txt,.pdf" name="file_r08[]" id="file_r08" multiple>
                         </div>
                     </div>
                 </div>

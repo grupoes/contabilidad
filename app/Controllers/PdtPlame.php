@@ -48,6 +48,7 @@ class PdtPlame extends BaseController
             $file_r01 = $this->request->getFile('file_r01');
             $file_r12 = $this->request->getFile('file_r12');
             $file_constancia = $this->request->getFile('file_constancia');
+            $file_r08 = $this->request->getFileMultiple('file_r08');
 
             $name_r01 = "";
             $name_r12 = "";
@@ -61,6 +62,25 @@ class PdtPlame extends BaseController
 
             if ($consultaPlame) {
                 return $this->response->setJSON(['error' => 'success', 'message' => "El periodo y año ya existe."]);
+            }
+
+            $hayArchivoR08 = false;
+
+            if (!empty($file_r08)) {
+                foreach ($file_r08 as $archivo) {
+                    if ($archivo->isValid() && !$archivo->hasMoved()) {
+                        $hayArchivoR08 = true;
+                        break;
+                    }
+                }
+            }
+
+            // Verificar que al menos uno de los archivos esté presente
+            if ((!$file_r01 || !$file_r01->isValid()) && (!$file_r12 || !$file_r12->isValid()) && (!$file_constancia || !$file_constancia->isValid()) && !$hayArchivoR08) {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "Debe seleccionar al menos un archivo"
+                ]);
             }
 
             $dataAnio = $year->find($anio);
@@ -117,39 +137,25 @@ class PdtPlame extends BaseController
 
             $files->insert($datos_files);
 
-            $file_r08 = $this->request->getFileMultiple('file_r08');
+            if ($hayArchivoR08) {
+                for ($i = 0; $i < count($file_r08); $i++) {
+                    if ($file_r08[$i]->isValid() && !$file_r08[$i]->hasMoved()) {
+                        $name_original = $file_r08[$i]->getName();
+                        $name = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_' . $name_original;
 
-            if (empty($file_r08)) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de constancia']);
-            }
+                        $file_r08[$i]->move(FCPATH . 'archivos/pdt', $name);
 
-            if (empty($file_r08) || (count($file_r08) === 1 && empty($file_r08[0]->getName()))) {
-                $pdtPlame->db->transComplete();
+                        $data_r08 = array(
+                            "plameId" => $pdtPlameId,
+                            "nameFile" => $name,
+                            "status" => 1,
+                            "user_id" => session()->id
+                        );
 
-                if ($pdtPlame->db->transStatus() === false) {
-                    throw new \Exception("Error al realizar la operación.");
-                }
-
-                return $this->response->setJSON(['status' => 'success', 'message' => "Se guardo correctamente"]);
-            }
-
-            for ($i = 0; $i < count($file_r08); $i++) {
-                if ($file_r08[$i]->isValid() && !$file_r08[$i]->hasMoved()) {
-                    $name_original = $file_r08[$i]->getName();
-                    $name = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_' . $name_original;
-
-                    $file_r08[$i]->move(FCPATH . 'archivos/pdt', $name);
-
-                    $data_r08 = array(
-                        "plameId" => $pdtPlameId,
-                        "nameFile" => $name,
-                        "status" => 1,
-                        "user_id" => session()->id
-                    );
-
-                    $r08->insert($data_r08);
-                } else {
-                    return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
+                        $r08->insert($data_r08);
+                    } else {
+                        return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
+                    }
                 }
             }
 
