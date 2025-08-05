@@ -612,7 +612,9 @@ class Notificaciones extends ResourceController
 
             $digito = $id_numero - 1;
 
-            $contribuyentes = $cont->select('id, razon_social, ruc, fechaContrato, IF(MONTH(fechaContrato) = MONTH(CURDATE()) AND YEAR(fechaContrato) = YEAR(CURDATE()), "actual", "antiguo") AS tipo_contrato')->where('estado', 1)->where('RIGHT(ruc, 1)', $digito)->where('tipoServicio', 'CONTABLE')->findAll();
+            /*$contribuyentes = $cont->select('id, razon_social, ruc, fechaContrato, IF(MONTH(fechaContrato) = MONTH(CURDATE()) AND YEAR(fechaContrato) = YEAR(CURDATE()), "actual", "antiguo") AS tipo_contrato')->where('estado', 1)->where('RIGHT(ruc, 1)', $digito)->where('tipoServicio', 'CONTABLE')->findAll();*/
+
+            $contribuyentes = $cont->query("SELECT id, razon_social, ruc, fechaContrato, IF(MONTH(fechaContrato) = MONTH(CURDATE()) AND YEAR(fechaContrato) = YEAR(CURDATE()), 'actual', 'antiguo') AS tipo_contrato FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc inner join tributo t on t.id_tributo = cn.id_tributo WHERE c.estado = 1 AND RIGHT(c.ruc, 1) = $digito AND c.tipoServicio = 'CONTABLE' AND t.id_pdt = 2 GROUP BY c.ruc")->getResultArray();
 
             foreach ($contribuyentes as $keys => $values) {
                 $ruc = $values['ruc'];
@@ -688,17 +690,18 @@ class Notificaciones extends ResourceController
         $cambio = new TipoCambioModel();
 
         $fechas = [
-            '2025-07-23',
-            '2025-07-24',
-            '2025-07-25',
-            '2025-07-26',
-            '2025-07-27',
-            '2025-07-28',
-            '2025-07-29',
-            '2025-07-30',
-            '2025-07-31',
-            '2025-08-01'
+            '2025-06-21',
+            '2025-06-22',
+            '2025-06-23',
+            '2025-06-24',
+            '2025-06-25',
+            '2025-06-26',
+            '2025-06-27',
+            '2025-06-28',
+            '2025-06-29',
+            '2025-06-30',
         ];
+
 
         for ($i = 0; $i < count($fechas); $i++) {
             $tipo = $this->apiTipoCambio($fechas[$i]);
