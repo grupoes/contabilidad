@@ -238,8 +238,6 @@ function listaContribuyentes() {
 
 function optionsTable(id, ruc) {
   return `
-        <a class="dropdown-item" href="#"><i class="ti ti-notebook"></i>Lista de Boletas</a>
-        <a class="dropdown-item" href="#"><i class="ti ti-book"></i>Registrar Boletas</a>
         <a class="dropdown-item" href="#" onclick="importarBoletas(event, ${id})"><i class="ti ti-file-import"></i>Importar Boletas</a>
         <a class="dropdown-item" href="#" onclick="deleteEmpresa(event, ${id})"><i class="ti ti-trash"></i>Eliminar Empresa</a>
         <a class="dropdown-item" href="#" onclick="configurarDeclaraciones(event, ${id})"><i class="ti ti-settings"></i>Configurar declaraciones</a>
@@ -250,6 +248,7 @@ function optionsTable(id, ruc) {
         <a class="dropdown-item" href="https://esconsultoresyasesores.com:9300/reporte-ventas/${ruc}" target="__blank"><i class="ti ti-file-text"></i>Reporte Restaurante</a>
         <a class="dropdown-item" href="https://grupoesconsultores.com/contagrupoes/maqueta-compras/${ruc}" target="__blank"><i class="ti ti-file-symlink"></i>Enviar archivos</a>
         <a class="dropdown-item" href="#" onclick="loadModalContactos(event, ${id})"><i class="ti ti-accessible"></i>Contactos</a>
+        <a class="dropdown-item" href="#" onclick="loadModalContratos(event, ${id})"><i class="ti ti-file-symlink"></i>Contratos</a>
     `;
 }
 
@@ -1458,3 +1457,74 @@ function excluirPeriodoPlame(ruc, id_mes, id_anio) {
       }
     });
 }
+
+const id_emp = document.getElementById("id_emp");
+
+function loadModalContratos(e, id) {
+  e.preventDefault();
+  $("#modalContratos").modal("show");
+  id_emp.value = id;
+
+  loadContratos(id);
+}
+
+function loadContratos(id) {
+  fetch(base_url + "contribuyente/contratos/" + id)
+    .then((res) => res.json())
+    .then((data) => {
+      const listContratos = document.getElementById("listContratos");
+
+      let html = "";
+
+      const datos = data.datos;
+
+      const razon_social = datos[0].razon_social;
+
+      document.getElementById(
+        "titleModalContratos"
+      ).textContent = `Contratos de ${razon_social}`;
+
+      datos.forEach((contrato, key) => {
+        let contra = "NO EXISTE";
+        let button = "";
+
+        if (contrato.file != "") {
+          contra = contrato.file;
+          button = `
+            <button type="button" class="btn btn-info btn-sm" onclick="eliminarContrato('${contrato.id_contrato}')">
+              <i class="fas fa-minus"></i>
+            </button>
+          `;
+        }
+
+        html += `
+        <tr>
+          <td>${key + 1}</td>
+          <td>${contra}</td>
+          <td></td>
+        </tr>
+        `;
+      });
+
+      listContratos.innerHTML = html;
+    });
+}
+
+const formContrato = document.getElementById("formContrato");
+
+formContrato.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formContrato);
+
+  fetch(base_url + "contribuyente/agregar-contrato", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        loadContratos(id_emp.value);
+      }
+    });
+});

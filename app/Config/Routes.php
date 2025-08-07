@@ -52,6 +52,8 @@ $routes->post('contribuyente/vacear-boletas', 'Contribuyentes::vacearBoletas');
 $routes->get('contribuyente/ver-acceso/(:num)', 'Contribuyentes::verAcceso/$1');
 $routes->post('contribuyente/actualizar-clave', 'Contribuyentes::updatePassword');
 $routes->get('contribuyentes/contribuyentesActivos/(:any)', 'Contribuyentes::getContribuyenteActivos/$1');
+$routes->get('contribuyente/contratos/(:num)', 'Contribuyentes::showContratos/$1');
+$routes->post('contribuyente/agregar-contrato', 'Contribuyentes::agregarContrato');
 
 $routes->get('contribuyentes/migracion', 'Contribuyentes::migrarContribuyentes');
 

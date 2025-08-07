@@ -780,6 +780,53 @@
     </div>
 </div>
 
+<div id="modalContratos" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="titleModalContratos"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formContrato" enctype="multipart/form-data">
+                    <input type="hidden" name="id_emp" id="id_emp">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="selectContrato" class="form-label">Archivo Contrato</label>
+                                <input type="file" class="form-control" name="fileContrato" id="fileContrato">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-success mt-4 mb-3">Agregar</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableData2">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Contrato</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listContratos">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>
