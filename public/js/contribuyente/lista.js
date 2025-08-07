@@ -205,14 +205,13 @@ formDatos.addEventListener("submit", (e) => {
 
         listaContribuyentes();
       } else {
+        $("#modalAddEdit").modal("hide");
+
         notifier.show("¡Sorry!", data.message, "danger", "", 4000);
 
-        setTimeout(() => {
-          const notifierElement = document.querySelector(".notifier-container");
-          if (notifierElement) {
-            notifierElement.style.zIndex = "1100"; // Nivel mayor al modal
-          }
-        }, 0);
+        setTimeout(function () {
+          $("#modalAddEdit").modal("show");
+        }, 4000);
       }
     });
 });

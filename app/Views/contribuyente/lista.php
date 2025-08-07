@@ -256,7 +256,7 @@
                         </div>
                     </div>-->
                     <div class="row">
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label" for="numeroNotificacion">Número de Notificación Whatsapp</label>
                             <select class="form-control" name="numeroNotificacion" id="numeroNotificacion" required>
                                 <option value="">Seleccione...</option>
@@ -264,6 +264,11 @@
                                     <option value="<?= $value['id'] ?>">51<?= $value['numero'] . " - " . $value['titulo'] ?></option>
                                 <?php } ?>
                             </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="contrato">Subir Contrato</label>
+                            <input type="file" class="form-control" name="contrato" id="contrato" required>
                         </div>
                     </div>
 
@@ -786,6 +791,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/contribuyente/lista.js?v=1"></script>
+<script src="<?= base_url() ?>js/contribuyente/lista.js?v=2"></script>
 
 <?= $this->endSection() ?>

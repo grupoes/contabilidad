@@ -13,7 +13,7 @@ class ContratosModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'contribuyenteId', 'fechaInicio', 'fechaFin', 'diaCobro', 'estado'];
+    protected $allowedFields = ['id', 'contribuyenteId', 'fechaInicio', 'fechaFin', 'diaCobro', 'file', 'estado'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
