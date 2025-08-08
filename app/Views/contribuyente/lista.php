@@ -800,7 +800,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            <button type="submit" class="btn btn-success mt-4 mb-3">Agregar</button>
+                            <button type="submit" id="btnFormContrato" class="btn btn-success mt-4 mb-3">Agregar</button>
                         </div>
                     </div>
                 </form>

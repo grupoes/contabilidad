@@ -74,7 +74,16 @@ function vistaContribuyentes(data) {
 
   tableBody.innerHTML = html;
 
-  const newcs = $($table).DataTable(optionsTableDefault);
+  const newcs = $($table).DataTable({
+    language: language,
+    responsive: true, // Hace que la tabla sea responsiva
+    autoWidth: false, // Desactiva el ajuste automático de ancho
+    scrollX: false, // Evita el scroll horizontal
+    columnDefs: [
+      { targets: [0, 1], className: "text-left" },
+      { targets: "_all", className: "text-wrap" }, // Permite el ajuste de texto en las columnas
+    ],
+  });
 
   new $.fn.dataTable.Responsive(newcs);
 }

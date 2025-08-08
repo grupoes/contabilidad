@@ -1511,9 +1511,13 @@ function loadContratos(id) {
 }
 
 const formContrato = document.getElementById("formContrato");
+const btnFormContrato = document.getElementById("btnFormContrato");
 
 formContrato.addEventListener("submit", (e) => {
   e.preventDefault();
+
+  btnFormContrato.disabled = true;
+  btnFormContacto.textContent = "Cargando...";
 
   const formData = new FormData(formContrato);
 
@@ -1523,6 +1527,9 @@ formContrato.addEventListener("submit", (e) => {
   })
     .then((res) => res.json())
     .then((data) => {
+      btnFormContrato.disabled = false;
+      btnFormContacto.textContent = "Agregar";
+
       if (data.status === "success") {
         loadContratos(id_emp.value);
       }

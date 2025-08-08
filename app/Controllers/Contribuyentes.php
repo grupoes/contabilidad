@@ -1465,7 +1465,7 @@ class Contribuyentes extends BaseController
     {
         $contrato = new ContratosModel();
 
-        $contratos = $contrato->query("SELECT ct.razon_social, c.file, c.id FROM contratos c INNER JOIN contribuyentes ct ON ct.id = c.contribuyenteId WHERE c.contribuyenteId = $id AND c.estado = 1")->getResultArray();
+        $contratos = $contrato->query("SELECT ct.razon_social, c.file, c.id FROM contratos c INNER JOIN contribuyentes ct ON ct.id = c.contribuyenteId WHERE c.contribuyenteId = $id AND c.estado = 1 ORDER BY c.id DESC")->getResultArray();
 
         return $this->response->setJSON(['status' => 'success', 'datos' => $contratos]);
     }
@@ -1478,7 +1478,7 @@ class Contribuyentes extends BaseController
             $id = $this->request->getPost('id_emp');
             $file = $this->request->getFile('fileContrato');
 
-            $consulta = $contrato->query("SELECT c.id, c.file, ct.ruc FROM contratos c INNER JOIN contribuyentes ct ON ct.id = c.contribuyenteId WHERE contribuyenteId = $id AND estado = 1")->getRowArray();
+            $consulta = $contrato->query("SELECT c.id, c.file, ct.ruc FROM contratos c INNER JOIN contribuyentes ct ON ct.id = c.contribuyenteId WHERE c.contribuyenteId = $id AND c.estado = 1")->getRowArray();
 
             $ext_contrato = $file->getExtension();
             $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
@@ -1487,7 +1487,7 @@ class Contribuyentes extends BaseController
 
             $file->move(FCPATH . 'contratos', $archivo_contrato);
 
-            if ($consulta['file' == ""]) {
+            if ($consulta['file'] == "") {
                 $contrato->update($consulta["id"], ["file" => $archivo_contrato]);
             } else {
                 $data = [
