@@ -14,15 +14,21 @@ const listFiles = document.getElementById("listFiles");
 const desde = document.getElementById("desde");
 const hasta = document.getElementById("hasta");
 
+const estado = document.getElementById("estado");
+
 renderContribuyentes();
 
 function renderContribuyentes() {
-  fetch(`${base_url}contribuyentes/render`)
+  fetch(`${base_url}contribuyentes/contables/${estado.value}`)
     .then((res) => res.json())
     .then((data) => {
       vistaContribuyentes(data);
     });
 }
+
+estado.addEventListener("change", (e) => {
+  renderContribuyentes();
+});
 
 function vistaContribuyentes(data) {
   let html = "";
@@ -56,7 +62,15 @@ function vistaContribuyentes(data) {
 
   tableBody.innerHTML = html;
 
-  const newcs = $($table).DataTable(optionsTableDefault);
+  const newcs = $($table).DataTable({
+    language: language,
+    responsive: true, // Hace que la tabla sea responsiva
+    autoWidth: false, // Desactiva el ajuste automático de ancho
+    scrollX: false, // Evita el scroll horizontal
+    columnDefs: [
+      { targets: "_all", className: "text-wrap" }, // Permite el ajuste de texto en las columnas
+    ],
+  });
 
   new $.fn.dataTable.Responsive(newcs);
 }
