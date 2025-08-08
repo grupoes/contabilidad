@@ -1489,7 +1489,7 @@ function loadContratos(id) {
         let button = "";
 
         if (contrato.file != "") {
-          contra = contrato.file;
+          contra = `<a href="${base_url}contratos/${contrato.file}" target="__blank">${contrato.file}</a>`;
           button = `
             <button type="button" class="btn btn-info btn-sm" onclick="eliminarContrato('${contrato.id_contrato}')">
               <i class="fas fa-minus"></i>
