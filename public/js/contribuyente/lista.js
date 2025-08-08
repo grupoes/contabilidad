@@ -1530,6 +1530,8 @@ formContrato.addEventListener("submit", (e) => {
       btnFormContrato.disabled = false;
       btnFormContrato.textContent = "Agregar";
 
+      formContrato.reset();
+
       if (data.status === "success") {
         loadContratos(id_emp.value);
       }

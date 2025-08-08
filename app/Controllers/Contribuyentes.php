@@ -1473,6 +1473,7 @@ class Contribuyentes extends BaseController
     public function agregarContrato()
     {
         $contrato = new ContratosModel();
+        $tarifa = new HistorialTarifaModel();
 
         try {
             $id = $this->request->getPost('id_emp');
@@ -1496,10 +1497,26 @@ class Contribuyentes extends BaseController
                 $data = [
                     "contribuyenteId" => $id,
                     "file" => $archivo_contrato,
+                    "fechaInicio" => date("Y-m-d"),
                     "estado" => 1
                 ];
 
                 $contrato->insert($data);
+
+                $idContrato = $contrato->getInsertID();
+                $fechaInicio = date("Y-m-d");
+
+                $idc = $consulta["id"];
+
+                $dataTarifa = $tarifa->query("SELECT * FROM historial_tarifas WHERE estado = 1 AND contratoId = $idc")->getRowArray();
+
+                $tarifa->insert([
+                    'contratoId' => $idContrato,
+                    'fecha_inicio' => $fechaInicio,
+                    'monto_mensual' => $dataTarifa['monto_mensual'],
+                    'monto_anual' => $dataTarifa['monto_anual'],
+                    'estado' => 1
+                ]);
             }
 
             return $this->response->setJSON(['status' => 'success', 'message' => "Contrato agregado correctamente."]);
