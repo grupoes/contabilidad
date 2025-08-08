@@ -130,5 +130,6 @@ nb-configuration.xml
 !/public/vouchers/.gitkeep
 
 /public/archivos/*
+/public/contratos/*
 
 /writable/keys.json
