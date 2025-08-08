@@ -50,6 +50,13 @@
                                 </select>
                             </li>
 
+                            <li class="list-inline-item">
+                                <select name="estado" id="estado" class="form-select">
+                                    <option value="1">Activos</option>
+                                    <option value="2">Inactivos</option>
+                                </select>
+                            </li>
+
                         </ul>
 
                         <ul class="list-inline ms-auto my-1">
@@ -119,6 +126,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.responsive.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 
-<script src="<?= base_url() ?>js/declaraciones/pdtRentaTransacciones.js"></script>
+<script src="<?= base_url() ?>js/declaraciones/pdtRentaTransacciones.js?v=1"></script>
 
 <?= $this->endSection() ?>

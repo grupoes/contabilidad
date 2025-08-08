@@ -5,8 +5,11 @@ document.addEventListener("DOMContentLoaded", function () {
 const anios = document.getElementById("anios");
 const searchContribuyente = document.getElementById("searchContribuyente");
 const filterTotales = document.getElementById("filterTotales");
+const estado = document.getElementById("estado");
 
 const listaEmpresasMontos = document.getElementById("listaEmpresasMontos");
+
+estado.addEventListener("change", obtenerDatos);
 
 function obtenerDatos() {
   listaEmpresasMontos.innerHTML = `<p class="text-center fw-bold">Cargando datos...</p>`;
@@ -15,6 +18,7 @@ function obtenerDatos() {
   formData.append("anio", anios.value);
   formData.append("search", searchContribuyente.value);
   formData.append("filter", filterTotales.value);
+  formData.append("estado", estado.value);
 
   fetch(`${base_url}declaraciones/obtenerDatosPdtRentaTransacciones`, {
     method: "POST",
