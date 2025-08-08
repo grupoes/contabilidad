@@ -1517,7 +1517,7 @@ formContrato.addEventListener("submit", (e) => {
   e.preventDefault();
 
   btnFormContrato.disabled = true;
-  btnFormContacto.textContent = "Cargando...";
+  btnFormContrato.textContent = "Cargando...";
 
   const formData = new FormData(formContrato);
 
@@ -1528,7 +1528,7 @@ formContrato.addEventListener("submit", (e) => {
     .then((res) => res.json())
     .then((data) => {
       btnFormContrato.disabled = false;
-      btnFormContacto.textContent = "Agregar";
+      btnFormContrato.textContent = "Agregar";
 
       if (data.status === "success") {
         loadContratos(id_emp.value);
