@@ -30,7 +30,16 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-1">
+                                <select name="estado" id="estado" class="form-control">
+                                    <option value="1">Activos</option>
+                                    <option value="2">Inactivos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableData">
                             <thead>
@@ -331,6 +340,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.responsive.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 
-<script src="<?= base_url() ?>js/declaraciones/pdt0621.js"></script>
+<script src="<?= base_url() ?>js/declaraciones/pdt0621.js?v=1"></script>
 
 <?= $this->endSection() ?>

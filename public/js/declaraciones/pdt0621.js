@@ -26,6 +26,8 @@ const envio_archivos = document.getElementById("envio_archivos");
 
 const rucEmpresa = document.getElementById("rucEmpresa");
 
+const estado = document.getElementById("estado");
+
 function validarNumero(input) {
   input.value = input.value.replace(/\D/g, "").slice(0, 9);
 }
@@ -33,12 +35,16 @@ function validarNumero(input) {
 renderContribuyentes();
 
 function renderContribuyentes() {
-  fetch(`${base_url}contribuyentes/render`)
+  fetch(`${base_url}contribuyentes/contables/${estado.value}`)
     .then((res) => res.json())
     .then((data) => {
       vistaContribuyentes(data);
     });
 }
+
+estado.addEventListener("change", (e) => {
+  renderContribuyentes();
+});
 
 function vistaContribuyentes(data) {
   let html = "";
@@ -80,7 +86,6 @@ function vistaContribuyentes(data) {
     autoWidth: false, // Desactiva el ajuste automático de ancho
     scrollX: false, // Evita el scroll horizontal
     columnDefs: [
-      { targets: [0, 1], className: "text-left" },
       { targets: "_all", className: "text-wrap" }, // Permite el ajuste de texto en las columnas
     ],
   });
