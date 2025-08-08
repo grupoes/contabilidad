@@ -4,6 +4,8 @@ const idContribuyente = document.getElementById("idcontribuyente");
 const div_voucher = document.getElementById("div-voucher");
 const voucher = document.getElementById("voucher");
 
+const sedeEfectivo = document.getElementById("sedeEfectivo");
+
 const formPago = document.getElementById("formPago");
 
 renderPagos(idContribuyente.value);
@@ -190,9 +192,38 @@ metodoPago.addEventListener("change", (e) => {
   if (valor == 1 || valor == "") {
     div_voucher.setAttribute("hidden", true);
     voucher.removeAttribute("required");
+
+    sedeEfectivo.classList.add("col-md-4");
+
+    let select = "";
+
+    fetch(`${base_url}all-sedes`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        data.forEach((sede) => {
+          select += `
+                <option value="${sede.id}"> ${sede.nombre_sede} </option>
+            `;
+        });
+
+        let html = `
+      <div class="mb-3">
+        <label class="form-label" for="selectSede">Sede</label>
+        <select class="form-select" id="selectSede" name="selectSede" required="true">
+          <option value="">Selecionar...</option>
+          ${select}
+        </select>
+      </div>
+      `;
+
+        sedeEfectivo.innerHTML = html;
+      });
   } else {
     div_voucher.removeAttribute("hidden");
     voucher.setAttribute("required", true);
+
+    sedeEfectivo.innerHTML = "";
   }
 });
 

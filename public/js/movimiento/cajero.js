@@ -201,8 +201,12 @@ function tableMovimientos(data) {
     let tdUser = "";
 
     if (perfilId == 1 || perfilId == 2) {
+      const nombreCompleto = mov.nombres;
+
+      const primerNombre = nombreCompleto.split(" ")[0];
+
       tdUser = `
-      <td>${mov.nombres}</td>
+      <td>${primerNombre}</td>
       `;
     }
 

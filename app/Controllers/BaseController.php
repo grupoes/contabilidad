@@ -137,7 +137,7 @@ abstract class BaseController extends Controller
         return $modulos;
     }
 
-    public function generarMovimiento($sesionCaja, $concepto, $formaPago, $metodoPago, $monto, $descripcion, $tipoComprobante, $descripcionComprobante, $estado, $fecha_pago, $vaucher)
+    public function generarMovimiento($sesionCaja, $concepto, $formaPago, $metodoPago, $monto, $descripcion, $tipoComprobante, $descripcionComprobante, $estado, $fecha_pago, $vaucher, $idUser)
     {
         $mov = new MovimientoModel();
 
@@ -155,7 +155,7 @@ abstract class BaseController extends Controller
             'mov_hora' => date('H:i:s'),
             'mov_estado' => $estado,
             'mov_cobro' => 0,
-            'userRegister' => session()->id,
+            'userRegister' => $idUser,
             'nombreUser' => session()->nombre . ' ' . session()->apellidos,
             'vaucher' => $vaucher,
         ]);
@@ -267,6 +267,7 @@ abstract class BaseController extends Controller
                         return [
                             "idSesionFisica" => $sesions[1]['id_sesion_caja'],
                             "idSesionVirtual" => $sesions[0]['id_sesion_caja'],
+                            "idUser" => $idUser,
                             "status" => "success",
                         ];
                     }
@@ -310,6 +311,7 @@ abstract class BaseController extends Controller
             return [
                 "idSesionFisica" => $idSesionFisica,
                 "idSesionVirtual" => $idSesionVirtual,
+                "idUser" => $idUser,
                 "status" => "success",
             ];
         } catch (\Exception $e) {

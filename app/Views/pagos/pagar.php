@@ -94,6 +94,10 @@
                                         </div>
                                     </div>
 
+                                    <div id="sedeEfectivo">
+
+                                    </div>
+
                                     <div class="<?php echo ($countPagos == 0) ? 'col-md-8' : 'col-md-12' ?>" id="div-voucher" hidden>
                                         <div class="mb-3">
                                             <label for="voucher" class="form-label">Voucher</label>
@@ -343,6 +347,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/pagos/pagar.js"></script>
+<script src="<?= base_url() ?>js/pagos/pagar.js?v=1"></script>
 
 <?= $this->endSection() ?>

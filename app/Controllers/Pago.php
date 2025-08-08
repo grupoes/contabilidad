@@ -166,6 +166,10 @@ class Pago extends BaseController
 
                     $nameFile = $newName;
                 }
+
+                $id_sede = "";
+            } else {
+                $id_sede = $this->request->getvar('selectSede');
             }
 
             $dataContrib = $contrib->where('id', $idContribuyente)->first();
@@ -176,17 +180,21 @@ class Pago extends BaseController
 
             if (isset($_POST['generarMovimiento'])) {
 
-                $dataSede = $this->Aperturar($metodoPago);
+                $dataSede = $this->Aperturar($metodoPago, $id_sede);
 
                 if ($metodoPago == 1) {
                     $sesionId = $dataSede['idSesionFisica'];
+
+                    $iduser = $dataSede['idUser'];
                 } else {
                     $sesionId = $dataSede['idSesionVirtual'];
+
+                    $iduser = session()->id;
                 }
 
                 $descripcion = "Pago de Honorario de " . $dataContrib['razon_social'];
 
-                $idMovimiento = $this->generarMovimiento($sesionId, 1, 1, $metodoPago, $monto, $descripcion, 5, 'TICKET - 0001', 1, $fecha_proceso, $nameFile);
+                $idMovimiento = $this->generarMovimiento($sesionId, 1, 1, $metodoPago, $monto, $descripcion, 5, 'TICKET - 0001', 1, $fecha_proceso, $nameFile, $iduser);
 
                 $data_honorario = array(
                     "contribuyente_id" => $idContribuyente,

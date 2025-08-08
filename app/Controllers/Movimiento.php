@@ -143,7 +143,7 @@ class Movimiento extends BaseController
 
         $mov = new MovimientoModel();
 
-        $movimientos = $mov->query("SELECT m.mov_id,m.mov_monto, m.vaucher, m.mov_descripcion, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.mov_concepto, m.id_metodo_pago, mp.metodo, c.caja_descripcion, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion, tm.id_tipo_movimiento, u.nombres, u.perfil_id FROM movimiento m 
+        $movimientos = $mov->query("SELECT m.mov_id,m.mov_monto, m.vaucher, m.mov_descripcion, DATE_FORMAT(m.mov_fecha, '%d-%m-%Y') AS fecha, m.mov_fecha, m.mov_concepto, m.id_metodo_pago, mp.metodo, c.caja_descripcion, c2.con_descripcion, m.mov_estado, tm.tipo_movimiento_descripcion, tm.id_tipo_movimiento, m.nombreUser as nombres, u.perfil_id FROM movimiento m 
         inner join sesion_caja sc on sc.id_sesion_caja = m.id_sesion_caja
         inner join sede_caja sc2 on sc2.id_sede_caja = sc.id_sede_caja
         inner join caja c on c.id_caja = sc2.id_caja
