@@ -1465,7 +1465,7 @@ class Contribuyentes extends BaseController
     {
         $contrato = new ContratosModel();
 
-        $contratos = $contrato->query("SELECT ct.razon_social, c.file, c.id FROM contratos c INNER JOIN contribuyentes ct ON ct.id = c.contribuyenteId WHERE c.contribuyenteId = $id AND c.estado = 1 ORDER BY c.id DESC")->getResultArray();
+        $contratos = $contrato->query("SELECT ct.razon_social, c.file, c.id FROM contratos c INNER JOIN contribuyentes ct ON ct.id = c.contribuyenteId WHERE c.contribuyenteId = $id AND c.estado != 0 ORDER BY c.id DESC")->getResultArray();
 
         return $this->response->setJSON(['status' => 'success', 'datos' => $contratos]);
     }
@@ -1490,6 +1490,9 @@ class Contribuyentes extends BaseController
             if ($consulta['file'] == "") {
                 $contrato->update($consulta["id"], ["file" => $archivo_contrato]);
             } else {
+
+                $contrato->update($consulta["id"], ["estado" => 2]);
+
                 $data = [
                     "contribuyenteId" => $id,
                     "file" => $archivo_contrato,
