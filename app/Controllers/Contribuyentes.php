@@ -376,6 +376,7 @@ class Contribuyentes extends BaseController
                 'costoMensual' => $data['costoMensual'],
                 'costoAnual' => $data['costoAnual'],
                 'diaCobro' => $diacobro,
+                'diaSuscripcion' => $data['diaSuscripcion'],
                 'fechaContrato' => $data['fechaContrato'],
                 'telefono' => "",
                 'correo' => "",

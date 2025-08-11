@@ -388,6 +388,8 @@ selectEstado.addEventListener("change", (e) => {
   listaContribuyentes();
 });
 
+const diaSuscripcion = document.getElementById("diaSuscripcion");
+
 tableBody.addEventListener("click", (e) => {
   if (e.target.classList.contains("num-doc")) {
     e.preventDefault();
@@ -421,6 +423,7 @@ tableBody.addEventListener("click", (e) => {
         costoMensual.value = empresa.costoMensual;
         costoAnual.value = empresa.costoAnual;
         diaCobro.value = empresa.diaCobro;
+        diaSuscripcion.value = empresa.diaSuscripcion;
         fechaContrato.value = empresa.fechaContrato;
         numeroNotificacion.value = empresa.numeroWhatsappId;
 
