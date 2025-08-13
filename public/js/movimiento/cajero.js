@@ -235,6 +235,7 @@ function tableMovimientos(data) {
     responsive: true, // Hace que la tabla sea responsiva
     autoWidth: false, // Desactiva el ajuste automático de ancho
     scrollX: false, // Evita el scroll horizontal
+    ordering: false, // Desactiva la ordenación de las columnas
     columnDefs: [
       { targets: "_all", className: "text-wrap" }, // Permite el ajuste de texto en las columnas
     ],
