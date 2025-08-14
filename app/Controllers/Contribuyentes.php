@@ -333,7 +333,7 @@ class Contribuyentes extends BaseController
 
             $ruta_contrato = FCPATH . 'contratos/' . $archivo_contrato;
 
-            $verificar_api_cabecera_contrato = $this->apiLoadContrato($ruta_contrato);
+            /*$verificar_api_cabecera_contrato = $this->apiLoadContrato($ruta_contrato);
 
             if ($data['tipoServicio'] === 'CONTABLE') {
                 if ($verificar_api_cabecera_contrato['first_line'] != "CONTRATO DE SERVICIOS CONTABLES") {
@@ -345,7 +345,7 @@ class Contribuyentes extends BaseController
                     unlink($ruta_contrato);
                     return $this->response->setJSON(['status' => 'error', 'message' => "El contrato no es válido"]);
                 }
-            }
+            }*/
 
             $sistemas = "";
 
