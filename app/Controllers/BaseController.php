@@ -388,7 +388,7 @@ abstract class BaseController extends Controller
         $postData = json_encode(['pdf_path' => $rutaFile]);
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'http://157.230.239.170:4100/extract_first_line',
+            CURLOPT_URL => getenv("API_LOAD_CONTRATO"),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -407,5 +407,95 @@ abstract class BaseController extends Controller
         curl_close($curl);
 
         return json_decode($response, true);
+    }
+
+    public function getSchemasRestaurantes($ruc)
+    {
+        $db = \Config\Database::connect('restaurant');
+
+        // 1. Traer los esquemas válidos
+        $query = $db->query("SELECT schema_name FROM information_schema.schemata WHERE schema_name NOT IN ('pg_catalog', 'pg_toast', 'information_schema', '_generic', 'esrestaurant', 'public') AND schema_name NOT LIKE 'pg_toast%' AND schema_name NOT LIKE '%_data%'");
+
+        $schemas = $query->getResultArray();
+
+        foreach ($schemas as $schema) {
+            $schemaName = $schema['schema_name'];
+
+            try {
+
+                $rpta = $db->query(" SELECT '{$schemaName}' AS schema_name, e.empr_ruc, e.empr_razon_social AS empresa, s.sede_descripcion, s.sede_id AS sede, sc.seco_fecha_vencimiento_suscripcion FROM {$schemaName}.empresa e JOIN {$schemaName}.sede s ON s.empr_id = e.empr_id INNER JOIN {$schemaName}.sede_configuracion sc ON sc.sede_id = s.sede_id WHERE e.empr_ruc = ?", [$ruc])->getResultArray();
+
+                $data = [];
+
+                if ($rpta) {
+                    $data['datos'] = $rpta;
+                    $data['schemaName'] = $schemaName;
+
+                    return $data;
+                }
+            } catch (\Throwable $e) {
+                // Puede que no exista la tabla empresa, o haya error, así que lo ignoramos
+                continue;
+            }
+        }
+    }
+
+    public function updatePagoRestaurante($sedes, $schemaName, $fechaPago, $operacion)
+    {
+        $db = \Config\Database::connect('restaurant');
+
+        if ($operacion == 1) {
+            $nuevaFecha = $this->sumFecha($fechaPago);
+        } else {
+            $nuevaFecha = $this->restFecha($fechaPago);
+        }
+
+        foreach ($sedes as $sede) {
+            $sede_id = $sede['sede'];
+
+            $query = $db->query("UPDATE {$schemaName}.sede_configuracion SET seco_fecha_vencimiento_suscripcion = '$nuevaFecha' WHERE sede_id = ?", [$sede_id]);
+        }
+    }
+
+    function sumFecha($fecha)
+    {
+        $fecha = new \DateTime($fecha);
+        $fecha->modify('+1 month');
+        return $fecha->format('Y-m-d');
+    }
+
+    function restFecha($fecha)
+    {
+        $fecha = new \DateTime($fecha);
+        $fecha->modify('-1 month');
+        return $fecha->format('Y-m-d');
+    }
+
+    public function contribuyentesEsFacturador($ruc)
+    {
+        $db = \Config\Database::connect('facturador');
+
+        $query = $db->query("SELECT * FROM contribuyente WHERE ruc = ?", [$ruc]);
+
+        $contribuyente = $query->getRowArray();
+
+        return $contribuyente;
+    }
+
+    public function updateVencimientoFacturador($ruc, $fechaPago, $operacion)
+    {
+        $db = \Config\Database::connect('facturador');
+
+        if ($operacion == 1) {
+            $nuevaFecha = $this->sumFecha($fechaPago);
+        } else {
+            $nuevaFecha = $this->restFecha($fechaPago);
+        }
+
+        $nuevaFecha = date('Y-m-d H:i:s', strtotime($nuevaFecha));
+
+        $query = $db->query("UPDATE contribuyente SET fecha_expiracion = ? WHERE ruc = ?", [$nuevaFecha, $ruc]);
+
+        return true;
     }
 }

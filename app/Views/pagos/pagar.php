@@ -347,6 +347,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/pagos/pagar.js?v=1"></script>
+<script src="<?= base_url() ?>js/pagos/pagar.js?v=2"></script>
 
 <?= $this->endSection() ?>

@@ -146,12 +146,18 @@ formPago.addEventListener("submit", (e) => {
     cancelButtonText: "Cancelar",
   }).then((result) => {
     if (result.isConfirmed) {
+      showLoader();
+
+      const messageSpinner = document.getElementById("messageSpinner");
+      messageSpinner.textContent = "Registrando pago y activando sistema...";
+
       fetch(`${base_url}pagos/pagar-honorario`, {
         method: "POST",
         body: formData,
       })
         .then((res) => res.json())
         .then((data) => {
+          hideLoader();
           if (data.status === "success") {
             metodoPago.value = "";
             voucher.value = "";
@@ -285,9 +291,14 @@ function deletePago(e, id) {
     })
     .then((result) => {
       if (result.isConfirmed) {
+        showLoader();
+
+        const messageSpinner = document.getElementById("messageSpinner");
+        messageSpinner.textContent = "Eliminando pago...";
         fetch(`${base_url}pagos/delete-pago/${id}`)
           .then((res) => res.json())
           .then((data) => {
+            hideLoader();
             if (data.status === "success") {
               renderPagos(idContribuyente.value);
               renderPagosHonorarios(idContribuyente.value);
@@ -412,12 +423,18 @@ formEditPago.addEventListener("submit", (e) => {
 
   const formData = new FormData(formEditPago);
 
+  showLoader();
+
+  const messageSpinner = document.getElementById("messageSpinner");
+  messageSpinner.textContent = "Actualizando pago...";
+
   fetch(`${base_url}pagos/update-pago`, {
     method: "POST",
     body: formData,
   })
     .then((res) => res.json())
     .then((data) => {
+      hideLoader();
       if (data.status === "success") {
         $("#modalPago").modal("hide");
 

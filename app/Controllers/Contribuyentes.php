@@ -336,12 +336,12 @@ class Contribuyentes extends BaseController
             $verificar_api_cabecera_contrato = $this->apiLoadContrato($ruta_contrato);
 
             if ($data['tipoServicio'] === 'CONTABLE') {
-                if ($verificar_api_cabecera_contrato['first_line'] != "CONTRATO DE SERVICIOS DE SOFTWARE INFORMATICA") {
+                if ($verificar_api_cabecera_contrato['first_line'] != "CONTRATO DE SERVICIOS CONTABLES") {
                     unlink($ruta_contrato);
                     return $this->response->setJSON(['status' => 'error', 'message' => "El contrato no es válido"]);
                 }
             } else {
-                if ($verificar_api_cabecera_contrato['first_line'] != "CONTRATO DE SERVICIOS CONTABLES") {
+                if ($verificar_api_cabecera_contrato['first_line'] != "CONTRATO DE SERVICIOS DE SOFTWARE INFORMATICA") {
                     unlink($ruta_contrato);
                     return $this->response->setJSON(['status' => 'error', 'message' => "El contrato no es válido"]);
                 }

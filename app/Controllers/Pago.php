@@ -11,6 +11,7 @@ use App\Models\PagosHonorariosModel;
 use App\Models\ContratosModel;
 use App\Models\MovimientoModel;
 use App\Models\DetallePagosModel;
+use App\Models\SistemaContribuyenteModel;
 
 use DateTime;
 
@@ -138,6 +139,43 @@ class Pago extends BaseController
         return $this->response->setJSON($pagos);
     }
 
+    public function verificarSistemaContribuyente($id)
+    {
+        $sistemaContribuyente = new SistemaContribuyenteModel();
+
+        $verificar = $sistemaContribuyente->where('contribuyente_id', $id)->where('system_id !=', 3)->findAll();
+
+        if ($verificar) {
+            return $verificar;
+        }
+
+        return [];
+    }
+
+    public function activarSuscripcion($sistemas, $ruc)
+    {
+        foreach ($sistemas as $key => $value) {
+            if ($value['system_id'] == 1) {
+                $traer_rest = $this->getSchemasRestaurantes($ruc);
+
+                $fecha_suscripcion = $traer_rest['datos'][0]['seco_fecha_vencimiento_suscripcion'];
+
+                $this->updatePagoRestaurante($traer_rest['datos'], $traer_rest['schemaName'], $fecha_suscripcion, 1);
+            }
+
+            if ($value['system_id'] == 2) {
+                $traer_rest = $this->contribuyentesEsFacturador($ruc);
+
+                $fecha_suscripcion = $traer_rest['fecha_expiracion'];
+
+                $dt = new DateTime($fecha_suscripcion);
+                $fechaCorrecta = $dt->format('Y-m-d');
+
+                $this->updateVencimientoFacturador($ruc, $fechaCorrecta, 1);
+            }
+        }
+    }
+
     public function pagarHonorario()
     {
         $pago = new PagosModel();
@@ -155,6 +193,19 @@ class Pago extends BaseController
             $diaCobro = $this->request->getvar('diaCobro');
             $fecha_proceso = $this->request->getvar('fecha_proceso');
 
+            $dataContrib = $contrib->where('id', $idContribuyente)->first();
+
+            /*$diaSuscripcion = $dataContrib['diaSuscripcion'];
+
+            if ($diaSuscripcion === "") {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "Falta configurar el dia de suscripción"
+                ]);
+            }*/
+
+            $sistemas = $this->verificarSistemaContribuyente($idContribuyente);
+
             $nameFile = "";
 
             if ($metodoPago != 1) {
@@ -171,8 +222,6 @@ class Pago extends BaseController
             } else {
                 $id_sede = $this->request->getvar('selectSede');
             }
-
-            $dataContrib = $contrib->where('id', $idContribuyente)->first();
 
             $montoMensual = $dataContrib['costoMensual'];
 
@@ -213,6 +262,8 @@ class Pago extends BaseController
                 $idPagoHonorario = $paHono->getInsertID();
             }
 
+            $contador = 0;
+
             if (isset($_POST['periodo'])) {
                 //$periodo = $this->request->getvar('periodo') . "-" . $diaCobro;
 
@@ -224,6 +275,8 @@ class Pago extends BaseController
                     $estado = "pagado";
                     $newMonto = $montoMensual;
                     $pendientePago = 0;
+
+                    $contador++;
                 } else {
                     $estado = "pendiente";
                     $newMonto = $monto;
@@ -256,7 +309,7 @@ class Pago extends BaseController
                 $monto = $monto - $montoMensual;
             }
 
-            $this->addPagos($monto, $idContribuyente, $idPagoHonorario, $diaCobro, $fecha_proceso);
+            $returnPagos = $this->addPagos($monto, $idContribuyente, $idPagoHonorario, $diaCobro, $fecha_proceso, $contador, $sistemas, $dataContrib['ruc']);
 
             if ($pago->db->transStatus() === false) {
                 $pago->db->transRollback();
@@ -296,7 +349,7 @@ class Pago extends BaseController
         }
     }
 
-    public function addPagos($monto, $idContribuyente, $idPagoHonorario, $diaCobro, $fecha_proceso)
+    public function addPagos($monto, $idContribuyente, $idPagoHonorario, $diaCobro, $fecha_proceso, $contador, $sistemas = null, $ruc = null)
     {
         $pago = new PagosModel();
         $detallePagos = new DetallePagosModel();
@@ -330,6 +383,12 @@ class Pago extends BaseController
                     $detallePagos->insert($datosPagos);
 
                     $montoDisponible = $montoDisponible - $montoPendiente;
+
+                    if (count($sistemas) > 0) {
+                        $this->activarSuscripcion($sistemas, $ruc);
+                    }
+
+                    $contador++;
                 } else {
                     $datos = array(
                         "montoPagado" => $montoPagado + $montoDisponible,
@@ -386,6 +445,12 @@ class Pago extends BaseController
                     );
 
                     $detallePagos->insert($datosPagos);
+
+                    if (count($sistemas) > 0) {
+                        $this->activarSuscripcion($sistemas, $ruc);
+                    }
+
+                    $contador++;
                 } else {
                     $datos = array(
                         "contribuyente_id" => $idContribuyente,
@@ -414,6 +479,13 @@ class Pago extends BaseController
                 }
             }
         }
+
+        $empr = new ContribuyenteModel();
+        $dataUpdate = array(
+            "cantidadPagos" => $contador
+        );
+
+        $empr->update($idContribuyente, $dataUpdate);
     }
 
     public function getMontoMensualHistorial($id, $fecha)
@@ -523,6 +595,7 @@ class Pago extends BaseController
         $pagoHo = new PagosHonorariosModel();
         $mov = new MovimientoModel();
         $detalle = new DetallePagosModel();
+        $contri = new ContribuyenteModel();
 
         $pago->db->transStart();
 
@@ -533,6 +606,8 @@ class Pago extends BaseController
             $monto = $data['monto'];
             $moviId = $data['movimientoId'];
 
+            $dataContr = $contri->select('ruc, cantidadPagos')->where('id', $contribId)->first();
+
             $mov->update($moviId, ['mov_estado' => 0]);
 
             $pagoHo->update($id, ['estado' => 0]);
@@ -540,6 +615,15 @@ class Pago extends BaseController
             $detalle->where('honorario_id', $id)->delete();
 
             $this->deletePagoArray($contribId, $monto);
+
+            $ruc = $dataContr['ruc'];
+            $contador = $dataContr['cantidadPagos'];
+
+            $sistemas = $this->verificarSistemaContribuyente($contribId);
+
+            if (count($sistemas) > 0) {
+                $this->regresarFechaSuscripcion($contador, $sistemas, $ruc);
+            }
 
             $pago->db->transComplete();
 
@@ -637,6 +721,8 @@ class Pago extends BaseController
 
             $montoMensual = $dataContrib['costoMensual'];
             $diaCobro = $dataContrib['diaCobro'];
+            $cantidadPagos = $dataContrib['cantidadPagos'];
+            $ruc = $dataContrib['ruc'];
 
             $montoOriginal = $monto;
 
@@ -690,7 +776,15 @@ class Pago extends BaseController
                 $monto = $monto - $montoMensual;
             }
 
-            $this->addPagos($monto, $contribId, $id, $diaCobro, $datePago);
+            $sistemas = $this->verificarSistemaContribuyente($contribId);
+
+            if (count($sistemas) > 0) {
+                $this->regresarFechaSuscripcion($cantidadPagos, $sistemas, $ruc);
+            }
+
+            $contador = 0;
+
+            $this->addPagos($monto, $contribId, $id, $diaCobro, $datePago, $contador, $sistemas, $dataContrib['ruc']);
 
             $dataPagoHono = [
                 "monto" => $montoOriginal,
@@ -724,6 +818,33 @@ class Pago extends BaseController
         } catch (\Exception $e) {
             $pagoHono->db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function regresarFechaSuscripcion($contador, $sistemas, $ruc)
+    {
+        foreach ($sistemas as $key => $value) {
+            if ($value['system_id'] == 1) {
+
+                for ($i = 0; $i < $contador; $i++) {
+                    $traer_rest = $this->getSchemasRestaurantes($ruc);
+
+                    $fecha_suscripcion = $traer_rest['datos'][0]['seco_fecha_vencimiento_suscripcion'];
+
+                    $this->updatePagoRestaurante($traer_rest['datos'], $traer_rest['schemaName'], $fecha_suscripcion, 0);
+                }
+            }
+
+            if ($value['system_id'] == 2) {
+
+                for ($i = 0; $i < $contador; $i++) {
+                    $traer_rest = $this->contribuyentesEsFacturador($ruc);
+
+                    $fecha_suscripcion = $traer_rest['fecha_expiracion'];
+
+                    $this->updateVencimientoFacturador($ruc, $fecha_suscripcion, 0);
+                }
+            }
         }
     }
 }
