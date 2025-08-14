@@ -193,6 +193,9 @@ formDatos.addEventListener("submit", (e) => {
 
   const formData = new FormData(formDatos);
 
+  const contrato = document.getElementById("contrato");
+  contrato.setAttribute("required", true);
+
   fetch(base_url + "contribuyente/add", {
     method: "POST",
     body: formData,
@@ -394,6 +397,9 @@ tableBody.addEventListener("click", (e) => {
   if (e.target.classList.contains("num-doc")) {
     e.preventDefault();
     idTable.value = e.target.dataset.id;
+
+    const contrato = document.getElementById("contrato");
+    contrato.removeAttribute("required");
 
     $("#modalAddEdit").modal("show");
 
