@@ -59,6 +59,27 @@ function viewPermisos(data) {
     let contPermisos = 0;
 
     hijos.forEach((hij) => {
+      let acciones = hij.acciones;
+
+      let htmlAcciones = "";
+
+      if (acciones.length > 0) {
+        htmlAcciones += `<ul class="list-inline mx-1">`;
+
+        acciones.forEach((accion) => {
+          let checked = accion.permiso == 1 ? "checked" : "";
+
+          htmlAcciones += `
+            <li class="list-inline-item ms-4">
+              <input class="form-check-input" type="checkbox" id="accion${hij.id}${accion.accion_id}" name="permisosAcciones-${hij.id}[]" value="${accion.accion_id}" ${checked} />
+              <label class="form-check-label" for="accion${hij.id}${accion.accion_id}">${accion.nombre_accion}</label>
+            </li>
+          `;
+        });
+
+        htmlAcciones += `</ul>`;
+      }
+
       let checked = hij.permiso == 1 ? "checked" : "";
 
       if (hij.permiso == 1) {
@@ -69,6 +90,8 @@ function viewPermisos(data) {
         <li class="form-check mt-2">
           <input class="form-check-input" type="checkbox" name="permisos[]" id="hijo-${hij.id}" value="${hij.id}" ${checked}>
           <label class="form-check-label" for="hijo-${hij.id}">${hij.nombre}</label>
+
+          ${htmlAcciones}
         </li>
       `;
     });

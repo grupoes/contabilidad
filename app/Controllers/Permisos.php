@@ -42,7 +42,24 @@ class Permisos extends BaseController
             $hijos = $modulos->where('modulo_padre', $value['id'])->where('estado', 1)->orderBy('orden', 'asc')->findAll();
 
             foreach ($hijos as $keys => $values) {
-                $permiso = $permisos->where('modulo_id', $values['id'])->where('perfil_id', $idperfil)->first();
+
+                $modulo_id = $values['id'];
+
+                $permiso = $permisos->where('modulo_id', $modulo_id)->where('perfil_id', $idperfil)->first();
+
+                $acciones = $permisos->query("SELECT ma.accion_id, a.nombre_accion FROM modulos_acciones ma INNER JOIN acciones a ON a.id = ma.accion_id WHERE ma.modulo_id = $modulo_id AND ma.accion_id != 1")->getResultArray();
+
+                foreach ($acciones as $keyes => $item) {
+                    $peraccion = $permisos->where('modulo_id', $modulo_id)->where('accion_id', $item['accion_id'])->where('perfil_id', $idperfil)->first();
+
+                    if ($peraccion) {
+                        $acciones[$keyes]['permiso'] = 1;
+                    } else {
+                        $acciones[$keyes]['permiso'] = 0;
+                    }
+                }
+
+                $hijos[$keys]['acciones'] = $acciones;
 
                 if ($permiso) {
                     $hijos[$keys]['permiso'] = 1;
@@ -63,42 +80,60 @@ class Permisos extends BaseController
 
     public function guardar()
     {
+        try {
+            if (!session()->logged_in) {
+                return redirect()->to(base_url());
+            }
 
-        if (!session()->logged_in) {
-            return redirect()->to(base_url());
-        }
+            if (!$this->request->getPost('permisos')) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'Seleccione al menos un módulo'
+                ]);
+            }
 
-        if (!$this->request->getPost('permisos')) {
+            $permisos = new PermisosModel();
+
+            $idperfil = $this->request->getPost('perfil_id');
+            $modulos = $this->request->getPost('permisos');
+
+            $consulta = $permisos->where('perfil_id', $idperfil)->findAll();
+
+            if ($consulta) {
+                $permisos->where('perfil_id', $idperfil)->delete();
+            }
+
+            for ($i = 0; $i < count($modulos); $i++) {
+                $datos = array(
+                    'perfil_id' => $idperfil,
+                    'modulo_id' => $modulos[$i],
+                    'accion_id' => 1
+                );
+
+                $permisos->save($datos);
+
+                if ($this->request->getPost('permisosAcciones-' . $modulos[$i])) {
+                    foreach ($this->request->getPost('permisosAcciones-' . $modulos[$i]) as $key => $value) {
+                        $datos = array(
+                            'perfil_id' => $idperfil,
+                            'modulo_id' => $modulos[$i],
+                            'accion_id' => $value
+                        );
+
+                        $permisos->save($datos);
+                    }
+                }
+            }
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => "Permisos actualizados correctamente"
+            ]);
+        } catch (\Exception $e) {
             return $this->response->setJSON([
                 'status' => 'error',
-                'message' => 'Seleccione al menos un módulo'
+                'message' => $e->getMessage()
             ]);
         }
-
-        $permisos = new PermisosModel();
-
-        $idperfil = $this->request->getPost('perfil_id');
-        $modulos = $this->request->getPost('permisos');
-
-        $consulta = $permisos->where('perfil_id', $idperfil)->findAll();
-
-        if ($consulta) {
-            $permisos->where('perfil_id', $idperfil)->delete();
-        }
-
-        for ($i = 0; $i < count($modulos); $i++) {
-            $datos = array(
-                'perfil_id' => $idperfil,
-                'modulo_id' => $modulos[$i],
-                'accion_id' => 1
-            );
-
-            $permisos->save($datos);
-        }
-
-        return $this->response->setJSON([
-            'status' => 'success',
-            'message' => "Permisos actualizados correctamente"
-        ]);
     }
 }

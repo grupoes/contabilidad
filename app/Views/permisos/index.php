@@ -86,6 +86,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/permisos/lista.js"></script>
+<script src="<?= base_url() ?>js/permisos/lista.js?v=1"></script>
 
 <?= $this->endSection() ?>
