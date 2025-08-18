@@ -689,36 +689,31 @@ class Notificaciones extends ResourceController
     {
         $cambio = new TipoCambioModel();
 
-        $fechas = [
-            '2025-08-12',
-            '2025-08-13',
-            '2025-08-14',
-            '2025-08-15',
-            '2025-08-16',
-            '2025-08-17',
-        ];
+        try {
+            $fecha = date('Y-m-d');
 
-
-        for ($i = 0; $i < count($fechas); $i++) {
-            $tipo = $this->apiTipoCambio($fechas[$i]);
+            $tipo = $this->apiTipoCambio($fecha);
 
             $datos = [
                 'compra' => $tipo->compra,
                 'venta' => $tipo->venta,
-                'origien' => $tipo->origen,
+                'origen' => $tipo->origen,
                 'moneda' => $tipo->moneda,
                 'fecha' => $tipo->fecha
             ];
 
             $cambio->insert($datos);
 
-            sleep(5);
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'Agregado correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
         }
-
-        return $this->respond([
-            'status' => 'success',
-            'message' => 'Agregado correctamente'
-        ]);
     }
 
     function apiTipoCambio($fecha)
