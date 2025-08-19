@@ -27,15 +27,7 @@ function viewMensajes(data) {
                 <td>${mensaje.fecha}</td>
                 <td>${mensaje.typeContri}</td>
                 <td>
-                    <ul class="list-inline me-auto mb-0">
-                        <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Ver Mensajes">
-                            <a href="#" onclick="verMensajes(event, ${
-                              mensaje.id
-                            }, '${
-      mensaje.titulo
-    }')" class="avtar avtar-xs btn-link-success btn-pc-default"><i class="ti ti-eye f-18"></i></a>
-                        </li>
-                    </ul>
+                    ${mensaje.acciones}
                 </td>
             </tr>
         `;
@@ -107,4 +99,32 @@ function viewMensajesId(data) {
   $("#messages").DataTable(optionsTableDefault);
 
   new $.fn.dataTable.Responsive(newcs);
+}
+
+function eliminarMensaje(e, id) {
+  e.preventDefault();
+
+  Swal.fire({
+    title: "¿Estás seguro?",
+    text: "No podrás revertir esto!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Sí, eliminar!",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`${base_url}eliminar-mensaje/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status) {
+            Swal.fire("Eliminado!", data.message, "success");
+            allMensajes();
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+  });
 }

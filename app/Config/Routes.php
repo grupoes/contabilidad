@@ -201,6 +201,7 @@ $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo')
 $routes->get('lista-mensajes', 'Mensajes::listaMensajes');
 $routes->get('all-mensaje', 'Mensajes::mensajesAll');
 $routes->get('mensajes-all-id/(:num)', 'Mensajes::mensajesAllId/$1');
+$routes->get('eliminar-mensaje/(:num)', 'Mensajes::delete/$1');
 
 $routes->get('numeros-whatsapp', 'NumeroWhatsapp::index');
 $routes->get('configuracion/numeroWhatsapp/all', 'NumeroWhatsapp::allNumeroWhatsapp');

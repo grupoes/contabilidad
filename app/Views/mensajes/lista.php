@@ -36,9 +36,12 @@
                         <!-- Contenedor para los botones -->
                         <div class="d-flex align-items-center gap-2 ms-auto">
 
-                            <a href="<?= base_url('mensajes-masivos') ?>" class="btn btn-success d-inline-flex align-items-center gap-2">
-                                <i class="ti ti-plus f-18"></i> Crear Mensaje
-                            </a>
+                            <?php if ($permiso_crear) { ?>
+                                <!-- Botón para crear un nuevo mensaje -->
+                                <a href="<?= base_url('mensajes-masivos') ?>" class="btn btn-success d-inline-flex align-items-center gap-2">
+                                    <i class="ti ti-plus f-18"></i> Crear Mensaje
+                                </a>
+                            <?php } ?>
                         </div>
                     </div>
 
@@ -115,6 +118,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.responsive.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
-<script src="<?= base_url() ?>js/mensajes/lista.js"></script>
+<script src="<?= base_url() ?>js/mensajes/lista.js?v=1"></script>
 
 <?= $this->endSection() ?>

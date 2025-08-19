@@ -13,7 +13,7 @@ class MensajeModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'titulo', 'contenido', 'fechaCreacion', 'creadoPor', 'typeContri'];
+    protected $allowedFields = ['id', 'titulo', 'contenido', 'fechaCreacion', 'creadoPor', 'typeContri', 'delete_id_user', 'fecha_eliminacion', 'estado'];
 
     protected $useTimestamps = false;
     protected $createdField  = 'created_at';

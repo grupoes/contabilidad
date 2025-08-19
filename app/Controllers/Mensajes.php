@@ -114,16 +114,44 @@ class Mensajes extends BaseController
             return redirect()->to(base_url());
         }
 
+        $permiso_crear = $this->getPermisosAcciones(36, session()->perfil_id, 'crear');
+
         $menu = $this->permisos_menu();
 
-        return view('mensajes/lista', compact('menu'));
+        return view('mensajes/lista', compact('menu', 'permiso_crear'));
     }
 
     public function mensajesAll()
     {
         $mensaje = new MensajeModel();
 
-        $consulta = $mensaje->select("id, titulo, contenido, DATE_FORMAT(fechaCreacion, '%d-%m-%Y %H:%i:%s') as fecha, creadoPor, typeContri")->orderBy('id', 'desc')->findAll();
+        $consulta = $mensaje->select("id, titulo, contenido, DATE_FORMAT(fechaCreacion, '%d-%m-%Y %H:%i:%s') as fecha, creadoPor, typeContri")->where('estado', 1)->orderBy('id', 'desc')->findAll();
+
+        $permiso_ver_detalle = $this->getPermisosAcciones(36, session()->perfil_id, 'ver detalle');
+        $permiso_eliminar = $this->getPermisosAcciones(36, session()->perfil_id, 'eliminar');
+
+        foreach ($consulta as $key => $value) {
+            $acciones = '<ul class="list-inline me-auto mb-0">';
+
+            $id = $value['id'];
+            $titulo = $value['titulo'];
+
+            if ($permiso_ver_detalle) {
+                $acciones .= '<li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Ver Mensajes">
+                            <a href="#" onclick="verMensajes(event, ' . $id . ', ' . $titulo . ')" class="avtar avtar-xs btn-link-success btn-pc-default"><i class="ti ti-eye f-18"></i></a>
+                        </li>';
+            }
+
+            if ($permiso_eliminar) {
+                $acciones .= '<li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
+                            <a href="#" onclick="eliminarMensaje(event, ' . $id . ')" class="avtar avtar-xs btn-link-danger btn-pc-default"><i class="ti ti-trash f-18"></i></a>
+                        </li>';
+            }
+
+            $acciones .= '</ul>';
+
+            $consulta[$key]['acciones'] = $acciones;
+        }
 
         return $this->response->setJSON($consulta);
     }
@@ -135,5 +163,27 @@ class Mensajes extends BaseController
         $consulta = $envio->select("id, message, DATE_FORMAT(fecha_envio, '%d-%m-%Y %H:%i:%s') as fecha_envio, numero_whatsapp, razon_social, estado")->where('mensaje_id', $id)->orderBy("FIELD(estado, 'no enviado', 'pendiente', 'enviado')", '', false)->findAll();
 
         return $this->response->setJSON($consulta);
+    }
+
+    public function delete($id)
+    {
+        $mensaje = new MensajeModel();
+
+        try {
+            $id_user = session()->id;
+            $fecha_eliminacion = date('Y-m-d H:i:s');
+
+            $datos = [
+                'delete_id_user' => $id_user,
+                'fecha_eliminacion' => $fecha_eliminacion,
+                'estado' => 0,
+            ];
+
+            $mensaje->update($id, $datos);
+
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Mensaje eliminado correctamente']);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
     }
 }
