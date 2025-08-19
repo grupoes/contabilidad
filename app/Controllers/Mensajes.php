@@ -138,8 +138,10 @@ class Mensajes extends BaseController
 
             if ($permiso_ver_detalle) {
                 $acciones .= '<li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Ver Mensajes">
-                            <a href="#" onclick="verMensajes(event, ' . $id . ', ' . $titulo . ')" class="avtar avtar-xs btn-link-success btn-pc-default"><i class="ti ti-eye f-18"></i></a>
-                        </li>';
+                    <a href="#" onclick=\'verMensajes(event, ' . (int)$id . ', ' . json_encode($titulo, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) . ')\' class="avtar avtar-xs btn-link-success btn-pc-default">
+                        <i class="ti ti-eye f-18"></i>
+                    </a>
+                </li>';
             }
 
             if ($permiso_eliminar) {
