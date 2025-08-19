@@ -31,17 +31,15 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center p-2 pb-sm-2">
-
-
                         <!-- Contenedor para los botones -->
                         <div class="d-flex align-items-center gap-2 ms-auto">
-
-                            <button type="button" id="btnModal" class="btn btn-success d-inline-flex align-items-center gap-2">
-                                <i class="ti ti-plus f-18"></i> Nuevo Concepto
-                            </button>
+                            <?php if ($permiso_crear) { ?>
+                                <button type="button" id="btnModal" class="btn btn-success d-inline-flex align-items-center gap-2">
+                                    <i class="ti ti-plus f-18"></i> Nuevo Concepto
+                                </button>
+                            <?php } ?>
                         </div>
                     </div>
-
 
                     <div class="table-responsive">
                         <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableData">
@@ -91,7 +89,7 @@
                                 <?php } ?>
                             </select>
                         </div>
-                        
+
                     </div>
 
                 </div>

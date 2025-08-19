@@ -19,7 +19,9 @@ class Concepto extends BaseController
 
         $menu = $this->permisos_menu();
 
-        return view('concepto/index', compact('tipos', 'menu'));
+        $permiso_crear = $this->getPermisosAcciones(14, session()->perfil_id, 'crear');
+
+        return view('concepto/index', compact('tipos', 'menu', 'permiso_crear'));
     }
 
     public function renderConceptos()
@@ -27,6 +29,29 @@ class Concepto extends BaseController
         $concepto = new ConceptoModel();
 
         $conceptos = $concepto->join('tipo_movimiento', 'tipo_movimiento.id_tipo_movimiento = concepto.id_tipo_movimiento')->where('concepto.con_estado', 1)->findAll();
+
+        $permiso_editar = $this->getPermisosAcciones(14, session()->perfil_id, 'editar');
+        $permiso_eliminar = $this->getPermisosAcciones(14, session()->perfil_id, 'eliminar');
+
+
+        foreach ($conceptos as $key => $value) {
+
+            if ($value['con_id'] > 4) {
+                $acciones = '';
+
+                if ($permiso_editar) {
+                    $acciones .= '<button type="button" class="btn btn-info btn-sm modificar" title="editar" data-id="' . $value['con_id'] . '"><i class="ti ti-edit-circle f-18"></i></button> ';
+                }
+
+                if ($permiso_eliminar) {
+                    $acciones .= '<button type="button" class="btn btn-danger btn-sm eliminar" title="eliminar" data-id="' . $value['con_id'] . '"><i class="ti ti-trash f-18"></i></button>';
+                }
+
+                $conceptos[$key]['acciones'] = $acciones;
+            } else {
+                $conceptos[$key]['acciones'] = '';
+            }
+        }
 
         return $this->response->setJSON($conceptos);
     }

@@ -129,6 +129,7 @@ abstract class BaseController extends Controller
                 ->join('modulos', 'modulos.id = permisos.modulo_id')
                 ->where('permisos.perfil_id', session()->perfil_id)
                 ->where('modulos.modulo_padre', $value['modulo_padre'])
+                ->groupBy('modulos.id')
                 ->findAll();
 
             $modulos[$key]['hijos'] = $hijos;
@@ -497,5 +498,14 @@ abstract class BaseController extends Controller
         $query = $db->query("UPDATE contribuyente SET fecha_expiracion = ? WHERE ruc = ?", [$nuevaFecha, $ruc]);
 
         return true;
+    }
+
+    public function getPermisosAcciones($idModulo, $idPerfil, $accion)
+    {
+        $permiso = new PermisosModel();
+
+        $permisos = $permiso->join('acciones', 'acciones.id = permisos.accion_id')->where('permisos.modulo_id', $idModulo)->where('permisos.perfil_id', $idPerfil)->where('acciones.nombre_accion', $accion)->findAll();
+
+        return $permisos;
     }
 }

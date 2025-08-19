@@ -35,19 +35,13 @@ function viewConceptos(data) {
   let html = "";
 
   data.forEach((concepto, index) => {
-    let opciones = "";
-
-    if (concepto.con_id > 4) {
-      opciones = `<button type="button" class="btn btn-info modificar" data-id="${concepto.con_id}" data-name="${concepto.con_descripcion}" data-tipo="${concepto.id_tipo_movimiento}">MODIFICAR</button> <button type="button" class="btn btn-danger eliminar" data-id="${concepto.con_id}">ELIMINAR</button>`;
-    }
-
     html += `
         <tr>
             <td>${index + 1}</td>
             <td>${concepto.con_descripcion}</td>
             <td>${concepto.tipo_movimiento_descripcion}</td>
             <td>
-                ${opciones}
+                ${concepto.acciones}
             </td>
         </tr>
         `;
