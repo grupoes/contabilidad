@@ -430,4 +430,9 @@ class Auth extends BaseController
 
         return $this->response->setJSON(['status' => 'success', 'message' => 'Usuario eliminado correctamente.']);
     }
+
+    public function produccion()
+    {
+        return view('auth/produccion');
+    }
 }

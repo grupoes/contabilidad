@@ -219,3 +219,5 @@ $routes->get('/reporte-ventas/(:any)', 'Ventas::buscarPorRuc/$1');
 $routes->post('/sucursales', 'Ventas::sucursales');
 $routes->post('/reporte-detallado', 'Ventas::ventaDetallada');
 $routes->post('/maqueta-ventas', 'Ventas::maquetaVentas');
+
+$routes->get('/sistema-control-produccion', 'Auth::produccion');
