@@ -221,3 +221,4 @@ $routes->post('/reporte-detallado', 'Ventas::ventaDetallada');
 $routes->post('/maqueta-ventas', 'Ventas::maquetaVentas');
 
 $routes->get('/sistema-control-produccion', 'Auth::produccion');
+$routes->get('/sistema-ventas', 'Auth::sistemaventas');

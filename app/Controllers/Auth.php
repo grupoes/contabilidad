@@ -435,4 +435,9 @@ class Auth extends BaseController
     {
         return view('auth/produccion');
     }
+
+    public function sistemaventas()
+    {
+       return view('auth/ventas'); 
+    }
 }

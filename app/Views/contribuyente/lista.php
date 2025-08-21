@@ -227,7 +227,7 @@
 
                         <div class="col-md-4 mb-3">
                             <label class="form-label" for="fechaContrato">Fecha de Contrato</label>
-                            <input type="date" class="form-control" name="fechaContrato" id="fechaContrato">
+                            <input type="date" class="form-control" name="fechaContrato" id="fechaContrato" required>
                         </div>
 
                         <div class="col-md-4 mb-3">
