@@ -287,7 +287,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6 mb-3" id="input_contrato">
                             <label class="form-label" for="contrato">Subir Contrato</label>
                             <input type="file" class="form-control" name="contrato" id="contrato" required>
                         </div>

@@ -37,6 +37,9 @@ const formCertificado = document.getElementById("formCertificado");
 const idTableCertificado = document.getElementById("idTableCertificado");
 const tableCertificado = document.getElementById("tableCertificado");
 
+const input_contrato = document.getElementById("input_contrato");
+const contrato = document.getElementById("contrato");
+
 let multipleSystem = new Choices("#choices-system", {
   removeItemButton: true,
   placeholderValue: "Seleccione una o más opciones",
@@ -61,6 +64,8 @@ btnModal.addEventListener("click", (e) => {
   $("#modalAddEdit").modal("show");
 
   titleModal.textContent = "Agregar Empresa";
+  input_contrato.removeAttribute('hidden', true);
+  contrato.setAttribute("required", true);
 
   idTable.value = 0;
   numeroDocumento.value = "";
@@ -192,9 +197,6 @@ formDatos.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const formData = new FormData(formDatos);
-
-  const contrato = document.getElementById("contrato");
-  contrato.setAttribute("required", true);
 
   fetch(base_url + "contribuyente/add", {
     method: "POST",
@@ -400,7 +402,7 @@ tableBody.addEventListener("click", (e) => {
 
     multipleSystem.removeActiveItems();
 
-    const contrato = document.getElementById("contrato");
+    input_contrato.setAttribute('hidden', true);
     contrato.removeAttribute("required");
 
     $("#modalAddEdit").modal("show");

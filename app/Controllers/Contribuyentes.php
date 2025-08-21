@@ -310,29 +310,6 @@ class Contribuyentes extends BaseController
 
             $data = $this->request->getPost();
 
-            $file_contrato = $this->request->getFile('contrato');
-
-            if (!$file_contrato) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de contrato']);
-            }
-
-            if (!$file_contrato->isValid()) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'No es un archivo válido']);
-            }
-
-            if ($file_contrato->getClientMimeType() !== 'application/pdf') {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permite archivo PDF']);
-            }
-
-            $ext_contrato = $file_contrato->getExtension();
-            $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
-
-            $archivo_contrato = "CONTRATO_" . $data['numeroDocumento'] . "_" . $codigo . "." . $ext_contrato;
-
-            $file_contrato->move(FCPATH . 'contratos', $archivo_contrato);
-
-            $ruta_contrato = FCPATH . 'contratos/' . $archivo_contrato;
-
             /*$verificar_api_cabecera_contrato = $this->apiLoadContrato($ruta_contrato);
 
             if ($data['tipoServicio'] === 'CONTABLE') {
@@ -394,6 +371,30 @@ class Contribuyentes extends BaseController
             $tarifa = new HistorialTarifaModel();
 
             if ($idTabla === "0") {
+
+                $file_contrato = $this->request->getFile('contrato');
+
+                if (!$file_contrato) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de contrato']);
+                }
+
+                if (!$file_contrato->isValid()) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => 'No es un archivo válido']);
+                }
+
+                if ($file_contrato->getClientMimeType() !== 'application/pdf') {
+                    return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permite archivo PDF']);
+                }
+
+                $ext_contrato = $file_contrato->getExtension();
+                $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+
+                $archivo_contrato = "CONTRATO_" . $data['numeroDocumento'] . "_" . $codigo . "." . $ext_contrato;
+
+                $file_contrato->move(FCPATH . 'contratos', $archivo_contrato);
+
+                $ruta_contrato = FCPATH . 'contratos/' . $archivo_contrato;
+
                 if ($verificar) {
                     return $this->response->setJSON(['status' => 'error', 'message' => "El RUC ya se encuentra registrado."]);
                 }
