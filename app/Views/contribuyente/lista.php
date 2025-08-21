@@ -221,7 +221,6 @@
                                 <option value="28">28</option>
                                 <option value="29">29</option>
                                 <option value="30">30</option>
-                                <option value="31">31</option>
                             </select>
                         </div>
 
@@ -273,26 +272,10 @@
                                 <option value="28">28</option>
                                 <option value="29">29</option>
                                 <option value="30">30</option>
-                                <option value="31">31</option>
                             </select>
                         </div>
                     </div>
-                    <!--<div class="row">
-                        <div class="col-md-12 mb-1">
-                            <input type="checkbox" class="form-check-input" name="pagoServidor" id="pagoServidor">
-                            <label class="form-label" for="pagoServidor">Pago de Servidor</label>
-                        </div>
-                    </div>
-                    <div class="row" id="datosServidor">
-                        <div class="col-md-4 mb-3">
-                            <label for="fechaPagoServidor" class="form-label">Fecha de Pago</label>
-                            <input type="month" class="form-control" name="fechaPagoServidor" id="fechaPagoServidor">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="montoPago" class="form-label">Monto de Pago</label>
-                            <input type="number" step="0.01" class="form-control" name="montoPago" id="montoPago">
-                        </div>
-                    </div>-->
+                    
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="numeroNotificacion">Número de Notificación Whatsapp</label>
@@ -876,6 +859,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/contribuyente/lista.js?v=3"></script>
+<script src="<?= base_url() ?>js/contribuyente/lista.js?v=4"></script>
 
 <?= $this->endSection() ?>

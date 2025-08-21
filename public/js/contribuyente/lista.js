@@ -398,6 +398,8 @@ tableBody.addEventListener("click", (e) => {
     e.preventDefault();
     idTable.value = e.target.dataset.id;
 
+    multipleSystem.removeActiveItems();
+
     const contrato = document.getElementById("contrato");
     contrato.removeAttribute("required");
 
@@ -436,7 +438,7 @@ tableBody.addEventListener("click", (e) => {
         const sistemas = data.sistemas;
 
         const sistemasArray = sistemas.map((sistema) => sistema.system_id);
-
+        
         sistemasArray.forEach((value) => {
           multipleSystem.setChoiceByValue(value.toString());
         });
