@@ -166,6 +166,7 @@ periodoDescarga.addEventListener("change", (e) => {
 
   if (valor != "" && anioDescarga.value != "") {
     renderArchivos(valor, anioDescarga.value, ruc_emp.value);
+    r08view.innerHTML = "";
   } else {
     loadFiles.innerHTML = "";
     r08view.innerHTML = "";
@@ -177,6 +178,7 @@ anioDescarga.addEventListener("change", (e) => {
 
   if (valor != "" && periodoDescarga.value != "") {
     renderArchivos(periodoDescarga.value, valor, ruc_emp.value);
+    r08view.innerHTML = "";
   } else {
     loadFiles.innerHTML = "";
     r08view.innerHTML = "";
