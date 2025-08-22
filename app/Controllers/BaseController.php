@@ -424,7 +424,7 @@ abstract class BaseController extends Controller
 
             try {
 
-                $rpta = $db->query(" SELECT '{$schemaName}' AS schema_name, e.empr_ruc, e.empr_razon_social AS empresa, s.sede_descripcion, s.sede_id AS sede, sc.seco_fecha_vencimiento_suscripcion FROM {$schemaName}.empresa e JOIN {$schemaName}.sede s ON s.empr_id = e.empr_id INNER JOIN {$schemaName}.sede_configuracion sc ON sc.sede_id = s.sede_id WHERE e.empr_ruc = ?", [$ruc])->getResultArray();
+                $rpta = $db->query(" SELECT '{$schemaName}' AS schema_name, e.empr_ruc, e.empr_razon_social AS empresa, s.sede_descripcion, s.sede_id AS sede, sc.seco_fecha_vencimiento_suscripcion FROM {$schemaName}.empresa e JOIN {$schemaName}.sede s ON s.empr_id = e.empr_id INNER JOIN {$schemaName}.sede_configuracion sc ON sc.sede_id = s.sede_id WHERE sc.seco_tipo_envio = 'PRODUCCION' and e.empr_ruc = ?", [$ruc])->getResultArray();
 
                 $data = [];
 
