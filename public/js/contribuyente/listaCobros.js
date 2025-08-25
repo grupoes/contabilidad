@@ -96,5 +96,78 @@ estados.addEventListener("change", (e) => {
   listaContribuyentes();
 });
 
-//fecha de contrato es diferente a la fecha de cobro
-//clientes con pagos adelantados que son los nuevos, y los antiguos que tienen pagos atrasados
+//Servidor
+const tableBodyServidor = document.querySelector("#tableBodyServidor");
+
+const newcsServidor = $("#tableDataServidor").DataTable(optionsTableDefault);
+
+new $.fn.dataTable.Responsive(newcsServidor);
+
+listaContribuyentesServidor();
+
+function listaContribuyentesServidor() {
+  fetch(base_url + "render-contribuyentes")
+    .then((res) => res.json())
+    .then((data) => {
+      viewListContribuyentesServidor(data);
+    });
+}
+
+function viewListContribuyentesServidor(data) {
+  let html = "";
+
+  data.forEach((emp, index) => {
+    let sistemas = "";
+
+    const systems = emp.sistemas;
+
+    let htmlSystem = "<ul>";
+
+    systems.forEach((element) => {
+      htmlSystem += `<li>${element.nameSystem}</li>`;
+    });
+
+    htmlSystem += `</ul>`;
+
+    html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${
+                              emp.id
+                            }">${emp.ruc}</a></h6>
+                            <p class="text-muted f-14 mb-0"> ${
+                              emp.razon_social
+                            } </p>
+                        </div>
+                    </div>
+                </td>
+                <td>${htmlSystem}</td>
+                <td>NO TIENE REGISTROS</td>
+                <td>
+                    <a href="${base_url}cobrar-servidor/${
+      emp.id
+    }" class="btn btn-success">COBRAR</a>
+                </td>
+            </tr>
+        `;
+  });
+
+  $("#tableDataServidor").DataTable().destroy();
+
+  tableBodyServidor.innerHTML = html;
+
+  const newcsServidor1 = $("#tableDataServidor").DataTable({
+    language: language,
+    responsive: true, // Hace que la tabla sea responsiva
+    autoWidth: false, // Desactiva el ajuste automático de ancho
+    scrollX: false, // Evita el scroll horizontal
+    columnDefs: [
+      { targets: "_all", className: "text-wrap" }, // Permite el ajuste de texto en las columnas
+    ],
+  });
+
+  new $.fn.dataTable.Responsive(newcsServidor1);
+}
