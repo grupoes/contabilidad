@@ -30,6 +30,7 @@ use App\Models\ComprobanteModel;
 use App\Models\AyudaBoletaModel;
 use App\Models\NumeroWhatsappModel;
 use App\Models\ContratosModel;
+use App\Models\ServidorModel;
 
 //use App\Models\RucEmpresaModel;
 
@@ -362,6 +363,7 @@ class Contribuyentes extends BaseController
                 'acceso' => $data['numeroDocumento'],
                 'estado' => 1,
                 'numeroWhatsappId' => $data['numeroNotificacion'],
+                'monto_servidor' => isset($data['monto_servidor']) ? $data['monto_servidor'] : 0,
             ];
 
             $clientesVarios = $data['clientesVarios'];
@@ -437,6 +439,20 @@ class Contribuyentes extends BaseController
                     'monto_anual' => $data['costoAnual'],
                     'estado' => 1
                 ]);
+
+                //agregar servidor monto
+                if (isset($data['monto_servidor'])) {
+                    $data_servidor = [
+                        'contribuyente_id' => $contribuyente_id,
+                        'fecha_inicio' => $data['fechaContrato'],
+                        'fecha_fin' => '',
+                        'monto' => $data['monto_servidor'],
+                        'estado' => 1
+                    ];
+
+                    $servidor = new ServidorModel();
+                    $servidor->insert($data_servidor);
+                }
 
                 $codificacion->insert([
                     'contribuyente_id' => $contribuyente_id,

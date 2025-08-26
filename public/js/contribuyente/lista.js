@@ -40,6 +40,8 @@ const tableCertificado = document.getElementById("tableCertificado");
 const input_contrato = document.getElementById("input_contrato");
 const contrato = document.getElementById("contrato");
 
+const selectSystem = document.getElementById("choices-system");
+
 let multipleSystem = new Choices("#choices-system", {
   removeItemButton: true,
   placeholderValue: "Seleccione una o más opciones",
@@ -64,7 +66,7 @@ btnModal.addEventListener("click", (e) => {
   $("#modalAddEdit").modal("show");
 
   titleModal.textContent = "Agregar Empresa";
-  input_contrato.removeAttribute('hidden', true);
+  input_contrato.removeAttribute("hidden", true);
   contrato.setAttribute("required", true);
 
   idTable.value = 0;
@@ -402,7 +404,7 @@ tableBody.addEventListener("click", (e) => {
 
     multipleSystem.removeActiveItems();
 
-    input_contrato.setAttribute('hidden', true);
+    input_contrato.setAttribute("hidden", true);
     contrato.removeAttribute("required");
 
     $("#modalAddEdit").modal("show");
@@ -440,7 +442,7 @@ tableBody.addEventListener("click", (e) => {
         const sistemas = data.sistemas;
 
         const sistemasArray = sistemas.map((sistema) => sistema.system_id);
-        
+
         sistemasArray.forEach((value) => {
           multipleSystem.setChoiceByValue(value.toString());
         });
@@ -1549,4 +1551,33 @@ formContrato.addEventListener("submit", (e) => {
         loadContratos(id_emp.value);
       }
     });
+});
+
+// Escuchar el evento change de Choices
+multipleSystem.passedElement.element.addEventListener("change", (e) => {
+  const valoresSeleccionados = multipleSystem.getValue(true);
+  console.log("Valores seleccionados:", valoresSeleccionados);
+
+  const length = valoresSeleccionados.length;
+  const viewServidor = document.getElementById("viewServidor");
+
+  if (length == 0) {
+    viewServidor.innerHTML = "";
+  } else if (length == 1) {
+    const existe = valoresSeleccionados.includes("3");
+
+    if (existe) {
+      viewServidor.innerHTML = "";
+    } else {
+      viewServidor.innerHTML = `
+        <label class="form-label" for="choices-system">Monto del servidor</label>
+        <input type="number" class="form-control" name="monto_servidor" id="monto_servidor" required="" />
+      `;
+    }
+  } else {
+    viewServidor.innerHTML = `
+      <label class="form-label" for="choices-system">Monto del servidor</label>
+      <input type="number" class="form-control" name="monto_servidor" id="monto_servidor" required="" />
+    `;
+  }
 });

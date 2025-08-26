@@ -159,7 +159,7 @@ function viewListContribuyentesServidor(data) {
 
   tableBodyServidor.innerHTML = html;
 
-  const newcsServidor1 = $("#tableDataServidor").DataTable({
+  const newcsServidor = $("#tableDataServidor").DataTable({
     language: language,
     responsive: true, // Hace que la tabla sea responsiva
     autoWidth: false, // Desactiva el ajuste automático de ancho
@@ -169,5 +169,5 @@ function viewListContribuyentesServidor(data) {
     ],
   });
 
-  new $.fn.dataTable.Responsive(newcsServidor1);
+  new $.fn.dataTable.Responsive(newcsServidor);
 }

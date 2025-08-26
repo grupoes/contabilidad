@@ -13,7 +13,7 @@ class ContribuyenteModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'ruc', 'razon_social', 'nombre_comercial', 'direccion_fiscal', 'ubigeo_id', 'urbanizacion', 'tipoSuscripcion', 'tipoServicio', 'tipoPago', 'costoMensual', 'costoAnual', 'diaCobro', 'diaSuscripcion', 'fechaContrato', 'telefono', 'correo', 'usuario_secundario', 'clave_usuario_secundario', 'acceso', 'user_add', 'user_edit', 'user_delete', 'numeroWhatsappId', 'estado', 'ruc_empresa_normal', 'ruc_empresa_baja', 'ruc_empresa_medio', 'cantidadPagos'];
+    protected $allowedFields = ['id', 'ruc', 'razon_social', 'nombre_comercial', 'direccion_fiscal', 'ubigeo_id', 'urbanizacion', 'tipoSuscripcion', 'tipoServicio', 'tipoPago', 'costoMensual', 'costoAnual', 'diaCobro', 'diaSuscripcion', 'fechaContrato', 'telefono', 'correo', 'usuario_secundario', 'clave_usuario_secundario', 'acceso', 'user_add', 'user_edit', 'user_delete', 'numeroWhatsappId', 'estado', 'ruc_empresa_normal', 'ruc_empresa_baja', 'ruc_empresa_medio', 'cantidadPagos', 'monto_servidor'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

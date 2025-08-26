@@ -85,7 +85,7 @@
                         aria-labelledby="analytics-tab-1"
                         tabindex="0">
                         <div class="card">
-                            <div class="card-body">
+                            <div class="card-body pt-2">
                                 <div class="d-flex justify-content-between align-items-center p-2 pb-sm-2">
                                     <!-- Contenedor para el select y el botón -->
                                     <div class="d-flex align-items-center gap-2">
@@ -132,7 +132,7 @@
                         aria-labelledby="analytics-tab-2"
                         tabindex="0">
                         <div class="card">
-                            <div class="card-body">
+                            <div class="card-body pt-2">
                                 <div class="d-flex justify-content-between align-items-center p-2 pb-sm-2">
                                     <!-- Contenedor para el select y el botón -->
                                     <div class="d-flex align-items-center gap-2">
@@ -179,7 +179,7 @@
                         aria-labelledby="analytics-tab-3"
                         tabindex="0">
                         <div class="card">
-                            <div class="card-body">
+                            <div class="card-body pt-2">
                                 <div class="d-flex justify-content-between align-items-center p-2 pb-sm-2">
                                     <!-- Contenedor para el select y el botón -->
                                     <div class="d-flex align-items-center gap-2">
