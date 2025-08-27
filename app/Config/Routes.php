@@ -79,6 +79,9 @@ $routes->post('pagos/update-pago', 'Pago::updatePago');
 $routes->get('pagos/get-monto-pendiente/(:num)', 'Pago::getMontoPendiente/$1');
 $routes->get('pagos/historial-pagos/(:num)', 'Pago::historialPagos/$1');
 
+$routes->get('pagos/monto-servidor/(:num)', 'Pago::montoServidor/$1');
+$routes->post('pagos/pagar-servidor', 'Pago::pagarServidor');
+
 $routes->get('all-ubigeo', 'Contribuyentes::listaUbigeo');
 
 $routes->get('caja-diaria', 'Caja::index');

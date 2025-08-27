@@ -33,6 +33,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12 order-md-1 order-2">
+
                             <form id="formPago" enctype="multipart/form-data">
                                 <input type="hidden" name="idcontribuyente" id="idcontribuyente" value="<?= $id ?>">
 
@@ -74,7 +75,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label class="form-label" for="periodo">Periodo</label>
-                                                <input type="month" class="form-control" id="periodo" name="periodo" required>
+                                                <input type="date" class="form-control" id="periodo" name="periodo" required>
                                             </div>
                                         </div>
                                     <?php } ?>
