@@ -131,5 +131,6 @@ nb-configuration.xml
 
 /public/archivos/*
 /public/contratos/*
+/public/servidor/*
 
 /writable/keys.json

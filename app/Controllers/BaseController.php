@@ -15,6 +15,7 @@ use App\Models\PagosModel;
 use App\Models\ContribuyenteModel;
 use App\Models\PermisosModel;
 use App\Models\MovimientoModel;
+use App\Models\PagoServidorModel;
 use App\Models\SedeModel;
 use App\Models\SedeCajaModel;
 use App\Models\UserModel;
@@ -349,6 +350,40 @@ abstract class BaseController extends Controller
                 $pago->update($value['id'], [
                     'montoPagado' => $nuevoMontoPagado,
                     'montoPendiente' => $nuevoMontoPendiente,
+                    'estado' => 'pendiente'
+                ]);
+
+                $montoRestante = 0;
+            }
+        }
+    }
+
+    public function deletePagoServidorArray($contribId, $monto)
+    {
+        $pago = new PagoServidorModel();
+
+        $dataPago = $pago->where('contribuyente_id', $contribId)->where('estado !=', 'eliminado')->orderBy('id', 'DESC')->findAll();
+
+        $montoRestante = $monto;
+
+        foreach ($dataPago as $key => $value) {
+            if ($montoRestante <= 0) {
+                break;
+            }
+
+            $montoPagado = $value['monto_pagado'];
+            $montoTotal = $value['monto_total'];
+
+            if ($montoRestante >= $montoPagado) {
+                $pago->update($value['id'], ['estado' => 'eliminado']);
+                $montoRestante -= $montoPagado;
+            } else {
+                $nuevoMontoPagado = $montoPagado - $montoRestante;
+                $nuevoMontoPendiente = $montoTotal - $nuevoMontoPagado;
+
+                $pago->update($value['id'], [
+                    'monto_pagado' => $nuevoMontoPagado,
+                    'monto_pendiente' => $nuevoMontoPendiente,
                     'estado' => 'pendiente'
                 ]);
 

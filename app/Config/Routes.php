@@ -84,6 +84,11 @@ $routes->get('pagos/historial-pagos/(:num)', 'Pago::historialPagos/$1');
 
 $routes->get('pagos/monto-servidor/(:num)', 'Pago::montoServidor/$1');
 $routes->post('pagos/pagar-servidor', 'Pago::pagarServidor');
+$routes->get('pagos/render-amortizacion-servidor/(:num)', 'Pago::renderAmortizacionServidor/$1');
+$routes->get('pagos/get-pago-servidor/(:num)', 'Pago::getPagoServidor/$1');
+$routes->get('pagos/delete-pago-servidor/(:num)', 'Pago::deletePagoServidor/$1');
+$routes->post('pagos/update-pago-servidor', 'Pago::updatePagoServidor');
+$routes->post('pagos/update-voucher-servidor', 'Pago::updateVaucherServidor');
 
 $routes->get('all-ubigeo', 'Contribuyentes::listaUbigeo');
 

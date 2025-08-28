@@ -123,7 +123,7 @@
                                             role="tab"
                                             aria-controls="analytics-tab-1-pane"
                                             aria-selected="true">
-                                            Honorarios
+                                            Pagos Servidor
                                         </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
@@ -136,7 +136,7 @@
                                             role="tab"
                                             aria-controls="analytics-tab-2-pane"
                                             aria-selected="false">
-                                            Pagos
+                                            Movimientos
                                         </button>
                                     </li>
 
@@ -290,7 +290,9 @@
                         <label class="form-label" for="metodo_pago">Metodo de Pago</label>
                         <select class="form-select" id="metodo_pago" name="metodo_pago" required="true">
                             <option value="">Selecionar...</option>
-
+                            <?php foreach ($metodos as $metodo) : ?>
+                                <option value="<?= $metodo['id'] ?>"><?= $metodo['metodo'] ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="mb-3" id="idMonto">

@@ -110,8 +110,6 @@ class Cobros extends BaseController
 
                 $datos_pago_servidor = [
                     'contribuyente_id' => $id_contribuyente,
-                    'fecha_pago' => date('Y-m-d'),
-                    'fecha_proceso' => date('Y-m-d'),
                     'monto_total' => $monto,
                     'fecha_inicio' => $fecha_inicio,
                     'fecha_fin' => $fecha_fin,
@@ -132,8 +130,6 @@ class Cobros extends BaseController
 
                     $datos_pago_servidor = [
                         'contribuyente_id' => $id_contribuyente,
-                        'fecha_pago' => date('Y-m-d'),
-                        'fecha_proceso' => date('Y-m-d'),
                         'monto_total' => $monto,
                         'fecha_inicio' => $fecha_inicio,
                         'fecha_fin' => $fecha_fin,
@@ -160,7 +156,7 @@ class Cobros extends BaseController
     {
         $pagoServidor = new PagoServidorModel();
 
-        $pagos = $pagoServidor->select("DATE_FORMAT(fecha_inicio, '%d-%m-%Y') as fecha_inicio, DATE_FORMAT(fecha_fin, '%d-%m-%Y') as fecha_fin, DATE_FORMAT(fecha_pago, '%d-%m-%Y') as fecha_pago, DATE_FORMAT(fecha_proceso, '%d-%m-%Y') as fecha_proceso, monto_total, monto_pagado, monto_pendiente, usuario_id_cobra, estado")->where('contribuyente_id', $id)->orderBy('id', 'desc')->findAll();
+        $pagos = $pagoServidor->select("DATE_FORMAT(fecha_inicio, '%d-%m-%Y') as fecha_inicio, DATE_FORMAT(fecha_fin, '%d-%m-%Y') as fecha_fin, DATE_FORMAT(fecha_pago, '%d-%m-%Y') as fecha_pago, DATE_FORMAT(fecha_proceso, '%d-%m-%Y') as fecha_proceso, monto_total, monto_pagado, monto_pendiente, usuario_id_cobra, estado")->where('contribuyente_id', $id)->where('estado !=', 'eliminado')->orderBy('id', 'desc')->findAll();
 
         return $this->response->setJSON($pagos);
     }

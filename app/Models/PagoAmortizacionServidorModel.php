@@ -13,7 +13,7 @@ class PagoAmortizacionServidorModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'contribuyente_id', 'movimientoId', 'registro', 'fecha', 'fecha_pago', 'metodo_pago_id', 'monto', 'voucher', 'estado'];
+    protected $allowedFields = ['id', 'contribuyente_id', 'movimientoId', 'registro', 'fecha', 'fecha_pago', 'metodo_pago_id', 'monto', 'vaucher', 'estado'];
 
     protected $useTimestamps = false;
     protected $createdField  = 'created_at';

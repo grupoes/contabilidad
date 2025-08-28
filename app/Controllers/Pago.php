@@ -348,18 +348,17 @@ class Pago extends BaseController
         $contrib = new ContribuyenteModel();
         $paAmor = new PagoAmortizacionServidorModel();
 
-        $detallePagos = new DetallePagosServidorModel();
-
         try {
             $pagoServidor->db->transBegin();
 
             $idContribuyente = $this->request->getvar('idcontribuyente');
             $metodoPago = $this->request->getvar('metodoPago');
             $monto = $this->request->getvar('monto');
-            $diaCobro = $this->request->getvar('diaCobro');
             $fecha_proceso = $this->request->getvar('fecha_proceso');
 
             $dataContrib = $contrib->where('id', $idContribuyente)->first();
+
+            $nameFile = "";
 
             if ($metodoPago != 1) {
                 $voucher = $this->request->getFile('voucher');
@@ -378,85 +377,38 @@ class Pago extends BaseController
 
             $idPagoAmor = 0;
 
-            if (isset($_POST['generarMovimiento'])) {
+            $dataSede = $this->Aperturar($metodoPago, $id_sede);
 
-                $dataSede = $this->Aperturar($metodoPago, $id_sede);
+            if ($metodoPago == 1) {
+                $sesionId = $dataSede['idSesionFisica'];
 
-                if ($metodoPago == 1) {
-                    $sesionId = $dataSede['idSesionFisica'];
-
-                    $iduser = $dataSede['idUser'];
-                } else {
-                    $sesionId = $dataSede['idSesionVirtual'];
-
-                    $iduser = session()->id;
-                }
-
-                $descripcion = "Pago de Honorario de " . $dataContrib['razon_social'];
-
-                $idMovimiento = $this->generarMovimiento($sesionId, 1, 1, $metodoPago, $monto, $descripcion, 5, 'TICKET - 0001', 1, $fecha_proceso, $nameFile, $iduser);
-
-                $data_honorario = array(
-                    "contribuyente_id" => $idContribuyente,
-                    "movimientoId" => $idMovimiento,
-                    "registro" => date('Y-m-d H:i:s'),
-                    "fecha" => date('Y-m-d'),
-                    "fecha_pago" => $fecha_proceso,
-                    "metodo_pago_id" => $metodoPago,
-                    "monto" => $monto,
-                    "voucher" => $nameFile,
-                    "estado" => 1
-                );
-
-                $paAmor->insert($data_honorario);
-
-                $idPagoAmor = $paAmor->getInsertID();
+                $iduser = $dataSede['idUser'];
+            } else {
+                $sesionId = $dataSede['idSesionVirtual'];
+                +$iduser = session()->id;
             }
 
-            if (isset($_POST['periodo'])) {
-                //$periodo = $this->request->getvar('periodo') . "-" . $diaCobro;
+            $descripcion = "Pago de Servidor de " . $dataContrib['razon_social'];
 
-                $fecha_valida = $this->request->getvar('periodo');
+            $idMovimiento = $this->generarMovimiento($sesionId, 1, 1, $metodoPago, $monto, $descripcion, 5, 'TICKET - 0001', 1, $fecha_proceso, $nameFile, $iduser);
 
-                $montoMensual = $this->getMontoServidor($idContribuyente);
+            $data_honorario = array(
+                "contribuyente_id" => $idContribuyente,
+                "movimientoId" => $idMovimiento,
+                "registro" => date('Y-m-d H:i:s'),
+                "fecha" => date('Y-m-d'),
+                "fecha_pago" => $fecha_proceso,
+                "metodo_pago_id" => $metodoPago,
+                "monto" => $monto,
+                "vaucher" => $nameFile,
+                "estado" => 1
+            );
 
-                if ($monto >= $montoMensual) {
-                    $estado = "pagado";
-                    $newMonto = $montoMensual;
-                    $pendientePago = 0;
-                } else {
-                    $estado = "pendiente";
-                    $newMonto = $monto;
-                    $pendientePago = $montoMensual - $monto;
-                }
+            $paAmor->insert($data_honorario);
 
-                $data = array(
-                    "contribuyente_id" => $idContribuyente,
-                    "fecha_pago" => date('Y-m-d H:i:s'),
-                    "fecha_proceso" => $fecha_proceso,
-                    "monto_total" => $montoMensual,
-                    "anio_correspondiente" => $fecha_valida,
-                    "montoPagado" => $newMonto,
-                    "montoPendiente" => $pendientePago,
-                    "montoExcedente" => 0,
-                    "usuario_id_cobra" => session()->id,
-                    "estado" => $estado,
-                );
+            $idPagoAmor = $paAmor->getInsertID();
 
-                $pagoServidor->insert($data);
-
-                $datosPagos = array(
-                    "pago_servidor_id" => $pagoServidor->getInsertID(),
-                    "pago_amortizacion_id" => $idPagoAmor,
-                    "monto" => $newMonto,
-                );
-
-                $detallePagos->insert($datosPagos);
-
-                $monto = $monto - $montoMensual;
-            }
-
-            $return_pagos = $this->addPagosServidor($monto, $idContribuyente, $idPagoAmor, $fecha_proceso);
+            $pagos_servidor = $this->procesoPagoServidor($idContribuyente, $monto, $fecha_proceso, $idPagoAmor);
 
             if ($pagoServidor->db->transStatus() === false) {
                 $pagoServidor->db->transRollback();
@@ -472,6 +424,170 @@ class Pago extends BaseController
         } catch (\Exception $e) {
             $pagoServidor->db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    function procesoPagoServidor($idContribuyente, $monto, $fecha_proceso, $idPagoAmor)
+    {
+        $pagoServidor = new PagoServidorModel();
+        $detallePagos = new DetallePagosServidorModel();
+        $servidor = new ServidorModel();
+
+        $consulta_pendientes = $pagoServidor->where('contribuyente_id', $idContribuyente)->where('estado', 'pendiente')->orderBy('id', 'asc')->findAll();
+
+        foreach ($consulta_pendientes as $key => $value) {
+
+            $monto_total = $value['monto_total'];
+
+            if ($monto == 0) {
+                break;
+            }
+
+            if ($monto >= $monto_total) {
+                $estado = "pagado";
+                $newMonto = $monto_total;
+                $pendientePago = 0;
+
+                $dataUpdate = array(
+                    "fecha_pago" => date('Y-m-d H:i:s'),
+                    "fecha_proceso" => $fecha_proceso,
+                    "monto_pagado" => $newMonto,
+                    "monto_pendiente" => $pendientePago,
+                    "usuario_id_cobra" => session()->id,
+                    "estado" => $estado,
+                );
+
+                $pagoServidor->update($value['id'], $dataUpdate);
+
+                $datosPagos = array(
+                    "pago_servidor_id" => $value['id'],
+                    "pago_amortizacion_id" => $idPagoAmor,
+                    "monto" => $newMonto,
+                );
+
+                $detallePagos->insert($datosPagos);
+
+                $monto = $monto - $monto_total;
+            } else {
+
+                if ($monto >= $value['monto_pendiente']) {
+                    $estado = "pagado";
+                    $newMonto = $value['monto_total'];
+                    $pendientePago = 0;
+
+                    $monto = $monto - $value['monto_pendiente'];
+                } else {
+                    $estado = "pendiente";
+                    $newMonto = $value['monto_pagado'] + $monto;
+                    $pendientePago = $value['monto_pendiente'] - $monto;
+
+                    $monto = 0;
+                }
+
+                $dataUpdate = array(
+                    "fecha_pago" => date('Y-m-d H:i:s'),
+                    "fecha_proceso" => $fecha_proceso,
+                    "monto_pagado" => $newMonto,
+                    "monto_pendiente" => $pendientePago,
+                    "usuario_id_cobra" => session()->id,
+                    "estado" => $estado,
+                );
+
+                $pagoServidor->update($value['id'], $dataUpdate);
+
+                $datosPagos = array(
+                    "pago_servidor_id" => $value['id'],
+                    "pago_amortizacion_id" => $idPagoAmor,
+                    "monto" => $newMonto,
+                );
+
+                $detallePagos->insert($datosPagos);
+            }
+        }
+
+        $monto_servidor = $servidor->where('contribuyente_id', $idContribuyente)->where('estado', 1)->first();
+        $monto_server = $monto_servidor['monto'];
+
+        $monto_restante = $monto;
+
+        $ultimo_registro = $pagoServidor->where('contribuyente_id', $idContribuyente)->where('estado !=', 'eliminado')->orderBy('id', 'desc')->first();
+
+        $fecha_inicio = $ultimo_registro['fecha_inicio'];
+
+        while ($monto_restante > 0) {
+
+            if ($ultimo_registro['estado'] == 'pendiente') {
+                $monto_pendiente = $ultimo_registro['monto_pendiente'];
+
+                if ($monto_restante >= $monto_pendiente) {
+                    $estado_pago = "pagado";
+                    $newMonto_pago = $ultimo_registro['monto_total'];
+                    $pendiente_pago = 0;
+
+                    $monto_restante = $monto_restante - $monto_pendiente;
+                } else {
+                    $estado_pago = "pendiente";
+                    $newMonto_pago = $monto_restante + $monto_pendiente;
+                    $pendiente_pago = $monto_pendiente - $monto_restante;
+
+                    $monto_restante = 0;
+                }
+
+                $dataUpdate = array(
+                    "fecha_pago" => date('Y-m-d H:i:s'),
+                    "fecha_proceso" => $fecha_proceso,
+                    "monto_pagado" => $newMonto_pago,
+                    "monto_pendiente" => $pendiente_pago,
+                    "usuario_id_cobra" => session()->id,
+                    "estado" => $estado_pago,
+                );
+
+                $pagoServidor->update($ultimo_registro['id'], $dataUpdate);
+            } else {
+                if ($monto_restante >= $monto_server) {
+                    $estado_pago = "pagado";
+                    $newMonto_pago = $monto_server;
+                    $pendiente_pago = 0;
+
+                    $monto_restante = $monto_restante - $monto_server;
+                } else {
+                    $estado_pago = "pendiente";
+                    $newMonto_pago = $monto_restante;
+                    $pendiente_pago = $monto_server - $monto_restante;
+
+                    $monto_restante = 0;
+                }
+
+                $fecha_init = $fecha_inicio;
+
+                $newFechaInicio = $this->sumFechaAnio($fecha_init);
+                $newFechaFin = $this->sumFechaAnioServidor($newFechaInicio);
+
+                $fecha_inicio = $newFechaInicio;
+
+                $data_pago = array(
+                    "contribuyente_id" => $idContribuyente,
+                    "fecha_pago" => date('Y-m-d H:i:s'),
+                    "fecha_proceso" => $fecha_proceso,
+                    "monto_total" => $monto_server,
+                    "fecha_inicio" => $fecha_inicio,
+                    "fecha_fin" => $newFechaFin,
+                    "monto_pendiente" => $pendiente_pago,
+                    "monto_pagado" => $newMonto_pago,
+                    "usuario_id_cobra" => session()->id,
+                    "estado" => $estado_pago,
+                );
+
+                $pagoServidor->insert($data_pago);
+
+                $datosPagos = array(
+                    "pago_servidor_id" => $pagoServidor->getInsertID(),
+                    "pago_amortizacion_id" => $idPagoAmor,
+                    "monto" => $newMonto_pago,
+                );
+
+                $detallePagos->insert($datosPagos);
+            }
         }
     }
 
@@ -633,126 +749,6 @@ class Pago extends BaseController
         );
 
         $empr->update($idContribuyente, $dataUpdate);
-    }
-
-    public function addPagosServidor($monto, $idContribuyente, $idPagoAmor, $fecha_proceso)
-    {
-        $pago = new PagoServidorModel();
-        $detallePagos = new DetallePagosServidorModel();
-
-        $montoDisponible = $monto;
-
-        while ($montoDisponible > 0) {
-            $lastUtimo = $pago->query("SELECT * FROM pago_servidor WHERE contribuyente_id = $idContribuyente and estado != 'eliminado' ORDER BY id DESC LIMIT 1")->getRow();
-
-            if ($lastUtimo->estado == "pendiente") {
-                $montoPendiente = $lastUtimo->montoPendiente;
-                $montoPagado = $lastUtimo->montoPagado;
-                $montoTotal = $lastUtimo->monto_total;
-
-                if ($montoDisponible >= $montoPendiente) {
-                    $datos = array(
-                        "montoPagado" => $montoTotal,
-                        "montoPendiente" => 0,
-                        "montoExcedente" => 0,
-                        "estado" => "pagado"
-                    );
-
-                    $pago->update($lastUtimo->id, $datos);
-
-                    $datosPagos = array(
-                        "pago_servidor_id" => $lastUtimo->id,
-                        "pago_amortizacion_id" => $idPagoAmor,
-                        "monto" => $montoPendiente,
-                    );
-
-                    $detallePagos->insert($datosPagos);
-
-                    $montoDisponible = $montoDisponible - $montoPendiente;
-                } else {
-                    $datos = array(
-                        "montoPagado" => $montoPagado + $montoDisponible,
-                        "montoPendiente" => $montoPendiente - $montoDisponible,
-                        "montoExcedente" => 0,
-                        "estado" => "pendiente"
-                    );
-
-                    $pago->update($lastUtimo->id, $datos);
-
-                    $datosPagos = array(
-                        "pago_servidor_id" => $lastUtimo->id,
-                        "pago_amortizacion_id" => $idPagoAmor,
-                        "monto" => $montoDisponible,
-                    );
-
-                    $detallePagos->insert($datosPagos);
-
-                    $montoDisponible = 0;
-                }
-            } else {
-                $dt = DateTime::createFromFormat('Y-m-d', $lastUtimo->anio_correspondiente);
-                $dt->modify('first day of this month');
-                $dt->modify('+1 year');
-
-                $periodo = $dt->format('Y-m-d');
-
-                $anio_correspondiente = $periodo;
-
-                $montoMensual = $this->getMontoServidor($idContribuyente);
-
-                if ($montoDisponible >= $montoMensual) {
-                    $datos = array(
-                        "contribuyente_id" => $idContribuyente,
-                        "anio_correspondiente" => $anio_correspondiente,
-                        "monto_total" => $montoMensual,
-                        "fecha_pago" => date('Y-m-d H:i:s'),
-                        "fecha_proceso" => $fecha_proceso,
-                        "montoPagado" => $montoMensual,
-                        "montoPendiente" => 0,
-                        "montoExcedente" => 0,
-                        "estado" => "pagado",
-                        "usuario_id_cobra" => session()->id
-                    );
-
-                    $pago->insert($datos);
-
-                    $montoDisponible = $montoDisponible - $montoMensual;
-
-                    $datosPagos = array(
-                        "pago_servidor_id" => $pago->getInsertID(),
-                        "pago_amortizacion_id" => $idPagoAmor,
-                        "monto" => $montoMensual,
-                    );
-
-                    $detallePagos->insert($datosPagos);
-                } else {
-                    $datos = array(
-                        "contribuyente_id" => $idContribuyente,
-                        "anio_correspondiente" => $anio_correspondiente,
-                        "fecha_pago" => date('Y-m-d H:i:s'),
-                        "fecha_proceso" => $fecha_proceso,
-                        "monto_total" => $montoMensual,
-                        "montoPagado" => $montoDisponible,
-                        "montoPendiente" => $montoMensual - $montoDisponible,
-                        "montoExcedente" => 0,
-                        "estado" => "pendiente",
-                        "usuario_id_cobra" => session()->id
-                    );
-
-                    $pago->insert($datos);
-
-                    $datosPagos = array(
-                        "pago_servidor_id" => $pago->getInsertID(),
-                        "pago_amortizacion_id" => $idPagoAmor,
-                        "monto" => $montoDisponible,
-                    );
-
-                    $detallePagos->insert($datosPagos);
-
-                    $montoDisponible = 0;
-                }
-            }
-        }
     }
 
     public function getMontoServidor($idContribuyente)
@@ -921,6 +917,49 @@ class Pago extends BaseController
         }
     }
 
+    public function deletePagoServidor($id)
+    {
+        $pagoHo = new PagoAmortizacionServidorModel();
+        $mov = new MovimientoModel();
+        $detalle = new DetallePagosServidorModel();
+
+        $pagoHo->db->transStart();
+
+        try {
+            $data = $pagoHo->find($id);
+
+            $contribId = $data['contribuyente_id'];
+            $monto = $data['monto'];
+            $moviId = $data['movimientoId'];
+
+            $mov->update($moviId, ['mov_estado' => 0]);
+
+            $pagoHo->update($id, ['estado' => 0]);
+
+            $detalle->where('pago_amortizacion_id', $id)->delete();
+
+            $this->deletePagoServidorArray($contribId, $monto);
+
+            $pagoHo->db->transComplete();
+
+            if ($pagoHo->db->transStatus() === false) {
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se elimino correctamente"
+            ]);
+        } catch (\Exception $e) {
+            $pagoHo->db->transRollback();
+
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => $e->getMessage()
+            ]);
+        }
+    }
+
     public function updateVaucher()
     {
         $pago = new PagosHonorariosModel();
@@ -963,7 +1002,58 @@ class Pago extends BaseController
         }
     }
 
+    public function updateVaucherServidor()
+    {
+        $pago = new PagoAmortizacionServidorModel();
+
+        try {
+            $idPago = $this->request->getVar('idPago');
+            $voucher = $this->request->getFile('imagenVoucher');
+
+            $dataPago = $pago->find($idPago);
+
+            $nameFileDelete = $dataPago['vaucher'];
+
+            $filePath = FCPATH . 'servidor/' . $nameFileDelete;
+
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+
+            $nameFile = "";
+
+            if ($voucher->isValid() && !$voucher->hasMoved()) {
+                $newName = $voucher->getRandomName();
+                $voucher->move(FCPATH . 'servidor', $newName);
+
+                $nameFile = $newName;
+            }
+
+            $data = [
+                "vaucher" => $nameFile
+            ];
+
+            $pago->update($idPago, $data);
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se guardo correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
     public function getPago($id)
+    {
+        $pago = new PagoAmortizacionServidorModel();
+
+        $data = $pago->find($id);
+
+        return $this->response->setJSON($data);
+    }
+
+    public function getPagoServidor($id)
     {
         $pago = new PagosHonorariosModel();
 
@@ -1097,6 +1187,70 @@ class Pago extends BaseController
         }
     }
 
+    public function updatePagoServidor()
+    {
+        $pagoHono = new PagoAmortizacionServidorModel();
+        $mov = new MovimientoModel();
+        $pago = new PagoServidorModel();
+        $contri = new ContribuyenteModel();
+        $detalle = new DetallePagosServidorModel();
+
+        try {
+            $pagoHono->db->transBegin();
+
+            $id = $this->request->getVar('id_Pago');
+            $monto = $this->request->getVar('monto_mov');
+            $datePago = $this->request->getVar('datePago');
+            $metodo_pago = $this->request->getVar('metodo_pago');
+            $montoActual = $this->request->getVar('montoActual');
+
+            $dataPago = $pagoHono->find($id);
+
+            $contribId = $dataPago['contribuyente_id'];
+
+            $montoOriginal = $monto;
+
+            $detalle->where('pago_amortizacion_id', $id)->delete();
+
+            $this->deletePagoServidorArray($contribId, $montoActual);
+
+            $this->procesoPagoServidor($contribId, $monto, $datePago, $id);
+
+            $dataPagoHono = [
+                "monto" => $montoOriginal,
+                "fecha_pago" => $datePago,
+                "metodo_pago_id" => $metodo_pago
+            ];
+
+            $pagoHono->update($id, $dataPagoHono);
+
+            $movId = $dataPago['movimientoId'];
+
+            $dataMov = [
+                "mov_monto" => $montoOriginal,
+                "mov_fecha_pago" => $datePago,
+                "id_metodo_pago" => $metodo_pago
+            ];
+
+            $mov->update($movId, $dataMov);
+
+            if ($pagoHono->db->transStatus() === false) {
+                $pagoHono->db->transRollback();
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            $pagoHono->db->transCommit();
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se guardo correctamente"
+            ]);
+        } catch (\Exception $e) {
+            $pagoHono->db->transRollback();
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
     public function regresarFechaSuscripcion($contador, $sistemas, $ruc)
     {
         foreach ($sistemas as $key => $value) {
@@ -1122,5 +1276,25 @@ class Pago extends BaseController
                 }
             }
         }
+    }
+
+    public function renderAmortizacionServidor($id)
+    {
+        $paAmor = new PagoAmortizacionServidorModel();
+        $detallePagos = new DetallePagosServidorModel();
+
+        $paAmor->query("SET lc_time_names = 'es_ES'");
+
+        $pagos = $paAmor->query("SELECT p.id, p.contribuyente_id, DATE_FORMAT(p.fecha_pago , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.registro, '%d-%m-%Y %H-%i-%s') as registro, p.fecha, p.monto, p.estado, p.vaucher, mp.metodo from pagos_servidor_amortizacion p INNER JOIN metodos_pagos mp ON mp.id = p.metodo_pago_id where p.contribuyente_id = $id and p.estado = 1 order by p.id desc")->getResult();
+
+        foreach ($pagos as $key => $value) {
+            $id = $value->id;
+
+            $detalle = $detallePagos->query("SELECT pa.monto, DATE_FORMAT(p.fecha_inicio, '%d-%m-%Y') as fecha_inicio, DATE_FORMAT(p.fecha_fin, '%d-%m-%Y') as fecha_fin FROM servidor_amortizacion as pa INNER JOIN pago_servidor as p ON p.id = pa.pago_servidor_id WHERE pa.pago_amortizacion_id = $id")->getResult();
+
+            $pagos[$key]->pagos = $detalle;
+        }
+
+        return $this->response->setJSON($pagos);
     }
 }

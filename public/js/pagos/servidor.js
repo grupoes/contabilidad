@@ -9,7 +9,7 @@ const sedeEfectivo = document.getElementById("sedeEfectivo");
 const formPago = document.getElementById("formPago");
 
 renderPagos(idContribuyente.value);
-renderPagosHonorarios(idContribuyente.value);
+renderPagosServidor(idContribuyente.value);
 
 function renderPagos(idcontribuyente) {
   fetch(base_url + "render-pagos-servidor/" + idcontribuyente)
@@ -19,8 +19,8 @@ function renderPagos(idcontribuyente) {
     });
 }
 
-function renderPagosHonorarios(idcontribuyente) {
-  fetch(base_url + "pagos/lista-pagos-honorarios/" + idcontribuyente)
+function renderPagosServidor(idcontribuyente) {
+  fetch(base_url + "pagos/render-amortizacion-servidor/" + idcontribuyente)
     .then((res) => res.json())
     .then((data) => {
       viewPagosHonorarios(data);
@@ -59,8 +59,8 @@ function viewPagos(data) {
         <tr>
             <td>${pago.fecha_inicio}</td>
             <td>${pago.fecha_fin}</td>
-            <td>${pago.fecha_proceso}</td>
-            <td>${pago.fecha_pago}</td>
+            <td>${pago.fecha_proceso !== null ? pago.fecha_proceso : ""}</td>
+            <td>${pago.fecha_pago !== null ? pago.fecha_pago : ""}</td>
             <td>${pago.monto_total}</td>
             <td>${pago.monto_pagado}</td>
             <td>${pago.monto_pendiente}</td>
@@ -89,7 +89,7 @@ function viewPagosHonorarios(data) {
     let pagosHtml = `<ul>`;
 
     pagos.forEach((item) => {
-      pagosHtml += `<li> ${item.mesCorrespondiente} (${item.monto})</li>`;
+      pagosHtml += `<li> ${item.fecha_inicio} - ${item.fecha_fin} (${item.monto})</li>`;
     });
 
     pagosHtml += `</ul>`;
@@ -105,7 +105,7 @@ function viewPagosHonorarios(data) {
     }
 
     botonDelete += `
-              <a href="#" class="ms-2" onclick="editPago(event, ${pago.id})" title="Editar Pago"> <i class="fas fa-edit text-info"></i> </a>
+              <a href="#" class="ms-2" onclick="editPago(event, ${pago.id}, ${index})" title="Editar Pago"> <i class="fas fa-edit text-info"></i> </a>
               `;
 
     html += `
@@ -116,7 +116,7 @@ function viewPagosHonorarios(data) {
             <td>${pago.metodo}</td>
             <td>${pago.monto}</td>
             <td> 
-                <a href="#" data-lightbox="${base_url}vouchers/${pago.voucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
+                <a href="#" data-lightbox="${base_url}servidor/${pago.vaucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
             </td>
             <td>
                 ${botonDelete}
@@ -150,7 +150,7 @@ formPago.addEventListener("submit", (e) => {
       showLoader();
 
       const messageSpinner = document.getElementById("messageSpinner");
-      messageSpinner.textContent = "Registrando pago y activando sistema...";
+      messageSpinner.textContent = "Registrando pago del servidor...";
 
       fetch(`${base_url}pagos/pagar-servidor`, {
         method: "POST",
@@ -163,6 +163,11 @@ formPago.addEventListener("submit", (e) => {
             metodoPago.value = "";
             voucher.value = "";
 
+            formPago.reset();
+
+            div_voucher.setAttribute("hidden", true);
+            voucher.removeAttribute("required");
+
             Swal.fire({
               position: "top-end",
               icon: "success",
@@ -171,14 +176,10 @@ formPago.addEventListener("submit", (e) => {
               timer: 1500,
             });
 
-            if (countPagos.value == 0) {
-              location.reload();
-            } else {
-              renderPagos(idContribuyente.value);
-              renderPagosHonorarios(idContribuyente.value);
+            renderPagos(idContribuyente.value);
+            renderPagosServidor(idContribuyente.value);
 
-              getMontoPendiente();
-            }
+            getMontoPendiente();
 
             return false;
           }
@@ -257,7 +258,7 @@ function verVaucher(e, idPago) {
 
   const btnDescargar = document.getElementById("btnDescargarVoucher");
   btnDescargar.setAttribute("href", recipient);
-  btnDescargar.setAttribute("download", "voucher.jpg");
+  btnDescargar.setAttribute("download", "vaucher.jpg");
 
   image.style.transform = "scale(1)";
   let scale = 1;
@@ -296,13 +297,13 @@ function deletePago(e, id) {
 
         const messageSpinner = document.getElementById("messageSpinner");
         messageSpinner.textContent = "Eliminando pago...";
-        fetch(`${base_url}pagos/delete-pago/${id}`)
+        fetch(`${base_url}pagos/delete-pago-servidor/${id}`)
           .then((res) => res.json())
           .then((data) => {
             hideLoader();
             if (data.status === "success") {
               renderPagos(idContribuyente.value);
-              renderPagosHonorarios(idContribuyente.value);
+              renderPagosServidor(idContribuyente.value);
               getMontoPendiente();
 
               Swal.fire({
@@ -335,7 +336,7 @@ formEditImage.addEventListener("submit", (e) => {
 
   const formData = new FormData(formEditImage);
 
-  fetch(`${base_url}pagos/update-voucher`, {
+  fetch(`${base_url}pagos/update-voucher-servidor`, {
     method: "POST",
     body: formData,
   })
@@ -352,7 +353,7 @@ formEditImage.addEventListener("submit", (e) => {
           timer: 1500,
         });
 
-        renderPagosHonorarios(idContribuyente.value);
+        renderPagosServidor(idContribuyente.value);
         return false;
       }
 
@@ -364,7 +365,7 @@ formEditImage.addEventListener("submit", (e) => {
     });
 });
 
-function editPago(e, id) {
+function editPago(e, id, index) {
   e.preventDefault();
 
   $("#modalPago").modal("show");
@@ -392,6 +393,10 @@ function editPago(e, id) {
       if (currentDate == data.fecha) {
         idMonto.removeAttribute("hidden");
         idFechaPago.removeAttribute("hidden");
+
+        if (index != 0) {
+          idMonto.setAttribute("hidden", true);
+        }
       } else {
         idMonto.setAttribute("hidden", true);
         idFechaPago.setAttribute("hidden", true);
@@ -417,7 +422,7 @@ formEditPago.addEventListener("submit", (e) => {
   const messageSpinner = document.getElementById("messageSpinner");
   messageSpinner.textContent = "Actualizando pago...";
 
-  fetch(`${base_url}pagos/update-pago`, {
+  fetch(`${base_url}pagos/update-pago-servidor`, {
     method: "POST",
     body: formData,
   })
@@ -435,7 +440,7 @@ formEditPago.addEventListener("submit", (e) => {
           timer: 1500,
         });
 
-        renderPagosHonorarios(idContribuyente.value);
+        renderPagosServidor(idContribuyente.value);
         renderPagos(idContribuyente.value);
         return false;
       }
