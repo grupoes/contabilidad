@@ -13,7 +13,7 @@ class PagoServidorModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'cotribuyente_id', 'fecha_pago', 'monto_total', 'anio_correspondiente', 'montoPagado', 'montoPendiente', 'montoExcedente', 'usuario_id_cobra', 'estado', 'fecha_proceso'];
+    protected $allowedFields = ['id', 'contribuyente_id', 'fecha_pago', 'monto_total', 'fecha_inicio', 'fecha_fin', 'montoPagado', 'montoPendiente', 'usuario_id_cobra', 'estado', 'fecha_proceso'];
 
     protected $useTimestamps = false;
     protected $createdField  = 'created_at';

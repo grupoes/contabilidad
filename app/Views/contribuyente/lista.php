@@ -261,6 +261,10 @@
                         <div class="col-md-4 mb-3" id="viewServidor">
 
                         </div>
+
+                        <div class="col-md-4 mb-3" id="fechaInicioServidor">
+
+                        </div>
                     </div>
 
                     <h5>Boletas</h5>

@@ -32,18 +32,12 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-12 order-md-1 order-2">
+                        <div class="col-md-9 order-md-1 order-2">
 
                             <form id="formPago" enctype="multipart/form-data">
                                 <input type="hidden" name="idcontribuyente" id="idcontribuyente" value="<?= $id ?>">
 
                                 <div class="row">
-                                    <div class="col-md-4" <?php echo $countPagos == 1 ? 'hidden' : '' ?>>
-                                        <div class="mb-3 form-check">
-                                            <input type="checkbox" class="form-check-input" name="generarMovimiento" id="generarMovimiento" value="1" checked>
-                                            <label for="generarMovimiento">Generar Movimiento</label>
-                                        </div>
-                                    </div>
 
                                     <div class="col-md-4">
                                         <div class="mb-3">
@@ -71,15 +65,6 @@
                                         </div>
                                     </div>
 
-                                    <?php if ($countPagos == 0) { ?>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="periodo">Periodo</label>
-                                                <input type="date" class="form-control" id="periodo" name="periodo" required>
-                                            </div>
-                                        </div>
-                                    <?php } ?>
-
                                     <div class="col-md-4" id="proceso">
                                         <div class="mb-3">
                                             <label class="form-label" for="fecha_proceso">Fecha Pago</label>
@@ -103,12 +88,19 @@
                                 <div class="row">
                                     <div class="col-md-4 mx-auto">
                                         <div class="mb-3 text-center">
-                                            <button type="submit" class="btn btn-success">Guardar</button>
+                                            <button type="submit" class="btn btn-success" id="btnSubmit">Guardar</button>
                                             <a href="<?= base_url('cobros') ?>" class="btn btn-danger">Cancelar</a>
                                         </div>
                                     </div>
                                 </div>
                             </form>
+                        </div>
+
+                        <div class="col-md-3 order-md-2 order-1 mb-3">
+                            <h5>Monto del Servidor <a href="#" onclick="addMontoServidor(event, <?= $id ?>)"><i class="fas fa-plus mx-4"></i></a></h5>
+                            <ul class="list-group" id="renderMontos">
+
+                            </ul>
                         </div>
 
                     </div>
@@ -162,7 +154,8 @@
                                         <table class="table" id="tableData">
                                             <thead>
                                                 <tr>
-                                                    <th>PERIODO</th>
+                                                    <th>FECHA INICIO</th>
+                                                    <th>FECHA FIN</th>
                                                     <th>F. PAGO</th>
                                                     <th>F. PROCESO</th>
                                                     <th>TOTAL</th>
@@ -297,9 +290,7 @@
                         <label class="form-label" for="metodo_pago">Metodo de Pago</label>
                         <select class="form-select" id="metodo_pago" name="metodo_pago" required="true">
                             <option value="">Selecionar...</option>
-                            <?php foreach ($metodos as $metodo) : ?>
-                                <option value="<?= $metodo['id'] ?>"><?= $metodo['metodo'] ?></option>
-                            <?php endforeach; ?>
+
                         </select>
                     </div>
                     <div class="mb-3" id="idMonto">
@@ -309,6 +300,34 @@
                     <div class="mb-3" id="idFechaPago">
                         <label class="form-label" for="datePago">Fecha Pago</label>
                         <input type="date" class="form-control" id="datePago" name="datePago" max="<?= date('Y-m-d') ?>" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAddMonto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4">Agregar Monto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="formAddMonto">
+                <div class="modal-body">
+                    <input type="hidden" name="id_empresa" id="id_empresa" value="<?= $id ?>">
+                    <div class="mb-3">
+                        <label class="form-label" for="addMonto">Monto</label>
+                        <input type="number" class="form-control" id="addMonto" name="addMonto" />
+                    </div>
+                    <div class="mb-3" id="firstDate">
+
                     </div>
                 </div>
                 <div class="modal-footer">

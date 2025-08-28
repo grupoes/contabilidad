@@ -12,7 +12,7 @@ renderPagos(idContribuyente.value);
 renderPagosHonorarios(idContribuyente.value);
 
 function renderPagos(idcontribuyente) {
-  fetch(base_url + "pagos/lista-pagos/" + idcontribuyente)
+  fetch(base_url + "render-pagos-servidor/" + idcontribuyente)
     .then((res) => res.json())
     .then((data) => {
       viewPagos(data);
@@ -49,7 +49,7 @@ function viewPagos(data) {
 
     if (pago.estado == "pagado") {
       estado = `<span class="badge bg-light-success f-12">${pago.estado}</span>`;
-    } else if (pago.estado == "Pendiente") {
+    } else if (pago.estado == "pendiente") {
       estado = `<span class="badge bg-light-warning f-12">${pago.estado}</span>`;
     } else {
       estado = `<span class="badge bg-light-danger f-12">${pago.estado}</span>`;
@@ -57,12 +57,13 @@ function viewPagos(data) {
 
     html += `
         <tr>
-            <td>${pago.mesCorrespondiente}</td>
+            <td>${pago.fecha_inicio}</td>
+            <td>${pago.fecha_fin}</td>
             <td>${pago.fecha_proceso}</td>
             <td>${pago.fecha_pago}</td>
             <td>${pago.monto_total}</td>
-            <td>${pago.montoPagado}</td>
-            <td>${pago.montoPendiente}</td>
+            <td>${pago.monto_pagado}</td>
+            <td>${pago.monto_pendiente}</td>
             <td>${estado}</td>
         </tr>
         `;
@@ -317,18 +318,6 @@ function deletePago(e, id) {
     });
 }
 
-const generarMovimiento = document.getElementById("generarMovimiento");
-
-generarMovimiento.addEventListener("change", (e) => {
-  if (e.target.checked) {
-    document.getElementById("proceso").removeAttribute("hidden");
-    document.getElementById("fecha_proceso").setAttribute("required", true);
-  } else {
-    document.getElementById("proceso").setAttribute("hidden", true);
-    document.getElementById("fecha_proceso").removeAttribute("required");
-  }
-});
-
 function editarVoucher() {
   $("#lightboxModal").modal("hide");
   $("#modalEditVoucher").modal("show");
@@ -465,7 +454,11 @@ function getMontoPendiente() {
   fetch(`${base_url}pagos/monto-servidor/${idContribuyente.value}`)
     .then((res) => res.json())
     .then((data) => {
-      monto.value = data.monto;
+      if (data.status == "success") {
+        monto.value = data.monto;
+      } else {
+        alert(data.message);
+      }
     });
 }
 
@@ -490,3 +483,94 @@ function historialPagos() {
 }
 
 //historialPagos();
+const firstDate = document.getElementById("firstDate");
+
+function addMontoServidor(e, id) {
+  e.preventDefault();
+
+  $("#modalAddMonto").modal("show");
+
+  fetch(`${base_url}render-montos/${idContribuyente.value}`)
+    .then((res) => res.json())
+    .then((data) => {
+      $("#modalAddMonto").modal("show");
+
+      const length = data.length;
+
+      if (length == 0) {
+        firstDate.innerHTML = `
+          <label class="form-label" for="primeraFecha">Primera fecha</label>
+          <input type="date" class="form-control" id="primeraFecha" name="primeraFecha" required />
+        `;
+      } else {
+        firstDate.innerHTML = "";
+      }
+    });
+}
+
+const renderMontos = document.getElementById("renderMontos");
+const btnSubmit = document.getElementById("btnSubmit");
+
+function renderMontosServidor() {
+  fetch(`${base_url}render-montos/${idContribuyente.value}`)
+    .then((res) => res.json())
+    .then((data) => {
+      let html = "";
+
+      const length = data.length;
+
+      if (length != 0) {
+        data.forEach((item) => {
+          html += `
+            <li class="list-group-item d-flex justify-content-between align-items-center">${item.fecha_inicio} <span class="badge bg-primary rounded-pill">S/ ${item.monto}</span></li>
+          `;
+        });
+
+        btnSubmit.removeAttribute("disabled");
+      } else {
+        btnSubmit.setAttribute("disabled", true);
+      }
+
+      renderMontos.innerHTML = html;
+    });
+}
+
+renderMontosServidor();
+
+const formAddMonto = document.getElementById("formAddMonto");
+
+formAddMonto.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formAddMonto);
+
+  fetch(`${base_url}montos/add-monto`, {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        $("#modalAddMonto").modal("hide");
+
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: data.message,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+
+        renderMontosServidor();
+        renderPagos(idContribuyente.value);
+        getMontoPendiente();
+        return false;
+      }
+
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Ocurrio un error, recargue de nuevo la página o contáctase con el administrador!",
+      });
+    });
+});

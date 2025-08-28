@@ -472,6 +472,31 @@ abstract class BaseController extends Controller
         return $fecha->format('Y-m-d');
     }
 
+    function sumFechaAnioServidor($fecha)
+    {
+        $fecha = new \DateTime($fecha);
+        $fecha->modify('+1 year');
+
+        $fecha_anio = $fecha->format('Y-m-d');
+
+        $fecha_restar_un_dia = new \DateTime($fecha_anio);
+        $fecha_restar_un_dia->modify('-1 day');
+
+        $fecha_anio = $fecha_restar_un_dia->format('Y-m-d');
+
+        return $fecha_anio;
+    }
+
+    function sumFechaAnio($fecha)
+    {
+        $fecha = new \DateTime($fecha);
+        $fecha->modify('+1 year');
+
+        $fecha_anio = $fecha->format('Y-m-d');
+
+        return $fecha_anio;
+    }
+
     public function contribuyentesEsFacturador($ruc)
     {
         $db = \Config\Database::connect('facturador');

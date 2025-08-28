@@ -1560,18 +1560,26 @@ multipleSystem.passedElement.element.addEventListener("change", (e) => {
 
   const length = valoresSeleccionados.length;
   const viewServidor = document.getElementById("viewServidor");
+  const fechaInicioServidor = document.getElementById("fechaInicioServidor");
 
   if (length == 0) {
     viewServidor.innerHTML = "";
+    fechaInicioServidor.innerHTML = "";
   } else if (length == 1) {
     const existe = valoresSeleccionados.includes("3");
 
     if (existe) {
       viewServidor.innerHTML = "";
+      fechaInicioServidor.innerHTML = "";
     } else {
       viewServidor.innerHTML = `
         <label class="form-label" for="choices-system">Monto del servidor</label>
         <input type="number" class="form-control" name="monto_servidor" id="monto_servidor" required="" />
+      `;
+
+      fechaInicioServidor.innerHTML = `
+        <label class="form-label" for="choices-system">Fecha de inicio del servidor</label>
+        <input type="date" class="form-control" name="fecha_inicio_servidor" id="fecha_inicio_servidor" required="" />
       `;
     }
   } else {
@@ -1579,5 +1587,10 @@ multipleSystem.passedElement.element.addEventListener("change", (e) => {
       <label class="form-label" for="choices-system">Monto del servidor</label>
       <input type="number" class="form-control" name="monto_servidor" id="monto_servidor" required="" />
     `;
+
+    fechaInicioServidor.innerHTML = `
+        <label class="form-label" for="choices-system">Fecha de inicio del servidor</label>
+        <input type="date" class="form-control" name="fecha_inicio_servidor" id="fecha_inicio_servidor" required="" />
+      `;
   }
 });

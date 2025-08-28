@@ -64,6 +64,9 @@ $routes->get('listaCobros/(:any)/(:num)', 'Contribuyentes::listaHonorariosCobros
 $routes->get('cobro-servidor', 'Cobros::index');
 $routes->get('render-contribuyentes', 'Cobros::renderContribuyentes');
 $routes->get('cobrar-servidor/(:num)', 'Cobros::cobrarView/$1');
+$routes->get('render-montos/(:num)', 'Cobros::renderMontos/$1');
+$routes->post('montos/add-monto', 'Cobros::addMonto');
+$routes->get('render-pagos-servidor/(:num)', 'Cobros::renderPagosServidor/$1');
 
 $routes->get('pago-honorario/(:num)', 'Pago::pagosHonorarios/$1');
 $routes->get('pagos/lista-pagos/(:num)', 'Pago::listaPagos/$1');

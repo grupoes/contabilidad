@@ -6,6 +6,8 @@ use App\Models\ContribuyenteModel;
 use App\Models\SistemaModel;
 use App\Models\MetodoPagoModel;
 use App\Models\TipoComprobanteModel;
+use App\Models\ServidorModel;
+use App\Models\PagoServidorModel;
 
 use DateTime;
 
@@ -35,7 +37,6 @@ class Cobros extends BaseController
         }
 
         return $this->response->setJSON($contribuyentes);
-
     }
 
     public function cobrarView($id)
@@ -51,27 +52,116 @@ class Cobros extends BaseController
         $metodo = new MetodoPagoModel();
         $metodos = $metodo->where('estado', 1)->findAll();
 
-        //$monto_mensual = $this->getMontoMensual($id);
-
-        $tipoComprobante = new TipoComprobanteModel();
-        $tipos = $tipoComprobante->where('tipo_comprobante_estado', 1)->findAll();
-
-        $fechaActual = new DateTime();
-
-        // Restar 3 días
-        $fechaActual->modify('-3 days');
-
-        // Formatear la fecha al formato deseado
-        $fechaRestada = $fechaActual->format('Y-m-d');
-
-
-        $countPagos = 0;
-
-
         $menu = $this->permisos_menu();
 
-        return view('cobros/cobrarServidor', compact('id', 'metodos', 'tipos', 'datos', 'fechaRestada', 'countPagos', 'menu'));
-
+        return view('cobros/cobrarServidor', compact('id', 'datos', 'menu', 'metodos'));
     }
 
+    public function verificarSiTieneCronograma($id)
+    {
+        $servidor = new ServidorModel();
+
+        $cronograma = $servidor->where('contribuyente_id', $id)->first();
+
+        if (!$cronograma) {
+            return $this->response->setJSON(['status' => false]);
+        }
+
+        return $this->response->setJSON(['status' => true]);
+    }
+
+    public function renderMontos($id)
+    {
+        $servidor = new ServidorModel();
+
+        $monto = $servidor->select("DATE_FORMAT(fecha_inicio, '%d-%m-%Y') as fecha_inicio, monto")->where('contribuyente_id', $id)->orderBy('id', 'desc')->findAll();
+
+        return $this->response->setJSON($monto);
+    }
+
+    public function addMonto()
+    {
+        $servidor = new ServidorModel();
+        $pagoServidor = new PagoServidorModel();
+
+        try {
+
+            $data = $this->request->getPost();
+
+            $id_contribuyente = $data['id_empresa'];
+            $monto = $data['addMonto'];
+            $fecha = $data['primeraFecha'];
+
+            $fecha_actual = date('Y-m-d');
+
+            $datos_servidor = [
+                'contribuyente_id' => $id_contribuyente,
+                'monto' => $monto,
+                'fecha_inicio' => $fecha,
+                'fecha_fin' => '',
+                'estado' => 1
+            ];
+
+            $servidor->insert($datos_servidor);
+
+            if ($fecha >= $fecha_actual) {
+                $fecha_inicio = $fecha;
+                $fecha_fin = $this->sumFechaAnioServidor($fecha_inicio);
+
+                $datos_pago_servidor = [
+                    'contribuyente_id' => $id_contribuyente,
+                    'fecha_pago' => date('Y-m-d'),
+                    'fecha_proceso' => date('Y-m-d'),
+                    'monto_total' => $monto,
+                    'fecha_inicio' => $fecha_inicio,
+                    'fecha_fin' => $fecha_fin,
+                    'monto_pagado' => 0,
+                    'monto_pendiente' => $monto,
+                    'estado' => 'pendiente',
+                    'usuario_id_cobra' => session()->id,
+                ];
+
+                $pagoServidor->insert($datos_pago_servidor);
+            } else {
+                $fecha_seguimiento = $fecha;
+
+                while ($fecha < $fecha_actual) {
+
+                    $fecha_inicio = $fecha_seguimiento;
+                    $fecha_fin = $this->sumFechaAnioServidor($fecha_inicio);
+
+                    $datos_pago_servidor = [
+                        'contribuyente_id' => $id_contribuyente,
+                        'fecha_pago' => date('Y-m-d'),
+                        'fecha_proceso' => date('Y-m-d'),
+                        'monto_total' => $monto,
+                        'fecha_inicio' => $fecha_inicio,
+                        'fecha_fin' => $fecha_fin,
+                        'monto_pagado' => 0,
+                        'monto_pendiente' => $monto,
+                        'estado' => 'pendiente',
+                        'usuario_id_cobra' => session()->id,
+                    ];
+
+                    $pagoServidor->insert($datos_pago_servidor);
+
+                    $fecha_seguimiento = $this->sumFechaAnio($fecha_inicio);
+                    $fecha = $fecha_fin;
+                }
+            }
+
+            return $this->response->setJSON(['status' => 'success', 'message' => "Monto agregado correctamente"]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function renderPagosServidor($id)
+    {
+        $pagoServidor = new PagoServidorModel();
+
+        $pagos = $pagoServidor->select("DATE_FORMAT(fecha_inicio, '%d-%m-%Y') as fecha_inicio, DATE_FORMAT(fecha_fin, '%d-%m-%Y') as fecha_fin, DATE_FORMAT(fecha_pago, '%d-%m-%Y') as fecha_pago, DATE_FORMAT(fecha_proceso, '%d-%m-%Y') as fecha_proceso, monto_total, monto_pagado, monto_pendiente, usuario_id_cobra, estado")->where('contribuyente_id', $id)->orderBy('id', 'desc')->findAll();
+
+        return $this->response->setJSON($pagos);
+    }
 }
