@@ -363,7 +363,7 @@ class Contribuyentes extends BaseController
                 'acceso' => $data['numeroDocumento'],
                 'estado' => 1,
                 'numeroWhatsappId' => $data['numeroNotificacion'],
-                //'monto_servidor' => isset($data['monto_servidor']) ? $data['monto_servidor'] : 0,
+                'monto_servidor' => isset($data['monto_servidor']) ? $data['monto_servidor'] : 0,
             ];
 
             $clientesVarios = $data['clientesVarios'];
