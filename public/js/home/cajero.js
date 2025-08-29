@@ -70,6 +70,30 @@ async function loadPdtsSubir() {
       const nuevoNodoPlame = tempPlame.firstElementChild;
       listCards.insertBefore(nuevoNodoPlame, listCards.firstElementChild);
     }
+
+    const deudores = await fetch(base_url + "deudores-servidor");
+    const dataDeudores = await deudores.json();
+
+    const quantyDeudor = dataDeudores.length;
+
+    if (quantyDeudor > 0) {
+      const htmlDeudores = `
+        <div class="col-md-6 col-xl-3">
+            <div class="card social-widget-card alerta-card" onclick="viewContribuyentesServidores()">
+                <div class="card-body">
+                    <h3 class="text-black m-0">${quantyDeudor}</h3>
+                    <span class="m-t-10 text-black">SERVIDOR</span>
+                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                </div>
+            </div>
+        </div>
+      `;
+
+      const tempDeudores = document.createElement("div");
+      tempDeudores.innerHTML = htmlDeudores.trim();
+      const nuevoNodoPlame = tempDeudores.firstElementChild;
+      listCards.insertBefore(nuevoNodoPlame, listCards.firstElementChild);
+    }
   } catch (error) {
     console.error("Error al cargar notificaciones PDT:", error);
   }

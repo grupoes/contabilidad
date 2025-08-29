@@ -179,26 +179,29 @@ class Cobros extends BaseController
     public function renderContribuyentesDeuda()
     {
         $contribuyente = new ContribuyenteModel();
-        $pagoServidor = new PagoServidorModel();
 
-        $contribuyentes = $contribuyente->query("SELECT DISTINCT c.id, c.ruc, c.razon_social, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes c INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id INNER JOIN sistemas s ON sc.system_id = s.id WHERE s.`status` = 1 and c.tipoServicio = 'CONTABLE' order by c.id desc;")->getResultArray();
-
-        foreach ($contribuyentes as $key => $value) {
-
-            $pagos = $pagoServidor->where('contribuyente_id', $value['id'])->where('estado', 'pendiente')->orderBy('id', 'desc')->findAll();
-
-            if (!$pagos) {
-                $contribuyentes[$key]['pagos'] = 0;
-            } else {
-                $debe = count($pagos);
-
-                if ($debe == 1) {
-                    $contribuyentes[$key]['pagos'] = $debe;
-                } else {
-                    $contribuyentes[$key]['pagos'] = $debe;
-                }
-            }
-        }
+        $contribuyentes = $contribuyente->query("SELECT 
+            c.id,
+            c.ruc,
+            c.razon_social,
+            c.telefono,
+            COUNT(ps.id) as periodos_deuda,
+            GROUP_CONCAT(DISTINCT ps.fecha_fin ORDER BY ps.fecha_fin DESC) as fechas_vencidas,
+            MIN(ps.fecha_fin) as primera_fecha_vencida,
+            MAX(ps.fecha_fin) as ultima_fecha_vencida,
+            SUM(ps.monto_pendiente) as total_deuda
+        FROM contribuyentes c
+        INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id
+        INNER JOIN sistemas s ON sc.system_id = s.id
+        LEFT JOIN pago_servidor ps ON c.id = ps.contribuyente_id 
+            AND ps.estado = 'pendiente' 
+            AND ps.fecha_fin < CURDATE()
+        WHERE s.status = 1
+            AND c.tipoServicio = 'CONTABLE'
+        GROUP BY c.id, c.ruc, c.razon_social, c.telefono
+        HAVING COUNT(ps.id) > 0
+            AND SUM(ps.monto_pendiente) > 0
+        ORDER BY SUM(ps.monto_pendiente) DESC;")->getResultArray();
 
         return $this->response->setJSON($contribuyentes);
     }

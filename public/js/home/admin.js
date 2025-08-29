@@ -8,6 +8,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const newPlame = $("#tablePlame").DataTable(optionsTableDefault);
 
   new $.fn.dataTable.Responsive(newPlame);
+
+  const newServidor = $("#tableServidor").DataTable(optionsTableDefault);
+
+  new $.fn.dataTable.Responsive(newServidor);
 });
 
 const swalWithBootstrapButtons = Swal.mixin({
@@ -68,6 +72,30 @@ async function loadPdtsSubir() {
       const tempPlame = document.createElement("div");
       tempPlame.innerHTML = htmlPlame.trim();
       const nuevoNodoPlame = tempPlame.firstElementChild;
+      listCards.insertBefore(nuevoNodoPlame, listCards.firstElementChild);
+    }
+
+    const deudores = await fetch(base_url + "deudores-servidor");
+    const dataDeudores = await deudores.json();
+
+    const quantyDeudor = dataDeudores.length;
+
+    if (quantyDeudor > 0) {
+      const htmlDeudores = `
+        <div class="col-md-6 col-xl-3">
+            <div class="card social-widget-card alerta-card" onclick="viewContribuyentesServidores()">
+                <div class="card-body">
+                    <h3 class="text-black m-0">${quantyDeudor}</h3>
+                    <span class="m-t-10 text-black">SERVIDOR</span>
+                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                </div>
+            </div>
+        </div>
+      `;
+
+      const tempDeudores = document.createElement("div");
+      tempDeudores.innerHTML = htmlDeudores.trim();
+      const nuevoNodoPlame = tempDeudores.firstElementChild;
       listCards.insertBefore(nuevoNodoPlame, listCards.firstElementChild);
     }
   } catch (error) {
@@ -209,6 +237,35 @@ function viewContribuyentesPdtsPlame() {
       const newPlame = $("#tablePlame").DataTable(optionsTableDefault);
 
       new $.fn.dataTable.Responsive(newPlame);
+    });
+}
+
+function viewContribuyentesServidores() {
+  $("#modalPdtsServidores").modal("show");
+  fetch(base_url + "deudores-servidor")
+    .then((res) => res.json())
+    .then((data) => {
+      let html = "";
+
+      const listServidores = document.getElementById("listServidores");
+
+      data.forEach((server) => {
+        html += `
+        <tr>
+          <td>${server.ruc} <br> ${server.razon_social}</td>
+          <td>${server.fechas_vencidas}</td>
+          <td>${server.total_deuda}</td>
+        </tr>
+        `;
+      });
+
+      $("#tableServidor").DataTable().destroy();
+
+      listServidores.innerHTML = html;
+
+      const newcs = $("#tableServidor").DataTable(optionsTableDefault);
+
+      new $.fn.dataTable.Responsive(newcs);
     });
 }
 
