@@ -28,12 +28,33 @@ class Cobros extends BaseController
     {
         $contribuyente = new ContribuyenteModel();
         $sistema = new SistemaModel();
+        $pagoServidor = new PagoServidorModel();
+
+        $fecha = date('Y-m-d');
+
+        $fecha = new \DateTime($fecha);
+        $fecha->modify('-15 days');
+        $fecha_noti = $fecha->format('Y-m-d');
 
         $contribuyentes = $contribuyente->query("SELECT DISTINCT c.id, c.ruc, c.razon_social, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes c INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id INNER JOIN sistemas s ON sc.system_id = s.id WHERE s.`status` = 1 order by c.id desc;")->getResultArray();
 
         foreach ($contribuyentes as $key => $value) {
             $sistemas = $sistema->query("SELECT s.id, s.nameSystem FROM sistemas s INNER JOIN sistemas_contribuyente sc ON s.id = sc.system_id WHERE sc.contribuyente_id = " . $value['id'])->getResultArray();
             $contribuyentes[$key]['sistemas'] = $sistemas;
+
+            $pagos = $pagoServidor->where('contribuyente_id', $value['id'])->where('estado', 'pendiente')->orderBy('id', 'desc')->findAll();
+
+            if (!$pagos) {
+                $contribuyentes[$key]['pagos'] = "NO TIENE REGISTROS";
+            } else {
+                $debe = count($pagos);
+
+                if ($debe == 1) {
+                    $contribuyentes[$key]['pagos'] = $debe . " PERIODO";
+                } else {
+                    $contribuyentes[$key]['pagos'] = $debe . " PERIODOS";
+                }
+            }
         }
 
         return $this->response->setJSON($contribuyentes);

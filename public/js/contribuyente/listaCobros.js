@@ -145,7 +145,7 @@ function viewListContribuyentesServidor(data) {
                     </div>
                 </td>
                 <td>${htmlSystem}</td>
-                <td>NO TIENE REGISTROS</td>
+                <td>${emp.pagos}</td>
                 <td>
                     <a href="${base_url}cobrar-servidor/${
       emp.id
