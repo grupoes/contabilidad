@@ -8,6 +8,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const newPlame = $("#tablePlame").DataTable(optionsTableDefault);
 
   new $.fn.dataTable.Responsive(newPlame);
+
+  const newServidor = $("#tableServidor").DataTable(optionsTableDefault);
+
+  new $.fn.dataTable.Responsive(newServidor);
 });
 
 const swalWithBootstrapButtons = Swal.mixin({
@@ -288,6 +292,35 @@ function excluirPeriodoPlame(ruc, id_mes, id_anio) {
       } else {
         $("#modalPdtsPlame").modal("show");
       }
+    });
+}
+
+function viewContribuyentesServidores() {
+  $("#modalPdtsServidores").modal("show");
+  fetch(base_url + "deudores-servidor")
+    .then((res) => res.json())
+    .then((data) => {
+      let html = "";
+
+      const listServidores = document.getElementById("listServidores");
+
+      data.forEach((server) => {
+        html += `
+        <tr>
+          <td>${server.ruc} <br> ${server.razon_social}</td>
+          <td>${server.fechas_vencidas}</td>
+          <td>${server.total_deuda}</td>
+        </tr>
+        `;
+      });
+
+      $("#tableServidor").DataTable().destroy();
+
+      listServidores.innerHTML = html;
+
+      const newcs = $("#tableServidor").DataTable(optionsTableDefault);
+
+      new $.fn.dataTable.Responsive(newcs);
     });
 }
 
