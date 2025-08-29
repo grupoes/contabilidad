@@ -210,6 +210,8 @@ $routes->post('api/excluir-periodo-pdt-plame', 'Api\Notificaciones::excluirPerio
 
 $routes->get('api/insert-tipo-cambio', 'Api\Notificaciones::getCambios');
 $routes->get('api/consulta-tipo-cambio/(:any)', 'Api\Notificaciones::getConsultaTipoCambio/$1');
+$routes->get('api/get-contribuyentes-servidor', 'Api\Notificaciones::savePagoServidor');
+$routes->get('api/generar-nota-venta-servidor', 'Api\Notificaciones::sendNotaVenta');
 
 $routes->get('mensajes-masivos', 'Mensajes::index');
 $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');

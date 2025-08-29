@@ -61,7 +61,9 @@ function viewPagos(data) {
             <td>${pago.fecha_fin}</td>
             <td>${pago.fecha_proceso !== null ? pago.fecha_proceso : ""}</td>
             <td>${pago.fecha_pago !== null ? pago.fecha_pago : ""}</td>
-            <td>${pago.monto_total}</td>
+            <td><span class="badge bg-light-success f-14" onclick="verNotaVenta(${
+              pago.id
+            })" style="cursor: pointer">${pago.monto_total}</span></td>
             <td>${pago.monto_pagado}</td>
             <td>${pago.monto_pendiente}</td>
             <td>${estado}</td>
@@ -579,3 +581,7 @@ formAddMonto.addEventListener("submit", (e) => {
       });
     });
 });
+
+function verNotaVenta(id) {
+  alert(id);
+}

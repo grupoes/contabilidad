@@ -17,6 +17,9 @@ use App\Models\FacturasHonorariosModel;
 use App\Models\PdtRentaModel;
 use App\Models\PdtPlameModel;
 use App\Models\TipoCambioModel;
+use App\Models\SistemaModel;
+use App\Models\PagoServidorModel;
+use App\Models\ServidorModel;
 
 use DateTime;
 
@@ -221,6 +224,123 @@ class Notificaciones extends ResourceController
             $data["detalle"] = $detalle;
 
             $ruta = getenv("API_GENERAR_FACTURA");
+            $data_json = json_encode($data);
+
+            if (!$ruta) {
+                return $this->respond([
+                    'respuesta' => 'error',
+                    'mensaje' => 'No se definió la URL de la API'
+                ], 500);
+            }
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $ruta);
+            curl_setopt(
+                $ch,
+                CURLOPT_HTTPHEADER,
+                array(
+                    "Authorization: Bearer " . getenv("API_KEY_GENERAR_FACTURA"),
+                    "Content-Type: application/json",
+                    "cache-control: no-cache"
+                )
+            );
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            $respuesta  = curl_exec($ch);
+            $errorCurl = curl_error($ch);
+
+            curl_close($ch);
+
+            if ($errorCurl) {
+                return $this->respond([
+                    'respuesta' => 'error',
+                    'mensaje' => 'Error en conexión CURL',
+                    'detalle' => $errorCurl
+                ], 500);
+            }
+
+            $respuestaDecodificada = json_decode($respuesta, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return $this->respond([
+                    'respuesta' => 'error',
+                    'mensaje' => 'Respuesta de API inválida (JSON mal formado)',
+                    'raw' => $respuesta
+                ], 500);
+            }
+
+            return $this->respond($respuestaDecodificada);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'respuesta' => 'error',
+                'mensaje' => 'Error inesperado en el servidor',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function sendNotaVenta()
+    {
+        try {
+            $datos = $this->request->getJSON();
+
+            $ruc = $datos->ruc ?? null;
+            $razonSocial = $datos->razonSocial ?? null;
+            $productoName = $datos->productoName ?? null;
+            $precio = $datos->precio ?? null;
+
+            $fecha_comprobante = date('d/m/Y');
+
+            $data["contribuyente"] = array(
+                "token_contribuyente"           => getenv("API_KEY_GENERAR_FACTURA"), //Token del contribuyente
+                "id_usuario_vendedor"           => getenv("ID_USUARIO_VENDEDOR"), //Debes ingresar el ID de uno de tus vendedores (opcional)
+                "tipo_proceso"                  => getenv("TIPO_ENVIO_SUNAT"), //Funcional en una siguiente versión. El ambiente al que se enviará, puede ser: {prueba, produccion}
+                "tipo_envio"                    => "inmediato" //funcional en una siguiente versión. Aquí puedes definir si se enviará de inmediato a sunat
+            );
+
+            $data["cliente"] = array(
+                "tipo_docidentidad"             => 6, //{0: SINDOC, 1: DNI, 6: RUC}
+                "numerodocumento"               => $ruc, //Es opcional solo cuando tipo_docidentidad es 0, caso contrario se debe ingresar el número de ruc
+                "nombre"                        => $razonSocial, //Es opcional solo cuando tipo_docidentidad es 1, caso contrario es obligatorio ingresar aquí la razón social
+                "email"                         => "", //opcional: (si tiene correo se enviará automáticamente el email)
+                "direccion"                     => "", //opcional: 
+                "ubigeo"                        => "",
+                "sexo"                          => "", //opcional: masculino
+                "fecha_nac"                     => "", //opcional: 
+                "celular"                       => "" //opcional
+            );
+
+            $data["cabecera_comprobante"] = array(
+                "tipo_documento"                => "77",  //{"01": FACTURA, "03": BOLETA}
+                "moneda"                        => "PEN",  //{"USD", "PEN"}
+                "idsucursal"                    => getenv("ID_SUCURSAL"),  //{ID DE SUCURSAL}
+                "id_condicionpago"              => "",  //condicionpago_comprobante
+                "fecha_comprobante"             => $fecha_comprobante,  //fecha_comprobante
+                "nro_placa"                     => "",  //nro_placa_vehiculo
+                "nro_orden"                     => "",  //nro_orden
+                "guia_remision"                 => "",  //guia_remision_manual
+                "descuento_monto"               => 0,  // (máximo 2 decimales) (monto total del descuento)
+                "descuento_porcentaje"          => 0,  // (máximo 2 decimales) (porcentaje total del descuento)
+                "observacion"                   => "",  //observacion_documento
+            );
+
+            $detalle[] = array(
+                "idproducto"                    => 91282,  //(opcional, puede ser cero) (si el idproducto coincide con la BD se llevará control del stock)
+                "codigo"                        => getenv("CODIGO_PRODUCTO"), //codigo del producto (requerido)
+                "afecto_icbper"                 => "no",  //"afecto_icbper":"no",
+                "id_tipoafectacionigv"          => 20,  //"id_tipoafectacionigv":"10",
+                "descripcion"                   => $productoName,  //"descripcion":"Zapatos",
+                "idunidadmedida"                => 'NIU',  //{NIU para unidades, ZZ para servicio}
+                "precio_venta"                  => $precio,  //Precio unitario de venta (inc. IGV),
+                "cantidad"                      => 1,  //"cantidad":"1"
+            );
+
+            $data["detalle"] = $detalle;
+
+            $ruta = getenv("API_GENERAR_NOTA_VENTA");
             $data_json = json_encode($data);
 
             if (!$ruta) {
@@ -763,6 +883,96 @@ class Notificaciones extends ResourceController
                 'message' => 'No se encontro el tipo de cambio'
             ]);
         }
+    }
+
+    public function savePagoServidor()
+    {
+        $contribuyente = new ContribuyenteModel();
+        $sistema = new SistemaModel();
+        $pagoServidor = new PagoServidorModel();
+        $servidor = new ServidorModel();
+
+        $fecha = date('Y-m-d');
+
+        $contribuyentes = $contribuyente->query("SELECT DISTINCT c.id, c.ruc, c.razon_social, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes c INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id INNER JOIN sistemas s ON sc.system_id = s.id WHERE s.`status` = 1 and sc.system_id != 3 and c.tipoServicio = 'CONTABLE' order by c.id desc;")->getResultArray();
+
+        foreach ($contribuyentes as $key => $value) {
+            $pagos = $pagoServidor->where('contribuyente_id', $value['id'])->where('estado', 'pendiente')->orderBy('id', 'desc')->findAll();
+
+            if ($pagos) {
+                $fecha_fin = $pagos[0]['fecha_fin'];
+                $fecha_inicio = $pagos[0]['fecha_inicio'];
+
+                $fecha_ = new \DateTime($fecha_fin);
+                $fecha_->modify('-15 days');
+                $fecha_noti = $fecha_->format('Y-m-d');
+
+                if ($fecha_noti == $fecha) {
+
+                    $monto_server = $servidor->where('contribuyente_id', $value['id'])->first();
+
+                    $monto_server = $monto_server['monto'];
+
+                    $new_fecha_inicio = $this->sumFechaAnio($fecha_inicio);
+
+                    $new_fecha_fin = $this->sumFechaAnioServidor($new_fecha_inicio);
+
+                    $data_pago = array(
+                        "contribuyente_id" => $value['id'],
+                        "fecha_pago" => null,
+                        "fecha_proceso" => null,
+                        "monto_total" => $monto_server,
+                        "fecha_inicio" => $new_fecha_inicio,
+                        "fecha_fin" => $new_fecha_fin,
+                        "monto_pendiente" => $monto_server,
+                        "monto_pagado" => 0,
+                        "usuario_id_cobra" => 1,
+                        "estado" => 'pendiente',
+                    );
+
+                    $pagoServidor->insert($data_pago);
+
+                    $descripcion = "SERVICIO POR EL SERVIDOR DEL SISTEMA DE FACTURACION DEL PERIODO: " . $new_fecha_inicio . " AL " . $new_fecha_fin;
+
+                    $contribuyentes[$key]['pagos'] = "ok";
+                    $contribuyentes[$key]['fecha_inicio'] = $new_fecha_inicio;
+                    $contribuyentes[$key]['fecha_fin'] = $new_fecha_fin;
+                    $contribuyentes[$key]['monto'] = $monto_server;
+                    $contribuyentes[$key]['descripcion'] = $descripcion;
+                } else {
+                    $contribuyentes[$key]['pagos'] = "no";
+                }
+            } else {
+                $contribuyentes[$key]['pagos'] = "no";
+            }
+        }
+
+        return $this->respond($contribuyentes);
+    }
+
+    function sumFechaAnioServidor($fecha)
+    {
+        $fecha = new \DateTime($fecha);
+        $fecha->modify('+1 year');
+
+        $fecha_anio = $fecha->format('Y-m-d');
+
+        $fecha_restar_un_dia = new \DateTime($fecha_anio);
+        $fecha_restar_un_dia->modify('-1 day');
+
+        $fecha_anio = $fecha_restar_un_dia->format('Y-m-d');
+
+        return $fecha_anio;
+    }
+
+    function sumFechaAnio($fecha)
+    {
+        $fecha = new \DateTime($fecha);
+        $fecha->modify('+1 year');
+
+        $fecha_anio = $fecha->format('Y-m-d');
+
+        return $fecha_anio;
     }
 
     /**
