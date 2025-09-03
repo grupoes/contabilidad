@@ -1191,8 +1191,6 @@ class Pago extends BaseController
     {
         $pagoHono = new PagoAmortizacionServidorModel();
         $mov = new MovimientoModel();
-        $pago = new PagoServidorModel();
-        $contri = new ContribuyenteModel();
         $detalle = new DetallePagosServidorModel();
 
         try {
