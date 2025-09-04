@@ -35,7 +35,7 @@ class Mensajes extends BaseController
 
             $fechaCreacion = date('Y-m-d H:i:s');
 
-            $rutaGuardar = '';
+            $urlSave = '';
             $envio_file = 'NO';
 
             if ($this->request->getFile('file_send')) {
@@ -88,7 +88,6 @@ class Mensajes extends BaseController
 
                     // Ruta relativa para guardar en BD
                     $rutaGuardar = ROOTPATH . 'public/documents/' . $tipo . '/' . $nuevoNombre;
-                    $envio_file = 'SI';
 
                     $link = base_url() . 'documents/' . $tipo . '/' . $nuevoNombre;
 
@@ -98,20 +97,24 @@ class Mensajes extends BaseController
 
                     $dataUrl = json_decode($response, true);
 
-                    echo "<pre>";
-                    print_r($dataUrl);
-                    echo "</pre>";
+                    if ($dataUrl[0]['message'] !== 'Archivo subido con éxito') {
+                        return $this->response->setJSON([
+                            'status' => "error",
+                            'message' => "Error al subir el archivo, comuníquse con el administrador del sistema",
+                        ]);
+                    }
+
+                    $urlSave = $dataUrl[0]['url'];
+                    $envio_file = 'SI';
                 }
             }
-
-            exit();
 
             $mensajeData = [
                 'titulo' => $titulo,
                 'contenido' => $message,
                 'fechaCreacion' => $fechaCreacion,
                 'creadoPor' => session()->id,
-                'path_file' => $rutaGuardar,
+                'path_file' => $urlSave,
                 'envio_file' => $envio_file,
                 'typeContri' => $tipo,
             ];
@@ -161,6 +164,8 @@ class Mensajes extends BaseController
                             'razon_social' => $contribuyente['razon_social'],
                             'ruc' => $contribuyente['ruc'],
                             'link' => $contribuyente['link'],
+                            'path_file' => $urlSave,
+                            'envio_file' => $envio_file,
                         ];
 
                         $envio->insert($envioData);
