@@ -103,6 +103,8 @@
                                     <textarea name="message" id="editorTemplate" cols="30" rows="7"
                                         class="form-control" required=""></textarea>
 
+                                    <input type="file" class="form-control mt-2" name="file_send" id="file_send" />
+
                                     <div id="pickerContainer">
                                         <emoji-picker locale="es"></emoji-picker>
                                     </div>

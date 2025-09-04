@@ -3,7 +3,7 @@ const configTable = {
   paging: false, // Hace que la tabla sea responsiva
   autoWidth: false, // Desactiva el ajuste automático de ancho
   scrollX: false,
-  scrollY: "330px",
+  scrollY: "445px",
   lengthChange: false,
   info: false,
   scrollCollapse: true,

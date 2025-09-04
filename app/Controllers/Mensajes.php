@@ -35,11 +35,84 @@ class Mensajes extends BaseController
 
             $fechaCreacion = date('Y-m-d H:i:s');
 
+            $rutaGuardar = '';
+            $envio_file = 'NO';
+
+            if ($this->request->getFile('file_send')) {
+                $file = $this->request->getFile('file_send');
+
+                // Obtener el MIME type
+                $mimeType = $file->getMimeType();
+
+                // Detectar tipo basado en MIME type
+                if (strpos($mimeType, 'image/') === 0) {
+                    $tipo = 'imagen';
+                } elseif (strpos($mimeType, 'video/') === 0) {
+                    $tipo = 'video';
+                } elseif (strpos($mimeType, 'audio/') === 0) {
+                    $tipo = 'audio';
+                } elseif ($mimeType === 'application/pdf') {
+                    $tipo = 'pdf';
+                } elseif (
+                    $mimeType === 'application/msword' ||
+                    $mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                ) {
+                    $tipo = 'word';
+                } elseif (
+                    $mimeType === 'application/vnd.ms-excel' ||
+                    $mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                ) {
+                    $tipo = 'excel';
+                } elseif ($mimeType === 'application/zip') {
+                    $tipo = 'zip';
+                } elseif ($mimeType === 'application/x-rar-compressed') {
+                    $tipo = 'rar';
+                } elseif ($mimeType === 'application/xml' || $mimeType === 'text/xml') {
+                    $tipo = 'xml';
+                } else {
+                    $tipo = 'otro';
+                }
+
+                // Definir la ruta de destino
+                $rutaDestino = ROOTPATH . 'public/documents/' . $tipo . '/';
+
+                // Crear el directorio si no existe
+                if (!is_dir($rutaDestino)) {
+                    mkdir($rutaDestino, 0755, true);
+                }
+
+                // Mover el archivo
+                if ($file->isValid() && !$file->hasMoved()) {
+                    $nuevoNombre = $file->getClientName(); // O usar getClientName() para mantener nombre original
+                    $file->move($rutaDestino, $nuevoNombre);
+
+                    // Ruta relativa para guardar en BD
+                    $rutaGuardar = ROOTPATH . 'public/documents/' . $tipo . '/' . $nuevoNombre;
+                    $envio_file = 'SI';
+
+                    $link = base_url() . 'documents/' . $tipo . '/' . $nuevoNombre;
+
+                    $data_url = [$link];
+
+                    $response = $this->getUrlPublicaGoogleCloud($data_url);
+
+                    //$dataUrl = json_decode($response, true);
+
+                    echo "<pre>";
+                    print_r($response);
+                    echo "</pre>";
+                }
+            }
+
+            exit();
+
             $mensajeData = [
                 'titulo' => $titulo,
                 'contenido' => $message,
                 'fechaCreacion' => $fechaCreacion,
                 'creadoPor' => session()->id,
+                'path_file' => $rutaGuardar,
+                'envio_file' => $envio_file,
                 'typeContri' => $tipo,
             ];
 
