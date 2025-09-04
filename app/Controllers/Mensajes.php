@@ -96,10 +96,10 @@ class Mensajes extends BaseController
 
                     $response = $this->getUrlPublicaGoogleCloud($data_url);
 
-                    //$dataUrl = json_decode($response, true);
+                    $dataUrl = json_decode($response, true);
 
                     echo "<pre>";
-                    print_r($response);
+                    print_r($dataUrl);
                     echo "</pre>";
                 }
             }
