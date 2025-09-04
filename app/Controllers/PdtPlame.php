@@ -379,8 +379,11 @@ class PdtPlame extends BaseController
 
                 for ($i = 0; $i < count($file_r08); $i++) {
                     if ($file_r08[$i]->isValid() && !$file_r08[$i]->hasMoved()) {
+
+                        $code = str_pad(mt_rand(0, 99999), 5, '0', STR_PAD_LEFT);
+
                         $name_original = $file_r08[$i]->getName();
-                        $name = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_' . $name_original;
+                        $name = $code . '_' . $ruc . '_' . $desAnio . '_' . $desPeriodo . '_' . $name_original;
 
                         $file_r08[$i]->move(FCPATH . 'archivos/pdt', $name);
 
