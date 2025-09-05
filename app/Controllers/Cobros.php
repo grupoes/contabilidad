@@ -30,7 +30,7 @@ class Cobros extends BaseController
         $sistema = new SistemaModel();
         $pagoServidor = new PagoServidorModel();
 
-        $contribuyentes = $contribuyente->query("SELECT DISTINCT c.id, c.ruc, c.razon_social, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes c INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id INNER JOIN sistemas s ON sc.system_id = s.id WHERE s.`status` = 1 and c.tipoServicio = 'CONTABLE' order by c.id desc;")->getResultArray();
+        $contribuyentes = $contribuyente->query("SELECT DISTINCT c.id, c.ruc, c.razon_social, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes c INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id INNER JOIN sistemas s ON sc.system_id = s.id WHERE s.`status` = 1 and c.tipoServicio = 'CONTABLE' c.tipoSuscripcion = 'NO GRATUITO' order by c.id desc;")->getResultArray();
 
         foreach ($contribuyentes as $key => $value) {
             $sistemas = $sistema->query("SELECT s.id, s.nameSystem FROM sistemas s INNER JOIN sistemas_contribuyente sc ON s.id = sc.system_id WHERE sc.contribuyente_id = " . $value['id'])->getResultArray();
@@ -186,16 +186,16 @@ class Cobros extends BaseController
             c.razon_social,
             c.telefono,
             COUNT(ps.id) as periodos_deuda,
-            GROUP_CONCAT(DISTINCT ps.fecha_fin ORDER BY ps.fecha_fin DESC) as fechas_vencidas,
-            MIN(ps.fecha_fin) as primera_fecha_vencida,
-            MAX(ps.fecha_fin) as ultima_fecha_vencida,
+            GROUP_CONCAT(DISTINCT ps.fecha_inicio ORDER BY ps.fecha_inicio DESC) as fechas_vencidas,
+            MIN(ps.fecha_inicio) as primera_fecha_vencida,
+            MAX(ps.fecha_inicio) as ultima_fecha_vencida,
             SUM(ps.monto_pendiente) as total_deuda
         FROM contribuyentes c
         INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id
         INNER JOIN sistemas s ON sc.system_id = s.id
         LEFT JOIN pago_servidor ps ON c.id = ps.contribuyente_id 
             AND ps.estado = 'pendiente' 
-            AND ps.fecha_fin < CURDATE()
+            AND ps.fecha_inicio < CURDATE()
         WHERE s.status = 1
             AND c.tipoServicio = 'CONTABLE'
         GROUP BY c.id, c.ruc, c.razon_social, c.telefono
