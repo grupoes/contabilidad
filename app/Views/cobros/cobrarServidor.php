@@ -89,7 +89,7 @@
                                     <div class="col-md-4 mx-auto">
                                         <div class="mb-3 text-center">
                                             <button type="submit" class="btn btn-success" id="btnSubmit">Guardar</button>
-                                            <a href="<?= base_url('cobros') ?>" class="btn btn-danger">Cancelar</a>
+                                            <button type="button" id="linkServidorTab" class="btn btn-danger">Cancelar</button>
                                         </div>
                                     </div>
                                 </div>

@@ -585,3 +585,9 @@ formAddMonto.addEventListener("submit", (e) => {
 function verNotaVenta(id) {
   alert(id);
 }
+
+const linkServidorTab = document.getElementById("linkServidorTab");
+
+linkServidorTab.addEventListener("click", (e) => {
+  window.location.href = `${base_url}cobros?tab=servidor`;
+});

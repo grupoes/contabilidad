@@ -1,3 +1,36 @@
+document.addEventListener("DOMContentLoaded", function () {
+  // Obtener parámetros de la URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabParam = urlParams.get("tab");
+
+  // Si hay un parámetro 'tab' en la URL
+  if (tabParam) {
+    let targetTab;
+
+    // Determinar qué pestaña activar según el parámetro
+    switch (tabParam) {
+      case "honorarios-mensuales":
+        targetTab = "analytics-tab-1";
+        break;
+      case "honorarios-anuales":
+        targetTab = "analytics-tab-2";
+        break;
+      case "servidor":
+        targetTab = "analytics-tab-3";
+        break;
+    }
+
+    // Activar la pestaña correspondiente
+    if (targetTab) {
+      const tabElement = document.getElementById(targetTab);
+      if (tabElement) {
+        const tab = new bootstrap.Tab(tabElement);
+        tab.show();
+      }
+    }
+  }
+});
+
 const newcs = $($table).DataTable(optionsTableDefault);
 
 new $.fn.dataTable.Responsive(newcs);
