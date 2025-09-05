@@ -30,7 +30,7 @@ class Cobros extends BaseController
         $sistema = new SistemaModel();
         $pagoServidor = new PagoServidorModel();
 
-        $contribuyentes = $contribuyente->query("SELECT DISTINCT c.id, c.ruc, c.razon_social, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes c INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id INNER JOIN sistemas s ON sc.system_id = s.id WHERE s.`status` = 1 and c.tipoServicio = 'CONTABLE' c.tipoSuscripcion = 'NO GRATUITO' order by c.id desc;")->getResultArray();
+        $contribuyentes = $contribuyente->query("SELECT DISTINCT c.id, c.ruc, c.razon_social, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes c INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id INNER JOIN sistemas s ON sc.system_id = s.id WHERE s.`status` = 1 and c.tipoServicio = 'CONTABLE' and c.tipoSuscripcion = 'NO GRATUITO' order by c.id desc;")->getResultArray();
 
         foreach ($contribuyentes as $key => $value) {
             $sistemas = $sistema->query("SELECT s.id, s.nameSystem FROM sistemas s INNER JOIN sistemas_contribuyente sc ON s.id = sc.system_id WHERE sc.contribuyente_id = " . $value['id'])->getResultArray();
