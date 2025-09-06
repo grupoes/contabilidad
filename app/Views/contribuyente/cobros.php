@@ -189,6 +189,9 @@
                                                 <th>#</th>
                                                 <th>Razón Social</th>
                                                 <th>Sistemas</th>
+                                                <th>Monto</th>
+                                                <th>Fecha Inicio</th>
+                                                <th>Fecha Fin</th>
                                                 <th>Deuda</th>
                                                 <th class="text-center">Acciones</th>
                                             </tr>

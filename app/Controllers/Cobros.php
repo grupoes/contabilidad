@@ -30,7 +30,39 @@ class Cobros extends BaseController
         $sistema = new SistemaModel();
         $pagoServidor = new PagoServidorModel();
 
-        $contribuyentes = $contribuyente->query("SELECT DISTINCT c.id, c.ruc, c.razon_social, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes c INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id INNER JOIN sistemas s ON sc.system_id = s.id WHERE s.`status` = 1 and c.tipoServicio = 'CONTABLE' and c.tipoSuscripcion = 'NO GRATUITO' order by c.id desc;")->getResultArray();
+        $contribuyentes = $contribuyente->query("SELECT 
+            c.id,
+            c.ruc,
+            c.razon_social,
+            COUNT(DISTINCT ps.fecha_inicio) as periodos_deuda,
+            CASE 
+                WHEN COUNT(DISTINCT ps.fecha_inicio) = 0 THEN 'Sin deudas'
+                ELSE GROUP_CONCAT(DISTINCT ps.fecha_inicio ORDER BY ps.fecha_inicio DESC) 
+            END as fechas_vencidas,
+            MIN(ps.fecha_inicio) as primera_fecha_vencida,
+            DATE_FORMAT(MAX(ps.fecha_inicio), '%d-%m-%Y') as ultima_fecha_vencida,
+                DATE_FORMAT(MAX(ps.fecha_fin), '%d-%m-%Y') as ultima_fecha_fin,
+            COALESCE(SUM(DISTINCT ps.monto_total), 0) as total_deuda,
+            CASE 
+                WHEN COUNT(DISTINCT ps.fecha_inicio) = 0 AND EXISTS (
+                    SELECT 1 FROM pago_servidor WHERE contribuyente_id = c.id
+                ) THEN 'Al día'
+                WHEN COUNT(DISTINCT ps.fecha_inicio) = 0 THEN 'Sin registros de pago'
+                ELSE 'Con deuda'
+            END as estado
+        FROM contribuyentes c
+        INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id
+        INNER JOIN sistemas s ON sc.system_id = s.id
+        LEFT JOIN pago_servidor ps ON (
+            c.id = ps.contribuyente_id 
+            AND ps.estado = 'pendiente' 
+            AND ps.fecha_inicio < CURDATE()
+        )
+        WHERE s.status = 1
+            AND c.tipoServicio = 'CONTABLE'
+            AND c.tipoSuscripcion = 'NO GRATUITO'
+        GROUP BY c.id, c.ruc, c.razon_social
+        ORDER BY total_deuda DESC, c.razon_social ASC;")->getResultArray();
 
         foreach ($contribuyentes as $key => $value) {
             $sistemas = $sistema->query("SELECT s.id, s.nameSystem FROM sistemas s INNER JOIN sistemas_contribuyente sc ON s.id = sc.system_id WHERE sc.contribuyente_id = " . $value['id'])->getResultArray();
@@ -41,12 +73,13 @@ class Cobros extends BaseController
             if (!$pagos) {
                 $contribuyentes[$key]['pagos'] = "NO TIENE REGISTROS";
             } else {
-                $debe = count($pagos);
 
-                if ($debe == 1) {
-                    $contribuyentes[$key]['pagos'] = $debe . " PERIODO";
+                if ($value['periodos_deuda'] == 1) {
+                    $contribuyentes[$key]['pagos'] = $value['periodos_deuda'] . " PERIODO";
+                } else if ($value['periodos_deuda'] == 0) {
+                    $contribuyentes[$key]['pagos'] = "NO DEBE";
                 } else {
-                    $contribuyentes[$key]['pagos'] = $debe . " PERIODOS";
+                    $contribuyentes[$key]['pagos'] = $value['periodos_deuda'] . " PERIODOS";
                 }
             }
         }
@@ -198,6 +231,7 @@ class Cobros extends BaseController
             AND ps.fecha_inicio < CURDATE()
         WHERE s.status = 1
             AND c.tipoServicio = 'CONTABLE'
+            AND c.tipoSuscripcion = 'NO GRATUITO'
         GROUP BY c.id, c.ruc, c.razon_social, c.telefono
         HAVING COUNT(ps.id) > 0
             AND SUM(ps.monto_pendiente) > 0
