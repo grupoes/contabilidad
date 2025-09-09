@@ -564,22 +564,22 @@ class Movimiento extends BaseController
 
             // Calcular saldo inicial según el filtro
             if ($filtro === 'todos' || $filtro === 'efectivo') {
-                $sumaEfectivoIngresos = $this->calcularSaldoInicial($mov, $startDate, 1, 1);
-                $sumaEfectivoEgresos = $this->calcularSaldoInicial($mov, $startDate, 1, 2);
-                $sumaEfectivo = $sumaEfectivoIngresos->saldo - $sumaEfectivoEgresos->saldo + 17.30;
+                $sumaEfectivoIngresos = $this->calcularSaldoInicial($mov, $startDate, 1, 1, 0);
+                $sumaEfectivoEgresos = $this->calcularSaldoInicial($mov, $startDate, 1, 2, 0);
+                $sumaEfectivo = number_format($sumaEfectivoIngresos->saldo - $sumaEfectivoEgresos->saldo + 17.30, 2, '.', '');
             } else {
-                $sumaEfectivo = 0;
+                $sumaEfectivo = number_format(0, 2, '.', '');
             }
 
             $saldoInicialBanks = [];
             foreach ($bancos as $banco) {
                 if ($filtro === 'todos' || $filtro == $banco['id']) {
-                    $sumaIngreso = $this->calcularSaldoInicial($mov, $startDate, $banco['id'], 1);
-                    $sumaEgresos = $this->calcularSaldoInicial($mov, $startDate, $banco['id'], 2);
+                    $sumaIngreso = $this->calcularSaldoInicial($mov, $startDate, 0, 1, $banco['id']);
+                    $sumaEgresos = $this->calcularSaldoInicial($mov, $startDate, 0, 2, $banco['id']);
                     $saldoInicial = $sumaIngreso->saldo - $sumaEgresos->saldo + $banco['saldo_inicial'];
-                    array_push($saldoInicialBanks, round($saldoInicial, 2));
+                    array_push($saldoInicialBanks, number_format($saldoInicial, 2, '.', ''));
                 } else {
-                    array_push($saldoInicialBanks, 0);
+                    array_push($saldoInicialBanks, number_format(0, 2, '.', ''));
                 }
             }
 
@@ -599,15 +599,15 @@ class Movimiento extends BaseController
 
             // Procesar movimientos
             foreach ($datos as $value) {
-                $efectivo = 0.00;
-                $banks = array_fill(0, count($bancos), 0.00);
+                $efectivo = number_format(0, 2, '.', '');
+                $banks = array_fill(0, count($bancos), number_format(0, 2, '.', ''));
 
                 if ($value->id_metodo_pago == 1 && ($filtro === 'todos' || $filtro === 'efectivo')) {
-                    $efectivo = $value->id_tipo_movimiento == 1 ? $value->mov_monto : -$value->mov_monto;
+                    $efectivo = $value->id_tipo_movimiento == 1 ? number_format($value->mov_monto, 2, '.', '') : number_format(-$value->mov_monto, 2, '.', '');
                 } elseif ($value->id_metodo_pago != 1) {
                     foreach ($bancos as $key => $banco) {
                         if ($banco['id'] == $value->id_banco && ($filtro === 'todos' || $filtro == $banco['id'])) {
-                            $banks[$key] = $value->id_tipo_movimiento == 1 ? $value->mov_monto : -$value->mov_monto;
+                            $banks[$key] = $value->id_tipo_movimiento == 1 ? number_format($value->mov_monto, 2, '.', '') : number_format(-$value->mov_monto, 2, '.', '');
                         }
                     }
                 }
@@ -637,12 +637,12 @@ class Movimiento extends BaseController
         }
     }
 
-    private function calcularSaldoInicial($mov, $fecha, $idMetodo, $tipoMovimiento)
+    private function calcularSaldoInicial($mov, $fecha, $idMetodo, $tipoMovimiento, $idBanco)
     {
-        if ($idMetodo == 1) {
+        if ($idBanco == 0) {
             $sql = " AND mp.id = 1";
         } else {
-            $sql = " AND mp.id_banco = $idMetodo";
+            $sql = " AND mp.id_banco = $idBanco";
         }
 
         return $mov->query("SELECT sum(m.mov_monto) as saldo FROM movimiento m
@@ -669,9 +669,9 @@ class Movimiento extends BaseController
                 $sumaIngresoAll = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, $banco['id'], 1);
                 $sumaEgresosAll = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, $banco['id'], 2);
                 $saldoFinal = $sumaIngresoAll->saldo - $sumaEgresosAll->saldo + $saldoInicialBanks[$key];
-                array_push($saldoInicialBanksAll, round($saldoFinal, 2));
+                array_push($saldoInicialBanksAll, number_format($saldoFinal, 2, '.', ''));
             } else {
-                array_push($saldoInicialBanksAll, 0);
+                array_push($saldoInicialBanksAll, number_format(0, 2, '.', ''));
             }
         }
 
@@ -682,13 +682,19 @@ class Movimiento extends BaseController
             "concepto" => "",
             "descripcion" => "",
             "metodo" => "",
-            "efectivo" => $sumaEfectivoAll,
+            "efectivo" => number_format($sumaEfectivoAll, 2, '.', ''),
             "bancos" => $saldoInicialBanksAll
         ];
     }
 
     private function calcularMovimientosPeriodo($mov, $startDate, $endDate, $idMetodo, $tipoMovimiento)
     {
+        if ($idMetodo == 1) {
+            $sql = " AND mp.id = 1";
+        } else {
+            $sql = " AND mp.id_banco = $idMetodo";
+        }
+
         return $mov->query("SELECT sum(m.mov_monto) as saldo FROM movimiento m
             INNER JOIN metodos_pagos mp ON mp.id = m.id_metodo_pago
             INNER JOIN concepto c2 ON c2.con_id = m.mov_concepto
@@ -696,6 +702,6 @@ class Movimiento extends BaseController
             WHERE m.mov_estado = 1 
             AND m.mov_fecha BETWEEN '$startDate' AND '$endDate'
             AND tm.id_tipo_movimiento = $tipoMovimiento 
-            AND mp.id = $idMetodo")->getRow();
+            $sql")->getRow();
     }
 }
