@@ -22,7 +22,7 @@ class Facturas extends BaseController
     {
         $honorarios = new HonorariosModel();
 
-        $facturas = $honorarios->query("SELECT h.id, h.descripcion, COUNT(fh.honorario_id) as total_facturas FROM honorarios h LEFT JOIN facturas_honorarios fh ON fh.honorario_id = h.id GROUP BY h.id, h.descripcion ORDER BY h.id DESC ")->getResult();
+        $facturas = $honorarios->query("SELECT h.id, h.descripcion, COUNT(fh.honorario_id) as total_facturas FROM honorarios h LEFT JOIN facturas_honorarios fh ON fh.honorario_id = h.id WHERE h.estado = 1 GROUP BY h.id, h.descripcion ORDER BY h.id DESC ")->getResult();
 
         return $this->response->setJSON($facturas);
     }
