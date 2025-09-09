@@ -180,7 +180,23 @@
                         tabindex="0">
                         <div class="card">
                             <div class="card-body pt-2">
+                                <div class="d-flex justify-content-between align-items-center p-2 pb-sm-2">
+                                    <!-- Contenedor para el select y el botón -->
+                                    <div class="d-flex align-items-center gap-2">
+                                        <select id="selectOpcionesServidor" class="form-select w-auto">
+                                            <option value="TODOS">TODOS</option>
+                                            <option value="CONTABLE">CONTABLE</option>
+                                            <option value="ALQUILER">ALQUILER</option>
+                                        </select>
 
+                                        <select id="estadosServidor" class="form-select w-auto">
+                                            <option value="1">ACTIVOS</option>
+                                            <option value="2">INACTIVOS</option>
+                                        </select>
+
+                                    </div>
+
+                                </div>
 
                                 <div class="table-responsive">
                                     <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableDataServidor">

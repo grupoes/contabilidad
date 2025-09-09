@@ -111,7 +111,7 @@ $routes->post('movimiento/editar-movimiento', 'Movimiento::editMovimiento');
 $routes->post('movimientos/consulta', 'Movimiento::Consulta');
 
 $routes->get('movimientos-generales', 'Movimiento::movimientosGenerales');
-$routes->post('movimientos/getMovimientosGenerales', 'Movimiento::getMovimientosGenerales');
+$routes->post('movimientos/getMovimientosGenerales', 'Movimiento::getMovimientosGeneralesFilter');
 
 $routes->get('conceptos', 'Concepto::index');
 $routes->post('concepto/guardar', 'Concepto::save');

@@ -83,6 +83,17 @@
                             </div>
 
                             <div class="col-md-3 mb-3">
+                                <label for="filtro" class="form-label">Seleccione Entidad</label>
+                                <select name="filtro" id="filtro" class="form-select">
+                                    <option value="todos">TODOS</option>
+                                    <option value="efectivo">EFECTIVO</option>
+                                    <?php foreach ($bancos as $key => $value) { ?>
+                                        <option value="<?= $value['id'] ?>"><?= $value['nombre_banco'] ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3 mb-3">
                                 <button type="submit" class="btn btn-primary mt-4">Consultar</button>
                             </div>
                         </div>
