@@ -43,12 +43,14 @@ class Facturas extends BaseController
         $consulta = $facturas->query("SELECT * FROM facturas_honorarios as fh INNER JOIN contribuyentes as c ON c.id = fh.contribuyente_id WHERE fh.id = $id")->getRowArray();
 
         $tipoCliente = $consulta['tipoServicio'];
+        $serie_comprobante = $consulta['serie_comprobante'];
+        $numero_comprobante = $consulta['numero_comprobante'];
 
-        if ($tipoCliente == 'CONTABLE') {
-            $descripcion = "SERVICIO DE CONTABILIDAD DEL MES DE " . $consulta['descripcion'];
-        } else {
-            $descripcion = "SERVICIO DE ARRENDAMIENTO DEL SOFTWARE DEL MES DE " . $consulta['descripcion'];
-        }
+        $db = \Config\Database::connect('facturador');
+
+        $query = $db->query("SELECT * FROM detalle_doc WHERE id_contribuyente = 42 and serie_comprobante = '$serie_comprobante' and numero_comprobante = '$numero_comprobante'")->getRowArray();
+
+        $descripcion = $query['descripcion'];
 
         $data["contribuyente"] = array(
             "token_contribuyente"                         => getenv("API_KEY_GENERAR_FACTURA"), //Token del contribuyente
@@ -71,8 +73,8 @@ class Facturas extends BaseController
             "observacion"                                 => "",  //observacion_documento, 
 
             "doc_modifica_id_tipodoc_electronico"         => "01",
-            "doc_modifica_serie_comprobante"             => $consulta['serie_comprobante'],
-            "doc_modifica_numero_comprobante"             => $consulta['numero_comprobante'],
+            "doc_modifica_serie_comprobante"             => $serie_comprobante,
+            "doc_modifica_numero_comprobante"             => $numero_comprobante,
             "id_motivo_nota_credito"                     => "01", //MOTIVO DE LA NOTA DE CRÉDITO, SEGÚN TABLA SUNAT
 
         );
