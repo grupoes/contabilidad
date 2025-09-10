@@ -979,7 +979,9 @@ class Notificaciones extends ResourceController
     {
         $facturas = new FacturasHonorariosModel();
 
-        $consulta = $facturas->query("SELECT * FROM facturas_honorarios as fh INNER JOIN contribuyentes as c ON c.id = fh.contribuyente_id WHERE fh.honorario_id = $id")->getResultArray();
+        //$consulta = $facturas->query("SELECT * FROM facturas_honorarios as fh INNER JOIN contribuyentes as c ON c.id = fh.contribuyente_id WHERE fh.honorario_id = $id")->getResultArray();
+
+        $consulta = $facturas->query("SELECT * FROM facturas_honorarios WHERE numero_comprobante BETWEEN '5307' and '5356'")->getResultArray();
 
         return $this->respond($consulta);
     }
