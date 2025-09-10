@@ -92,8 +92,6 @@ class Facturas extends BaseController
 
         $data["detalle"] = $detalle;
 
-        return $this->response->setJSON($data);
-
         $ruta = "https://esfacturador.com/facturacionv7/api/procesar_notacredito";
         $data_json = json_encode($data);
         $ch = curl_init();
