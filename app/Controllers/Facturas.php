@@ -64,7 +64,7 @@ class Facturas extends BaseController
             "moneda"                                     => "PEN",  //{"USD", "PEN"}
             "idsucursal"                                 => getenv("ID_SUCURSAL"),  //{ID DE SUCURSAL}
             "id_condicionpago"                             => "",  //condicionpago_comprobante
-            "fecha_comprobante"                         => date('Y-m-d'),  //fecha_comprobante
+            "fecha_comprobante"                         => date('d/m/Y'),  //fecha_comprobante
             "nro_placa"                                 => "",  //nro_placa_vehiculo
             "nro_orden"                                 => "",  //nro_orden
             "guia_remision"                             => "",  //guia_remision_manual
