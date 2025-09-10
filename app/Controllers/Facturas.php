@@ -40,9 +40,8 @@ class Facturas extends BaseController
     {
         $facturas = new FacturasHonorariosModel();
 
-        $consulta = $facturas->query("SELECT * FROM facturas_honorarios as fh INNER JOIN contribuyentes as c ON c.id = fh.contribuyente_id WHERE fh.id = $id")->getRowArray();
+        $consulta = $facturas->query("SELECT * FROM facturas_honorarios as fh INNER JOIN contribuyentes as c ON c.id = fh.contribuyente_id WHERE fh.honorario_id = $id")->getResultArray();
 
-        $tipoCliente = $consulta['tipoServicio'];
         $serie_comprobante = $consulta['serie_comprobante'];
         $numero_comprobante = $consulta['numero_comprobante'];
 
