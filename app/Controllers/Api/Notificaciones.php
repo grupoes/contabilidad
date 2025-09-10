@@ -990,7 +990,14 @@ class Notificaciones extends ResourceController
         $numero_comprobante = $datos->numero_comprobante ?? null;
         $monto = $datos->monto ?? null;
 
-        return $this->respond($serie_comprobante);
+        return $this->respond([
+            "respuesta" => "ok",
+            "data" => [
+                "serie_comprobante" => $serie_comprobante,
+                "numero_comprobante" => $numero_comprobante,
+                "monto" => $monto
+            ]
+        ]);
 
         $db = \Config\Database::connect('facturador');
 
