@@ -986,101 +986,101 @@ class Notificaciones extends ResourceController
 
     public function sendApiEnviarNotaCredito()
     {
-        $serie_comprobante = $datos->serie_comprobante ?? null;
-        $numero_comprobante = $datos->numero_comprobante ?? null;
-        $monto = $datos->monto ?? null;
+        try {
+            $datos = $this->request->getJSON();
 
-        return $this->respond([
-            "respuesta" => "ok",
-            "data" => [
-                "serie_comprobante" => $serie_comprobante,
-                "numero_comprobante" => $numero_comprobante,
-                "monto" => $monto
-            ]
-        ]);
+            $serie_comprobante = $datos->serie_comprobante ?? null;
+            $numero_comprobante = $datos->numero_comprobante ?? null;
+            $monto = $datos->monto ?? null;
 
-        $db = \Config\Database::connect('facturador');
+            $db = \Config\Database::connect('facturador');
 
-        $query = $db->query("SELECT * FROM detalle_doc WHERE id_contribuyente = 42 and serie_comprobante = '$serie_comprobante' and numero_comprobante = '$numero_comprobante'")->getRowArray();
+            $query = $db->query("SELECT * FROM detalle_doc WHERE id_contribuyente = 42 and serie_comprobante = '$serie_comprobante' and numero_comprobante = '$numero_comprobante'")->getRowArray();
 
-        $descripcion = $query['descripcion'];
+            $descripcion = $query['descripcion'];
 
-        $data["contribuyente"] = array(
-            "token_contribuyente"                         => getenv("API_KEY_GENERAR_FACTURA"), //Token del contribuyente
-            "id_usuario_vendedor"                         => getenv("ID_USUARIO_VENDEDOR"), //Debes ingresar el ID de uno de tus vendedores (opcional)
-            "tipo_proceso"                                 => getenv("TIPO_ENVIO_SUNAT"), //Funcional en una siguiente versión. El ambiente al que se enviará, puede ser: {prueba, produccion}
-            "tipo_envio"                                 => "inmediato" //funcional en una siguiente versión. Aquí puedes definir si se enviará de inmediato a sunat
-        );
+            $data["contribuyente"] = array(
+                "token_contribuyente"                         => getenv("API_KEY_GENERAR_FACTURA"), //Token del contribuyente
+                "id_usuario_vendedor"                         => getenv("ID_USUARIO_VENDEDOR"), //Debes ingresar el ID de uno de tus vendedores (opcional)
+                "tipo_proceso"                                 => getenv("TIPO_ENVIO_SUNAT"), //Funcional en una siguiente versión. El ambiente al que se enviará, puede ser: {prueba, produccion}
+                "tipo_envio"                                 => "inmediato" //funcional en una siguiente versión. Aquí puedes definir si se enviará de inmediato a sunat
+            );
 
-        $data["cabecera_comprobante"] = array(
-            "tipo_documento"                             => "07",  //{"07": NOTA DE CRÉDITO}
-            "moneda"                                     => "PEN",  //{"USD", "PEN"}
-            "idsucursal"                                 => getenv("ID_SUCURSAL"),  //{ID DE SUCURSAL}
-            "id_condicionpago"                             => "",  //condicionpago_comprobante
-            "fecha_comprobante"                         => date('d/m/Y'),  //fecha_comprobante
-            "nro_placa"                                 => "",  //nro_placa_vehiculo
-            "nro_orden"                                 => "",  //nro_orden
-            "guia_remision"                             => "",  //guia_remision_manual
-            "descuento_monto"                             => 0,  // (máximo 2 decimales) (monto total del descuento)
-            "descuento_porcentaje"                         => 0,  // (máximo 2 decimales) (porcentaje total del descuento)
-            "observacion"                                 => "",  //observacion_documento, 
+            $data["cabecera_comprobante"] = array(
+                "tipo_documento"                             => "07",  //{"07": NOTA DE CRÉDITO}
+                "moneda"                                     => "PEN",  //{"USD", "PEN"}
+                "idsucursal"                                 => getenv("ID_SUCURSAL"),  //{ID DE SUCURSAL}
+                "id_condicionpago"                             => "",  //condicionpago_comprobante
+                "fecha_comprobante"                         => date('d/m/Y'),  //fecha_comprobante
+                "nro_placa"                                 => "",  //nro_placa_vehiculo
+                "nro_orden"                                 => "",  //nro_orden
+                "guia_remision"                             => "",  //guia_remision_manual
+                "descuento_monto"                             => 0,  // (máximo 2 decimales) (monto total del descuento)
+                "descuento_porcentaje"                         => 0,  // (máximo 2 decimales) (porcentaje total del descuento)
+                "observacion"                                 => "",  //observacion_documento, 
 
-            "doc_modifica_id_tipodoc_electronico"         => "01",
-            "doc_modifica_serie_comprobante"             => $serie_comprobante,
-            "doc_modifica_numero_comprobante"             => $numero_comprobante,
-            "id_motivo_nota_credito"                     => "01", //MOTIVO DE LA NOTA DE CRÉDITO, SEGÚN TABLA SUNAT
+                "doc_modifica_id_tipodoc_electronico"         => "01",
+                "doc_modifica_serie_comprobante"             => $serie_comprobante,
+                "doc_modifica_numero_comprobante"             => $numero_comprobante,
+                "id_motivo_nota_credito"                     => "01", //MOTIVO DE LA NOTA DE CRÉDITO, SEGÚN TABLA SUNAT
 
-        );
+            );
 
-        $detalle[] = array(
-            "idproducto"                                => 91282,
-            "codigo"                                    => getenv("CODIGO_PRODUCTO"),
-            "afecto_icbper"                             => "no",  //"afecto_icbper":"no",
-            "id_tipoafectacionigv"                      => 20,  //"id_tipoafectacionigv":"10",
-            "descripcion"                               => $descripcion,  //"descripcion":"Zapatos",
-            "idunidadmedida"                            => 'NIU',  //{NIU para unidades, ZZ para servicio}
-            "precio_venta"                              => $monto,
-            "cantidad"                                  => 1,  //"cantidad":"1"
-        );
+            $detalle[] = array(
+                "idproducto"                                => 91282,
+                "codigo"                                    => getenv("CODIGO_PRODUCTO"),
+                "afecto_icbper"                             => "no",  //"afecto_icbper":"no",
+                "id_tipoafectacionigv"                      => 20,  //"id_tipoafectacionigv":"10",
+                "descripcion"                               => $descripcion,  //"descripcion":"Zapatos",
+                "idunidadmedida"                            => 'NIU',  //{NIU para unidades, ZZ para servicio}
+                "precio_venta"                              => $monto,
+                "cantidad"                                  => 1,  //"cantidad":"1"
+            );
 
-        $data["detalle"] = $detalle;
+            $data["detalle"] = $detalle;
 
-        return $this->respond($data);
+            return $this->respond($data);
 
-        $ruta = "https://esfacturador.com/facturacionv7/api/procesar_notacredito";
-        $data_json = json_encode($data);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $ruta);
-        curl_setopt(
-            $ch,
-            CURLOPT_HTTPHEADER,
-            array(
-                "Authorization: Bearer " . getenv("API_KEY_GENERAR_FACTURA"),
-                "Content-Type: application/json",
-                "cache-control: no-cache"
-            )
-        );
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $respuesta  = curl_exec($ch);
-        if (curl_error($ch)) {
-            $error_msg = curl_error($ch);
+            $ruta = "https://esfacturador.com/facturacionv7/api/procesar_notacredito";
+            $data_json = json_encode($data);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $ruta);
+            curl_setopt(
+                $ch,
+                CURLOPT_HTTPHEADER,
+                array(
+                    "Authorization: Bearer " . getenv("API_KEY_GENERAR_FACTURA"),
+                    "Content-Type: application/json",
+                    "cache-control: no-cache"
+                )
+            );
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $respuesta  = curl_exec($ch);
+            if (curl_error($ch)) {
+                $error_msg = curl_error($ch);
+            }
+            curl_close($ch);
+            if (isset($error_msg)) {
+                $resp["respuesta"] = "error";
+                $resp["titulo"] = "Error";
+                $resp["data"] = "";
+                $resp["encontrado"] = false;
+                $resp["mensaje"] = "Error en Api de Búsqueda";
+                $resp["errores_curl"] = $error_msg;
+                echo json_encode($resp);
+                exit();
+            }
+
+            return $this->respond($respuesta);
+        } catch (\Exception $e) {
+            return $this->respond([
+                "respuesta" => "error",
+                "message" => $e->getMessage()
+            ]);
         }
-        curl_close($ch);
-        if (isset($error_msg)) {
-            $resp["respuesta"] = "error";
-            $resp["titulo"] = "Error";
-            $resp["data"] = "";
-            $resp["encontrado"] = false;
-            $resp["mensaje"] = "Error en Api de Búsqueda";
-            $resp["errores_curl"] = $error_msg;
-            echo json_encode($resp);
-            exit();
-        }
-
-        return $this->respond($respuesta);
     }
 
     /**
