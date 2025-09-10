@@ -990,6 +990,8 @@ class Notificaciones extends ResourceController
         $numero_comprobante = $datos->numero_comprobante ?? null;
         $monto = $datos->monto ?? null;
 
+        return $this->respond($serie_comprobante);
+
         $db = \Config\Database::connect('facturador');
 
         $query = $db->query("SELECT * FROM detalle_doc WHERE id_contribuyente = 42 and serie_comprobante = '$serie_comprobante' and numero_comprobante = '$numero_comprobante'")->getRowArray();
