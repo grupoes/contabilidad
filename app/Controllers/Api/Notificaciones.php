@@ -1039,8 +1039,6 @@ class Notificaciones extends ResourceController
 
             $data["detalle"] = $detalle;
 
-            return $this->respond($data);
-
             $ruta = "https://esfacturador.com/facturacionv7/api/procesar_notacredito";
             $data_json = json_encode($data);
             $ch = curl_init();
