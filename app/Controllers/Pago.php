@@ -1046,7 +1046,7 @@ class Pago extends BaseController
 
     public function getPago($id)
     {
-        $pago = new PagoAmortizacionServidorModel();
+        $pago = new PagosHonorariosModel();
 
         $data = $pago->find($id);
 
@@ -1055,7 +1055,7 @@ class Pago extends BaseController
 
     public function getPagoServidor($id)
     {
-        $pago = new PagosHonorariosModel();
+        $pago = new PagoAmortizacionServidorModel();
 
         $data = $pago->find($id);
 

@@ -381,7 +381,7 @@ function editPago(e, id, index) {
     })
     .split(",")[0];
 
-  fetch(`${base_url}pagos/get-pago/${id}`)
+  fetch(`${base_url}pagos/get-pago-servidor/${id}`)
     .then((res) => res.json())
     .then((data) => {
       const metodoPago = document.getElementById("metodo_pago");
