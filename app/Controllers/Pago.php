@@ -137,7 +137,7 @@ class Pago extends BaseController
 
         $pago->query("SET lc_time_names = 'es_ES'");
 
-        $pagos = $pago->query("SELECT p.contribuyente_id, DATE_FORMAT(p.fecha_pago , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.fecha_proceso , '%d-%m-%Y') as fecha_proceso, DATE_FORMAT(p.mesCorrespondiente, '%M-%Y') as mesCorrespondiente, p.monto_total, p.montoPagado, p.montoPendiente, p.montoExcedente, p.estado, p.fecha_pago as fechaPago from pagos p where p.contribuyente_id = $id and p.estado != 'eliminado' order by p.id desc")->getResult();
+        $pagos = $pago->query("SELECT p.contribuyente_id, DATE_FORMAT(p.fecha_pago , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.fecha_proceso , '%d-%m-%Y') as fecha_proceso, (SELECT DATE_FORMAT(ph.fecha_pago, '%d-%m-%Y') FROM pagos_amortizaciones pa INNER JOIN pagos_honorarios ph ON ph.id = pa.honorario_id WHERE pa.pago_id = p.id ORDER BY ph.id DESC LIMIT 1) as fechita, DATE_FORMAT(p.mesCorrespondiente, '%M-%Y') as mesCorrespondiente, p.monto_total, p.montoPagado, p.montoPendiente, p.montoExcedente, p.estado, p.fecha_pago as fechaPago from pagos p where p.contribuyente_id = $id and p.estado != 'eliminado' order by p.id desc")->getResult();
 
         return $this->response->setJSON($pagos);
     }

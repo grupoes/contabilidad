@@ -58,7 +58,7 @@ function viewPagos(data) {
     html += `
         <tr>
             <td>${pago.mesCorrespondiente}</td>
-            <td>${pago.fecha_proceso}</td>
+            <td>${pago.fechita}</td>
             <td>${pago.fecha_pago}</td>
             <td>${pago.monto_total}</td>
             <td>${pago.montoPagado}</td>
