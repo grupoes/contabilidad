@@ -433,7 +433,6 @@ formEditPago.addEventListener("submit", (e) => {
       hideLoader();
       if (data.status === "success") {
         $("#modalPago").modal("hide");
-
         Swal.fire({
           position: "top-end",
           icon: "success",

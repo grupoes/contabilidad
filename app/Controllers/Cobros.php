@@ -42,7 +42,15 @@ class Cobros extends BaseController
             MIN(ps.fecha_inicio) as primera_fecha_vencida,
             DATE_FORMAT(MAX(ps.fecha_inicio), '%d-%m-%Y') as ultima_fecha_vencida,
                 DATE_FORMAT(MAX(ps.fecha_fin), '%d-%m-%Y') as ultima_fecha_fin,
-            COALESCE(SUM(DISTINCT ps.monto_total), 0) as total_deuda,
+            COALESCE((
+                SELECT ps2.monto_total 
+                FROM pago_servidor ps2 
+                WHERE ps2.contribuyente_id = c.id 
+                AND ps2.estado = 'pendiente' 
+                AND ps2.fecha_inicio < CURDATE()
+                ORDER BY ps2.fecha_inicio DESC 
+                LIMIT 1
+            ), 0) as total_deuda,
             CASE 
                 WHEN COUNT(DISTINCT ps.fecha_inicio) = 0 AND EXISTS (
                     SELECT 1 FROM pago_servidor WHERE contribuyente_id = c.id
