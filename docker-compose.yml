@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: ci4_contabilidad
+    ports:
+      - "8087:80"
+    volumes:
+      - .:/var/www/html
+      - ./apache-config:/etc/apache2/sites-available  # monta la config de Apache
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_contabilidad
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: grupoes_contabilidad
+      MYSQL_USER: grupoes_contabilidad
+      MYSQL_PASSWORD: grupoescontabilidad2025
+    ports:
+      - "3308:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: contabilidad_phpmyadmin
+    restart: always
+    ports:
+      - "8086:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+    depends_on:
+      - db
+
+volumes:
+  db_data:
