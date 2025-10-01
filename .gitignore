@@ -135,3 +135,4 @@ nb-configuration.xml
 /public/documents/*
 
 /writable/keys.json
+/writable/temp/*

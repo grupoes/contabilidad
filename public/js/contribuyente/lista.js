@@ -1079,13 +1079,21 @@ formExcel.addEventListener("submit", async (e) => {
       importComprobantes.textContent = "Importar";
       importComprobantes.disabled = false;
 
-      if (data.status === "success") {
+      if (data.success) {
+        // Descarga automática
+        window.open(data.downloadUrl, "_blank");
+        formExcel.reset();
+      } else {
+        alert("Error: " + (result.message || "Error desconocido"));
+      }
+
+      /*if (data.status === "success") {
         descargarBoletas(e, data.numero_ruc, data.minimo, data.maximo);
         formExcel.reset();
         return false;
       } else {
         alert(data.message);
-      }
+      }*/
     });
 });
 

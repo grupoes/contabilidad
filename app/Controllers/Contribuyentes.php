@@ -1122,8 +1122,93 @@ class Contribuyentes extends BaseController
         }
     }
 
+    public function download($filename)
+    {
+        $filePath = WRITEPATH . 'temp/' . $filename;
+
+        if (!file_exists($filePath)) {
+            return $this->response->setStatusCode(404)->setJSON([
+                'error' => 'Archivo no encontrado'
+            ]);
+        }
+
+        // Descargar y eliminar archivo temporal
+        $response = $this->response->download($filePath, null);
+        register_shutdown_function(function () use ($filePath) {
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        });
+
+        return $response;
+    }
+
+    private function generateExcel($data)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Configurar contenido
+        $sheet->setCellValue('A1', 'Reporte del Formulario');
+        $sheet->setCellValue('A2', 'Campo');
+        $sheet->setCellValue('B2', 'Valor');
+
+        $row = 3;
+        foreach ($data as $key => $value) {
+            $sheet->setCellValue('A' . $row, ucfirst($key));
+            $sheet->setCellValue('B' . $row, $value);
+            $row++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'form_data_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $filePath = WRITEPATH . 'temp/' . $filename;
+
+        // Crear directorio si no existe
+        if (!is_dir(WRITEPATH . 'temp')) {
+            mkdir(WRITEPATH . 'temp', 0755, true);
+        }
+
+        $writer->save($filePath);
+
+        return $filename;
+    }
+
     public function importarBoletas()
     {
+        try {
+            $data = $this->request->getPost();
+
+            // Validar datos si es necesario
+            /*$validation = $this->validate([
+                'nombre' => 'required',
+                'email' => 'required|valid_email'
+            ]);
+
+            if (!$validation) {
+                return $this->response->setStatusCode(400)->setJSON([
+                    'success' => false,
+                    'errors' => $this->validator->getErrors()
+                ]);
+            }*/
+
+            // Generar Excel
+            $filename = $this->generateExcel($data);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Archivo generado exitosamente',
+                'downloadUrl' => site_url("excel/download/$filename"),
+                'filename' => $filename
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setStatusCode(500)->setJSON([
+                'success' => false,
+                'message' => 'Error interno del servidor: ' . $e->getMessage()
+            ]);
+        }
+        exit;
+
         $migracion = new MigracionModel();
         $migrar = new MigrarModel();
         $comprobante = new ComprobanteModel();
