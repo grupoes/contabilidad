@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libzip-dev \
     zip \
-    && docker-php-ext-install intl mbstring mysqli pdo pdo_mysql zip
+    && docker-php-ext-install intl mbstring mysqli pdo pdo_mysql pdo_pgsql pgsql zip
 
 # Copia la configuración de Apache
 COPY apache-config/000-default.conf /etc/apache2/sites-available/000-default.conf
