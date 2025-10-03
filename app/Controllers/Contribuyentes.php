@@ -1179,18 +1179,9 @@ class Contribuyentes extends BaseController
         try {
             $data = $this->request->getPost();
 
-            // Validar datos si es necesario
-            /*$validation = $this->validate([
-                'nombre' => 'required',
-                'email' => 'required|valid_email'
-            ]);
-
-            if (!$validation) {
-                return $this->response->setStatusCode(400)->setJSON([
-                    'success' => false,
-                    'errors' => $this->validator->getErrors()
-                ]);
-            }*/
+            if ($data['fileExcel'] === null) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'No se ha seleccionado el archivo.']);
+            }
 
             // Generar Excel
             $filename = $this->generateExcel($data);
