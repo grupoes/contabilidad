@@ -1,4 +1,25 @@
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php/$1 [L]
+# CONFIGURACIÓN PHP ESENCIAL
+<IfModule mod_php.c>
+    php_value max_file_uploads 50
+    php_value max_input_vars 5000
+    php_value upload_max_filesize 100M
+    php_value post_max_size 100M
+    php_value max_execution_time 300
+    php_value memory_limit 256M
+    php_value session.auto_start 0
+    php_value display_errors Off
+</IfModule>
+
+# REWRITE CODEIGNITER
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php?/$1 [L,QSA]
+</IfModule>
+
+# SEGURIDAD BÁSICA
+<Files "*.env">
+    Deny from all
+</Files>
+Options -Indexes
