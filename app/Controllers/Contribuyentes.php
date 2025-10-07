@@ -5,6 +5,7 @@ namespace App\Controllers;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 use App\Controllers\BaseController;
 
@@ -1193,15 +1194,15 @@ class Contribuyentes extends BaseController
                 $monto = $value['comprobante_venta'];
             }
 
-            list($codigo, $nombre_razon) = $this->datos($value['comprobante_venta'], $value['comprobante_nombre_razon'], $value['id_tipo_comprobante'], $value['comprobante_ruc']);
+            //list($codigo, $nombre_razon) = $this->datos($value['comprobante_venta'], $value['comprobante_nombre_razon'], $value['id_tipo_comprobante'], $value['comprobante_ruc']);
 
             $sheet->setCellValue('A' . $row, $dat);
             $sheet->setCellValue('B' . $row, $value["tipo_moneda_descripcion"]);
             $sheet->setCellValue('C' . $row, $value['tipo_comprobante_nombre']);
             $sheet->setCellValue('D' . $row, $ayuda . $value['comprobante_documento_serie_caracteristicas'] . "-" . $value['comprobante_documento_serie_numero']);
             $sheet->setCellValue('E' . $row, 'A');
-            $sheet->setCellValue('F' . $row, $codigo);
-            $sheet->setCellValue('G' . $row, $$nombre_razon);
+            $sheet->setCellValue('F' . $row, $value['comprobante_ruc']);
+            $sheet->setCellValue('G' . $row, $value['comprobante_nombre_razon']);
             $sheet->setCellValue('H' . $row, number_format($monto, 2, '.', ''));
             $sheet->setCellValue('I' . $row, number_format($monto, 2, '.', ''));
             $sheet->setCellValue('J' . $row, number_format($igv, 2, '.', ''));
@@ -1260,20 +1261,26 @@ class Contribuyentes extends BaseController
 
             $fechaExcel = $hoja->getCell($fecha . $index)->getValue();
 
-            // Manejo seguro de fechas
-            if ($fechaExcel instanceof \DateTime) {
-                $fechaMigrar = $fechaExcel->format('Y-m-d');
-            } else if (!empty($fechaExcel)) {
-                $dateTime = DateTime::createFromFormat('d/m/Y', trim($fechaExcel));
-                if ($dateTime !== false) {
-                    $fechaMigrar = $dateTime->format('Y-m-d');
-                } else {
-                    // Si falla, intentar con otro formato o usar la fecha actual
-                    $fechaMigrar = date('Y-m-d');
-                    log_message('warning', "Fecha no válida en fila $index: " . $fechaExcel);
-                }
+            if (is_numeric($fechaExcel)) {
+                // 🟢 Caso: número de serie de Excel
+                $fechaMigrar = Date::excelToDateTimeObject($fechaExcel)->format('Y-m-d');
             } else {
-                $fechaMigrar = date('Y-m-d'); // Fecha por defecto
+                // 🔵 Caso: texto — intentamos detectar el formato
+                $valor = str_replace(['.', '-'], '/', $fechaExcel); // uniformiza separadores
+
+                // Intentar con formato común
+                $fechaObj = DateTime::createFromFormat('d/m/Y', $valor);
+
+                if (!$fechaObj) {
+                    // Intentar con formato alternativo
+                    $fechaObj = DateTime::createFromFormat('Y-m-d', $valor);
+                }
+
+                if ($fechaObj) {
+                    $fechaMigrar = $fechaObj->format('Y-m-d');
+                } else {
+                    $fechaMigrar = null; // o manejar error
+                }
             }
 
             $serieMigrar = $hoja->getCell($serie . $index)->getValue();
