@@ -589,8 +589,8 @@
                                 <div class="col-md-2 mb-3">
                                     <label for="igv" class="form-label">IGV</label>
                                     <select name="igv" id="igv" class="form-select">
-                                        <option value="no">no</option>
-                                        <option value="si">si</option>
+                                        <option value="0">no</option>
+                                        <option value="1">si</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2 mb-3 mt-5 form-check">

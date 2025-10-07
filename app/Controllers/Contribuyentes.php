@@ -31,6 +31,7 @@ use App\Models\AyudaBoletaModel;
 use App\Models\NumeroWhatsappModel;
 use App\Models\ContratosModel;
 use App\Models\ServidorModel;
+use App\Models\RucModel;
 
 //use App\Models\RucEmpresaModel;
 
@@ -1143,20 +1144,69 @@ class Contribuyentes extends BaseController
         return $response;
     }
 
-    private function generateExcel($data)
+    private function generateExcel($minimo, $maximo, $ruc, $igv)
     {
+        $comprobante = new ComprobanteModel();
+
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
         // Configurar contenido
-        $sheet->setCellValue('A1', 'Reporte del Formulario');
-        $sheet->setCellValue('A2', 'Campo');
-        $sheet->setCellValue('B2', 'Valor');
+        $sheet->setCellValue('A1', 'FECHA');
+        $sheet->setCellValue('B1', 'TIPO_MONEDA');
+        $sheet->setCellValue('C1', 'DOCUMENTO');
+        $sheet->setCellValue('D1', '#_DOCUMENTO');
+        $sheet->setCellValue('E1', 'CONDICION');
+        $sheet->setCellValue('F1', 'RUC');
+        $sheet->setCellValue('G1', 'RAZON_SOCIAL');
+        $sheet->setCellValue('H1', 'VVENTA');
+        $sheet->setCellValue('I1', 'VALOR_DE_VENTA');
+        $sheet->setCellValue('J1', 'IGV');
+        $sheet->setCellValue('K1', 'TOTAL');
+        $sheet->setCellValue('L1', 'TIPO_CAMBIO');
 
-        $row = 3;
-        foreach ($data as $key => $value) {
-            $sheet->setCellValue('A' . $row, ucfirst($key));
-            $sheet->setCellValue('B' . $row, $value);
+        $sql = "select * from comprobante,tipo_comprobante,tipo_moneda
+        where comprobante.id_tipo_comprobante=tipo_comprobante.id_tipo_comprobante and tipo_moneda.id_tipo_moneda=comprobante.id_tipo_moneda and comprobante.comprobante_tipo_estado=1 and comprobante.ruc_empresa_numero = $ruc and comprobante.comprobante_fecha BETWEEN '$minimo' and '$maximo' order by tipo_comprobante.id_tipo_comprobante desc, comprobante.comprobante_documento_serie_caracteristicas asc
+        , comprobante.comprobante_fecha asc, comprobante.comprobante_documento_serie_numero asc";
+
+        $datos = $comprobante->query($sql)->getResultArray();
+
+        $row = 2;
+
+        foreach ($datos as $key => $value) {
+            $myDateTime = DateTime::createFromFormat('Y-m-d', $value["comprobante_fecha"]);
+            $dat = (string) $myDateTime->format('d/m/Y');
+
+            $ayuda = "";
+            if ($value['id_tipo_comprobante'] == 3) {
+                $ayuda = "B";
+            }
+            if ($value['id_tipo_comprobante'] == 4) {
+                $ayuda = "F";
+            }
+
+            if ($igv == "1") {
+                $monto = (float) $value['comprobante_venta'] / 1.18;
+                $igv = (float) $value['comprobante_venta'] - (float) $monto;
+            } else {
+                $igv = "0.00";
+                $monto = $value['comprobante_venta'];
+            }
+
+            list($codigo, $nombre_razon) = $this->datos($value['comprobante_venta'], $value['comprobante_nombre_razon'], $value['id_tipo_comprobante'], $value['comprobante_ruc']);
+
+            $sheet->setCellValue('A' . $row, $dat);
+            $sheet->setCellValue('B' . $row, $value["tipo_moneda_descripcion"]);
+            $sheet->setCellValue('C' . $row, $value['tipo_comprobante_nombre']);
+            $sheet->setCellValue('D' . $row, $ayuda . $value['comprobante_documento_serie_caracteristicas'] . "-" . $value['comprobante_documento_serie_numero']);
+            $sheet->setCellValue('E' . $row, 'A');
+            $sheet->setCellValue('F' . $row, $codigo);
+            $sheet->setCellValue('G' . $row, $$nombre_razon);
+            $sheet->setCellValue('H' . $row, number_format($monto, 2, '.', ''));
+            $sheet->setCellValue('I' . $row, number_format($monto, 2, '.', ''));
+            $sheet->setCellValue('J' . $row, number_format($igv, 2, '.', ''));
+            $sheet->setCellValue('K' . $row, number_format($value['comprobante_venta'], 2, '.', ''));
+            $sheet->setCellValue('L' . $row, $value['comprobante_tipo_cambio']);
             $row++;
         }
 
@@ -1174,133 +1224,116 @@ class Contribuyentes extends BaseController
         return $filename;
     }
 
-    public function importarBoletas()
+    public function saveComprobantesMaquetas($data, $file)
     {
-        try {
-            $data = $this->request->getPost();
-
-            if ($data['fileExcel'] === null) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'No se ha seleccionado el archivo.']);
-            }
-
-            // Generar Excel
-            $filename = $this->generateExcel($data);
-
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Archivo generado exitosamente',
-                'downloadUrl' => site_url("excel/download/$filename"),
-                'filename' => $filename
-            ]);
-        } catch (\Exception $e) {
-            return $this->response->setStatusCode(500)->setJSON([
-                'success' => false,
-                'message' => 'Error interno del servidor: ' . $e->getMessage()
-            ]);
-        }
-        exit;
-
         $migracion = new MigracionModel();
         $migrar = new MigrarModel();
         $comprobante = new ComprobanteModel();
         $ayuda = new AyudaBoletaModel();
 
-        try {
+        $fecha = strtoupper(trim($data['fecha']));
+        $serie = strtoupper(trim($data['serie']));
+        $numero = strtoupper(trim($data['numero']));
+        $monto = strtoupper(trim($data['monto']));
+        $ruc = strtoupper(trim($data['ruc']));
+        $tipo = strtoupper(trim($data['tipo']));
+        $razon_social = strtoupper(trim($data['razon_social']));
+        $igv = trim($data['igv']);
+        $numero_ruc = $data['numero_ruc'];
 
-            $fecha = strtoupper(trim($this->request->getPost('fecha')));
-            $serie = strtoupper(trim($this->request->getPost('serie')));
-            $numero = strtoupper(trim($this->request->getPost('numero')));
-            $monto = strtoupper(trim($this->request->getPost('monto')));
-            $ruc = strtoupper(trim($this->request->getPost('ruc')));
-            $tipo = strtoupper(trim($this->request->getPost('tipo')));
-            $razon_social = strtoupper(trim($this->request->getPost('razon_social')));
-            $igv = trim($this->request->getPost('igv'));
-            $numero_ruc = $this->request->getPost('numero_ruc');
+        $fileExcel = $file;
 
-            if ($this->request->getFile('fileExcel') === null) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'No se ha seleccionado el archivo.']);
-            }
+        $dataMigracion = array("nombre_archivo" => "archivo");
+        $migracion->insert($dataMigracion);
 
-            $fileExcel = $this->request->getFile('fileExcel');
+        $id_migracion = $migracion->getInsertID();
 
-            $dataMigracion = array("nombre_archivo" => "archivo");
-            $migracion->insert($dataMigracion);
+        $ruta = $fileExcel->getTempName(); // ruta temporal del archivo
 
-            $id_migracion = $migracion->getInsertID();
+        // Cargar el archivo Excel
+        $spreadsheet = IOFactory::load($ruta);
+        $hoja = $spreadsheet->getActiveSheet(); // También puedes usar getSheet(n) para otra hoja
 
-            $ruta = $fileExcel->getTempName(); // ruta temporal del archivo
+        // Leer todas las filas
+        foreach ($hoja->getRowIterator() as $fila) {
+            $index = $fila->getRowIndex();
 
-            // Cargar el archivo Excel
-            $spreadsheet = IOFactory::load($ruta);
-            $hoja = $spreadsheet->getActiveSheet(); // También puedes usar getSheet(n) para otra hoja
+            $fechaExcel = $hoja->getCell($fecha . $index)->getValue();
 
-            // Leer todas las filas
-            foreach ($hoja->getRowIterator() as $fila) {
-                $index = $fila->getRowIndex();
-
-                $fechaExcel = $hoja->getCell($fecha . $index)->getValue();
-
-                $fechaExcel = DateTime::createFromFormat('d/m/Y', $fechaExcel)->format('Y-m-d');
-
-                $fechaMigrar = $fechaExcel;
-                $serieMigrar = $hoja->getCell($serie . $index)->getValue();
-                $numeroMigrar = $hoja->getCell($numero . $index)->getValue();
-                $montoMigrar = $hoja->getCell($monto . $index)->getValue();
-                $rucMigrar = $hoja->getCell($ruc . $index)->getValue();
-                $tipoMigrar = $hoja->getCell($tipo . $index)->getValue();
-                $razon_socialMigrar = $hoja->getCell($razon_social . $index)->getValue();
-
-                $dataMigrar = array(
-                    "id_migracion" => $id_migracion,
-                    "fecha" => $fechaMigrar,
-                    "serie" => $serieMigrar,
-                    "numero" => $numeroMigrar,
-                    "monto" => $montoMigrar,
-                    "ruc" => $rucMigrar,
-                    "tipo" => $tipoMigrar,
-                    "ruc_empresa" => $numero_ruc,
-                    "razon_social" => $razon_socialMigrar
-                );
-
-                $migrar->insert($dataMigrar);
-            }
-
-            $dataMinimo = $migrar->select("MIN(fecha) as minimo")->where('id_migracion', $id_migracion)->first();
-            $dataMaximo = $migrar->select("MAX(fecha) as maximo")->where('id_migracion', $id_migracion)->first();
-
-            $minimo = $dataMinimo['minimo'];
-            $maximo = $dataMaximo['maximo'];
-
-            $datos = $migrar->select("DISTINCT(tipo) as tipo")->where('id_migracion', $id_migracion)->findAll();
-
-            foreach ($datos as $key => $value) {
-                $tipo = $value['tipo'];
-
-                if ($tipo === "02" || $tipo === "04") {
-                    $sql1 = $migrar->where('id_migracion', $id_migracion)->where('tipo', $tipo)->orderBy("fecha", "asc")->orderBy("serie", "desc")->orderBy("numero", "asc")->findAll();
-
-                    foreach ($sql1 as $key1 => $value1) {
-                        $data = array(
-                            "id_tipo_moneda" => 1,
-                            "id_tipo_comprobante" => $tipo,
-                            "comprobante_documento_serie_caracteristicas" => $value1["serie"],
-                            "comprobante_ruc" => $value1["ruc"],
-                            "comprobante_nombre_razon" => "",
-                            "comprobante_venta" => (float) $value1["monto"],
-                            "comprobante_tipo_cambio" => 1,
-                            "comprobante_condicion" => 'A',
-                            "ruc_empresa_numero" => $value1["ruc_empresa"],
-                            "comprobante_documento_serie_numero" => $value1["numero"],
-                            "comprobante_fecha" => $value1['fecha'],
-                            "comprobante_nombre_razon" => $value1["razon_social"]
-                        );
-
-                        $comprobante->insert($data);
-                    }
+            // Manejo seguro de fechas
+            if ($fechaExcel instanceof \DateTime) {
+                $fechaMigrar = $fechaExcel->format('Y-m-d');
+            } else if (!empty($fechaExcel)) {
+                $dateTime = DateTime::createFromFormat('d/m/Y', trim($fechaExcel));
+                if ($dateTime !== false) {
+                    $fechaMigrar = $dateTime->format('Y-m-d');
                 } else {
+                    // Si falla, intentar con otro formato o usar la fecha actual
+                    $fechaMigrar = date('Y-m-d');
+                    log_message('warning', "Fecha no válida en fila $index: " . $fechaExcel);
+                }
+            } else {
+                $fechaMigrar = date('Y-m-d'); // Fecha por defecto
+            }
 
-                    $consultaGrupos = $migrar->query(
-                        "WITH Datos AS (
+            $serieMigrar = $hoja->getCell($serie . $index)->getValue();
+            $numeroMigrar = $hoja->getCell($numero . $index)->getValue();
+            $montoMigrar = $hoja->getCell($monto . $index)->getValue();
+            $rucMigrar = $hoja->getCell($ruc . $index)->getValue();
+            $tipoMigrar = $hoja->getCell($tipo . $index)->getValue();
+            $razon_socialMigrar = $hoja->getCell($razon_social . $index)->getValue();
+
+            $dataMigrar = array(
+                "id_migracion" => $id_migracion,
+                "fecha" => $fechaMigrar,
+                "serie" => $serieMigrar,
+                "numero" => $numeroMigrar,
+                "monto" => $montoMigrar,
+                "ruc" => $rucMigrar,
+                "tipo" => $tipoMigrar,
+                "ruc_empresa" => $numero_ruc,
+                "razon_social" => $razon_socialMigrar
+            );
+
+            $migrar->insert($dataMigrar);
+        }
+
+        $dataMinimo = $migrar->select("MIN(fecha) as minimo")->where('id_migracion', $id_migracion)->first();
+        $dataMaximo = $migrar->select("MAX(fecha) as maximo")->where('id_migracion', $id_migracion)->first();
+
+        $minimo = $dataMinimo['minimo'];
+        $maximo = $dataMaximo['maximo'];
+
+        $datos = $migrar->select("DISTINCT(tipo) as tipo")->where('id_migracion', $id_migracion)->findAll();
+
+        foreach ($datos as $key => $value) {
+            $tipo = $value['tipo'];
+
+            if ($tipo === "02" || $tipo === "04") {
+                $sql1 = $migrar->where('id_migracion', $id_migracion)->where('tipo', $tipo)->orderBy("fecha", "asc")->orderBy("serie", "desc")->orderBy("numero", "asc")->findAll();
+
+                foreach ($sql1 as $key1 => $value1) {
+                    $data = array(
+                        "id_tipo_moneda" => 1,
+                        "id_tipo_comprobante" => $tipo,
+                        "comprobante_documento_serie_caracteristicas" => $value1["serie"],
+                        "comprobante_ruc" => $value1["ruc"],
+                        "comprobante_nombre_razon" => "",
+                        "comprobante_venta" => (float) $value1["monto"],
+                        "comprobante_tipo_cambio" => 1,
+                        "comprobante_condicion" => 'A',
+                        "ruc_empresa_numero" => $value1["ruc_empresa"],
+                        "comprobante_documento_serie_numero" => $value1["numero"],
+                        "comprobante_fecha" => $value1['fecha'],
+                        "comprobante_nombre_razon" => $value1["razon_social"]
+                    );
+
+                    $comprobante->insert($data);
+                }
+            } else {
+
+                $consultaGrupos = $migrar->query(
+                    "WITH Datos AS (
                             SELECT 
                                 fecha,
                                 serie,
@@ -1401,62 +1434,95 @@ class Contribuyentes extends BaseController
                             ruc
                         FROM ResultadoFinal
                         ORDER BY fecha, min_numero_grupo;"
-                    )->getResult();
+                )->getResult();
 
-                    $id_tipo_moneda = 1;
-                    $comprobante_tipo_cambio = 1;
-                    $comprobante_condicion = "A";
+                $id_tipo_moneda = 1;
+                $comprobante_tipo_cambio = 1;
+                $comprobante_condicion = "A";
 
-                    foreach ($consultaGrupos as $key2 => $value2) {
-                        $data = array(
-                            "id_tipo_moneda" => $id_tipo_moneda,
-                            "id_tipo_comprobante" => $tipo,
-                            "comprobante_documento_serie_caracteristicas" => $value2->serie,
-                            "comprobante_ruc" => $value2->ruc,
-                            "comprobante_nombre_razon" => $value2->razon_social,
-                            "comprobante_venta" => $value2->total_monto,
-                            "comprobante_tipo_cambio" => $comprobante_tipo_cambio,
-                            "comprobante_condicion" => $comprobante_condicion,
-                            "ruc_empresa_numero" => $numero_ruc,
-                            "comprobante_documento_serie_numero" => $value2->rango_numeros,
-                            "comprobante_fecha" => $value2->fecha
-                        );
+                foreach ($consultaGrupos as $key2 => $value2) {
+                    $data = array(
+                        "id_tipo_moneda" => $id_tipo_moneda,
+                        "id_tipo_comprobante" => $tipo,
+                        "comprobante_documento_serie_caracteristicas" => $value2->serie,
+                        "comprobante_ruc" => $value2->ruc,
+                        "comprobante_nombre_razon" => $value2->razon_social,
+                        "comprobante_venta" => $value2->total_monto,
+                        "comprobante_tipo_cambio" => $comprobante_tipo_cambio,
+                        "comprobante_condicion" => $comprobante_condicion,
+                        "ruc_empresa_numero" => $numero_ruc,
+                        "comprobante_documento_serie_numero" => $value2->rango_numeros,
+                        "comprobante_fecha" => $value2->fecha
+                    );
 
-                        $comprobante->insert($data);
-                    }
+                    $comprobante->insert($data);
+                }
 
-                    $todaSerie = $migrar->select("DISTINCT(serie) as serie")->where('id_migracion', $id_migracion)->where('tipo', $tipo)->findAll();
+                $todaSerie = $migrar->select("DISTINCT(serie) as serie")->where('id_migracion', $id_migracion)->where('tipo', $tipo)->findAll();
 
-                    foreach ($todaSerie as $key2 => $value2) {
+                foreach ($todaSerie as $key2 => $value2) {
 
-                        $todaFecha = $migrar->select("DISTINCT(fecha) as fecha")->where('id_migracion', $id_migracion)->where('tipo', $tipo)->where('serie', $value2['serie'])->findAll();
+                    $todaFecha = $migrar->select("DISTINCT(fecha) as fecha")->where('id_migracion', $id_migracion)->where('tipo', $tipo)->where('serie', $value2['serie'])->findAll();
 
-                        foreach ($todaFecha as $key3 => $value3) {
-                            $dataUnica = $migrar->where('id_migracion', $id_migracion)->where('tipo', $tipo)->where('serie', $value2['serie'])->where('fecha', $value3['fecha'])->orderBy("numero", "asc")->findAll();
+                    foreach ($todaFecha as $key3 => $value3) {
+                        $dataUnica = $migrar->where('id_migracion', $id_migracion)->where('tipo', $tipo)->where('serie', $value2['serie'])->where('fecha', $value3['fecha'])->orderBy("numero", "asc")->findAll();
 
-                            foreach ($dataUnica as $key4 => $value4) {
-                                $data = array(
-                                    "serie_caracteristica" => $value4["serie"],
-                                    "serie_numero" => $value4["numero"],
-                                    "id_ruc_empresa" => $value4["ruc_empresa"],
-                                    "monton" => $value4["monto"],
-                                    "fecha" => $value4["fecha"],
-                                    "ruc_cliente" => $value4["ruc"]
-                                );
+                        foreach ($dataUnica as $key4 => $value4) {
+                            $data = array(
+                                "serie_caracteristica" => $value4["serie"],
+                                "serie_numero" => $value4["numero"],
+                                "id_ruc_empresa" => $value4["ruc_empresa"],
+                                "monton" => $value4["monto"],
+                                "fecha" => $value4["fecha"],
+                                "ruc_cliente" => $value4["ruc"]
+                            );
 
-                                $ayuda->insert($data);
-                            }
+                            $ayuda->insert($data);
                         }
                     }
                 }
             }
+        }
 
-            $migrar->where('id_migracion', $id_migracion)->delete();
+        $migrar->where('id_migracion', $id_migracion)->delete();
 
-            // Mostrar los datos (solo para debug)
-            return $this->response->setJSON(['status' => 'success', 'datos' => "Datos importados correctamente.", 'numero_ruc' => $numero_ruc, "minimo" => $minimo, "maximo" => $maximo]);
+        return [
+            "minimo" => $minimo,
+            "maximo" => $maximo
+        ];
+    }
+
+    public function importarBoletas()
+    {
+        try {
+            $data = $this->request->getPost();
+
+            $file = $this->request->getFile('fileExcel');
+
+            if (!$file || !$file->isValid()) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'No se ha seleccionado un archivo válido.']);
+            }
+
+            //save comprobantes
+            $intervalos = $this->saveComprobantesMaquetas($data, $file);
+
+            $minimo = $intervalos['minimo'];
+            $maximo = $intervalos['maximo'];
+
+            // Generar Excel
+            $filename = $this->generateExcel($minimo, $maximo, $data['numero_ruc'], $data['igv']);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Archivo generado exitosamente',
+                'downloadUrl' => site_url("excel/download/$filename"),
+                'filename' => $filename
+            ]);
         } catch (\Exception $e) {
-            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+            return $this->response->setStatusCode(500)->setJSON([
+                'success' => false,
+                'message' => 'Error interno del servidor: ' . $e->getMessage()
+            ]);
         }
     }
 
@@ -1628,79 +1694,105 @@ class Contribuyentes extends BaseController
         }
     }
 
-    /*public function migrarContribuyentes()
+    public function datos($monto, $razon_social, $tipo_comprobante, $ruc)
     {
-        $empresa = new RucEmpresaModel();
-        $cont = new ContribuyenteModel();
-        $tarifa = new HistorialTarifaModel();
+        $rucFind = new RucModel();
+        $codificacion = new CodificacionModel();
 
-        $data = $empresa->findAll();
+        if ((float) $monto != 0) {
 
-        foreach ($data as $key => $value) {
+            if ($tipo_comprobante == 2 || $tipo_comprobante == 4) {
 
-            if($value["gratuito"] === "NO") {
-                $tipoSuscripcion = "NO GRATUITO";
+                $c = 0;
+
+                $resultado = $rucFind->find($ruc);
+
+                if ($resultado) {
+                    $c = 1;
+                    $nombre_razon = $resultado["ruc_razon_social"];
+                    $codigo = $ruc;
+                }
+
+                if ($c == 0) {
+
+                    $codigo = $ruc;
+                    $nombre_razon = $razon_social;
+
+                    $data_sunat = $this->buscar_razon_social($codigo);
+
+                    $nombre_razon = $data_sunat;
+
+                    $data_insert = [
+                        "id_ruc" => $codigo,
+                        "ruc_razon_social" => $nombre_razon,
+                        "ruc_estado" => 1,
+                    ];
+
+                    $rucFind->insert($data_insert);
+                } else {
+
+                    if ($nombre_razon == "******" || $nombre_razon == "") {
+                        $nombres_ = $this->buscar_razon_social($codigo);
+
+                        $data_update = [
+                            "ruc_razon_social" => $nombres_,
+                            "ruc_estado" => 1,
+                        ];
+
+                        $rucFind->update($codigo, $data_update);
+
+                        $nombre_razon = $nombres_;
+                    }
+                }
             } else {
-                $tipoSuscripcion = "GRATUITO";
+
+                if ($razon_social != "") {
+                    $codigo = $ruc;
+                    $nombre_razon = $razon_social;
+                } else {
+
+                    $dat = $codificacion->query("select * from codificacion,codigo_tipo where codificacion.id_codigo_tipo=codigo_tipo.id_codigo_tipo and codificacion.id_codigo_tipo=2 and codificacion.ruc_empresa_numero= '$ruc' and codificacion.id_tipo_comprobante = $tipo_comprobante")->getResultArray();
+
+                    if ($dat) {
+                        $codigo = $dat['codificacion_numero'];
+                        $nombre_razon = $dat['codigo_tipo_descripcion'];
+                    }
+                }
             }
+        } else {
+            $dat = $codificacion->query("select * from codificacion,codigo_tipo where codificacion.id_codigo_tipo=codigo_tipo.id_codigo_tipo and codificacion.id_codigo_tipo=1 and codificacion.ruc_empresa_numero='$ruc' and codificacion.id_tipo_comprobante = $tipo_comprobante")->getResultArray();
 
-            if($value["tipo_de_pago"] === 'ADELANTADO') {
-                $tipoPago = "ADELANTADO";
-            } else {
-                $tipoPago = "ATRASADO";
+            if ($dat) {
+                $codigo = $dat['codificacion_numero'];
+                $nombre_razon = $dat['codigo_tipo_descripcion'];
             }
-
-            if($value['ruc_empresa_monto'] != null) {
-                $montoMensual = $value['ruc_empresa_monto'];
-            } else {
-                $montoMensual = 0;
-            }
-
-            if($value['costo_anual'] != null) {
-                $montoAnual = $value['costo_anual'];
-            } else {
-                $montoAnual = 0;
-            }
-
-            if($value['tipo_servicio'] != null) {
-                $tipoServicio = $value['tipo_servicio'];
-            } else {
-                $tipoServicio = "CONTABLE";
-            }
-
-            $datos = array(
-                "ruc" => $value["ruc_empresa_numero"],
-                "razon_social" => $value["ruc_empresa_razon_social"],
-                "nombre_comercial" => "",
-                "direccion_fiscal" => "",
-                "ubigeo_id" => '220901',
-                "urbanizacion" => "",
-                "tipoSuscripcion" => $tipoSuscripcion,
-                "tipoServicio" => $tipoServicio,
-                "tipoPago" => $tipoPago,
-                "costoMensual" => $montoMensual,
-                "costoAnual" => $value["costo_anual"],
-                "diaCobro" => 1,
-                "fechaContrato" => date('Y-m-d'),
-                "telefono" => "",
-                "access" => $value["ruc_empresa_numero"],
-                "user_add" => session()->id,
-                "estado" => $value['ruc_empresa_estado']
-            );
-
-            $cont->insert($datos);
-
-            $contribuyente_id = $cont->insertID();
-
-            $tarifa->insert([
-                'contribuyente_id' => $contribuyente_id,
-                'fecha_inicio' => date('Y-m')."-01",
-                'monto_mensual' => $montoMensual,
-                'monto_anual' => $montoAnual,
-                'estado' => 1
-            ]);
-
-            echo "<pre>"; print_r($datos); echo "</pre> <br>";
         }
-    }*/
+
+        return array($codigo, $nombre_razon);
+    }
+
+    public function buscar_razon_social($ruc)
+    {
+        $ruta = "https://facturalahoy.com/api/empresa/$ruc/facturalaya_erickpeso_05jFE7sAOudi8j0/completa";
+
+        $ch = curl_init();
+        curl_setopt_array($ch, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $ruta,
+            CURLOPT_USERAGENT => 'Consulta Datos',
+            CURLOPT_CONNECTTIMEOUT => 0,
+            CURLOPT_TIMEOUT => 400,
+            CURLOPT_FAILONERROR => true
+        ));
+        $respuesta = curl_exec($ch);
+        curl_close($ch);
+
+        $response = json_decode($respuesta, true);
+
+        if ($response['respuesta'] == "error") {
+            return "";
+        } else {
+            return $response['razon_social'];
+        }
+    }
 }
