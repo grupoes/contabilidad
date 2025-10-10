@@ -13,7 +13,7 @@ class MigrarModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id_migrar', 'id_migracion', 'fecha', 'serie', 'numero', 'ruc', 'tipo', 'monto', 'ruc_empresa', 'razon_social'];
+    protected $allowedFields = ['id_migrar', 'id_migracion', 'fecha', 'serie', 'numero', 'ruc', 'tipo', 'comprobante_tipo', 'valor_venta', 'igv', 'monto', 'ruc_empresa', 'razon_social'];
 
     protected $useTimestamps = false;
     protected $createdField  = 'created_at';

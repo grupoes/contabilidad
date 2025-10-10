@@ -1145,9 +1145,9 @@ class Contribuyentes extends BaseController
         return $response;
     }
 
-    private function generateExcel($minimo, $maximo, $ruc, $igv)
+    private function generateExcel($idMigracion)
     {
-        $comprobante = new ComprobanteModel();
+        $migrar = new MigrarModel();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -1166,48 +1166,126 @@ class Contribuyentes extends BaseController
         $sheet->setCellValue('K1', 'TOTAL');
         $sheet->setCellValue('L1', 'TIPO_CAMBIO');
 
-        $sql = "select * from comprobante,tipo_comprobante,tipo_moneda
-        where comprobante.id_tipo_comprobante=tipo_comprobante.id_tipo_comprobante and tipo_moneda.id_tipo_moneda=comprobante.id_tipo_moneda and comprobante.comprobante_tipo_estado=1 and comprobante.ruc_empresa_numero = $ruc and comprobante.comprobante_fecha BETWEEN '$minimo' and '$maximo' order by tipo_comprobante.id_tipo_comprobante desc, comprobante.comprobante_documento_serie_caracteristicas asc
-        , comprobante.comprobante_fecha asc, comprobante.comprobante_documento_serie_numero asc";
+        $series_factura = $migrar->select('serie')->where('id_migracion', $idMigracion)->where('tipo', '01')->groupBy('serie')->findAll();
 
-        $datos = $comprobante->query($sql)->getResultArray();
+        $series_boleta = $migrar->select('serie')->where('id_migracion', $idMigracion)->where('tipo', '03')->groupBy('serie')->findAll();
+
+        $maqueta = [];
+
+        $tipo_moneda = 'S';
+        $tipo_cambio = 1;
+
+        foreach ($series_factura as $serie_factura) {
+            $facturas = $migrar->where('id_migracion', $idMigracion)->where('tipo', '01')->where('serie', $serie_factura['serie'])->orderBy('fecha', 'asc')->orderBy('numero', 'asc')->findAll();
+
+            foreach ($facturas as $factura) {
+                $add = array(
+                    "fecha" => $factura['fecha'],
+                    "tipo_moneda" => $tipo_moneda,
+                    "documento" => $factura['comprobante_tipo'],
+                    "numero_documento" => $factura['serie'] . "-" . $factura['numero'],
+                    "condicion" => 'A',
+                    "ruc" => $factura['ruc'],
+                    "razon_social" => $factura['razon_social'],
+                    "vvventa" => $factura['valor_venta'],
+                    "valor_venta" => $factura['valor_venta'],
+                    "igv" => $factura['igv'],
+                    "total" => $factura['monto'],
+                    "tipo_cambio" => $tipo_cambio
+                );
+
+                array_push($maqueta, $add);
+            }
+        }
+
+        foreach ($series_boleta as $serie_boleta) {
+
+            $boletas = $migrar->where('id_migracion', $idMigracion)->where('tipo', '03')->where('serie', $serie_boleta['serie'])->orderBy('fecha', 'asc')->orderBy('numero', 'asc')->findAll();
+
+            $grupoActual = null;
+
+            foreach ($boletas as $fila) {
+                if ($fila['monto'] >= 700) {
+                    // Si hay un grupo pendiente, agregarlo primero
+                    if ($grupoActual !== null) {
+                        $maqueta[] =  $this->finalizarGrupo($grupoActual);
+                        $grupoActual = null;
+                    }
+
+                    $add = $this->agregarFila($fila);
+                    array_push($maqueta, $add);
+
+                    continue;
+                }
+
+                // Si no hay grupo actual, iniciar uno nuevo
+                if ($grupoActual === null) {
+                    $grupoActual = [
+                        'fecha' => $fila['fecha'],
+                        'serie' => $fila['serie'],
+                        'nums' => [$fila['numero']],
+                        'cond' => 'A',
+                        'monto' => $fila['monto'],
+                        'num_clie' => $fila['ruc'],
+                        'nombre_clien' => $fila['razon_social'],
+                        'subtotal' => $fila['valor_venta'],
+                        'total_igv' => $fila['igv']
+                    ];
+
+                    continue;
+                }
+
+                // Verificar si podemos agregar al grupo actual (misma fecha, serie, cond)
+                if (
+                    $grupoActual['fecha'] === $fila['fecha'] &&
+                    $grupoActual['serie'] === $fila['serie']
+                ) {
+                    // Agregar al grupo actual
+                    $grupoActual['monto'] += $fila['monto'];
+                    $grupoActual['subtotal'] += $fila['valor_venta'];
+                    $grupoActual['total_igv'] += $fila['igv'];
+                    $grupoActual['nums'][] = $fila['numero'];
+                } else {
+                    // No se puede agregar, cerrar grupo actual y empezar nuevo
+                    $maqueta[] =  $this->finalizarGrupo($grupoActual);
+                    $grupoActual = [
+                        'fecha' => $fila['fecha'],
+                        'serie' => $fila['serie'],
+                        'nums' => [$fila['numero']],
+                        'cond' => 'A',
+                        'monto' => $fila['monto'],
+                        'num_clie' => $fila['ruc'],
+                        'nombre_clien' => $fila['razon_social'],
+                        'subtotal' => $fila['valor_venta'],
+                        'total_igv' => $fila['igv']
+                    ];
+                }
+            }
+
+            // Agregar el último grupo si existe
+            if ($grupoActual !== null) {
+                $maqueta[] = $this->finalizarGrupo($grupoActual);
+            }
+        }
 
         $row = 2;
 
-        foreach ($datos as $key => $value) {
-            $myDateTime = DateTime::createFromFormat('Y-m-d', $value["comprobante_fecha"]);
+        foreach ($maqueta as $key => $value) {
+            $myDateTime = DateTime::createFromFormat('Y-m-d', $value["fecha"]);
             $dat = (string) $myDateTime->format('d/m/Y');
 
-            $ayuda = "";
-            if ($value['id_tipo_comprobante'] == 3) {
-                $ayuda = "B";
-            }
-            if ($value['id_tipo_comprobante'] == 4) {
-                $ayuda = "F";
-            }
-
-            if ($igv == "1") {
-                $monto = (float) $value['comprobante_venta'] / 1.18;
-                $igv = (float) $value['comprobante_venta'] - (float) $monto;
-            } else {
-                $igv = "0.00";
-                $monto = $value['comprobante_venta'];
-            }
-
-            //list($codigo, $nombre_razon) = $this->datos($value['comprobante_venta'], $value['comprobante_nombre_razon'], $value['id_tipo_comprobante'], $value['comprobante_ruc']);
-
             $sheet->setCellValue('A' . $row, $dat);
-            $sheet->setCellValue('B' . $row, $value["tipo_moneda_descripcion"]);
-            $sheet->setCellValue('C' . $row, $value['tipo_comprobante_nombre']);
-            $sheet->setCellValue('D' . $row, $ayuda . $value['comprobante_documento_serie_caracteristicas'] . "-" . $value['comprobante_documento_serie_numero']);
+            $sheet->setCellValue('B' . $row, $value["tipo_moneda"]);
+            $sheet->setCellValue('C' . $row, $value['documento']);
+            $sheet->setCellValue('D' . $row, $value['numero_documento']);
             $sheet->setCellValue('E' . $row, 'A');
-            $sheet->setCellValue('F' . $row, $value['comprobante_ruc']);
-            $sheet->setCellValue('G' . $row, $value['comprobante_nombre_razon']);
-            $sheet->setCellValue('H' . $row, number_format($monto, 2, '.', ''));
-            $sheet->setCellValue('I' . $row, number_format($monto, 2, '.', ''));
-            $sheet->setCellValue('J' . $row, number_format($igv, 2, '.', ''));
-            $sheet->setCellValue('K' . $row, number_format($value['comprobante_venta'], 2, '.', ''));
-            $sheet->setCellValue('L' . $row, $value['comprobante_tipo_cambio']);
+            $sheet->setCellValue('F' . $row, $value['ruc']);
+            $sheet->setCellValue('G' . $row, $value['razon_social']);
+            $sheet->setCellValue('H' . $row, $value['vvventa']);
+            $sheet->setCellValue('I' . $row, $value['valor_venta']);
+            $sheet->setCellValue('J' . $row, $value['igv']);
+            $sheet->setCellValue('K' . $row, $value['total']);
+            $sheet->setCellValue('L' . $row, $value['tipo_cambio']);
             $row++;
         }
 
@@ -1225,12 +1303,64 @@ class Contribuyentes extends BaseController
         return $filename;
     }
 
+    public function finalizarGrupo($grupo)
+    {
+        $result = array(
+            "fecha" => $grupo['fecha'],
+            "tipo_moneda" => 'S',
+            "documento" => "BOLETA DE VENTA ELECTRONICA",
+            "condicion" => 'A',
+            "vvventa" => $grupo['subtotal'],
+            "valor_venta" => $grupo['subtotal'],
+            "igv" => $grupo['total_igv'],
+            "total" => $grupo['monto'],
+            "tipo_cambio" => 1
+        );
+
+        if (count($grupo['nums']) > 1) {
+            $result['ruc'] = "00000001";
+            $result['razon_social'] = "CLIENTES VARIOS";
+            $result['numero_documento'] = $grupo['serie'] . "-" . $grupo['nums'][0] . '/' . end($grupo['nums']);
+        } else {
+            if ($grupo['monto'] < 700) {
+                $result['ruc'] = "00000001";
+                $result['razon_social'] = "CLIENTES VARIOS";
+            } else {
+                $result['ruc'] = $grupo['num_clie'];
+                $result['razon_social'] = $grupo['nombre_clien'];
+            }
+
+            $result['numero_documento'] = $grupo['serie'] . "-" . $grupo['nums'][0];
+        }
+
+        return $result;
+    }
+
+    public function agregarFila($fila)
+    {
+        $add = array(
+            "fecha" => $fila['fecha'],
+            "tipo_moneda" => 'S',
+            "documento" => $fila['comprobante_tipo'],
+            "numero_documento" => $fila['serie'] . "-" . $fila['numero'],
+            "condicion" => 'A',
+            "ruc" => $fila['ruc'],
+            "razon_social" => $fila['razon_social'],
+            "vvventa" => $fila['valor_venta'],
+            "valor_venta" => $fila['valor_venta'],
+            "igv" => $fila['igv'],
+            "total" => $fila['monto'],
+            "tipo_cambio" => 1
+        );
+
+        return $add;
+    }
+
     public function saveComprobantesMaquetas($data, $file)
     {
         $migracion = new MigracionModel();
         $migrar = new MigrarModel();
-        $comprobante = new ComprobanteModel();
-        $ayuda = new AyudaBoletaModel();
+        $rucTable = new RucModel();
 
         $fecha = strtoupper(trim($data['fecha']));
         $serie = strtoupper(trim($data['serie']));
@@ -1239,7 +1369,7 @@ class Contribuyentes extends BaseController
         $ruc = strtoupper(trim($data['ruc']));
         $tipo = strtoupper(trim($data['tipo']));
         $razon_social = strtoupper(trim($data['razon_social']));
-        $igv = trim($data['igv']);
+        $igv = $data['igv'];
         $numero_ruc = $data['numero_ruc'];
 
         $fileExcel = $file;
@@ -1290,217 +1420,77 @@ class Contribuyentes extends BaseController
             $tipoMigrar = $hoja->getCell($tipo . $index)->getValue();
             $razon_socialMigrar = $hoja->getCell($razon_social . $index)->getValue();
 
+            if ($numero_ruc == 1 || $numero_ruc == '00000001' || $numero_ruc == "") {
+                $ruc_dni = "00000001";
+                $razon_socialMigrar = "CLIENTES VARIOS";
+            } else {
+
+                if ((strlen($rucMigrar) == 8 || strlen($rucMigrar) == 11) && $razon_socialMigrar !== "") {
+                    $ruc_dni = $rucMigrar;
+                    $razon_socialMigrar = $razon_socialMigrar;
+                }
+
+                if ($razon_socialMigrar == "") {
+                    $consulta_ruc = $rucTable->find($rucMigrar);
+
+                    if ($consulta_ruc) {
+                        $ruc_dni = $consulta_ruc['id_ruc'];
+                        $razon_socialMigrar = $consulta_ruc['ruc_razon_social'];
+                    } else {
+                        $ruc_dni = $rucMigrar;
+                        $razon_socialMigrar = $this->buscar_razon_social($rucMigrar);
+                    }
+                }
+            }
+
+            if ($tipoMigrar == "01") {
+                $comprobante_tipo = "FACTURA";
+            } else if ($tipoMigrar == "03") {
+                $comprobante_tipo = "BOLETA DE VENTA";
+            } else if ($tipoMigrar == "07") {
+                $comprobante_tipo = "NOTA DE CREDITO";
+            } else if ($tipoMigrar == "08") {
+                $comprobante_tipo = "NOTA DE DEBITO";
+            } else if ($tipoMigrar == "09") {
+                $comprobante_tipo = "GUIA DE REMISION";
+            } else {
+                $comprobante_tipo = "OTRO DOCUMENTO";
+            }
+
+            if ($igv == 1) {
+                $subtotal = $montoMigrar / 1.18;
+                $total_igv = $montoMigrar - $subtotal;
+            } else {
+                $subtotal = $montoMigrar;
+                $total_igv = 0;
+            }
+
             $dataMigrar = array(
                 "id_migracion" => $id_migracion,
                 "fecha" => $fechaMigrar,
                 "serie" => $serieMigrar,
                 "numero" => $numeroMigrar,
+                "valor_venta" => $subtotal,
+                "igv" => $total_igv,
                 "monto" => $montoMigrar,
                 "ruc" => $rucMigrar,
                 "tipo" => $tipoMigrar,
-                "ruc_empresa" => $numero_ruc,
+                "comprobante_tipo" => $comprobante_tipo,
+                "ruc_empresa" => $ruc_dni,
                 "razon_social" => $razon_socialMigrar
             );
 
             $migrar->insert($dataMigrar);
         }
 
-        $dataMinimo = $migrar->select("MIN(fecha) as minimo")->where('id_migracion', $id_migracion)->first();
-        $dataMaximo = $migrar->select("MAX(fecha) as maximo")->where('id_migracion', $id_migracion)->first();
-
-        $minimo = $dataMinimo['minimo'];
-        $maximo = $dataMaximo['maximo'];
-
-        $datos = $migrar->select("DISTINCT(tipo) as tipo")->where('id_migracion', $id_migracion)->findAll();
-
-        foreach ($datos as $key => $value) {
-            $tipo = $value['tipo'];
-
-            if ($tipo === "02" || $tipo === "04") {
-                $sql1 = $migrar->where('id_migracion', $id_migracion)->where('tipo', $tipo)->orderBy("fecha", "asc")->orderBy("serie", "desc")->orderBy("numero", "asc")->findAll();
-
-                foreach ($sql1 as $key1 => $value1) {
-                    $data = array(
-                        "id_tipo_moneda" => 1,
-                        "id_tipo_comprobante" => $tipo,
-                        "comprobante_documento_serie_caracteristicas" => $value1["serie"],
-                        "comprobante_ruc" => $value1["ruc"],
-                        "comprobante_nombre_razon" => "",
-                        "comprobante_venta" => (float) $value1["monto"],
-                        "comprobante_tipo_cambio" => 1,
-                        "comprobante_condicion" => 'A',
-                        "ruc_empresa_numero" => $value1["ruc_empresa"],
-                        "comprobante_documento_serie_numero" => $value1["numero"],
-                        "comprobante_fecha" => $value1['fecha'],
-                        "comprobante_nombre_razon" => $value1["razon_social"]
-                    );
-
-                    $comprobante->insert($data);
-                }
-            } else {
-
-                $consultaGrupos = $migrar->query(
-                    "WITH Datos AS (
-                            SELECT 
-                                fecha,
-                                serie,
-                                numero,
-                                monto,
-                                tipo,
-                                razon_social,
-                                ruc,
-                                CASE WHEN monto >= 700 THEN 1 ELSE 0 END AS boleta_grande
-                            FROM migrar
-                            WHERE tipo = '01' AND id_migracion = $id_migracion
-                        ),
-
-                        DatosMarcados AS (
-                            SELECT 
-                                *,
-                                ROW_NUMBER() OVER (PARTITION BY fecha ORDER BY numero) AS rn
-                            FROM Datos
-                        ),
-
-                        MarcadoAnterior AS (
-                            SELECT 
-                                d1.*,
-                                COALESCE(d2.boleta_grande, 0) AS anterior_grande
-                            FROM DatosMarcados d1
-                            LEFT JOIN DatosMarcados d2
-                                ON d1.fecha = d2.fecha AND d1.rn = d2.rn + 1
-                        ),
-
-                        Cortes AS (
-                            SELECT *,
-                                CASE 
-                                    WHEN boleta_grande = 1 OR anterior_grande = 1 THEN 1 
-                                    ELSE 0 
-                                END AS corte
-                            FROM MarcadoAnterior
-                        ),
-
-                        Grupos AS (
-                            SELECT *,
-                                SUM(corte) OVER (PARTITION BY fecha ORDER BY rn) AS grupo_id
-                            FROM Cortes
-                        ),
-
-                        ResumenClientes AS (
-                            SELECT 
-                                fecha,
-                                grupo_id,
-                                COUNT(DISTINCT razon_social) AS cantidad_clientes_distintos,
-                                MAX(razon_social) AS razon_social_grupo
-                            FROM Grupos
-                            GROUP BY fecha, grupo_id
-                        ),
-
-                        GrupoFinal AS (
-                            SELECT 
-                                g.*,
-                                rc.cantidad_clientes_distintos,
-                                rc.razon_social_grupo,
-                                ROW_NUMBER() OVER (PARTITION BY g.fecha, grupo_id ORDER BY numero) AS pos_en_grupo,
-                                COUNT(*) OVER (PARTITION BY g.fecha, grupo_id) AS total_en_grupo,
-                                MIN(numero) OVER (PARTITION BY g.fecha, grupo_id) AS min_numero_grupo,
-                                MAX(numero) OVER (PARTITION BY g.fecha, grupo_id) AS max_numero_grupo,
-                                SUM(monto) OVER (PARTITION BY g.fecha, grupo_id) AS suma_monto_grupo
-                            FROM Grupos g
-                            JOIN ResumenClientes rc ON g.fecha = rc.fecha AND g.grupo_id = rc.grupo_id
-                        ),
-
-                        ResultadoFinal AS (
-                            SELECT DISTINCT
-                                fecha,
-                                serie,
-                                ruc,
-                                CASE 
-                                    WHEN boleta_grande = 1 AND total_en_grupo = 1 THEN CAST(numero AS CHAR)
-                                    WHEN min_numero_grupo = max_numero_grupo THEN CAST(min_numero_grupo AS CHAR)
-                                    ELSE CONCAT(min_numero_grupo, '/', max_numero_grupo)
-                                END AS rango_numeros,
-                                CASE 
-                                    WHEN boleta_grande = 1 AND total_en_grupo = 1 THEN monto
-                                    ELSE suma_monto_grupo
-                                END AS total_monto,
-                                CASE 
-                                    WHEN cantidad_clientes_distintos > 1 THEN 'CLIENTES VARIOS'
-                                    ELSE razon_social_grupo
-                                END AS razon_social,
-                                min_numero_grupo
-                            FROM GrupoFinal
-                            WHERE pos_en_grupo = 1
-                        )
-
-                        SELECT 
-                            fecha,
-                            serie,
-                            rango_numeros,
-                            total_monto,
-                            razon_social,
-                            ruc
-                        FROM ResultadoFinal
-                        ORDER BY fecha, min_numero_grupo;"
-                )->getResult();
-
-                $id_tipo_moneda = 1;
-                $comprobante_tipo_cambio = 1;
-                $comprobante_condicion = "A";
-
-                foreach ($consultaGrupos as $key2 => $value2) {
-                    $data = array(
-                        "id_tipo_moneda" => $id_tipo_moneda,
-                        "id_tipo_comprobante" => $tipo,
-                        "comprobante_documento_serie_caracteristicas" => $value2->serie,
-                        "comprobante_ruc" => $value2->ruc,
-                        "comprobante_nombre_razon" => $value2->razon_social,
-                        "comprobante_venta" => $value2->total_monto,
-                        "comprobante_tipo_cambio" => $comprobante_tipo_cambio,
-                        "comprobante_condicion" => $comprobante_condicion,
-                        "ruc_empresa_numero" => $numero_ruc,
-                        "comprobante_documento_serie_numero" => $value2->rango_numeros,
-                        "comprobante_fecha" => $value2->fecha
-                    );
-
-                    $comprobante->insert($data);
-                }
-
-                $todaSerie = $migrar->select("DISTINCT(serie) as serie")->where('id_migracion', $id_migracion)->where('tipo', $tipo)->findAll();
-
-                foreach ($todaSerie as $key2 => $value2) {
-
-                    $todaFecha = $migrar->select("DISTINCT(fecha) as fecha")->where('id_migracion', $id_migracion)->where('tipo', $tipo)->where('serie', $value2['serie'])->findAll();
-
-                    foreach ($todaFecha as $key3 => $value3) {
-                        $dataUnica = $migrar->where('id_migracion', $id_migracion)->where('tipo', $tipo)->where('serie', $value2['serie'])->where('fecha', $value3['fecha'])->orderBy("numero", "asc")->findAll();
-
-                        foreach ($dataUnica as $key4 => $value4) {
-                            $data = array(
-                                "serie_caracteristica" => $value4["serie"],
-                                "serie_numero" => $value4["numero"],
-                                "id_ruc_empresa" => $value4["ruc_empresa"],
-                                "monton" => $value4["monto"],
-                                "fecha" => $value4["fecha"],
-                                "ruc_cliente" => $value4["ruc"]
-                            );
-
-                            $ayuda->insert($data);
-                        }
-                    }
-                }
-            }
-        }
-
-        $migrar->where('id_migracion', $id_migracion)->delete();
-
-        return [
-            "minimo" => $minimo,
-            "maximo" => $maximo
-        ];
+        return $id_migracion;
     }
 
     public function importarBoletas()
     {
+        set_time_limit(300); // 5 minutos
+        ini_set('max_execution_time', 300);
+
         try {
             $data = $this->request->getPost();
 
@@ -1511,13 +1501,10 @@ class Contribuyentes extends BaseController
             }
 
             //save comprobantes
-            $intervalos = $this->saveComprobantesMaquetas($data, $file);
-
-            $minimo = $intervalos['minimo'];
-            $maximo = $intervalos['maximo'];
+            $id_migracion = $this->saveComprobantesMaquetas($data, $file);
 
             // Generar Excel
-            $filename = $this->generateExcel($minimo, $maximo, $data['numero_ruc'], $data['igv']);
+            $filename = $this->generateExcel($id_migracion);
 
             return $this->response->setJSON([
                 'success' => true,
