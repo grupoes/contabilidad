@@ -1290,7 +1290,7 @@ class Contribuyentes extends BaseController
         }
 
         $writer = new Xlsx($spreadsheet);
-        $filename = 'form_data_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $filename = 'maqueta_venta_' . date('Y-m-d_H-i-s') . '.xlsx';
         $filePath = WRITEPATH . 'temp/' . $filename;
 
         // Crear directorio si no existe
