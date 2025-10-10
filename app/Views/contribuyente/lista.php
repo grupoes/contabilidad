@@ -833,6 +833,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/contribuyente/lista.js?v=4"></script>
+<script src="<?= base_url() ?>js/contribuyente/lista.js?v=5"></script>
 
 <?= $this->endSection() ?>
