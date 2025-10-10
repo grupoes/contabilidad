@@ -1130,11 +1130,11 @@ function descargarBoletas(e, ruc, minimo, maximo) {
   document.body.removeChild(form);
 }
 
-const formVacear = document.getElementById("formVacear");
-const alertMessage = document.getElementById("alertMessage");
-const btnVacear = document.getElementById("btnVacear");
+//const formVacear = document.getElementById("formVacear");
+//const alertMessage = document.getElementById("alertMessage");
+//const btnVacear = document.getElementById("btnVacear");
 
-formVacear.addEventListener("submit", (e) => {
+/*formVacear.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const formData = new FormData(formVacear);
@@ -1164,7 +1164,7 @@ formVacear.addEventListener("submit", (e) => {
 
       alertMessage.innerHTML = `<div class="alert alert-danger" role="alert">${data.message}</div>`;
     });
-});
+});*/
 
 const titleModalAcceso = document.getElementById("titleModalAcceso");
 const usuario = document.getElementById("usuario");

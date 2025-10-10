@@ -1491,6 +1491,9 @@ class Contribuyentes extends BaseController
         set_time_limit(300); // 5 minutos
         ini_set('max_execution_time', 300);
 
+        $migrar = new MigrarModel();
+        $migracion = new MigracionModel();
+
         try {
             $data = $this->request->getPost();
 
@@ -1505,6 +1508,10 @@ class Contribuyentes extends BaseController
 
             // Generar Excel
             $filename = $this->generateExcel($id_migracion);
+
+            $migrar->where('id_migracion', $id_migracion)->delete();
+
+            $migracion->delete($id_migracion);
 
             return $this->response->setJSON([
                 'success' => true,

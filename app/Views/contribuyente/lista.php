@@ -606,7 +606,7 @@
                     </div>
                 </form>
 
-                <hr class="my-3">
+                <!--<hr class="my-3">
 
                 <form id="formVacear">
                     <h4 class="text-center">VACIAR DATA</h4>
@@ -629,7 +629,7 @@
                             <button type="submit" class="btn btn-primary" id="btnVacear">Vaciar</button>
                         </div>
                     </div>
-                </form>
+                </form>-->
 
             </div>
             <div class="modal-footer">
