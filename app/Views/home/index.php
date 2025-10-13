@@ -48,7 +48,6 @@
     <!-- [ breadcrumb ] end -->
     <!-- [ Main Content ] start -->
     <div class="row" id="listCards">
-
         <div class="col-md-6 col-xl-3">
             <div class="card social-widget-card bg-primary">
                 <div class="card-body">
@@ -58,7 +57,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="row">

@@ -222,7 +222,6 @@ class Contribuyentes extends BaseController
                         $cantidad = ($utilidad * $primero / 100) - $monto;
                         $value->tipo = "general";
 
-
                         break;
                     case 2:
                         $cantidad = $utilidad;
@@ -1420,7 +1419,7 @@ class Contribuyentes extends BaseController
             $tipoMigrar = $hoja->getCell($tipo . $index)->getValue();
             $razon_socialMigrar = $hoja->getCell($razon_social . $index)->getValue();
 
-            if ($numero_ruc == 1 || $numero_ruc == '00000001' || $numero_ruc == "") {
+            if ($numero_ruc == 1 || $numero_ruc == '00000001' || $numero_ruc == "" || $numero_ruc == "-") {
                 $ruc_dni = "00000001";
                 $razon_socialMigrar = "CLIENTES VARIOS";
             } else {
@@ -1428,9 +1427,12 @@ class Contribuyentes extends BaseController
                 if ((strlen($rucMigrar) == 8 || strlen($rucMigrar) == 11) && $razon_socialMigrar !== "") {
                     $ruc_dni = $rucMigrar;
                     $razon_socialMigrar = $razon_socialMigrar;
+                } else {
+                    $ruc_dni = "00000001";
+                    $razon_socialMigrar = "CLIENTES VARIOS";
                 }
 
-                if ($razon_socialMigrar == "") {
+                /*if ($razon_socialMigrar == "") {
                     $consulta_ruc = $rucTable->find($rucMigrar);
 
                     if ($consulta_ruc) {
@@ -1440,7 +1442,7 @@ class Contribuyentes extends BaseController
                         $ruc_dni = $rucMigrar;
                         $razon_socialMigrar = $this->buscar_razon_social($rucMigrar);
                     }
-                }
+                }*/
             }
 
             if ($tipoMigrar == "01") {
