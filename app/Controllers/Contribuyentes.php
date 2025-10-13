@@ -51,10 +51,17 @@ class Contribuyentes extends BaseController
 
         $certi = new CertificadoDigitalModel();
 
-        $consulta_certificado_por_vencer = $certi->query("SELECT c.ruc, c.razon_social, cd.tipo_certificado, DATE_FORMAT(cd.fecha_inicio, '%d-%m-%Y') as fecha_inicio, DATE_FORMAT(cd.fecha_vencimiento, '%d-%m-%Y') as fecha_vencimiento
+        $consulta_certificado_por_vencer = $certi->query("SELECT c.ruc, c.razon_social, cd.tipo_certificado, 
+       DATE_FORMAT(cd.fecha_inicio, '%d-%m-%Y') as fecha_inicio, 
+       DATE_FORMAT(cd.fecha_vencimiento, '%d-%m-%Y') as fecha_vencimiento
         FROM certificado_digital cd
-        inner join contribuyentes c on c.id = cd.contribuyente_id
-        WHERE cd.fecha_vencimiento <= DATE_ADD(NOW(), INTERVAL 30 DAY) and cd.estado = 1 and c.estado = 1 ORDER BY cd.fecha_vencimiento asc;")->getResult();
+        INNER JOIN contribuyentes c ON c.id = cd.contribuyente_id
+        INNER JOIN sistemas_contribuyente sc ON sc.contribuyente_id = c.id
+        WHERE cd.fecha_vencimiento <= DATE_ADD(NOW(), INTERVAL 30 DAY) 
+        AND cd.estado = 1 
+        AND c.estado = 1
+        AND sc.system_id != 3
+        ORDER BY cd.fecha_vencimiento ASC;")->getResult();
 
         $numeros = new NumeroWhatsappModel();
         $numeros_whatsapp = $numeros->where('estado', 1)->findAll();
