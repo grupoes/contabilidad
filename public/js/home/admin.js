@@ -115,7 +115,7 @@ function viewContribuyentesPdts() {
       data.forEach((pdt) => {
         let button = "";
 
-        if (pdt.tipo_contrato == "actual") {
+        if (pdt.registro == 0) {
           button = `
             <button type="button" class="btn btn-info btn-sm" onclick="excluirPeriodo('${pdt.ruc}', ${pdt.id_mes}, ${pdt.id_anio})">
               <i class="fas fa-minus"></i>

@@ -58,33 +58,6 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-xl-3">
-            <div class="card social-widget-card bg-info">
-                <div class="card-body">
-                    <h3 class="text-white m-0">1323949.77</h3>
-                    <span class="m-t-10">Ingresos Totales</span>
-                    <i class="ti ti-trending-up"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <div class="card social-widget-card bg-danger">
-                <div class="card-body">
-                    <h3 class="text-white m-0">1317165.44</h3>
-                    <span class="m-t-10">Egresos Totales</span>
-                    <i class="ti ti-trending-down"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <div class="card social-widget-card bg-success">
-                <div class="card-body">
-                    <h3 class="text-white m-0">6784.33</h3>
-                    <span class="m-t-10">Saldo Actual</span>
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
-            </div>
-        </div>
 
     </div>
 
@@ -460,6 +433,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 
-<script src="<?= base_url() ?>js/home/admin.js?v=1"></script>
+<script src="<?= base_url() ?>js/home/admin.js?v=2"></script>
 
 <?= $this->endSection() ?>

@@ -587,6 +587,7 @@ class Notificaciones extends ResourceController
             $id_anio = $value['id_anio'];
             $id_mes = $value['id_mes'];
             $id_numero = $value['id_numero'];
+            $anio_des = (int) $value['anio_descripcion'];
 
             $digito = $id_numero - 1;
 
@@ -595,22 +596,36 @@ class Notificaciones extends ResourceController
             foreach ($contribuyentes as $keys => $values) {
                 $ruc = $values['ruc'];
 
-                $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getResultArray();
+                $mes = (int)date("m", strtotime($values['fechaContrato']));
+                $anio = (int)date("Y", strtotime($values['fechaContrato']));
 
-                if (!$pdtRenta) {
-                    $array[] = [
-                        'contribuyente_id' => $values['id'],
-                        'ruc' => $ruc,
-                        'razon_social' => $values['razon_social'],
-                        'anio' => $value['anio_descripcion'],
-                        'mes' => $value['mes_descripcion'],
-                        'numero' => $id_numero - 1,
-                        'fecha_exacta' => $value['fecha_exacta'],
-                        'fechaContrato' => $values['fechaContrato'],
-                        'tipo_contrato' => $values['tipo_contrato'],
-                        'id_anio' => $id_anio,
-                        'id_mes' => $id_mes
-                    ];
+                if ($id_mes >= $mes && $anio_des >= $anio) {
+                    $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getResultArray();
+
+                    if (!$pdtRenta) {
+                        $renta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc'")->getResultArray();
+
+                        $registro = 0;
+
+                        if ($renta) {
+                            $registro = 1;
+                        }
+
+                        $array[] = [
+                            'contribuyente_id' => $values['id'],
+                            'ruc' => $ruc,
+                            'razon_social' => $values['razon_social'],
+                            'anio' => $value['anio_descripcion'],
+                            'mes' => $value['mes_descripcion'],
+                            'numero' => $id_numero - 1,
+                            'fecha_exacta' => $value['fecha_exacta'],
+                            'fechaContrato' => $values['fechaContrato'],
+                            'tipo_contrato' => $values['tipo_contrato'],
+                            'id_anio' => $id_anio,
+                            'id_mes' => $id_mes,
+                            'registro' => $registro
+                        ];
+                    }
                 }
             }
         }
