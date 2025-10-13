@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\ContribuyenteModel;
+
 class Home extends BaseController
 {
     public function index()
@@ -12,13 +14,24 @@ class Home extends BaseController
 
         $menu = $this->permisos_menu();
 
+        $cont = new ContribuyenteModel();
+        $contribuyentes = $cont->where('estado', 1)->findAll();
+        $countCont = count($contribuyentes);
+
         switch (session()->perfil_id) {
             case '3':
                 return view('home/cajero', compact('menu'));
                 break;
 
+            case '2':
+                return view('home/index', compact('menu', 'countCont'));
+                break;
+            case '1':
+                return view('home/index', compact('menu', 'countCont'));
+                break;
+
             default:
-                return view('home/index', compact('menu'));
+                return view('home/default', compact('menu'));
                 break;
         }
     }

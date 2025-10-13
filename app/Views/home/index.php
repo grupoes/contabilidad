@@ -52,7 +52,7 @@
         <div class="col-md-6 col-xl-3">
             <div class="card social-widget-card bg-primary">
                 <div class="card-body">
-                    <h3 class="text-white m-0">88</h3>
+                    <h3 class="text-white m-0" id="empresas_activas"><?= $countCont ?></h3>
                     <span class="m-t-10">Empresas Activas</span>
                     <i class="fas fa-home"></i>
                 </div>
