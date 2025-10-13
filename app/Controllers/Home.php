@@ -31,7 +31,7 @@ class Home extends BaseController
                 break;
 
             default:
-                return view('home/default', compact('menu'));
+                return view('home/cajero', compact('menu'));
                 break;
         }
     }
