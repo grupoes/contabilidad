@@ -16,6 +16,15 @@ const hasta = document.getElementById("hasta");
 
 const estado = document.getElementById("estado");
 
+const swalWithBootstrapButtons = Swal.mixin({
+  customClass: {
+    confirmButton: "btn btn-success",
+    cancelButton: "btn btn-danger",
+  },
+  showConfirmButton: true,
+  buttonsStyling: false,
+});
+
 renderContribuyentes();
 
 function renderContribuyentes() {
@@ -97,15 +106,12 @@ const notingConfig = document.getElementById("notingConfig");
 const widthConfig = document.getElementById("widthConfig");
 
 const typePdt = document.getElementById("typePdt");
-const cargo = document.getElementById("cargo");
-const divMonto = document.getElementById("divMonto");
-const divDescripcion = document.getElementById("divDescripcion");
 
 function verificarConfiguracion(ruc) {
   fetch(base_url + "pdtAnual/verificar/" + ruc)
     .then((res) => res.json())
     .then((data) => {
-      const monto = document.getElementById("monto");
+      const monto = document.getElementById("monto_anual");
       monto.value = data.montoAnual;
 
       const pdts = data.tipo_pdt;
@@ -211,16 +217,6 @@ function descargaMasiva(id) {
     });
 }
 
-cargo.addEventListener("click", (e) => {
-  if (e.target.checked) {
-    divMonto.removeAttribute("hidden");
-    divDescripcion.removeAttribute("hidden");
-  } else {
-    divMonto.setAttribute("hidden", true);
-    divDescripcion.setAttribute("hidden", true);
-  }
-});
-
 const formConsulta = document.getElementById("formConsulta");
 const listfiles = document.getElementById("list-files");
 
@@ -320,6 +316,92 @@ formArchivo.addEventListener("submit", (e) => {
   })
     .then((res) => res.json())
     .then((data) => {
-      console.log(data);
+      if (data.status === "success") {
+        $("#modalArchivo").modal("hide");
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: data.message,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        return false;
+      }
+
+      $("#modalArchivo").modal("hide");
+
+      swalWithBootstrapButtons
+        .fire({
+          title: "Error!",
+          text: data.message,
+          icon: "error",
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            $("#modalArchivo").modal("show");
+            // Aquí puedes realizar cualquier acción adicional
+          }
+        });
     });
 });
+
+typePdt.addEventListener("change", (e) => {
+  const pdt = e.target.value;
+  const generar_factura = document.getElementById("generar_factura");
+  const monto_anual = document.getElementById("monto_anual");
+
+  if (pdt == 3) {
+    generar_factura.innerHTML = `
+      <div class="col-md-6 mb-3">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="cargo" id="cargo" value="1" checked>
+            <label class="form-check-label" for="cargo">CARGO GRUPO ES CONSULTORES</label>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3 view_factura" id="divMonto">
+          <label class="form-label" for="monto">Monto</label>
+          <input type="number" class="form-control" name="monto" id="monto" value="${monto_anual.value}">
+      </div>
+
+      <div class="col-md-12 mb-3 view_factura" id="divDescripcion">
+        <label class="form-label" for="descripcion">Descripción Factura</label>
+        <input type="text" class="form-control" name="descripcion" id="descripcion">
+      </div>
+    `;
+
+    // Agregar evento después de crear el HTML
+    const cargoCheckbox = document.getElementById("cargo");
+    cargoCheckbox.addEventListener("change", toggleFacturaFields);
+
+    // Ejecutar una vez al cargar
+    toggleFacturaFields();
+  } else {
+    generar_factura.innerHTML = "";
+  }
+});
+
+function toggleFacturaFields() {
+  const cargoCheckbox = document.getElementById("cargo");
+  const facturaFields = document.querySelectorAll(".view_factura");
+
+  if (cargoCheckbox.checked) {
+    facturaFields.forEach((field) => (field.style.display = "block"));
+  } else {
+    facturaFields.forEach((field) => (field.style.display = "none"));
+  }
+}
+
+/*const cargo = document.getElementById("cargo");
+const divMonto = document.getElementById("divMonto");
+const divDescripcion = document.getElementById("divDescripcion");
+
+cargo.addEventListener("click", (e) => {
+  if (e.target.checked) {
+    divMonto.removeAttribute("hidden");
+    divDescripcion.removeAttribute("hidden");
+  } else {
+    divMonto.setAttribute("hidden", true);
+    divDescripcion.setAttribute("hidden", true);
+  }
+});*/
