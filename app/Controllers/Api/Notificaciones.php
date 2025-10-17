@@ -20,6 +20,7 @@ use App\Models\TipoCambioModel;
 use App\Models\SistemaModel;
 use App\Models\PagoServidorModel;
 use App\Models\ServidorModel;
+use App\Models\PdtAnualModel;
 
 use DateTime;
 
@@ -1093,6 +1094,60 @@ class Notificaciones extends ResourceController
         } catch (\Exception $e) {
             return $this->respond([
                 "respuesta" => "error",
+                "message" => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function renderPdtAnualesFacturas()
+    {
+        $pdt = new PdtAnualModel();
+
+        try {
+            $datos = $pdt->where('estado_envio', 'Pendiente')->where('cargo', 1)->findAll();
+
+            $array = array(
+                "status" => "success",
+                "data" => $datos
+            );
+
+            return $this->respond($array);
+        } catch (\Exception $e) {
+            return $this->respond([
+                "status" => "error",
+                "message" => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function updatePagoAnual()
+    {
+        $pdt = new PdtAnualModel();
+
+        try {
+
+            $datos = $this->request->getJSON();
+
+            $estado = "Generado";
+            $id = $datos->id;
+            $link_pdf = $datos->link_pdf;
+            $link_ticket = $datos->link_ticket;
+
+            $datos = [
+                "estado_envio" => $estado,
+                "link_pdf" => $link_pdf,
+                "link_ticket" => $link_ticket
+            ];
+
+            $pdt->update($id, $datos);
+
+            return $this->respond([
+                "status" => "success",
+                "message" => "Actualizado correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                "status" => "error",
                 "message" => $e->getMessage()
             ]);
         }

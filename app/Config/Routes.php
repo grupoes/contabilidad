@@ -230,6 +230,9 @@ $routes->get('api/consulta-tipo-cambio/(:any)', 'Api\Notificaciones::getConsulta
 $routes->get('api/get-contribuyentes-servidor', 'Api\Notificaciones::savePagoServidor');
 $routes->post('api/generar-nota-venta-servidor', 'Api\Notificaciones::sendNotaVenta');
 
+$routes->get('api/pagos-anuales-pendientes', 'Api\Notificaciones::renderPdtAnualesFacturas');
+$routes->post('api/update-pagos-anuales', 'Api\Notificaciones::updatePagoAnual');
+
 $routes->get('mensajes-masivos', 'Mensajes::index');
 $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');
 $routes->get('lista-mensajes', 'Mensajes::listaMensajes');
