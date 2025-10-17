@@ -207,3 +207,64 @@ function viewListContribuyentesServidor(data) {
 
   new $.fn.dataTable.Responsive(newcsServidor);
 }
+
+//para los pagos anuales
+const selectOpcionesAnual = document.getElementById("selectOpcionesAnual");
+const estado_anual = document.getElementById("estado_anual");
+const tableBodyAnual = document.querySelector("#tableBodyAnual");
+
+const tanual = $("#tableDataAnual").DataTable(optionsTableDefault);
+
+new $.fn.dataTable.Responsive(tanual);
+
+loadDeudasAnuales();
+
+function loadDeudasAnuales() {
+  fetch(
+    base_url +
+      "deudas-anuales/" +
+      selectOpcionesAnual.value +
+      "/" +
+      estado_anual.value
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      viewDeudasAnuales(data);
+    });
+}
+
+function viewDeudasAnuales(data) {
+  let html = "";
+
+  data.forEach((emp, index) => {
+    html += `
+    <tr>
+      <td>${index + 1}</td>
+      <td>
+        <div class="row">
+            <div class="col">
+                <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${
+                  emp.id
+                }">${emp.ruc}</a></h6>
+                <p class="text-muted f-14 mb-0"> ${emp.razon_social} </p>
+            </div>
+        </div>
+      </td>
+      <td>${emp.pagos_pendientes}</td>
+      <td>
+        <a href="${base_url}cobrar-anual/${
+      emp.id
+    }" class="btn btn-success">COBRAR</a>
+      </td>
+    </tr>
+    `;
+  });
+
+  $("#tableDataAnual").DataTable().destroy();
+
+  tableBodyAnual.innerHTML = html;
+
+  const tanual1 = $("#tableDataAnual").DataTable(optionsTableDefault);
+
+  new $.fn.dataTable.Responsive(tanual1);
+}

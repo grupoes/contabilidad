@@ -103,23 +103,12 @@
                             <label class="form-label" for="constancia">Subir Constancia</label>
                             <input type="file" class="form-control" name="constancia" id="constancia" accept="application/pdf" required>
                         </div>
+                    </div>
 
-                        <div class="col-md-6 mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="cargo" id="cargo" value="1" checked>
-                                <label class="form-check-label" for="cargo">CARGO GRUPO ES CONSULTORES</label>
-                            </div>
-                        </div>
+                    <input type="hidden" id="monto_anual">
 
-                        <div class="col-md-6 mb-3" id="divMonto">
-                            <label class="form-label" for="monto">Monto</label>
-                            <input type="number" class="form-control" name="monto" id="monto">
-                        </div>
+                    <div class="row" id="generar_factura">
 
-                        <div class="col-md-12 mb-3" id="divDescripcion">
-                            <label class="form-label" for="descripcion">Descripción Factura</label>
-                            <input type="text" class="form-control" name="descripcion" id="descripcion">
-                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -13,7 +13,7 @@ class PdtAnualModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id_pdt_anual', 'ruc_empresa', 'periodo', 'id_pdt_tipo', 'cargo', 'monto', 'descripcion', 'link', 'user_add', 'user_edit', 'user_delete', 'estado'];
+    protected $allowedFields = ['id_pdt_anual', 'ruc_empresa', 'periodo', 'id_pdt_tipo', 'cargo', 'razon_social', 'monto', 'descripcion', 'link_pdf', 'link_ticket', 'estado_envio', 'user_add', 'user_edit', 'user_delete', 'estado'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

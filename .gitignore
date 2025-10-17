@@ -133,6 +133,7 @@ nb-configuration.xml
 /public/contratos/*
 /public/servidor/*
 /public/documents/*
+/public/pagoAnual/*
 
 /writable/keys.json
 /writable/temp/*

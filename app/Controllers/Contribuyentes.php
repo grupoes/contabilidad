@@ -52,8 +52,8 @@ class Contribuyentes extends BaseController
         $certi = new CertificadoDigitalModel();
 
         $consulta_certificado_por_vencer = $certi->query("SELECT c.ruc, c.razon_social, cd.tipo_certificado, 
-       DATE_FORMAT(cd.fecha_inicio, '%d-%m-%Y') as fecha_inicio, 
-       DATE_FORMAT(cd.fecha_vencimiento, '%d-%m-%Y') as fecha_vencimiento
+        DATE_FORMAT(cd.fecha_inicio, '%d-%m-%Y') as fecha_inicio, 
+        DATE_FORMAT(cd.fecha_vencimiento, '%d-%m-%Y') as fecha_vencimiento
         FROM certificado_digital cd
         INNER JOIN contribuyentes c ON c.id = cd.contribuyente_id
         INNER JOIN sistemas_contribuyente sc ON sc.contribuyente_id = c.id

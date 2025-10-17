@@ -1,22 +1,21 @@
-<?php namespace App\Models;
+<?php
 
-    use CodeIgniter\Model;
+namespace App\Models;
 
-    class ArchivosPdtAnualModel extends Model
-    {
-        protected $table      = 'archivos_pdtanual';
-        protected $primaryKey = 'id_archivo_anual';
+use CodeIgniter\Model;
 
-        protected $useAutoIncrement = true;
+class ArchivosPdtAnualModel extends Model
+{
+    protected $table      = 'archivos_pdtanual';
+    protected $primaryKey = 'id_archivo_anual';
 
-        protected $returnType     = 'array';
+    protected $useAutoIncrement = true;
 
-        protected $allowedFields = ['id_archivo_anual','id_pdt_anual', 'pft', 'constancia', 'estado', 'user_id', 'user_edit', 'user_delete'];
+    protected $returnType     = 'array';
 
-        protected $useTimestamps = true;
-        protected $createdField  = 'created_at';
-        protected $updatedField  = 'updated_at';
+    protected $allowedFields = ['id_archivo_anual', 'id_pdt_anual', 'pdt', 'constancia', 'estado', 'user_add', 'user_edit', 'user_delete'];
 
-    }
-
-?>
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+}

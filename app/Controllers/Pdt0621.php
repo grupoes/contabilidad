@@ -36,6 +36,8 @@ class Pdt0621 extends BaseController
         $files = new ArchivosPdt0621Model();
 
         try {
+            $files->db->transBegin();
+
             if (!$this->request->is('post')) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Método no permitido']);
             }
@@ -132,8 +134,16 @@ class Pdt0621 extends BaseController
                 $pdtRenta->update($pdtRentaId, $data_update);
             }
 
+            if ($files->db->transStatus() === false) {
+                $files->db->transRollback();
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            $files->db->transCommit();
+
             return $this->response->setJSON(['status' => 'success', 'message' => "Se registro correctamente"]);
         } catch (\Exception $e) {
+            $files->db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }

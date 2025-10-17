@@ -69,6 +69,11 @@ $routes->get('render-montos/(:num)', 'Cobros::renderMontos/$1');
 $routes->post('montos/add-monto', 'Cobros::addMonto');
 $routes->get('render-pagos-servidor/(:num)', 'Cobros::renderPagosServidor/$1');
 $routes->get('deudores-servidor', 'Cobros::renderContribuyentesDeuda');
+$routes->get('deudas-anuales/(:any)/(:num)', 'Cobros::getCobrosAnuales/$1/$2');
+$routes->get('cobrar-anual/(:num)', 'Cobros::cobrarAnualView/$1');
+$routes->get('render-pagos-anuales/(:num)', 'Cobros::renderPagosAnual/$1');
+$routes->get('monto-anual/(:num)', 'Cobros::montoAnual/$1');
+$routes->post('cobros/pagar-anual', 'Cobros::pagarAnual');
 
 $routes->get('pago-honorario/(:num)', 'Pago::pagosHonorarios/$1');
 $routes->get('pagos/lista-pagos/(:num)', 'Pago::listaPagos/$1');

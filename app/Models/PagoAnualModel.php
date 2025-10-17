@@ -13,7 +13,7 @@ class PagoAnualModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'contribuyente_id', 'fecha_pago', 'fecha_proceso', 'monto_total', 'fecha_inicio', 'fecha_fin', 'monto_pagado', 'monto_pendiente', 'usuario_id_cobra', 'estado'];
+    protected $allowedFields = ['id', 'pdt_anual_id', 'contribuyente_id', 'fecha_pago', 'fecha_proceso', 'monto_total', 'anio_correspondiente', 'monto_pagado', 'monto_pendiente', 'usuario_id_cobra', 'estado'];
 
     protected $useTimestamps = false;
     protected $createdField  = 'created_at';
