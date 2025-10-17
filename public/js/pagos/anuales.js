@@ -20,7 +20,7 @@ function renderPagos(idcontribuyente) {
 }
 
 function renderPagosServidor(idcontribuyente) {
-  fetch(base_url + "pagos/render-amortizacion-servidor/" + idcontribuyente)
+  fetch(base_url + "cobros/render-amortizacion/" + idcontribuyente)
     .then((res) => res.json())
     .then((data) => {
       viewPagosHonorarios(data);
@@ -91,7 +91,7 @@ function viewPagosHonorarios(data) {
     let pagosHtml = `<ul>`;
 
     pagos.forEach((item) => {
-      pagosHtml += `<li> ${item.fecha_inicio} - ${item.fecha_fin} (${item.monto})</li>`;
+      pagosHtml += `<li> ${item.anio_correspondiente} (${item.monto})</li>`;
     });
 
     pagosHtml += `</ul>`;
@@ -118,7 +118,7 @@ function viewPagosHonorarios(data) {
             <td>${pago.metodo}</td>
             <td>${pago.monto}</td>
             <td> 
-                <a href="#" data-lightbox="${base_url}servidor/${pago.vaucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
+                <a href="#" data-lightbox="${base_url}pagoAnual/${pago.vaucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
             </td>
             <td>
                 ${botonDelete}
@@ -182,6 +182,16 @@ formPago.addEventListener("submit", (e) => {
             //renderPagosServidor(idContribuyente.value);
 
             getMontoPendiente();
+
+            return false;
+          }
+
+          if (data.status === "warning") {
+            Swal.fire({
+              icon: "warning",
+              title: "Oops...",
+              text: data.message,
+            });
 
             return false;
           }
@@ -299,7 +309,7 @@ function deletePago(e, id) {
 
         const messageSpinner = document.getElementById("messageSpinner");
         messageSpinner.textContent = "Eliminando pago...";
-        fetch(`${base_url}pagos/delete-pago-servidor/${id}`)
+        fetch(`${base_url}cobros/delete-pago-anual/${id}`)
           .then((res) => res.json())
           .then((data) => {
             hideLoader();
@@ -338,7 +348,7 @@ formEditImage.addEventListener("submit", (e) => {
 
   const formData = new FormData(formEditImage);
 
-  fetch(`${base_url}pagos/update-voucher-servidor`, {
+  fetch(`${base_url}cobros/update-voucher-anual`, {
     method: "POST",
     body: formData,
   })
@@ -381,7 +391,7 @@ function editPago(e, id, index) {
     })
     .split(",")[0];
 
-  fetch(`${base_url}pagos/get-pago-servidor/${id}`)
+  fetch(`${base_url}detail-amort-anual/${id}`)
     .then((res) => res.json())
     .then((data) => {
       const metodoPago = document.getElementById("metodo_pago");
@@ -424,7 +434,7 @@ formEditPago.addEventListener("submit", (e) => {
   const messageSpinner = document.getElementById("messageSpinner");
   messageSpinner.textContent = "Actualizando pago...";
 
-  fetch(`${base_url}pagos/update-pago-servidor`, {
+  fetch(`${base_url}cobros/update-pago-anual`, {
     method: "POST",
     body: formData,
   })
@@ -446,6 +456,12 @@ formEditPago.addEventListener("submit", (e) => {
         return false;
       }
 
+      if (data.status == "warning") {
+        alert(data.message);
+
+        return false;
+      }
+
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -463,7 +479,7 @@ function getMontoPendiente() {
       if (data.status == "success") {
         monto.value = data.monto;
       } else {
-        alert(data.message);
+        monto.value = "0.00";
       }
     });
 }
@@ -495,8 +511,8 @@ function verNotaVenta(id) {
   alert(id);
 }
 
-const linkServidorTab = document.getElementById("linkServidorTab");
+const linkTab = document.getElementById("linkTab");
 
-linkServidorTab.addEventListener("click", (e) => {
-  window.location.href = `${base_url}cobros?tab=servidor`;
+linkTab.addEventListener("click", (e) => {
+  window.location.href = `${base_url}cobros?tab=honorarios-anuales`;
 });

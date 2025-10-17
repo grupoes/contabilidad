@@ -74,6 +74,11 @@ $routes->get('cobrar-anual/(:num)', 'Cobros::cobrarAnualView/$1');
 $routes->get('render-pagos-anuales/(:num)', 'Cobros::renderPagosAnual/$1');
 $routes->get('monto-anual/(:num)', 'Cobros::montoAnual/$1');
 $routes->post('cobros/pagar-anual', 'Cobros::pagarAnual');
+$routes->get('cobros/render-amortizacion/(:num)', 'Cobros::renderAmortizacionAnual/$1');
+$routes->get('detail-amort-anual/(:num)', 'Cobros::getPagoAnual/$1');
+$routes->get('cobros/delete-pago-anual/(:num)', 'Cobros::deletePagoAnual/$1');
+$routes->post('cobros/update-pago-anual', 'Cobros::updatePagoAnual');
+$routes->post('cobros/update-voucher-anual', 'Cobros::updateVaucherAnual');
 
 $routes->get('pago-honorario/(:num)', 'Pago::pagosHonorarios/$1');
 $routes->get('pagos/lista-pagos/(:num)', 'Pago::listaPagos/$1');

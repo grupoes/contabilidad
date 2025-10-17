@@ -13,7 +13,7 @@ class AmortizacionPagoAnualModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'pago_servidor_id', 'pago_amortizacion_id', 'monto'];
+    protected $allowedFields = ['id', 'pago_anual_id', 'amop_id', 'monto'];
 
     protected $useTimestamps = false;
     protected $createdField  = 'created_at';

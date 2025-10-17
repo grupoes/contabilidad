@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Models\ContribuyenteModel;
 use App\Models\SistemaModel;
 use App\Models\MetodoPagoModel;
-use App\Models\TipoComprobanteModel;
+use App\Models\MovimientoModel;
 use App\Models\ServidorModel;
 use App\Models\PagoServidorModel;
 use App\Models\PagoAnualModel;
@@ -261,7 +261,7 @@ class Cobros extends BaseController
             $tipo_servicio = " AND tipoServicio = '$tipo' ";
         }
 
-        $contribuyentes = $contribuyente->query("SELECT c.id, c.ruc, c.razon_social,  COUNT(pa.id) AS pagos_pendientes FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc LEFT JOIN pago_anual pa ON pa.contribuyente_id = c.id AND pa.estado = 'Pendiente' where cn.id_tributo != 2 and c.estado = $estado $tipo_servicio GROUP BY c.id, c.ruc, c.razon_social ORDER BY pagos_pendientes DESC")->getResultArray();
+        $contribuyentes = $contribuyente->query("SELECT c.id, c.ruc, c.razon_social, (SELECT COUNT(*) FROM pago_anual p WHERE p.contribuyente_id = c.id AND p.estado = 'Pendiente') AS pagos_pendientes FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo != 2 and c.estado = $estado $tipo_servicio GROUP BY c.id, c.ruc, c.razon_social ORDER BY pagos_pendientes DESC")->getResultArray();
 
         return $this->response->setJSON($contribuyentes);
     }
@@ -319,9 +319,11 @@ class Cobros extends BaseController
         $pagoAnual = new PagoAnualModel();
         $contrib = new ContribuyenteModel();
         $paAmor = new PagoAmoAnualModel();
+        $detalle = new AmortizacionPagoAnualModel();
+
+        $pagoAnual->db->transBegin();
 
         try {
-            $pagoAnual->db->transBegin();
 
             $idContribuyente = $this->request->getvar('idcontribuyente');
             $metodoPago = $this->request->getvar('metodoPago');
@@ -360,7 +362,7 @@ class Cobros extends BaseController
                 +$iduser = session()->id;
             }
 
-            $descripcion = "Pago de Servidor de " . $dataContrib['razon_social'];
+            $descripcion = "Pago Anual de " . $dataContrib['razon_social'];
 
             $idMovimiento = $this->generarMovimiento($sesionId, 1, 1, $metodoPago, $monto, $descripcion, 5, 'TICKET - 0001', 1, $fecha_proceso, $nameFile, $iduser);
 
@@ -380,7 +382,7 @@ class Cobros extends BaseController
 
             $idPagoAmor = $paAmor->getInsertID();
 
-            $pagos_servidor = $this->procesoPagoAnual($idContribuyente, $monto, $fecha_proceso, $idPagoAmor);
+            $this->insertPagosAnuales($idPagoAmor, $monto, $idContribuyente, $fecha_proceso);
 
             if ($pagoAnual->db->transStatus() === false) {
                 $pagoAnual->db->transRollback();
@@ -399,167 +401,293 @@ class Cobros extends BaseController
         }
     }
 
-    function procesoPagoAnual($idContribuyente, $monto, $fecha_proceso, $idPagoAmor)
+    public function insertPagosAnuales($idPagoAmor, $monto, $idContribuyente, $fecha_proceso)
     {
         $pagoAnual = new PagoAnualModel();
-        $detallePagos = new AmortizacionPagoAnualModel();
-        $servidor = new ServidorModel();
+        $detalle = new AmortizacionPagoAnualModel();
 
-        $consulta_pendientes = $pagoAnual->where('contribuyente_id', $idContribuyente)->where('estado', 'Pendiente')->orderBy('id', 'asc')->findAll();
+        $getPendientes = $pagoAnual->select('SUM(monto_pendiente) as pendientes')->where('estado', 'Pendiente')->where('contribuyente_id', $idContribuyente)->first();
 
-        foreach ($consulta_pendientes as $key => $value) {
+        $pendientes = $getPendientes['pendientes'];
 
-            $monto_total = $value['monto_total'];
+        if ($pendientes == 0) {
+            return $this->response->setJSON([
+                "status" => "warning",
+                "message" => "No hay pagos pendientes para este contribuyente",
+            ]);
+        }
 
-            if ($monto == 0) {
+        if ($monto > $pendientes) {
+            return $this->response->setJSON([
+                "status" => "warning",
+                "message" => "El monto a pagar es mayor al monto pendiente",
+            ]);
+        }
+
+        $data_pendientes = $pagoAnual->where('estado', 'Pendiente')->where('contribuyente_id', $idContribuyente)->orderBy('id', 'asc')->findAll();
+
+        $i = 0;
+
+        while ($monto > 0) {
+            $id = $data_pendientes[$i]['id'];
+            $monto_pendiente = $data_pendientes[$i]['monto_pendiente'];
+            $monto_pagado = $data_pendientes[$i]['monto_pagado'];
+
+            if ($monto_pendiente <= $monto) {
+                $monto_pagado = $monto_pagado + $monto_pendiente;
+
+                $pagoAnual->update($id, [
+                    "fecha_pago" => date('Y-m-d H:i:s'),
+                    "fecha_proceso" => $fecha_proceso,
+                    "monto_pendiente" => 0.00,
+                    "monto_pagado" => $monto_pagado,
+                    "estado" => "pagado",
+                ]);
+
+                $datosPagos = array(
+                    "pago_anual_id" => $id,
+                    "amop_id" => $idPagoAmor,
+                    "monto" => $monto,
+                );
+
+                $detalle->insert($datosPagos);
+
+                $monto = $monto - $monto_pendiente;
+            } else {
+                $monto_pendiente = $monto_pendiente - $monto;
+
+                $monto_pagado = $monto_pagado + $monto;
+
+                $pagoAnual->update($id, [
+                    "fecha_pago" => date('Y-m-d H:i:s'),
+                    "fecha_proceso" => $fecha_proceso,
+                    "monto_pendiente" => $monto_pendiente,
+                    "monto_pagado" => $monto_pagado,
+                    "estado" => "Pendiente",
+                ]);
+
+                $datosPagos = array(
+                    "pago_anual_id" => $id,
+                    "amop_id" => $idPagoAmor,
+                    "monto" => $monto,
+                );
+
+                $detalle->insert($datosPagos);
+
+                $monto = 0;
+            }
+
+            $i++;
+        }
+    }
+
+    public function renderAmortizacionAnual($id)
+    {
+        $paAmor = new PagoAmoAnualModel();
+        $detalle = new AmortizacionPagoAnualModel();
+
+        $paAmor->query("SET lc_time_names = 'es_ES'");
+
+        $pagos = $paAmor->query("SELECT p.id, p.contribuyente_id, DATE_FORMAT(p.fecha_pago , '%d-%m-%Y') as fecha_pago, DATE_FORMAT(p.registro, '%d-%m-%Y %H-%i-%s') as registro, p.fecha, p.monto, p.estado, p.vaucher, mp.metodo from amo_pagos_anual p INNER JOIN metodos_pagos mp ON mp.id = p.metodo_pago_id where p.contribuyente_id = $id and p.estado = 1 order by p.id desc")->getResult();
+
+        foreach ($pagos as $key => $value) {
+            $id = $value->id;
+
+            $detalle_pagos = $detalle->query("SELECT pa.monto, p.anio_correspondiente FROM amortizacion_pago_anual as pa INNER JOIN pago_anual as p ON p.id = pa.pago_anual_id WHERE pa.amop_id = $id")->getResult();
+
+            $pagos[$key]->pagos = $detalle_pagos;
+        }
+
+        return $this->response->setJSON($pagos);
+    }
+
+    public function getPagoAnual($id)
+    {
+        $pago = new PagoAmoAnualModel();
+
+        $data = $pago->find($id);
+
+        return $this->response->setJSON($data);
+    }
+
+    public function deletePagoAnual($id)
+    {
+        $pagoHo = new PagoAmoAnualModel();
+        $mov = new MovimientoModel();
+        $detalle = new AmortizacionPagoAnualModel();
+
+        $pagoHo->db->transStart();
+
+        try {
+            $data = $pagoHo->find($id);
+
+            $contribId = $data['contribuyente_id'];
+            $monto = $data['monto'];
+            $moviId = $data['movimientoId'];
+
+            $mov->update($moviId, ['mov_estado' => 0]);
+
+            $pagoHo->update($id, ['estado' => 0]);
+
+            $detalle->where('amop_id', $id)->delete();
+
+            $this->deletePagosAnuales($contribId, $monto);
+
+            $pagoHo->db->transComplete();
+
+            if ($pagoHo->db->transStatus() === false) {
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se elimino correctamente"
+            ]);
+        } catch (\Exception $e) {
+            $pagoHo->db->transRollback();
+
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function deletePagosAnuales($contribId, $monto)
+    {
+        $pago = new PagoAnualModel();
+
+        $dataPago = $pago->where('contribuyente_id', $contribId)->where('estado !=', 'eliminado')->orderBy('id', 'DESC')->findAll();
+
+        $montoRestante = $monto;
+
+        foreach ($dataPago as $key => $value) {
+            if ($montoRestante <= 0) {
                 break;
             }
 
-            if ($monto >= $monto_total) {
-                $estado = "pagado";
-                $newMonto = $monto_total;
-                $pendientePago = 0;
+            $montoPagado = $value['monto_pagado'];
+            $montoTotal = $value['monto_total'];
 
-                $dataUpdate = array(
-                    "fecha_pago" => date('Y-m-d H:i:s'),
-                    "fecha_proceso" => $fecha_proceso,
-                    "monto_pagado" => $newMonto,
-                    "monto_pendiente" => $pendientePago,
-                    "usuario_id_cobra" => session()->id,
-                    "estado" => $estado,
-                );
-
-                $pagoAnual->update($value['id'], $dataUpdate);
-
-                $datosPagos = array(
-                    "pago_anual_id" => $value['id'],
-                    "amop_id" => $idPagoAmor,
-                    "monto" => $newMonto,
-                );
-
-                $detallePagos->insert($datosPagos);
-
-                $monto = $monto - $monto_total;
+            if ($montoRestante >= $montoPagado) {
+                $pago->update($value['id'], ['estado' => 'eliminado']);
+                $montoRestante -= $montoPagado;
             } else {
+                $nuevoMontoPagado = $montoPagado - $montoRestante;
+                $nuevoMontoPendiente = $montoTotal - $nuevoMontoPagado;
 
-                if ($monto >= $value['monto_pendiente']) {
-                    $estado = "pagado";
-                    $newMonto = $value['monto_total'];
-                    $pendientePago = 0;
+                $pago->update($value['id'], [
+                    'monto_pagado' => $nuevoMontoPagado,
+                    'monto_pendiente' => $nuevoMontoPendiente,
+                    'estado' => 'pendiente'
+                ]);
 
-                    $monto = $monto - $value['monto_pendiente'];
-                } else {
-                    $estado = "Pendiente";
-                    $newMonto = $value['monto_pagado'] + $monto;
-                    $pendientePago = $value['monto_pendiente'] - $monto;
-
-                    $monto = 0;
-                }
-
-                $dataUpdate = array(
-                    "fecha_pago" => date('Y-m-d H:i:s'),
-                    "fecha_proceso" => $fecha_proceso,
-                    "monto_pagado" => $newMonto,
-                    "monto_pendiente" => $pendientePago,
-                    "usuario_id_cobra" => session()->id,
-                    "estado" => $estado,
-                );
-
-                $pagoAnual->update($value['id'], $dataUpdate);
-
-                $datosPagos = array(
-                    "pago_anual_id" => $value['id'],
-                    "amop_id" => $idPagoAmor,
-                    "monto" => $newMonto,
-                );
-
-                $detallePagos->insert($datosPagos);
+                $montoRestante = 0;
             }
         }
+    }
 
-        $monto_servidor = $servidor->where('contribuyente_id', $idContribuyente)->where('estado', 1)->first();
-        $monto_server = $monto_servidor['monto'];
+    public function updatePagoAnual()
+    {
+        $paAmor = new PagoAmoAnualModel();
+        $detalle = new AmortizacionPagoAnualModel();
+        $mov = new MovimientoModel();
 
-        $monto_restante = $monto;
+        try {
+            $detalle->db->transBegin();
 
-        $ultimo_registro = $pagoAnual->where('contribuyente_id', $idContribuyente)->where('estado !=', 'eliminado')->orderBy('id', 'desc')->first();
+            $id = $this->request->getVar('id_Pago');
+            $monto = $this->request->getVar('monto_mov');
+            $datePago = $this->request->getVar('datePago');
+            $metodo_pago = $this->request->getVar('metodo_pago');
+            $montoActual = $this->request->getVar('montoActual');
 
-        $fecha_inicio = $ultimo_registro['fecha_inicio'];
+            $dataPago = $paAmor->find($id);
 
-        while ($monto_restante > 0) {
+            $contribId = $dataPago['contribuyente_id'];
 
-            if ($ultimo_registro['estado'] == 'Pendiente') {
-                $monto_pendiente = $ultimo_registro['monto_pendiente'];
+            $montoOriginal = $monto;
 
-                if ($monto_restante >= $monto_pendiente) {
-                    $estado_pago = "pagado";
-                    $newMonto_pago = $ultimo_registro['monto_total'];
-                    $pendiente_pago = 0;
+            $detalle->where('amop_id', $id)->delete();
 
-                    $monto_restante = $monto_restante - $monto_pendiente;
-                } else {
-                    $estado_pago = "Pendiente";
-                    $newMonto_pago = $monto_restante + $monto_pendiente;
-                    $pendiente_pago = $monto_pendiente - $monto_restante;
+            $this->deletePagosAnuales($contribId, $montoActual);
 
-                    $monto_restante = 0;
-                }
+            $this->insertPagosAnuales($id, $monto, $contribId, $datePago);
 
-                $dataUpdate = array(
-                    "fecha_pago" => date('Y-m-d H:i:s'),
-                    "fecha_proceso" => $fecha_proceso,
-                    "monto_pagado" => $newMonto_pago,
-                    "monto_pendiente" => $pendiente_pago,
-                    "usuario_id_cobra" => session()->id,
-                    "estado" => $estado_pago,
-                );
+            $dataPagoHono = [
+                "monto" => $montoOriginal,
+                "fecha_pago" => $datePago,
+                "metodo_pago_id" => $metodo_pago
+            ];
 
-                $pagoAnual->update($ultimo_registro['id'], $dataUpdate);
-            } else {
-                if ($monto_restante >= $monto_server) {
-                    $estado_pago = "pagado";
-                    $newMonto_pago = $monto_server;
-                    $pendiente_pago = 0;
+            $paAmor->update($id, $dataPagoHono);
 
-                    $monto_restante = $monto_restante - $monto_server;
-                } else {
-                    $estado_pago = "Pendiente";
-                    $newMonto_pago = $monto_restante;
-                    $pendiente_pago = $monto_server - $monto_restante;
+            $movId = $dataPago['movimientoId'];
 
-                    $monto_restante = 0;
-                }
+            $dataMov = [
+                "mov_monto" => $montoOriginal,
+                "mov_fecha_pago" => $datePago,
+                "id_metodo_pago" => $metodo_pago
+            ];
 
-                $fecha_init = $fecha_inicio;
+            $mov->update($movId, $dataMov);
 
-                $newFechaInicio = $this->sumFechaAnio($fecha_init);
-                $newFechaFin = $this->sumFechaAnioServidor($newFechaInicio);
-
-                $fecha_inicio = $newFechaInicio;
-
-                $data_pago = array(
-                    "contribuyente_id" => $idContribuyente,
-                    "fecha_pago" => date('Y-m-d H:i:s'),
-                    "fecha_proceso" => $fecha_proceso,
-                    "monto_total" => $monto_server,
-                    "fecha_inicio" => $fecha_inicio,
-                    "fecha_fin" => $newFechaFin,
-                    "monto_pendiente" => $pendiente_pago,
-                    "monto_pagado" => $newMonto_pago,
-                    "usuario_id_cobra" => session()->id,
-                    "estado" => $estado_pago,
-                );
-
-                $pagoAnual->insert($data_pago);
-
-                $datosPagos = array(
-                    "pago_servidor_id" => $pagoAnual->getInsertID(),
-                    "pago_amortizacion_id" => $idPagoAmor,
-                    "monto" => $newMonto_pago,
-                );
-
-                $detallePagos->insert($datosPagos);
+            if ($detalle->db->transStatus() === false) {
+                $detalle->db->transRollback();
+                throw new \Exception("Error al realizar la operación.");
             }
+
+            $detalle->db->transCommit();
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se guardo correctamente"
+            ]);
+        } catch (\Exception $e) {
+            $detalle->db->transRollback();
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function updateVaucherAnual()
+    {
+        $pago = new PagoAmoAnualModel();
+
+        try {
+            $idPago = $this->request->getVar('idPago');
+            $voucher = $this->request->getFile('imagenVoucher');
+
+            $dataPago = $pago->find($idPago);
+
+            $nameFileDelete = $dataPago['vaucher'];
+
+            $filePath = FCPATH . 'pagoAnual/' . $nameFileDelete;
+
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+
+            $nameFile = "";
+
+            if ($voucher->isValid() && !$voucher->hasMoved()) {
+                $newName = $voucher->getRandomName();
+                $voucher->move(FCPATH . 'pagoAnual', $newName);
+
+                $nameFile = $newName;
+            }
+
+            $data = [
+                "vaucher" => $nameFile
+            ];
+
+            $pago->update($idPago, $data);
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se guardo correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
 }
