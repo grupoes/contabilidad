@@ -60,7 +60,11 @@ function viewPagos(data) {
             <td>${pago.anio_correspondiente}</td>
             <td>${pago.fecha_proceso !== null ? pago.fecha_proceso : ""}</td>
             <td>${pago.fecha_pago !== null ? pago.fecha_pago : ""}</td>
-            <td>${pago.link_pdf}</td>
+            <td>
+              <a href="${
+                pago.link_pdf
+              }" target="_blank"><i class="fas fa-file-pdf fs-4 text-danger"></i></a>
+            </td>
             <td><span class="badge bg-light-success f-14" onclick="verNotaVenta(${
               pago.id
             })" style="cursor: pointer">${pago.monto_total}</span></td>
