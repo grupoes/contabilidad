@@ -69,7 +69,7 @@
                         <div class="tab-content" id="myTabContent">
                             <div
                                 class="tab-pane fade show active"
-                                id="analytics-tab-1"
+                                id="analytics-tab-1-caja"
                                 role="tabpanel"
                                 aria-labelledby="analytics"
                                 tabindex="0">
@@ -86,7 +86,7 @@
             <div class="card">
                 <div class="card-body border-bottom pb-0">
                     <div class="d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0">Estados Clientes</h5>
+                        <h5 class="mb-0">CLIENTES MOROSOS</h5>
 
                     </div>
                     <ul
@@ -103,7 +103,7 @@
                                 role="tab"
                                 aria-controls="analytics-tab-1-pane"
                                 aria-selected="true">
-                                MOROSOS
+                                MENSUAL
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -116,7 +116,7 @@
                                 role="tab"
                                 aria-controls="analytics-tab-2-pane"
                                 aria-selected="false">
-                                MOROSOS ANUAL
+                                ANUAL
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -129,7 +129,7 @@
                                 role="tab"
                                 aria-controls="analytics-tab-3-pane"
                                 aria-selected="false">
-                                DEFECIT
+                                SERVIDOR
                             </button>
                         </li>
                     </ul>
@@ -141,75 +141,8 @@
                         role="tabpanel"
                         aria-labelledby="analytics-tab-1"
                         tabindex="0">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item pt-2 pb-2">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0">
-                                        <div class="avtar avtar-s border text-danger">2</div>
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <div class="row g-1">
-                                            <div class="col-6">
-                                                <h6 class="mb-0">Cliente 01</h6>
-                                            </div>
-                                            <div class="col-6 text-end">
-                                                <h6 class="mb-1">$210,000</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="list-group-item pt-2 pb-2">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0">
-                                        <div class="avtar avtar-s border text-danger">2</div>
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <div class="row g-1">
-                                            <div class="col-6">
-                                                <h6 class="mb-0">Cliente 01</h6>
-                                            </div>
-                                            <div class="col-6 text-end">
-                                                <h6 class="mb-1">$210,000</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="list-group-item pt-2 pb-2">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0">
-                                        <div class="avtar avtar-s border text-danger">2</div>
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <div class="row g-1">
-                                            <div class="col-6">
-                                                <h6 class="mb-0">Cliente 01</h6>
-                                            </div>
-                                            <div class="col-6 text-end">
-                                                <h6 class="mb-1">$210,000</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="list-group-item pt-2 pb-2">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0">
-                                        <div class="avtar avtar-s border text-danger">2</div>
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <div class="row g-1">
-                                            <div class="col-6">
-                                                <h6 class="mb-0">Cliente 01</h6>
-                                            </div>
-                                            <div class="col-6 text-end">
-                                                <h6 class="mb-1">$210,000</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
+                        <ul class="list-group list-group-flush" id="morosos_mensual" style="height: 300px; overflow-y: auto">
+
                         </ul>
                     </div>
                     <div
@@ -218,92 +151,7 @@
                         role="tabpanel"
                         aria-labelledby="analytics-tab-2"
                         tabindex="0">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0">
-                                        <div class="avtar avtar-s border text-danger">2</div>
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <div class="row g-1">
-                                            <div class="col-6">
-                                                <h6 class="mb-0">Cliente 01</h6>
-                                            </div>
-                                            <div class="col-6 text-end">
-                                                <h6 class="mb-1">$210,000</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="list-group-item">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0">
-                                        <div class="avtar avtar-s border text-danger">2</div>
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <div class="row g-1">
-                                            <div class="col-6">
-                                                <h6 class="mb-0">Cliente 01</h6>
-                                            </div>
-                                            <div class="col-6 text-end">
-                                                <h6 class="mb-1">$210,000</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="list-group-item">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0">
-                                        <div class="avtar avtar-s border text-danger">2</div>
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <div class="row g-1">
-                                            <div class="col-6">
-                                                <h6 class="mb-0">Cliente 01</h6>
-                                            </div>
-                                            <div class="col-6 text-end">
-                                                <h6 class="mb-1">$210,000</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="list-group-item">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0">
-                                        <div class="avtar avtar-s border text-danger">2</div>
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <div class="row g-1">
-                                            <div class="col-6">
-                                                <h6 class="mb-0">Cliente 01</h6>
-                                            </div>
-                                            <div class="col-6 text-end">
-                                                <h6 class="mb-1">$210,000</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="list-group-item">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0">
-                                        <div class="avtar avtar-s border text-danger">2</div>
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <div class="row g-1">
-                                            <div class="col-6">
-                                                <h6 class="mb-0">Cliente 05</h6>
-                                            </div>
-                                            <div class="col-6 text-end">
-                                                <h6 class="mb-1">$210,000</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
+                        <ul class="list-group list-group-flush" id="morosos_anual" style="height: 300px; overflow-y: auto">
                         </ul>
                     </div>
                     <div
@@ -312,7 +160,7 @@
                         role="tabpanel"
                         aria-labelledby="analytics-tab-3"
                         tabindex="0">
-                        <ul class="list-group list-group-flush">
+                        <ul class="list-group list-group-flush" id="morosos_servidor" style="height: 300px; overflow-y: auto">
 
                         </ul>
                     </div>

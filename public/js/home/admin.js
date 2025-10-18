@@ -324,6 +324,155 @@ function excluirPeriodoPlame(ruc, id_mes, id_anio) {
     });
 }
 
+const morosos_mensual = document.getElementById("morosos_mensual");
+
+morososMensual();
+
+function morososMensual() {
+  const tipo = "TODOS";
+  const estado = 1;
+  fetch(base_url + `listaCobros/${tipo}/${estado}`)
+    .then((res) => res.json())
+    .then((data) => {
+      const mensual_ = document.getElementById("analytics-tab-1");
+
+      const clientesConDeuda = data.filter(
+        (cliente) =>
+          cliente.debe !== "No debe" && cliente.debe !== "No tiene pagos"
+      );
+
+      if (clientesConDeuda.length > 0) {
+        mensual_.innerHTML = `MENSUAL <span class="badge bg-danger text-white" style="margin-left: 5px;">${clientesConDeuda.length}</span>`;
+      }
+
+      viewMorososMensual(clientesConDeuda);
+    });
+}
+
+function viewMorososMensual(deuda) {
+  let html = "";
+
+  deuda.forEach((item) => {
+    html += `
+      <li class="list-group-item pt-2 pb-2">
+        <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+                <div class="avtar avtar-s border text-danger" style="width: 70px">${item.debe}</div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <div class="row g-1">
+                    <div class="col-12">
+                        <h6 class="mb-0">${item.razon_social}</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </li>
+    `;
+  });
+
+  morosos_mensual.innerHTML = html;
+}
+
+const morosos_anual = document.getElementById("morosos_anual");
+
+morososAnual();
+
+function morososAnual() {
+  const tipo = "TODOS";
+  const estado = 1;
+  fetch(base_url + `deudas-anuales/${tipo}/${estado}`)
+    .then((res) => res.json())
+    .then((data) => {
+      const anual = document.getElementById("analytics-tab-2");
+
+      const clientesConDeuda = data.filter(
+        (cliente) => cliente.pagos_pendientes !== "0"
+      );
+
+      if (clientesConDeuda.length > 0) {
+        anual.innerHTML = `ANUAL <span class="badge bg-danger text-white" style="margin-left: 5px;">${clientesConDeuda.length}</span>`;
+      }
+
+      viewMorososAnual(clientesConDeuda);
+    });
+}
+
+function viewMorososAnual(deuda) {
+  let html = "";
+
+  deuda.forEach((item) => {
+    html += `
+      <li class="list-group-item pt-2 pb-2">
+        <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+                <div class="avtar avtar-s border text-danger" style="width: 70px">${item.pagos_pendientes}</div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <div class="row g-1">
+                    <div class="col-12">
+                        <h6 class="mb-0">${item.razon_social}</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </li>
+    `;
+  });
+
+  morosos_anual.innerHTML = html;
+}
+
+const morosos_servidor = document.getElementById("morosos_servidor");
+
+morososServidor();
+
+function morososServidor() {
+  const tipo = "TODOS";
+  const estado = 1;
+  fetch(base_url + `render-contribuyentes`)
+    .then((res) => res.json())
+    .then((data) => {
+      const servidor = document.getElementById("analytics-tab-3");
+
+      const clientesConDeuda = data.filter(
+        (cliente) =>
+          cliente.pagos !== "NO TIENE REGISTROS" && cliente.pagos !== "NO DEBE"
+      );
+
+      if (clientesConDeuda.length > 0) {
+        servidor.innerHTML = `SERVIDOR <span class="badge bg-danger text-white" style="margin-left: 5px;">${clientesConDeuda.length}</span>`;
+      }
+
+      viewMorososServidor(clientesConDeuda);
+    });
+}
+
+function viewMorososServidor(deuda) {
+  let html = "";
+
+  deuda.forEach((item) => {
+    html += `
+      <li class="list-group-item pt-2 pb-2">
+        <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+                <div class="avtar avtar-s border text-danger" style="width: 90px">${item.pagos}</div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <div class="row g-1">
+                    <div class="col-12">
+                        <h6 class="mb-0">${item.razon_social}</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </li>
+    `;
+  });
+
+  morosos_servidor.innerHTML = html;
+}
+
 var e = {
   chart: { height: 250, type: "bar", toolbar: { show: !1 } },
   plotOptions: {
