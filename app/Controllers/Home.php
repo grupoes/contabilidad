@@ -20,7 +20,7 @@ class Home extends BaseController
 
         switch (session()->perfil_id) {
             case '3':
-                return view('home/cajero', compact('menu'));
+                return view('home/cajero', compact('menu', 'countCont'));
                 break;
 
             case '2':
@@ -31,7 +31,7 @@ class Home extends BaseController
                 break;
 
             default:
-                return view('home/cajero', compact('menu'));
+                return view('home/cajero', compact('menu', 'countCont'));
                 break;
         }
     }
