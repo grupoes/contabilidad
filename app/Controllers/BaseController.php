@@ -131,6 +131,7 @@ abstract class BaseController extends Controller
                 ->where('permisos.perfil_id', session()->perfil_id)
                 ->where('modulos.modulo_padre', $value['modulo_padre'])
                 ->groupBy('modulos.id')
+                ->orderBy('modulos.orden', 'ASC')
                 ->findAll();
 
             $modulos[$key]['hijos'] = $hijos;
