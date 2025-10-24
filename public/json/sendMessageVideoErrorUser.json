@@ -1,0 +1,38 @@
+{
+    "object": "whatsapp_business_account",
+    "entry": [
+      {
+        "id": "108260089008765",
+        "changes": [
+          {
+            "value": {
+              "messaging_product": "whatsapp",
+              "metadata": {
+                "display_phone_number": "15550925940",
+                "phone_number_id": "101345179712345"
+              },
+              "statuses": [
+                {
+                  "id": "wamid.HBgLNTE5MjI1MDI5NDcVAgASGBYzRUIwMEIzMjI2NzQzMDE0MDcyOEQzAA==",
+                  "status": "failed",
+                  "timestamp": "1761260583",
+                  "recipient_id": "51922502947",
+                  "errors": [
+                    {
+                      "code": 131052,
+                      "title": "Media download error",
+                      "message": "Media download error",
+                      "error_data": {
+                        "details": "Incoming media file validation failed or the received media is in incorrect format, please ask the sender to resend the media message."
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "field": "messages"
+          }
+        ]
+      }
+    ]
+  }

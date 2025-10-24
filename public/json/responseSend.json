@@ -1,0 +1,14 @@
+{
+    "messaging_product": "whatsapp",
+    "contacts": [
+        {
+            "input": "<PHONE_NUMBER>",
+            "wa_id": "<PHONE_NUMBER>"
+        }
+    ],
+    "messages": [
+        {
+            "id": "<MESSAGE_ID>"
+        }
+    ]
+}

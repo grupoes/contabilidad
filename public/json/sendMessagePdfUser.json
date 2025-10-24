@@ -1,0 +1,43 @@
+{
+    "object": "whatsapp_business_account",
+    "entry": [
+      {
+        "id": "108260089008765",
+        "changes": [
+          {
+            "value": {
+              "messaging_product": "whatsapp",
+              "metadata": {
+                "display_phone_number": "15550925940",
+                "phone_number_id": "101345179712345"
+              },
+              "contacts": [
+                {
+                  "profile": {
+                    "name": "Bravo"
+                  },
+                  "wa_id": "51922502947"
+                }
+              ],
+              "messages": [
+                {
+                  "from": "51922502947",
+                  "id": "wamid.HBgLNTE5MjI1MDI5NDcVAgASGBYzRUIwNDBBMjlGOTY4MEVGOTAzNUZFAA==",
+                  "timestamp": "1761261575",
+                  "type": "document",
+                  "document": {
+                    "caption": "esta es la factura",
+                    "filename": "F001-5498.pdf",
+                    "mime_type": "application/pdf",
+                    "sha256": "bMS5MoP0FXrEduzvctWXuvk36DEdhCXuzPoCWePlJGw=",
+                    "id": "24713592134992424"
+                  }
+                }
+              ]
+            },
+            "field": "messages"
+          }
+        ]
+      }
+    ]
+  }

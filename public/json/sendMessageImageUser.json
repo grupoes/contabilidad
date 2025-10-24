@@ -1,0 +1,42 @@
+{
+    "object": "whatsapp_business_account",
+    "entry": [
+      {
+        "id": "108260089008765",
+        "changes": [
+          {
+            "value": {
+              "messaging_product": "whatsapp",
+              "metadata": {
+                "display_phone_number": "15550925940",
+                "phone_number_id": "101345179712345"
+              },
+              "contacts": [
+                {
+                  "profile": {
+                    "name": "Bravo"
+                  },
+                  "wa_id": "51922502947"
+                }
+              ],
+              "messages": [
+                {
+                  "from": "51922502947",
+                  "id": "wamid.HBgLNTE5MjI1MDI5NDcVAgASGBYzRUIwNTcwMTJCRDM3RTMzNTY1RUFBAA==",
+                  "timestamp": "1761260490",
+                  "type": "image",
+                  "image": {
+                    "caption": "Esto es el logo",
+                    "mime_type": "image/jpeg",
+                    "sha256": "R7MZ2A5eBN1sTcJyIoXat2MNdhH7wAJsHJIml3lTmTo=",
+                    "id": "991510726490017"
+                  }
+                }
+              ]
+            },
+            "field": "messages"
+          }
+        ]
+      }
+    ]
+  }

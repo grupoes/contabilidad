@@ -1,0 +1,39 @@
+{
+    "object": "whatsapp_business_account",
+    "entry": [
+      {
+        "id": "108260089008765",
+        "changes": [
+          {
+            "value": {
+              "messaging_product": "whatsapp",
+              "metadata": {
+                "display_phone_number": "15550925940",
+                "phone_number_id": "101345179712345"
+              },
+              "contacts": [
+                {
+                  "profile": {
+                    "name": "Bravo"
+                  },
+                  "wa_id": "51922502947"
+                }
+              ],
+              "messages": [
+                {
+                  "from": "51922502947",
+                  "id": "wamid.HBgLNTE5MjI1MDI5NDcVAgASGBYzRUIwNTI1QzA1OEQ1RTQ5QzcwMTVDAA==",
+                  "timestamp": "1761260288",
+                  "text": {
+                    "body": "Hola, esto es whatsapp api"
+                  },
+                  "type": "text"
+                }
+              ]
+            },
+            "field": "messages"
+          }
+        ]
+      }
+    ]
+  }
