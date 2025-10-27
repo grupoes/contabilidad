@@ -264,7 +264,7 @@ function viewR08_archivo(data) {
   data.forEach((item) => {
     tr += `
         <tr>
-            <td><a href="${base_url}archivos/pdt/${item.nameFile}" target="__blank">${item.nameFile}</a></td>
+            <td><a href="${base_url}archivos/pdt/${item.nameFile}" target="_blank">${item.nameFile}</a></td>
             <td>
               <a href="#" style="font-size: 16px" title="RECTIFICAR" onclick="rectificarR08(event, ${item.id})"> <i class="fas fa-edit"> </i> </a>
               <a href="#" style="font-size: 16px" title="ELIMINAR" onclick="eliminarR08(event, ${item.id})"> <i class="fas fa-trash-alt text-danger" style="font-size: 16px" > </i> </a>
