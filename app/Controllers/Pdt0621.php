@@ -90,6 +90,28 @@ class Pdt0621 extends BaseController
             $file_constancia->move(FCPATH . 'archivos/pdt', $archivo_constancia);
 
             $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
+            $rutaConstancia = FCPATH . 'archivos/pdt/' . $archivo_constancia;
+
+            //aqui verificar si coinciden los archivos correspondientes
+            $datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
+
+            if ($datos_pdt_file['success'] === false || $datos_pdt_file['texto_encontrado'] === false) {
+                return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto."]);
+            }
+
+            if ($datos_pdt_file['periodo'] !== $ani . $data_periodo['mes_fecha'] && $datos_pdt_file['ruc'] !== $ruc) {
+                return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto, periodo o RUC no coinciden."]);
+            }
+
+            $datos_constancia_file = $this->apiLoadPdtArchivos($rutaConstancia);
+
+            if ($datos_constancia_file['success'] === false || $datos_constancia_file['texto_encontrado'] === false) {
+                return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto."]);
+            }
+
+            if ($datos_constancia_file['periodo'] !== $ani . $data_periodo['mes_fecha'] && $datos_constancia_file['ruc'] !== $ruc) {
+                return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto, periodo o RUC no coinciden."]);
+            }
 
             $datos_pdt = array(
                 "ruc_empresa" => $ruc,

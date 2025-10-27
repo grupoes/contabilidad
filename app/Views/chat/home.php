@@ -15,7 +15,7 @@
                         </div>
                     </div>
                     <div class="text-center">
-                        <a href="<?= base_url('chat-whatsapp') ?>" target="_blank" class="btn btn-primary mb-3">Ir al Chat</a>
+                        <a href="<?= base_url('chat-whatsapp') ?>" target="__blank" class="btn btn-primary mb-3">Ir al Chat</a>
                     </div>
                 </div>
             </div>
