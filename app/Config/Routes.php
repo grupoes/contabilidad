@@ -154,6 +154,7 @@ $routes->post('consulta-pdt-rango', 'Pdt0621::consultaPdt');
 $routes->post('send-file-pdt621', 'Pdt0621::sendMessageFiles');
 $routes->post('rectificacion-pdt-renta', 'Pdt0621::pdtRectificacion');
 $routes->get('pdt-0621/get-files-details/(:num)', 'Pdt0621::getArchivos/$1');
+$routes->post('pdt-0621/save-montos', 'Pdt0621::updateMontos');
 
 $routes->get('declaraciones/pdt-renta-transacciones', 'Pdt0621::transacciones');
 $routes->post('declaraciones/obtenerDatosPdtRentaTransacciones', 'Pdt0621::listEmpresas');

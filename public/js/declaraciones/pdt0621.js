@@ -155,8 +155,14 @@ function descargaMasiva(id) {
     });
 }
 
+const btnForm = document.getElementById("btnForm");
+
 formArchivo.addEventListener("submit", (e) => {
   e.preventDefault();
+
+  btnForm.setAttribute("disabled", true);
+  btnForm.innerHTML =
+    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
 
   const formData = new FormData(formArchivo);
 
@@ -166,6 +172,9 @@ formArchivo.addEventListener("submit", (e) => {
   })
     .then((res) => res.json())
     .then((data) => {
+      btnForm.removeAttribute("disabled");
+      btnForm.innerHTML = "Guardar";
+
       if (data.status === "success") {
         $("#modalArchivo").modal("hide");
         Swal.fire({
@@ -175,6 +184,19 @@ formArchivo.addEventListener("submit", (e) => {
           showConfirmButton: false,
           timer: 1500,
         });
+
+        if (data.texto == "") {
+          setTimeout(() => {
+            $("#modalIngresarMontos").modal("show");
+
+            const link_pdt = document.getElementById("link_pdt");
+            link_pdt.href = `${base_url}${data.ruta}`;
+
+            const idPdt = document.getElementById("idPdt");
+            idPdt.value = data.idpdt;
+          }, 2000);
+        }
+
         return false;
       }
 
@@ -485,3 +507,45 @@ function details_archivos(id_pdt_renta) {
       getFilesDetails.innerHTML = html;
     });
 }
+
+const formMontosComprasVentas = document.getElementById(
+  "formMontosComprasVentas"
+);
+
+formMontosComprasVentas.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formMontosComprasVentas);
+
+  fetch(base_url + "pdt-0621/save-montos", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        $("#modalIngresarMontos").modal("hide");
+
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: data.message,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        return false;
+      }
+
+      swalWithBootstrapButtons
+        .fire({
+          title: "Error!",
+          text: data.message,
+          icon: "error",
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            $("#modalIngresarMontos").modal("show");
+          }
+        });
+    });
+});

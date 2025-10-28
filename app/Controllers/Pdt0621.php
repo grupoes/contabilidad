@@ -95,22 +95,40 @@ class Pdt0621 extends BaseController
             //aqui verificar si coinciden los archivos correspondientes
             $datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
 
-            if ($datos_pdt_file['success'] === false || $datos_pdt_file['texto_encontrado'] === false) {
-                return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto."]);
-            }
+            if ($datos_pdt_file['texto'] !== "") {
+                if ($datos_pdt_file['success'] == false || $datos_pdt_file['texto_encontrado'] === false) {
+                    unlink($rutaPdt);
+                    unlink($rutaConstancia);
+                    return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto.", 'datos' => $datos_pdt_file]);
+                }
 
-            if ($datos_pdt_file['periodo'] !== $ani . $data_periodo['mes_fecha'] && $datos_pdt_file['ruc'] !== $ruc) {
-                return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto, periodo o RUC no coinciden."]);
+                if ($datos_pdt_file['ruc'] != $ruc) {
+                    unlink($rutaPdt);
+                    unlink($rutaConstancia);
+                    return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto, RUC no coincide.", 'datos' => $datos_pdt_file]);
+                }
+
+                if ($datos_pdt_file['periodo'] != $ani . $data_periodo['mes_fecha']) {
+                    unlink($rutaPdt);
+                    unlink($rutaConstancia);
+                    return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto, periodo no coincide.", 'datos' => $datos_pdt_file]);
+                }
             }
 
             $datos_constancia_file = $this->apiLoadPdtArchivos($rutaConstancia);
 
-            if ($datos_constancia_file['success'] === false || $datos_constancia_file['texto_encontrado'] === false) {
-                return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto."]);
-            }
+            if ($datos_constancia_file['texto'] !== "") {
+                if ($datos_constancia_file['success'] == 0 || $datos_constancia_file['texto_encontrado'] === false) {
+                    unlink($rutaPdt);
+                    unlink($rutaConstancia);
+                    return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto.", 'datos' => $datos_constancia_file]);
+                }
 
-            if ($datos_constancia_file['periodo'] !== $ani . $data_periodo['mes_fecha'] && $datos_constancia_file['ruc'] !== $ruc) {
-                return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto, periodo o RUC no coinciden."]);
+                if ($datos_constancia_file['periodo'] != $ani . $data_periodo['mes_fecha'] || $datos_constancia_file['ruc'] != $ruc) {
+                    unlink($rutaPdt);
+                    unlink($rutaConstancia);
+                    return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto, periodo o RUC no coinciden.", 'datos' => $datos_constancia_file]);
+                }
             }
 
             $datos_pdt = array(
@@ -135,26 +153,30 @@ class Pdt0621 extends BaseController
 
             $files->insert($datos_files);
 
-            $datos = $this->apiLoadPdtFile($rutaPdt);
-
             $totalVentas = 0;
             $totalCompras = 0;
 
-            if ($datos['status'] === 'success') {
-                $compras = $datos['igv_compras'];
-                $ventas = $datos['igv_ventas'];
+            $datos = $this->apiLoadPdtFile($rutaPdt);
 
-                $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
+            if ($datos_pdt_file['texto'] !== "") {
+                if ($datos['status'] === 'success') {
+                    $compras = $datos['igv_compras'];
+                    $ventas = $datos['igv_ventas'];
 
-                $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
+                    $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
 
-                $data_update = array(
-                    "total_ventas" => $totalVentas,
-                    "total_compras" => $totalCompras
-                );
+                    $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
 
-                $pdtRenta->update($pdtRentaId, $data_update);
+                    $data_update = array(
+                        "total_ventas" => $totalVentas,
+                        "total_compras" => $totalCompras
+                    );
+
+                    $pdtRenta->update($pdtRentaId, $data_update);
+                }
             }
+
+            $rutaLink = 'archivos/pdt/' . $archivo_pdt;
 
             if ($files->db->transStatus() === false) {
                 $files->db->transRollback();
@@ -163,7 +185,7 @@ class Pdt0621 extends BaseController
 
             $files->db->transCommit();
 
-            return $this->response->setJSON(['status' => 'success', 'message' => "Se registro correctamente"]);
+            return $this->response->setJSON(['status' => 'success', 'message' => "Se registro correctamente", 'texto' => $datos_pdt_file['texto'], "ruta" => $rutaLink, "idpdt" => $pdtRentaId]);
         } catch (\Exception $e) {
             $files->db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
@@ -473,5 +495,35 @@ class Pdt0621 extends BaseController
         $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, FORMAT(pr.total_compras, 2, 'es_PE') as total_compras_decimal, FORMAT(pr.total_ventas, 2, 'es_PE') as total_ventas_decimal, pr.total_compras, pr.total_ventas, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
 
         return $this->response->setJSON($data);
+    }
+
+    public function updateMontos()
+    {
+        $pdt = new PdtRentaModel();
+
+        try {
+            $data = $this->request->getPost();
+
+            $id = $data['idPdt'];
+            $total_ventas = $data['monto_venta'];
+            $total_compras = $data['monto_compra'];
+
+            $data_update = array(
+                "total_ventas" => $total_ventas,
+                "total_compras" => $total_compras
+            );
+
+            $pdt->update($id, $data_update);
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se actualizo correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Ocurrio un error " . $e->getMessage()
+            ]);
+        }
     }
 }

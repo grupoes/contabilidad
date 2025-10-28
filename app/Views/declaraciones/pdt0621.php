@@ -329,6 +329,39 @@
     </div>
 </div>
 
+<div class="modal fade bd-example-modal-sm" id="modalIngresarMontos" tabindex="-1" role="dialog"
+    aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="mySmallModalLabel">Agregar los Montos de Compras y Ventas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="formMontosComprasVentas">
+                <input type="hidden" name="idPdt" id="idPdt" />
+                <div class="modal-body">
+                    <h4>Hemos detectado que los montos de compras y ventas son 0.00 - <a href="#" class="text-danger" id="link_pdt" target="_blank"><i class="fas fa-file-pdf"></a></i> </h4>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="monto_compra" class="form-label">Ingrese el Monto de las Compras</label>
+                            <input type="number" name="monto_compra" id="monto_compra" class="form-control" value="0.00" />
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="monto_venta" class="form-label">Ingrese el Monto de las ventas</label>
+                            <input type="number" name="monto_venta" id="monto_venta" class="form-control" value="0.00" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" id="btnFormRectificacion">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>

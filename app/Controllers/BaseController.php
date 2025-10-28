@@ -632,7 +632,7 @@ abstract class BaseController extends Controller
 
     public function linea_trabajo()
     {
-        $linea = "20494124522	EPK S.A.C.	gladys	12345678";
+        $linea = " OBSERVADOS - 8H Y 40 MIN 	JHONATAN Y LADY 	75076674 / 73750566 	1 (347) 598-8873 / 932 232 991	PREGRADO	Marketing y Negocios Internacionales	UPEU		https://drive.google.com/drive/folders/0B-5tpF2PUOVmflJ6Tlk0NU1NdHBFakVrd1FyLVJnb2NCNmhyaTN1YmxjXzJPZ21nTjBKaXM?resourcekey=0-H-CF_OG1oPSKHyLG2mDjDg&usp=drive_link	05/05	FABRIZZIO 	FLOR 	13/05	";
 
         $new_linea = explode("\t", $linea);
 
