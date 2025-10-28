@@ -255,13 +255,13 @@
     </div>
 </div>
 
-<div class="modal fade bd-example-modal-sm" id="modalRectificacion" tabindex="-1" role="dialog"
+<div class="modal fade bd-example-modal-sm" id="modalRectificacion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
     aria-labelledby="mySmallModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title h4" id="mySmallModalLabel">Rectificar Archivos</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title h4" id="titleRectArchivos"></h5>
+                <button type="button" class="btn-close modalDescargar" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="formRectificacion" enctype="multipart/form-data">
                 <div class="modal-body">
@@ -288,7 +288,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary modalDescargar" data-bs-dismiss="modal">Cerrar</button>
                     <button type="submit" class="btn btn-primary" id="btnFormRectificacion">Guardar</button>
                 </div>
             </form>
@@ -296,13 +296,13 @@
     </div>
 </div>
 
-<div class="modal fade bd-example-modal-sm" id="modalDetalle" tabindex="-1" role="dialog"
+<div class="modal fade bd-example-modal-sm" id="modalDetalle" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
     aria-labelledby="mySmallModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title h4" id="mySmallModalLabel">Detalle Archivos</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title h4" id="titleDetallePdt"></h5>
+                <button type="button" class="btn-close closeDetalle" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
@@ -321,7 +321,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary closeDetalle" data-bs-dismiss="modal">Cerrar</button>
                 <button type="submit" class="btn btn-primary" id="btnFormRectificacion">Guardar</button>
             </div>
 
@@ -329,7 +329,7 @@
     </div>
 </div>
 
-<div class="modal fade bd-example-modal-sm" id="modalIngresarMontos" tabindex="-1" role="dialog"
+<div class="modal fade bd-example-modal-sm" id="modalIngresarMontos" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
     aria-labelledby="mySmallModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

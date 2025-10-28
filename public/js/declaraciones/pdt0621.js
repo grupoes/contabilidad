@@ -127,8 +127,7 @@ function descargarArchivos(id, ruc) {
   fetch(base_url + "contribuyentes/getId/" + id)
     .then((res) => res.json())
     .then((data) => {
-      titleModalDownload.textContent =
-        "DESCARGAR ARCHIVOS - " + data.razon_social;
+      titleModalDownload.innerHTML = `DESCARGAR ARCHIVOS - <span class="text-primary" id="nameComp">${data.razon_social}</span>`;
     });
 }
 
@@ -261,8 +260,8 @@ function viewArchivos(data, ruc) {
                 <a href='${base_url}archivos/pdt/${archivo.nombre_pdt}' class='btn btn-success btn-sm' target='_blank' title='Descargar Renta'>PDT</a> <a href='${base_url}archivos/pdt/${archivo.nombre_constancia}' target='_blank' class='btn btn-primary btn-sm' title='Descargar constancia'>CONSTANCIA</a>
             </td>
             <td>
-              <button type='button' class='btn btn-danger' title='Rectificar Archivos' onclick='rectificar(${archivo.id_pdt_renta},${archivo.id_archivos_pdt},${archivo.periodo},${archivo.anio}, ${ruc})'>RECT</button>
-                <button type='button' class='btn btn-warning' title='Detalle' onclick='details_archivos(${archivo.id_pdt_renta})'>DET</button>
+              <button type='button' class='btn btn-danger' title='Rectificar Archivos' onclick='rectificar(${archivo.id_pdt_renta},${archivo.id_archivos_pdt},${archivo.periodo},${archivo.anio}, ${ruc}, "${archivo.mes_descripcion}", "${archivo.anio_descripcion}")'>RECT</button>
+                <button type='button' class='btn btn-warning' title='Detalle' onclick='details_archivos(${archivo.id_pdt_renta}, "${archivo.mes_descripcion}", "${archivo.anio_descripcion}")'>DET</button>
             </td>
         </tr>
         `;
@@ -423,7 +422,16 @@ const viewAlert = document.getElementById("viewAlert");
 
 const formRectificacion = document.getElementById("formRectificacion");
 
-function rectificar(id_pdt_renta, id_archivos_pdt, periodo, anio, ruc) {
+function rectificar(
+  id_pdt_renta,
+  id_archivos_pdt,
+  periodo,
+  anio,
+  ruc,
+  name_periodo,
+  name_anio
+) {
+  $("#modalDescargarArchivo").modal("hide");
   $("#modalRectificacion").modal("show");
   idpdtrenta.value = id_pdt_renta;
   idarchivos.value = id_archivos_pdt;
@@ -431,11 +439,21 @@ function rectificar(id_pdt_renta, id_archivos_pdt, periodo, anio, ruc) {
   anioRectificacion.value = anio;
   rucRect.value = ruc;
 
+  const titleRectArchivos = document.getElementById("titleRectArchivos");
+  const nameComp = document.getElementById("nameComp").textContent;
+  titleRectArchivos.innerHTML = `<span class="text-secondary">RECTIFICAR ARCHIVOS</span> | ${nameComp} | ${name_periodo} - ${name_anio}`;
+
   formRectificacion.reset();
 }
 
+const btnFormRectificacion = document.getElementById("btnFormRectificacion");
+
 formRectificacion.addEventListener("submit", (e) => {
   e.preventDefault();
+
+  btnFormRectificacion.setAttribute("disabled", true);
+  btnFormRectificacion.innerHTML =
+    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
 
   const formData = new FormData(formRectificacion);
 
@@ -445,6 +463,9 @@ formRectificacion.addEventListener("submit", (e) => {
   })
     .then((res) => res.json())
     .then((data) => {
+      btnFormRectificacion.removeAttribute("disabled");
+      btnFormRectificacion.innerHTML = "Guardar";
+
       if (data.status === "error") {
         viewAlert.innerHTML = `<div class="alert alert-danger" role="alert" id="alertRect">${data.message}</div>`;
         return false;
@@ -453,29 +474,59 @@ formRectificacion.addEventListener("submit", (e) => {
       $("#modalRectificacion").modal("hide");
       $("#modalDescargarArchivo").modal("hide");
 
-      swalWithBootstrapButtons
-        .fire({
-          title: "Exitoso!",
-          text: data.message,
+      if (data.texto == "") {
+        Swal.fire({
+          position: "top-center",
           icon: "success",
-        })
-        .then((result) => {
-          if (result.isConfirmed) {
-            renderArchivos(
-              periodoRectificacion.value,
-              anioRectificacion.value,
-              rucEmpresa.value
-            );
-            $("#modalDescargarArchivo").modal("show");
-          }
+          title: data.message,
+          showConfirmButton: false,
+          timer: 1500,
         });
+
+        if (data.texto == "") {
+          setTimeout(() => {
+            $("#modalIngresarMontos").modal("show");
+
+            const link_pdt = document.getElementById("link_pdt");
+            link_pdt.href = `${base_url}${data.ruta}`;
+
+            const idPdt = document.getElementById("idPdt");
+            idPdt.value = data.idpdt;
+          }, 2000);
+        }
+      } else {
+        swalWithBootstrapButtons
+          .fire({
+            title: "Exitoso!",
+            text: data.message,
+            icon: "success",
+          })
+          .then((result) => {
+            if (result.isConfirmed) {
+              renderArchivos(
+                periodoRectificacion.value,
+                anioRectificacion.value,
+                rucEmpresa.value
+              );
+              $("#modalDescargarArchivo").modal("show");
+            }
+          });
+      }
     });
 });
 
 const getFilesDetails = document.getElementById("getFilesDetails");
+const titleDetallePdt = document.getElementById("titleDetallePdt");
 
-function details_archivos(id_pdt_renta) {
+function details_archivos(id_pdt_renta, periodo, anio) {
+  $("#modalDescargarArchivo").modal("hide");
   $("#modalDetalle").modal("show");
+
+  const nameComp = document.getElementById("nameComp").textContent;
+
+  titleDetallePdt.innerHTML = `<span class="text-secondary">DETALLE ARCHIVOS</span> | ${nameComp} | ${periodo} - ${anio}`;
+
+  getFilesDetails.innerHTML = "";
 
   fetch(base_url + "pdt-0621/get-files-details/" + id_pdt_renta)
     .then((res) => res.json())
@@ -548,4 +599,20 @@ formMontosComprasVentas.addEventListener("submit", (e) => {
           }
         });
     });
+});
+
+const modalRectificacion = document.getElementById("modalRectificacion");
+
+modalRectificacion.addEventListener("click", (e) => {
+  if (e.target.classList.contains("modalDescargar")) {
+    $("#modalDescargarArchivo").modal("show");
+  }
+});
+
+const modalDetalle = document.getElementById("modalDetalle");
+
+modalDetalle.addEventListener("click", (e) => {
+  if (e.target.classList.contains("closeDetalle")) {
+    $("#modalDescargarArchivo").modal("show");
+  }
 });
