@@ -525,7 +525,34 @@ class Pdt0621 extends BaseController
                 break;
         }
 
-        $data = $contri->query("SELECT c.ruc, c.razon_social, FORMAT((SELECT IFNULL(SUM(total_compras), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1), 2) AS total_compras_decimal, FORMAT((SELECT IFNULL(SUM(total_ventas), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1), 2) AS total_ventas_decimal, (SELECT IFNULL(SUM(total_compras), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1) AS total_compras, (SELECT IFNULL(SUM(total_ventas), 0) FROM pdt_renta WHERE ruc_empresa = c.ruc AND anio = $anio AND estado = 1) AS total_ventas FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo = 2 and c.estado = $estado AND (c.razon_social LIKE '%$search%' OR c.ruc like '%$search%') $order;")->getResultArray();
+        $data = $contri->query("SELECT 
+        c.ruc,
+        c.razon_social,
+        -- Contar solo los que tienen 0.00 y excluido = 'NO'
+        SUM(CASE WHEN pr.total_compras = 0.00 AND pr.excluido = 'NO' THEN 1 ELSE 0 END) AS compras_en_cero,
+        SUM(CASE WHEN pr.total_ventas = 0.00 AND pr.excluido = 'NO' THEN 1 ELSE 0 END) AS ventas_en_cero,
+        -- Totales generales (sin importar excluido)
+        FORMAT(IFNULL(SUM(pr.total_compras), 0), 2) AS total_compras_decimal,
+        FORMAT(IFNULL(SUM(pr.total_ventas), 0), 2) AS total_ventas_decimal,
+        IFNULL(SUM(pr.total_compras), 0) AS total_compras,
+        IFNULL(SUM(pr.total_ventas), 0) AS total_ventas
+
+        FROM contribuyentes c
+        INNER JOIN configuracion_notificacion cn 
+        ON cn.ruc_empresa_numero = c.ruc
+        LEFT JOIN pdt_renta pr 
+        ON pr.ruc_empresa = c.ruc 
+        AND pr.anio = $anio
+        AND pr.estado = 1
+
+        WHERE 
+        cn.id_tributo = 2
+        AND c.estado = $estado 
+        AND (c.razon_social LIKE '%$search%' OR c.ruc like '%$search%')
+
+        GROUP BY 
+        c.ruc, c.razon_social
+        $order;")->getResultArray();
 
         return $this->response->setJSON($data);
     }

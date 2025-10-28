@@ -6,6 +6,46 @@
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/dataTables.bootstrap5.min.css" />
 <link rel="stylesheet" href="<?= base_url() ?>assets/css/plugins/responsive.bootstrap5.min.css">
 
+<style>
+    .bell-shake {
+        display: inline-block;
+        animation: ring 2s infinite;
+        transform-origin: top center;
+    }
+
+    /* Animación tipo "campanita" */
+    @keyframes ring {
+        0% {
+            transform: rotate(0);
+        }
+
+        10% {
+            transform: rotate(25deg);
+        }
+
+        20% {
+            transform: rotate(-20deg);
+        }
+
+        30% {
+            transform: rotate(15deg);
+        }
+
+        40% {
+            transform: rotate(-10deg);
+        }
+
+        50% {
+            transform: rotate(5deg);
+        }
+
+        60%,
+        100% {
+            transform: rotate(0);
+        }
+    }
+</style>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -86,26 +126,33 @@
 
 <div id="modalPeriodos" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" id="tamModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title h4" id="titleContribuyente"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Periodo</th>
-                                <th>Total Ventas</th>
-                                <th>Total Compras</th>
-                                <th>Archivo</th>
-                            </tr>
-                        </thead>
-                        <tbody id="list-periodos"></tbody>
-                    </table>
+                <input type="hidden" id="rucEmpresa" />
+                <div class="row">
+                    <div class="col-md-12" id="viewTable">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Periodo</th>
+                                        <th>Total Ventas</th>
+                                        <th>Total Compras</th>
+                                        <th>Archivo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="list-periodos"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-12" id="viewFilePdf"></div>
                 </div>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
