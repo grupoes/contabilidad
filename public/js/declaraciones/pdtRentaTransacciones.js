@@ -261,6 +261,8 @@ listaPeriodos.addEventListener("click", (e) => {
       minimumFractionDigits: 2,
     });
 
+    row.querySelector(".btn-save").classList.add("btn-edit");
+
     row.querySelector(".btn-edit").innerHTML = '<i class="ti ti-pencil"></i>';
     row
       .querySelector(".btn-edit")
