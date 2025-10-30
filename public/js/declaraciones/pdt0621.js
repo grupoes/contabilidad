@@ -483,7 +483,7 @@ formRectificacion.addEventListener("submit", (e) => {
           timer: 1500,
         });
 
-        if (data.texto == "") {
+        /*if (data.texto == "") {
           setTimeout(() => {
             $("#modalIngresarMontos").modal("show");
 
@@ -493,7 +493,7 @@ formRectificacion.addEventListener("submit", (e) => {
             const idPdt = document.getElementById("idPdt");
             idPdt.value = data.idpdt;
           }, 2000);
-        }
+        }*/
       } else {
         swalWithBootstrapButtons
           .fire({
