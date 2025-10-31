@@ -93,7 +93,7 @@ class Pdt0621 extends BaseController
             $rutaConstancia = FCPATH . 'archivos/pdt/' . $archivo_constancia;
 
             //aqui verificar si coinciden los archivos correspondientes
-            $datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
+            /*$datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
 
             if ($datos_pdt_file['texto'] !== "") {
                 if ($datos_pdt_file['success'] == false || $datos_pdt_file['texto_encontrado'] === false) {
@@ -129,7 +129,7 @@ class Pdt0621 extends BaseController
                     unlink($rutaConstancia);
                     return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto, periodo o RUC no coinciden.", 'datos' => $datos_constancia_file]);
                 }
-            }
+            }*/
 
             $datos_pdt = array(
                 "ruc_empresa" => $ruc,
@@ -158,23 +158,23 @@ class Pdt0621 extends BaseController
 
             $datos = $this->apiLoadPdtFile($rutaPdt);
 
-            if ($datos_pdt_file['texto'] !== "") {
-                if ($datos['status'] === 'success') {
-                    $compras = $datos['igv_compras'];
-                    $ventas = $datos['igv_ventas'];
+            //if ($datos_pdt_file['texto'] !== "") {
+            if ($datos['status'] === 'success') {
+                $compras = $datos['igv_compras'];
+                $ventas = $datos['igv_ventas'];
 
-                    $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
+                $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
 
-                    $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
+                $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
 
-                    $data_update = array(
-                        "total_ventas" => $totalVentas,
-                        "total_compras" => $totalCompras
-                    );
+                $data_update = array(
+                    "total_ventas" => $totalVentas,
+                    "total_compras" => $totalCompras
+                );
 
-                    $pdtRenta->update($pdtRentaId, $data_update);
-                }
+                $pdtRenta->update($pdtRentaId, $data_update);
             }
+            //}
 
             $rutaLink = 'archivos/pdt/' . $archivo_pdt;
 
@@ -185,7 +185,7 @@ class Pdt0621 extends BaseController
 
             $files->db->transCommit();
 
-            return $this->response->setJSON(['status' => 'success', 'message' => "Se registro correctamente", 'texto' => $datos_pdt_file['texto'], "ruta" => $rutaLink, "idpdt" => $pdtRentaId]);
+            return $this->response->setJSON(['status' => 'success', 'message' => "Se registro correctamente", 'texto' => "", "ruta" => $rutaLink, "idpdt" => $pdtRentaId]);
         } catch (\Exception $e) {
             $files->db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
@@ -378,26 +378,26 @@ class Pdt0621 extends BaseController
                         return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto, periodo no coincide.", 'datos' => $datos_pdt_file]);
                     }*/
 
-                    $totalVentas = 0;
-                    $totalCompras = 0;
+                $totalVentas = 0;
+                $totalCompras = 0;
 
-                    $datos = $this->apiLoadPdtFile($rutaPdt);
+                $datos = $this->apiLoadPdtFile($rutaPdt);
 
-                    if ($datos['status'] === 'success') {
-                        $compras = $datos['igv_compras'];
-                        $ventas = $datos['igv_ventas'];
+                if ($datos['status'] === 'success') {
+                    $compras = $datos['igv_compras'];
+                    $ventas = $datos['igv_ventas'];
 
-                        $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
+                    $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
 
-                        $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
+                    $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
 
-                        $data_update = array(
-                            "total_ventas" => $totalVentas,
-                            "total_compras" => $totalCompras
-                        );
+                    $data_update = array(
+                        "total_ventas" => $totalVentas,
+                        "total_compras" => $totalCompras
+                    );
 
-                        $pdtRenta->update($dataArchivo['id_pdt_renta'], $data_update);
-                    }
+                    $pdtRenta->update($dataArchivo['id_pdt_renta'], $data_update);
+                }
                 /*} else {
                     $m = "";
                 }*/

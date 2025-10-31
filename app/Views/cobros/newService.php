@@ -60,8 +60,8 @@
                             </div>
 
                             <div class="col-md-3 mb-3">
-                                <label class="form-label" for="estado">Métodos de Pago</label>
-                                <select class="form-select" name="estado" id="estado">
+                                <label class="form-label" for="metodo_pago">Métodos de Pago</label>
+                                <select class="form-select" name="metodo_pago" id="metodo_pago">
                                     <option value="">Seleccione...</option>
                                     <?php foreach ($metodos as $metodo) : ?>
                                         <option value="<?= $metodo['id'] ?>"><?= $metodo['metodo'] ?></option>
@@ -82,7 +82,7 @@
 
                         <div class="row">
                             <div class="col-md-4 mt-3 mx-auto text-center">
-                                <a href="<?= base_url('cobro-planificador') ?>" class="btn btn-danger">Regresar</a>
+                                <a href="<?= base_url('servicio') ?>" class="btn btn-danger">Regresar</a>
                                 <button type="submit" class="btn btn-success">Guardar</button>
                             </div>
                         </div>
@@ -110,6 +110,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/cobros/planificador.js?v=1"></script>
+<script src="<?= base_url() ?>js/cobros/crearServicio.js?v=1"></script>
 
 <?= $this->endSection() ?>

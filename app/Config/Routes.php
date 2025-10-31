@@ -62,8 +62,8 @@ $routes->get('contribuyentes/migracion', 'Contribuyentes::migrarContribuyentes')
 $routes->get('cobros', 'Contribuyentes::allCobros');
 $routes->get('listaCobros/(:any)/(:num)', 'Contribuyentes::listaHonorariosCobros/$1/$2');
 
-$routes->get('cobro-planificador', 'Cobros::cobroPlanificador');
-$routes->get('cobro-planificador/nuevo-servicio', 'Cobros::createCobroServicio');
+$routes->get('servicio', 'Cobros::cobroPlanificador');
+$routes->get('crear/servicio', 'Cobros::createCobroServicio');
 $routes->post('save-service', 'Cobros::saveService');
 
 $routes->get('cobro-servidor', 'Cobros::index');

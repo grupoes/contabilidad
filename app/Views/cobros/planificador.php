@@ -18,7 +18,7 @@
             <div class="row align-items-center">
                 <div class="col-md-12">
                     <div class="page-header-title">
-                        <h3 class="mb-0">Cobro Planificador</h3>
+                        <h3 class="mb-0">Servicios</h3>
                     </div>
                 </div>
             </div>
@@ -34,7 +34,7 @@
                     <div class="d-flex justify-content-between align-items-center p-2 pb-sm-2">
                         <!-- Contenedor para los botones -->
                         <div class="d-flex align-items-center gap-2 ms-auto">
-                            <a href="<?= base_url('cobro-planificador/nuevo-servicio') ?>" class="btn btn-success d-inline-flex align-items-center gap-2">
+                            <a href="<?= base_url('crear/servicio') ?>" class="btn btn-success d-inline-flex align-items-center gap-2">
                                 <i class="ti ti-plus f-18"></i> Nuevo Servicio
                             </a>
                         </div>
@@ -79,6 +79,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/cobros/planificador.js?v=1"></script>
+<script src="<?= base_url() ?>js/cobros/servicio.js?v=1"></script>
 
 <?= $this->endSection() ?>
