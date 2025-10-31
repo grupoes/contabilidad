@@ -690,4 +690,39 @@ class Cobros extends BaseController
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
+    public function cobroPlanificador()
+    {
+        if (!session()->logged_in) {
+            return redirect()->to(base_url());
+        }
+
+        $menu = $this->permisos_menu();
+
+        return view('cobros/planificador', compact('menu'));
+    }
+
+    public function createCobroServicio()
+    {
+        if (!session()->logged_in) {
+            return redirect()->to(base_url());
+        }
+
+        $menu = $this->permisos_menu();
+
+        
+        $metodo = new MetodoPagoModel();
+        $metodos = $metodo->where('estado', 1)->findAll();
+
+        return view('cobros/newService', compact('menu', 'metodos'));
+    }
+
+    public function saveService()
+    {
+        try {
+            $data = $this->request->getPost();
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
 }
