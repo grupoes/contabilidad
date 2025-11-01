@@ -59,7 +59,7 @@
                                 <small id="razon_social" class="form-text text-success"></small>
                             </div>
 
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label" for="metodo_pago">Métodos de Pago</label>
                                 <select class="form-select" name="metodo_pago" id="metodo_pago">
                                     <option value="">Seleccione...</option>
@@ -68,12 +68,21 @@
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label" for="monto">Monto</label>
                                 <input type="number" class="form-control" name="monto" id="monto" required="">
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label" for="comprobante">Comprobante</label>
+                                <select class="form-select" name="comprobante" id="comprobante">
+                                    <option value="">Nota de Venta</option>
+                                    <option value="">Factura Electrónica</option>
+                                    <option value="">Boleta de Venta Electrónica</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-12 mb-3">
                                 <label class="form-label" for="description_service">Descripción del Servicio</label>
                                 <input type="text" class="form-control" name="description_service" id="description_service" required="">
                             </div>
