@@ -12,6 +12,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const newServidor = $("#tableServidor").DataTable(optionsTableDefault);
 
   new $.fn.dataTable.Responsive(newServidor);
+
+  const newAnuales = $("#tableAnuales").DataTable(optionsTableDefault);
+
+  new $.fn.dataTable.Responsive(newAnuales);
 });
 
 const swalWithBootstrapButtons = Swal.mixin({
@@ -97,6 +101,30 @@ async function loadPdtsSubir() {
       tempDeudores.innerHTML = htmlDeudores.trim();
       const nuevoNodoPlame = tempDeudores.firstElementChild;
       listCards.insertBefore(nuevoNodoPlame, listCards.firstElementChild);
+    }
+
+    const pdtAnuales = await fetch(base_url + "deudores-anuales");
+    const dataAnuales = await pdtAnuales.json();
+
+    const quantyAnuales = dataAnuales.length;
+
+    if (quantyAnuales > 0) {
+      const htmlAnuales = `
+        <div class="col-md-6 col-xl-3">
+            <div class="card social-widget-card alerta-card" onclick="viewContribuyentesAnuales()">
+                <div class="card-body">
+                    <h3 class="text-black m-0">${quantyAnuales}</h3>
+                    <span class="m-t-10 text-black">PDT ANUAL</span>
+                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                </div>
+            </div>
+        </div>
+      `;
+
+      const tempAnuales = document.createElement("div");
+      tempAnuales.innerHTML = htmlAnuales.trim();
+      const nuevoNodoAnual = tempAnuales.firstElementChild;
+      listCards.insertBefore(nuevoNodoAnual, listCards.firstElementChild);
     }
   } catch (error) {
     console.error("Error al cargar notificaciones PDT:", error);
@@ -237,6 +265,35 @@ function viewContribuyentesPdtsPlame() {
       const newPlame = $("#tablePlame").DataTable(optionsTableDefault);
 
       new $.fn.dataTable.Responsive(newPlame);
+    });
+}
+
+function viewContribuyentesAnuales() {
+  $("#modalPdtsAnuales").modal("show");
+  fetch(base_url + "deudores-anuales")
+    .then((res) => res.json())
+    .then((data) => {
+      let html = "";
+
+      const listAnuales = document.getElementById("listAnuales");
+
+      data.forEach((info) => {
+        html += `
+        <tr>
+          <td>${info.ruc} <br> ${info.razon_social}</td>
+          <td>${info.anio}</td>
+          <td>${info.mensaje}</td>
+        </tr>
+        `;
+      });
+
+      $("#tableAnuales").DataTable().destroy();
+
+      listAnuales.innerHTML = html;
+
+      const newcss = $("#tableAnuales").DataTable(optionsTableDefault);
+
+      new $.fn.dataTable.Responsive(newcss);
     });
 }
 

@@ -745,7 +745,7 @@ class Cobros extends BaseController
             $anioActual = $anio->where('anio_descripcion', $actual)->first();
             $idanio = $anioActual['id_anio'];
 
-            $data = $fecha->query("SELECT fd.id_fecha_declaracion,fd.id_anio, fd.id_numero, fd.fecha_exacta, fd.fecha_declaracion_estado, fd.id_tributo, fd.dia_exacto, fd.fecha_notificar, t.id_pdt, t.tri_descripcion FROM `fecha_declaracion` fd INNER JOIN tributo t ON t.id_tributo = fd.id_tributo WHERE t.id_pdt = 3 and fd.id_anio >= $idanio and fd.dia_exacto != 0 GROUP BY fd.fecha_exacta order by fd.id_fecha_declaracion asc;")->getResultArray();
+            $data = $fecha->query("SELECT fd.id_fecha_declaracion,fd.id_anio, fd.id_numero, fd.fecha_exacta, fd.fecha_declaracion_estado, fd.id_tributo, fd.dia_exacto, fd.fecha_notificar, a.anio_descripcion, t.id_pdt, t.tri_descripcion FROM `fecha_declaracion` fd INNER JOIN tributo t ON t.id_tributo = fd.id_tributo INNER JOIN anio a ON a.id_anio = fd.id_anio WHERE t.id_pdt = 3 and fd.id_anio >= $idanio and fd.dia_exacto != 0 GROUP BY fd.fecha_exacta order by fd.id_fecha_declaracion asc;")->getResultArray();
 
             $empresas = [];
 
@@ -755,29 +755,33 @@ class Cobros extends BaseController
 
                 if (date('Y-m-d') >= $fechaNotificar) {
                     $digito = $value['id_numero'] - 1;
-                    $datos = $contribuyente->query("SELECT c.id, c.ruc, c.razon_social FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo IN (11, 12, 13, 14) and c.estado = 1 and c.tipoServicio = 'CONTABLE' and c.tipoSuscripcion = 'NO GRATUITO' and RIGHT(c.ruc, 1) = $digito GROUP BY c.id, c.ruc, c.razon_social;")->getResultArray();
+                    $datos = $contribuyente->query("SELECT c.id, c.ruc, c.razon_social FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo IN (11, 12, 13, 14) and c.estado = 1 and c.tipoServicio = 'CONTABLE' and RIGHT(c.ruc, 1) = $digito GROUP BY c.id, c.ruc, c.razon_social;")->getResultArray();
 
                     foreach ($datos as $keys => $values) {
                         $idc = $values['id'];
                         $ruc = $values['ruc'];
                         $razonSocial = $values['razon_social'];
 
-                        $existePdtAnual = $pdtAnual->where('ruc_empresa', $ruc)->where('periodo', $value['id_anio'])->where('estado', 1)->first();
+                        $existePdtAnual = $pdtAnual->where('ruc_empresa', $ruc)->where('id_pdt_tipo', 3)->where('periodo', $value['id_anio'])->where('estado', 1)->first();
 
                         if ($existePdtAnual) {
-                            $existePagoAnual = $pagoAnual->where('contribuyente_id', $idc)->where('anio_correspondiente', $value['id_anio'])->where('estado', 'pendiente')->first();
 
-                            if ($existePagoAnual) {
-                                $mensaje = "Falta Pago Anual";
+                            if ($existePdtAnual['cargo'] == 1) {
+                                $existePagoAnual = $pagoAnual->where('contribuyente_id', $idc)->where('anio_correspondiente', $value['anio_descripcion'])->where('estado', 'pendiente')->first();
 
-                                $data_emp = [
-                                    "id" => $idc,
-                                    "ruc" => $ruc,
-                                    "razon_social" => $razonSocial,
-                                    'pago' => $mensaje,
-                                ];
+                                if ($existePagoAnual) {
+                                    $mensaje = "Falta Pago Anual";
 
-                                array_push($empresas, $data_emp);
+                                    $data_emp = [
+                                        "id" => $idc,
+                                        "ruc" => $ruc,
+                                        "razon_social" => $razonSocial,
+                                        'mensaje' => $mensaje,
+                                        'anio' => $value['anio_descripcion'],
+                                    ];
+
+                                    array_push($empresas, $data_emp);
+                                }
                             }
                         } else {
                             $mensaje = "Falta subir su pdt anual";
@@ -786,7 +790,8 @@ class Cobros extends BaseController
                                 "id" => $idc,
                                 "ruc" => $ruc,
                                 "razon_social" => $razonSocial,
-                                'pago' => $mensaje,
+                                'mensaje' => $mensaje,
+                                'anio' => $value['anio_descripcion'],
                             ];
 
                             array_push($empresas, $data_emp);
