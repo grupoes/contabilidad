@@ -357,6 +357,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 
-<script src="<?= base_url() ?>js/home/cajero.js?v=3"></script>
+<script src="<?= base_url() ?>js/home/cajero.js?v=4"></script>
 
 <?= $this->endSection() ?>
