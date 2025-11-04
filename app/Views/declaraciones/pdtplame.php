@@ -263,6 +263,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.responsive.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 
-<script src="<?= base_url() ?>js/declaraciones/pdtplame.js?v=2"></script>
+<script src="<?= base_url() ?>js/declaraciones/pdtplame.js?v=3"></script>
 
 <?= $this->endSection() ?>

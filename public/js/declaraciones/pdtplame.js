@@ -120,8 +120,14 @@ function descargarArchivos(ruc, id) {
     });
 }
 
+const btnForm = document.getElementById("btnForm");
+
 formArchivo.addEventListener("submit", (e) => {
   e.preventDefault();
+
+  btnForm.setAttribute("disabled", true);
+  btnForm.innerHTML =
+    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
 
   const formData = new FormData(formArchivo);
 
@@ -131,6 +137,9 @@ formArchivo.addEventListener("submit", (e) => {
   })
     .then((res) => res.json())
     .then((data) => {
+      btnForm.removeAttribute("disabled");
+      btnForm.innerHTML = "Guardar";
+
       if (data.status === "success") {
         $("#modalArchivo").modal("hide");
         Swal.fire({
