@@ -9,6 +9,7 @@ use App\Models\MesModel;
 use App\Models\NumeroModel;
 use App\Models\TributoModel;
 use App\Models\FechaDeclaracionModel;
+use App\Models\FechaDeclaracionBalanceModel;
 
 class Declaracion extends BaseController
 {
@@ -163,7 +164,7 @@ class Declaracion extends BaseController
                         $fecha_final = $dia;
 
                         $date = date_create($fecha_final);
-                        date_add($date, date_interval_create_from_date_string('-3 days'));
+                        date_add($date, date_interval_create_from_date_string('-20 days'));
                         $fecha_notificacion = date_format($date, "Y-m-d");
 
                         $dia_exacto = date('d', strtotime($fecha_final));

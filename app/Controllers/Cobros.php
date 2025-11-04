@@ -11,7 +11,9 @@ use App\Models\PagoServidorModel;
 use App\Models\PagoAnualModel;
 use App\Models\PagoAmoAnualModel;
 use App\Models\AmortizacionPagoAnualModel;
-
+use App\Models\FechaDeclaracionModel;
+use App\Models\AnioModel;
+use App\Models\PdtAnualModel;
 use DateTime;
 
 class Cobros extends BaseController
@@ -261,7 +263,7 @@ class Cobros extends BaseController
             $tipo_servicio = " AND tipoServicio = '$tipo' ";
         }
 
-        $contribuyentes = $contribuyente->query("SELECT c.id, c.ruc, c.razon_social, (SELECT COUNT(*) FROM pago_anual p WHERE p.contribuyente_id = c.id AND p.estado = 'Pendiente') AS pagos_pendientes FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo != 2 and c.estado = $estado $tipo_servicio GROUP BY c.id, c.ruc, c.razon_social ORDER BY pagos_pendientes DESC")->getResultArray();
+        $contribuyentes = $contribuyente->query("SELECT c.id, c.ruc, c.razon_social, (SELECT COUNT(*) FROM pago_anual p WHERE p.contribuyente_id = c.id AND p.estado = 'Pendiente') AS pagos_pendientes FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo IN (11, 12, 13, 14) and c.estado = $estado $tipo_servicio GROUP BY c.id, c.ruc, c.razon_social ORDER BY pagos_pendientes DESC")->getResultArray();
 
         return $this->response->setJSON($contribuyentes);
     }
@@ -710,7 +712,7 @@ class Cobros extends BaseController
 
         $menu = $this->permisos_menu();
 
-        
+
         $metodo = new MetodoPagoModel();
         $metodos = $metodo->where('estado', 1)->findAll();
 
@@ -721,6 +723,79 @@ class Cobros extends BaseController
     {
         try {
             $data = $this->request->getPost();
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function renderDeudoresAnuales()
+    {
+        $contribuyente = new ContribuyenteModel();
+        $fecha = new FechaDeclaracionModel();
+        $anio = new AnioModel();
+        $pagoAnual = new PagoAnualModel();
+        $pdtAnual = new PdtAnualModel();
+
+        $fecha->query("SET lc_time_names = 'es_ES'");
+
+        try {
+
+            $actual = '2025';
+
+            $anioActual = $anio->where('anio_descripcion', $actual)->first();
+            $idanio = $anioActual['id_anio'];
+
+            $data = $fecha->query("SELECT fd.id_fecha_declaracion,fd.id_anio, fd.id_numero, fd.fecha_exacta, fd.fecha_declaracion_estado, fd.id_tributo, fd.dia_exacto, fd.fecha_notificar, t.id_pdt, t.tri_descripcion FROM `fecha_declaracion` fd INNER JOIN tributo t ON t.id_tributo = fd.id_tributo WHERE t.id_pdt = 3 and fd.id_anio >= $idanio and fd.dia_exacto != 0 GROUP BY fd.fecha_exacta order by fd.id_fecha_declaracion asc;")->getResultArray();
+
+            $empresas = [];
+
+            foreach ($data as $key => $value) {
+                $fechaExacta = $value['fecha_exacta'];
+                $fechaNotificar = $value['fecha_notificar'];
+
+                if (date('Y-m-d') >= $fechaNotificar) {
+                    $digito = $value['id_numero'] - 1;
+                    $datos = $contribuyente->query("SELECT c.id, c.ruc, c.razon_social FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo IN (11, 12, 13, 14) and c.estado = 1 and c.tipoServicio = 'CONTABLE' and c.tipoSuscripcion = 'NO GRATUITO' and RIGHT(c.ruc, 1) = $digito GROUP BY c.id, c.ruc, c.razon_social;")->getResultArray();
+
+                    foreach ($datos as $keys => $values) {
+                        $idc = $values['id'];
+                        $ruc = $values['ruc'];
+                        $razonSocial = $values['razon_social'];
+
+                        $existePdtAnual = $pdtAnual->where('ruc_empresa', $ruc)->where('periodo', $value['id_anio'])->where('estado', 1)->first();
+
+                        if ($existePdtAnual) {
+                            $existePagoAnual = $pagoAnual->where('contribuyente_id', $idc)->where('anio_correspondiente', $value['id_anio'])->where('estado', 'pendiente')->first();
+
+                            if ($existePagoAnual) {
+                                $mensaje = "Falta Pago Anual";
+
+                                $data_emp = [
+                                    "id" => $idc,
+                                    "ruc" => $ruc,
+                                    "razon_social" => $razonSocial,
+                                    'pago' => $mensaje,
+                                ];
+
+                                array_push($empresas, $data_emp);
+                            }
+                        } else {
+                            $mensaje = "Falta subir su pdt anual";
+
+                            $data_emp = [
+                                "id" => $idc,
+                                "ruc" => $ruc,
+                                "razon_social" => $razonSocial,
+                                'pago' => $mensaje,
+                            ];
+
+                            array_push($empresas, $data_emp);
+                        }
+                    }
+                }
+            }
+
+            return $this->response->setJSON($empresas);
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }

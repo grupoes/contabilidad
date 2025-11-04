@@ -109,7 +109,7 @@ function viewConfiguracion(data) {
                 <input type="hidden" id="lista" value="${data.lista}" />
                 <h5 class="text-center">CONFIGURACION ${data.declaracion} - ${data.pdtNombre}</h5>
                 <div class="row mb-3">
-                    <label for="inputEmail3" class="col-sm-4 col-form-label">Seleccionar el año en el que desea trabajar:</label>
+                    <label for="anio" class="col-sm-4 col-form-label">Seleccionar el año en el que desea trabajar:</label>
                     <div class="col-sm-4">
                         <select name="" id="anio" class="form-select" onchange="getAnio(event)" >${aniosHtml}</select>
                     </div>
@@ -118,7 +118,7 @@ function viewConfiguracion(data) {
                 <div class="table-responsive">
                   <table class="table table-sm">
                       <thead>
-                          <tr>
+                          <tr class="text-center">
                               <th class="sticky-col" style="background: #f1eeee;">Periodo</th>
                               ${numerosHtml}
                           </tr>
@@ -256,4 +256,16 @@ function mes(id_mes) {
   if (id_mes == 12) {
     return 31;
   }
+}
+
+function enviar_datos_balance(e, id_numero, digito) {
+  const valor = e.target.value;
+
+  const fecha = new Date(valor);
+  if (isNaN(fecha.getTime())) {
+    console.log("Fecha inválida.");
+    return;
+  }
+
+  console.log("fecha valida");
 }

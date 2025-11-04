@@ -98,6 +98,15 @@ async function loadPdtsSubir() {
       const nuevoNodoPlame = tempDeudores.firstElementChild;
       listCards.insertBefore(nuevoNodoPlame, listCards.firstElementChild);
     }
+
+    const pdtAnuales = await fetch(base_url + "deudores-anuales");
+    const dataAnuales = await pdtAnuales.json();
+
+    const quantyAnuales = dataAnuales.length;
+
+    if (quantyAnuales > 0) {
+      console.log(dataAnuales);
+    }
   } catch (error) {
     console.error("Error al cargar notificaciones PDT:", error);
   }
