@@ -180,6 +180,7 @@ $routes->post('pdtAnual-consulta', 'PdtAnual::consulta');
 $routes->post('pdtAnual/getBalance', 'PdtAnual::getBalance');
 $routes->post('pdtAnual/guardar', 'PdtAnual::guardar');
 $routes->post('pdtAnual/rectificar', 'PdtAnual::rectificar');
+$routes->get('pdtAnual/delete/(:num)/(:num)', 'PdtAnual::deleteAnual/$1/$2');
 
 $routes->get('declaraciones/boleta-de-pago', 'BoletaPago::index');
 $routes->post('boleta-pago-save', 'BoletaPago::save');

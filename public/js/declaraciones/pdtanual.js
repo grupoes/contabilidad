@@ -294,8 +294,10 @@ function viewBalance(data) {
               <a href="${base_url}archivos/pdt/${pdt.pdt}" class='btn btn-success btn-sm' target='_blank' title='Descargar PDT'>PDT</a> 
               <a href="${base_url}archivos/pdt/${pdt.constancia}" target='_blank' class='btn btn-primary btn-sm' title='Descargar constancia'>CONSTANCIA</a>
 
-              <button type='button' class='btn btn-danger btn-sm' title='Rectificar Archivos' onclick='rectificar(${pdt.id_pdt_anual},${pdt.id_archivo_anual},${pdt.periodo},${pdt.id_pdt_tipo}, "${pdt.pdt_descripcion}", ${pdt.anio_descripcion})'>RECT</button>
+              <button type='button' class='btn btn-warning btn-sm' title='Rectificar Archivos' onclick='rectificar(${pdt.id_pdt_anual},${pdt.id_archivo_anual},${pdt.periodo},${pdt.id_pdt_tipo}, "${pdt.pdt_descripcion}", ${pdt.anio_descripcion})'>RECT</button>
               <!--<button type='button' class='btn btn-warning btn-sm' title='Detalle' onclick='details_archivos(${pdt.id_pdt_anual})'>DET</button>-->
+
+              <button type='button' class='btn btn-danger btn-sm' title='Eliminar' onclick='deletePdtAnual(${pdt.id_archivo_anual}, ${pdt.id_pdt_anual})'> <i class="fas fa-trash"></i> </button>
             </td>
         </tr>
         `;
@@ -502,3 +504,42 @@ modalRectificar.addEventListener("click", (e) => {
     $("#modalDescargarArchivo").modal("show");
   }
 });
+
+function deletePdtAnual(idArchivo, idPdtAnual) {
+  $("#modalDescargarArchivo").modal("hide");
+  swalWithBootstrapButtons
+    .fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esto!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar!",
+      cancelButtonText: "No, cancelar!",
+      reverseButtons: true,
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        fetch(base_url + "pdtAnual/delete/" + idArchivo + "/" + idPdtAnual)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              Swal.fire({
+                position: "top-center",
+                icon: "success",
+                title: data.message,
+                showConfirmButton: false,
+                timer: 1500,
+              });
+
+              setTimeout(() => {
+                $("#modalDescargarArchivo").modal("show");
+
+                getBalance(anioDescarga.value, tipoPdt.value);
+              }, 1600);
+            }
+          });
+      } else {
+        $("#modalDescargarArchivo").modal("show");
+      }
+    });
+}

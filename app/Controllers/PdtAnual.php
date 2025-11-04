@@ -342,4 +342,30 @@ class PdtAnual extends BaseController
             ]);
         }
     }
+
+    public function deleteAnual($idArchivo, $idPdtAnual)
+    {
+        $archivosPdtAnual = new ArchivosPdtAnualModel();
+        $pdtAnual = new PdtAnualModel();
+
+        try {
+            $archivosPdtAnual->set('estado', 0);
+            $archivosPdtAnual->where('id_archivo_anual', $idArchivo);
+            $archivosPdtAnual->update();
+
+            $pdtAnual->set('estado', 0);
+            $pdtAnual->where('id_pdt_anual', $idPdtAnual);
+            $pdtAnual->update();
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Registro eliminado correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }
