@@ -209,6 +209,9 @@ $routes->get('permisos-perfil/(:num)', 'Permisos::show/$1');
 $routes->post('save-permisos', 'Permisos::guardar');
 $routes->get('menu-nav', 'Permisos::permisos_menu');
 $routes->get('generar-facturas', 'Permisos::generarFacturas');
+$routes->get('perfiles', 'Permisos::listProfiles');
+$routes->post('save-perfil', 'Permisos::savePerfil');
+$routes->get('delete-perfil/(:num)', 'Permisos::deletePerfil/$1');
 
 $routes->get('declaracion', 'Declaracion::index');
 $routes->get('listaDeclaracion/(:num)', 'Declaracion::listaDeclaracion/$1');

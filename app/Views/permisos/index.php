@@ -32,17 +32,16 @@
         <div class="col-sm-4" id="perfilesCard">
             <div class="card">
                 <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h4 class="mb-0">Perfiles:</h4>
+                        <button type="button" id="addButton" class="btn btn-sm btn-outline-success d-flex align-items-center gap-2">
+                            <i class="ph-duotone ph-plus-circle"></i> Agregar
+                        </button>
+                    </div>
 
-                    <h4 class="mb-3">Perfiles</h4>
+                    <div id="listProfiles">
 
-                    <?php foreach ($perfiles as $perfil) { ?>
-
-                        <div class="form-check mb-3">
-                            <input class="form-check-input perfil-radio" type="radio" name="perfil" id="perf<?= $perfil['id'] ?>" value="<?= $perfil['id'] ?>">
-                            <label class="form-check-label" for="perf<?= $perfil['id'] ?>"><?= $perfil['nombre_perfil'] ?></label>
-                        </div>
-
-                    <?php } ?>
+                    </div>
 
                 </div>
             </div>
@@ -71,6 +70,35 @@
 
     </div>
     <!-- [ Main Content ] end -->
+</div>
+
+<div id="modalProfile" class="modal fade" tabindex="-1" data-bs-backdrop="static" role="dialog" aria-labelledby="exampleModalLiveLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titlePerfil">
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formProfile">
+                <input type="hidden" name="perfil_id" id="idperfil" value="0">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="nombre_perfil" class="form-label">Nombre del perfil</label>
+                                <input type="text" class="form-control" id="nombre_perfil" name="nombre_perfil" placeholder="Nombre del perfil">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" id="btnForm" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <?= $this->endSection() ?>

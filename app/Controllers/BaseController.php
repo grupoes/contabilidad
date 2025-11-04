@@ -122,6 +122,7 @@ abstract class BaseController extends Controller
         $modulos = $permisos->select('modulos.modulo_padre,(SELECT m2.nombre FROM modulos m2 WHERE m2.id = modulos.modulo_padre) AS modulo_padre_nombre, (SELECT m2.icono FROM modulos m2 WHERE m2.id = modulos.modulo_padre) AS modulo_padre_icono')
             ->join('modulos', 'modulos.id = permisos.modulo_id')
             ->where('permisos.perfil_id', session()->perfil_id)
+            ->where('modulos.estado', 1)
             ->groupBy('modulos.modulo_padre')
             ->findAll();
 
@@ -130,6 +131,7 @@ abstract class BaseController extends Controller
                 ->join('modulos', 'modulos.id = permisos.modulo_id')
                 ->where('permisos.perfil_id', session()->perfil_id)
                 ->where('modulos.modulo_padre', $value['modulo_padre'])
+                ->where('modulos.estado', 1)
                 ->groupBy('modulos.id')
                 ->orderBy('modulos.orden', 'ASC')
                 ->findAll();

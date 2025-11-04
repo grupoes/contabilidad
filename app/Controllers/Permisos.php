@@ -15,6 +15,13 @@ class Permisos extends BaseController
             return redirect()->to(base_url());
         }
 
+        $menu = $this->permisos_menu();
+
+        return view('permisos/index', compact('menu'));
+    }
+
+    public function listProfiles()
+    {
         $profile = new ProfileModel();
 
         if (session()->perfil_id != 1) {
@@ -23,9 +30,7 @@ class Permisos extends BaseController
             $perfiles = $profile->where('estado', 1)->findAll();
         }
 
-        $menu = $this->permisos_menu();
-
-        return view('permisos/index', compact('perfiles', 'menu'));
+        return $this->response->setJSON($perfiles);
     }
 
     public function show($idperfil)
@@ -128,6 +133,66 @@ class Permisos extends BaseController
             return $this->response->setJSON([
                 'status' => 'success',
                 'message' => "Permisos actualizados correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function savePerfil()
+    {
+        $profile = new ProfileModel();
+
+        try {
+            $data = $this->request->getPost();
+
+            $id = $data['perfil_id'];
+            $nombre = $data['nombre_perfil'];
+
+            if ($id == 0) {
+                $profile->save([
+                    'nombre_perfil' => $nombre,
+                    'estado' => 1
+                ]);
+
+                return $this->response->setJSON([
+                    'status' => 'success',
+                    'message' => 'Perfil creado correctamente'
+                ]);
+            } else {
+                $profile->update($id, [
+                    'nombre_perfil' => $nombre,
+                    'estado' => 1
+                ]);
+
+                return $this->response->setJSON([
+                    'status' => 'success',
+                    'message' => 'Perfil actualizado correctamente'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function deletePerfil($id)
+    {
+        $profile = new ProfileModel();
+
+        try {
+            $profile->update($id, [
+                'estado' => 0
+            ]);
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Perfil eliminado correctamente'
             ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
