@@ -150,8 +150,7 @@ function descargarArchivos(id) {
   fetch(base_url + "contribuyentes/getId/" + id)
     .then((res) => res.json())
     .then((data) => {
-      titleModalDescargar.textContent =
-        "Descargar Archivos - " + data.razon_social;
+      titleModalDescargar.innerHTML = `Descargar Archivos - <span id="titleRazon">${data.razon_social}</span>`;
       numRuc.value = data.ruc;
 
       fetch(base_url + "pdtAnual/verificar/" + data.ruc)
@@ -295,8 +294,8 @@ function viewBalance(data) {
               <a href="${base_url}archivos/pdt/${pdt.pdt}" class='btn btn-success btn-sm' target='_blank' title='Descargar PDT'>PDT</a> 
               <a href="${base_url}archivos/pdt/${pdt.constancia}" target='_blank' class='btn btn-primary btn-sm' title='Descargar constancia'>CONSTANCIA</a>
 
-              <button type='button' class='btn btn-danger btn-sm' title='Rectificar Archivos' onclick='rectificar(${pdt.id_pdt_anual},${pdt.id_archivo_anual},${pdt.periodo},${pdt.id_pdt_tipo})'>RECT</button>
-              <button type='button' class='btn btn-warning btn-sm' title='Detalle' onclick='details_archivos(${pdt.id_pdt_anual})'>DET</button>
+              <button type='button' class='btn btn-danger btn-sm' title='Rectificar Archivos' onclick='rectificar(${pdt.id_pdt_anual},${pdt.id_archivo_anual},${pdt.periodo},${pdt.id_pdt_tipo}, "${pdt.pdt_descripcion}", ${pdt.anio_descripcion})'>RECT</button>
+              <!--<button type='button' class='btn btn-warning btn-sm' title='Detalle' onclick='details_archivos(${pdt.id_pdt_anual})'>DET</button>-->
             </td>
         </tr>
         `;
@@ -414,3 +413,92 @@ cargo.addEventListener("click", (e) => {
     divDescripcion.setAttribute("hidden", true);
   }
 });*/
+
+const formRectificar = document.getElementById("formRectificar");
+
+function rectificar(
+  id_pdt,
+  idArchivo,
+  anio,
+  pdt_tipo,
+  descripcion,
+  anio_descripcion
+) {
+  $("#modalDescargarArchivo").modal("hide");
+  $("#modalRectificar").modal("show");
+
+  formRectificar.reset();
+
+  const titleRazon = document.getElementById("titleRazon").textContent;
+  const ruc = document.getElementById("numRuc").value;
+
+  const titleModalRectificar = document.getElementById("titleModalRectificar");
+  titleModalRectificar.textContent = `Rectificar Archivos | ${titleRazon} | ${descripcion} | ${anio_descripcion}`;
+
+  const idArchivoAnual = document.getElementById("idArchivoAnual");
+  const idanio = document.getElementById("idanio");
+  const idpdt = document.getElementById("idpdt");
+  const idpdttipo = document.getElementById("idpdttipo");
+  const rucNumber = document.getElementById("rucNumber");
+
+  rucNumber.value = ruc;
+  idpdt.value = id_pdt;
+  idArchivoAnual.value = idArchivo;
+  idanio.value = anio;
+  idpdttipo.value = pdt_tipo;
+}
+
+formRectificar.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(formRectificar);
+
+  fetch(base_url + "pdtAnual/rectificar", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        $("#modalRectificar").modal("hide");
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: data.message,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+
+        setTimeout(() => {
+          $("#modalDescargarArchivo").modal("show");
+
+          getBalance(anioDescarga.value, tipoPdt.value);
+        }, 1600);
+
+        return false;
+      }
+
+      $("#modalRectificar").modal("hide");
+
+      swalWithBootstrapButtons
+        .fire({
+          title: "Error!",
+          text: data.message,
+          icon: "error",
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            $("#modalRectificar").modal("show");
+            // Aquí puedes realizar cualquier acción adicional
+          }
+        });
+    });
+});
+
+const modalRectificar = document.getElementById("modalRectificar");
+
+modalRectificar.addEventListener("click", (e) => {
+  if (e.target.classList.contains("closeRectificar")) {
+    $("#modalDescargarArchivo").modal("show");
+  }
+});

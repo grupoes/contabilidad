@@ -263,4 +263,83 @@ class PdtAnual extends BaseController
             ]);
         }
     }
+
+    public function rectificar()
+    {
+        $archivosPdtAnual = new ArchivosPdtAnualModel();
+        $anio = new AnioModel();
+        $pdt = new PdtModel();
+
+        try {
+            $data = $this->request->getPost();
+
+            $idpdt = $data['idpdt'];
+            $idpdttipo = $data['idpdttipo'];
+            $idanio = $data['idanio'];
+            $idArchivoAnual = $data['idArchivoAnual'];
+            $ruc = $data['rucNumber'];
+
+            $file1 = $this->request->getFile('pdt_rectificar');
+            $file2 = $this->request->getFile('constancia_rectificar');
+
+            // Verificar que al menos uno de los archivos esté presente
+            if ((!$file1 || !$file1->isValid()) && (!$file2 || !$file2->isValid())) {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "Debe seleccionar al menos un archivo"
+                ]);
+            }
+
+            $dataPdt = $pdt->select("pdt_descripcion")->find($idpdttipo);
+            $nombre_pdt = $dataPdt['pdt_descripcion'];
+
+            $data_anio = $anio->find($idanio);
+            $ani = $data_anio['anio_descripcion'];
+
+            $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+
+            $archivo_pdt = "";
+            $archivo_constancia = "";
+
+            $dataArchivo = $archivosPdtAnual->find($idArchivoAnual);
+
+            if ($file1->isValid()) {
+                $archivo_pdt = "PDT_" . $ruc . "_" . $nombre_pdt . "_" . $ani . "_RECT_" . $codigo . ".pdf";
+                $file1->move(FCPATH . 'archivos/pdt', $archivo_pdt);
+            } else {
+                $archivo_pdt = $dataArchivo['pdt'];
+            }
+
+            if ($file2->isValid()) {
+                $archivo_constancia = "CONSTANCIA_" . $ruc . "_" . $nombre_pdt . "_" . $ani . "_RECT_" . $codigo . ".pdf";
+                $file2->move(FCPATH . 'archivos/pdt', $archivo_constancia);
+            } else {
+                $archivo_constancia = $dataArchivo['constancia'];
+            }
+
+            $archivosPdtAnual->set('estado', 0);
+            $archivosPdtAnual->where('id_archivo_anual', $idArchivoAnual);
+            $archivosPdtAnual->update();
+
+            $datos_files = array(
+                "id_pdt_anual" => $idpdt,
+                "pdt" => $archivo_pdt,
+                "constancia" => $archivo_constancia,
+                "estado" => 1,
+                "user_id" => session()->id
+            );
+
+            $archivosPdtAnual->insert($datos_files);
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Archivos rectificados correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }

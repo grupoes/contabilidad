@@ -256,6 +256,42 @@
     </div>
 </div>
 
+<div id="modalRectificar" class="modal fade" tabindex="-1" role="dialog" data-bs-backdrop="static" aria-labelledby="exampleModalLiveLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titleModalRectificar"></h5>
+                <button type="button" class="btn-close closeRectificar" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formRectificar" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="idArchivoAnual" id="idArchivoAnual" />
+                    <input type="hidden" name="idanio" id="idanio" />
+                    <input type="hidden" name="idpdt" id="idpdt" />
+                    <input type="hidden" name="idpdttipo" id="idpdttipo" />
+                    <input type="hidden" name="rucNumber" id="rucNumber" />
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="pdt_rectificar">Subir Pdt</label>
+                            <input type="file" class="form-control" name="pdt_rectificar" id="pdt_rectificar" accept="application/pdf" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label for="constancia_rectificar">Subir Constancia</label>
+                            <input type="file" class="form-control" name="constancia_rectificar" id="constancia_rectificar" accept="application/pdf" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary closeRectificar" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSave">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>
@@ -267,6 +303,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.responsive.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 
-<script src="<?= base_url() ?>js/declaraciones/pdtanual.js?v=2"></script>
+<script src="<?= base_url() ?>js/declaraciones/pdtanual.js?v=3"></script>
 
 <?= $this->endSection() ?>
