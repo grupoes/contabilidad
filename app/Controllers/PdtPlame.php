@@ -58,7 +58,7 @@ class PdtPlame extends BaseController
             $periodo = $data['periodo'];
             $anio = $data['anio'];
 
-            $consultaPlame = $pdtPlame->where('ruc_empresa', $ruc)->where('periodo', $periodo)->where('anio', $anio)->first();
+            $consultaPlame = $pdtPlame->where('ruc_empresa', $ruc)->where('periodo', $periodo)->where('anio', $anio)->where('estado', 1)->first();
 
             if ($consultaPlame) {
                 return $this->response->setJSON(['error' => 'success', 'message' => "El periodo y año ya existe."]);
@@ -504,5 +504,38 @@ class PdtPlame extends BaseController
             "message" => "archivo eliminado correctamente",
             "idplame" => $idplame
         ]);
+    }
+
+    public function eliminar($idPlame, $idarchivo)
+    {
+        $files = new ArchivosPdtPlameModel();
+        $pdtPlame = new PdtPlameModel();
+        $r08 = new R08PlameModel();
+
+        try {
+            $files->update($idarchivo, [
+                'estado' => 0,
+                'user_delete' => session()->id
+            ]);
+
+            $pdtPlame->update($idPlame, [
+                'estado' => 0,
+                'user_delete' => session()->id
+            ]);
+
+            $r08->set('status', 0);
+            $r08->where('plameId', $idPlame);
+            $r08->update();
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "plame eliminado correctamente",
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Error al eliminar el plame, ' . $e->getMessage()
+            ]);
+        }
     }
 }

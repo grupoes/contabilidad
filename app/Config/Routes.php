@@ -160,6 +160,7 @@ $routes->post('send-file-pdt621', 'Pdt0621::sendMessageFiles');
 $routes->post('rectificacion-pdt-renta', 'Pdt0621::pdtRectificacion');
 $routes->get('pdt-0621/get-files-details/(:num)', 'Pdt0621::getArchivos/$1');
 $routes->post('pdt-0621/save-montos', 'Pdt0621::updateMontos');
+$routes->get('pdt-0621/delete/(:num)/(:num)', 'Pdt0621::delete/$1/$2');
 
 $routes->get('declaraciones/pdt-renta-transacciones', 'Pdt0621::transacciones');
 $routes->post('declaraciones/obtenerDatosPdtRentaTransacciones', 'Pdt0621::listEmpresas');
@@ -173,6 +174,7 @@ $routes->get('descargarR08All/(:num)', 'PdtPlame::descargarR08All/$1');
 $routes->post('rectificar-pdt-plame', 'PdtPlame::rectificarPlame');
 $routes->post('rectificar-pdt-plame/r08', 'PdtPlame::rectificarR08');
 $routes->get('eliminar-pdt-plame/r08/(:num)', 'PdtPlame::eliminarR08/$1');
+$routes->get('eliminar-pdt-plame/(:num)/(:num)', 'PdtPlame::eliminar/$1/$2');
 
 $routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
 $routes->get('pdtAnual/verificar/(:num)', 'PdtAnual::verificar/$1');

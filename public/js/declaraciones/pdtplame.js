@@ -241,7 +241,9 @@ function viewArchivos(data) {
               ${r08}
             </td>
             <td> 
-              <button type='button' class='btn btn-danger btn-sm' title='Rectificar Archivos' onclick='rectificar(${data.id_pdtplame},${data.id_archivos_pdtplame},${data.periodo},${data.anio}, "${data.mes_descripcion}", "${data.anio_descripcion}")'>RECT</button>
+              <button type='button' class='btn btn-info btn-sm' title='Rectificar Archivos' onclick='rectificar(${data.id_pdtplame},${data.id_archivos_pdtplame},${data.periodo},${data.anio}, "${data.mes_descripcion}", "${data.anio_descripcion}")'>RECT</button>
+
+              <button type='button' class='btn btn-danger btn-sm' title='Eliminar Archivos' onclick='eliminar(${data.id_pdtplame},${data.id_archivos_pdtplame})'> <i class="fas fa-trash"></i> </button>
               
             </td>
         </tr>
@@ -496,6 +498,42 @@ function eliminarR08(e, id) {
             if (data.status === "ok") {
               $("#modalDescargarArchivo").modal("show");
               viewR08(data.idplame);
+            }
+          });
+      } else {
+        $("#modalDescargarArchivo").modal("show");
+      }
+    });
+}
+
+function eliminar(idPlame, idArchivoPlame) {
+  $("#modalDescargarArchivo").modal("hide");
+
+  swalWithBootstrapButtons
+    .fire({
+      title: "¿Esta seguro de eliminar?",
+      text: "Ya no podrá revertir después!",
+      icon: "error",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, eliminar!",
+      cancelButtonText: "Cancelar",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        fetch(`${base_url}eliminar-pdt-plame/${idPlame}/${idArchivoPlame}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              $("#modalDescargarArchivo").modal("show");
+              renderArchivos(
+                periodoDescarga.value,
+                anioDescarga.value,
+                ruc_emp.value
+              );
             }
           });
       } else {

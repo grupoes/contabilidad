@@ -257,11 +257,14 @@ function viewArchivos(data, ruc) {
             <td>${archivo.mes_descripcion}</td>
             <td>${archivo.anio_descripcion}</td>
             <td>
-                <a href='${base_url}archivos/pdt/${archivo.nombre_pdt}' class='btn btn-success btn-sm' target='_blank' title='Descargar Renta'>PDT</a> <a href='${base_url}archivos/pdt/${archivo.nombre_constancia}' target='_blank' class='btn btn-primary btn-sm' title='Descargar constancia'>CONSTANCIA</a>
+                <a href='${base_url}archivos/pdt/${archivo.nombre_pdt}' class='btn btn-success btn-sm' target='_blank' title='Descargar Renta'>PDT</a> 
+                <a href='${base_url}archivos/pdt/${archivo.nombre_constancia}' target='_blank' class='btn btn-primary btn-sm' title='Descargar constancia'>CONSTANCIA</a>
             </td>
             <td>
-              <button type='button' class='btn btn-danger' title='Rectificar Archivos' onclick='rectificar(${archivo.id_pdt_renta},${archivo.id_archivos_pdt},${archivo.periodo},${archivo.anio}, ${ruc}, "${archivo.mes_descripcion}", "${archivo.anio_descripcion}")'>RECT</button>
-                <button type='button' class='btn btn-warning' title='Detalle' onclick='details_archivos(${archivo.id_pdt_renta}, "${archivo.mes_descripcion}", "${archivo.anio_descripcion}")'>DET</button>
+              <button type='button' class='btn btn-info btn-sm' title='Rectificar Archivos' onclick='rectificar(${archivo.id_pdt_renta},${archivo.id_archivos_pdt},${archivo.periodo},${archivo.anio}, ${ruc}, "${archivo.mes_descripcion}", "${archivo.anio_descripcion}")'>RECT</button>
+              <button type='button' class='btn btn-warning btn-sm' title='Detalle' onclick='details_archivos(${archivo.id_pdt_renta}, "${archivo.mes_descripcion}", "${archivo.anio_descripcion}")'>DET</button>
+
+              <button type='button' class='btn btn-danger btn-sm' title='Eliminar' onclick='eliminar(${archivo.id_pdt_renta}, ${archivo.id_archivos_pdt})'> <i class="fas fa-trash"></i> </button>
             </td>
         </tr>
         `;
@@ -616,3 +619,47 @@ modalDetalle.addEventListener("click", (e) => {
     $("#modalDescargarArchivo").modal("show");
   }
 });
+
+function eliminar(id_pdt_renta, id_archivos_pdt) {
+  $("#modalDescargarArchivo").modal("hide");
+  Swal.fire({
+    title: "¿Estás seguro?",
+    text: "Esta acción no se puede deshacer",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "No, cancelar!",
+    reverseButtons: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(
+        base_url + "pdt-0621/delete/" + id_pdt_renta + "/" + id_archivos_pdt
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "success") {
+            Swal.fire({
+              position: "top-center",
+              icon: "success",
+              title: data.message,
+              showConfirmButton: false,
+              timer: 1500,
+            });
+
+            setTimeout(() => {
+              $("#modalDescargarArchivo").modal("show");
+              renderArchivos(
+                periodo_file.value,
+                anio_file.value,
+                rucEmpresa.value
+              );
+            }, 1600);
+          }
+        });
+    } else {
+      $("#modalDescargarArchivo").modal("show");
+    }
+  });
+}

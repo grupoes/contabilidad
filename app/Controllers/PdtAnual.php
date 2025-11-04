@@ -122,6 +122,7 @@ class PdtAnual extends BaseController
             $consulta = $pdtAnual->where("ruc_empresa", $ruc)
                 ->where("id_pdt_tipo", $typePdt)
                 ->where("periodo", $anio_post)
+                ->where("estado", 1)
                 ->first();
 
             if ($consulta) {
@@ -349,13 +350,15 @@ class PdtAnual extends BaseController
         $pdtAnual = new PdtAnualModel();
 
         try {
-            $archivosPdtAnual->set('estado', 0);
-            $archivosPdtAnual->where('id_archivo_anual', $idArchivo);
-            $archivosPdtAnual->update();
+            $archivosPdtAnual->update($idArchivo, [
+                'estado' => 0,
+                'user_delete' => session()->id
+            ]);
 
-            $pdtAnual->set('estado', 0);
-            $pdtAnual->where('id_pdt_anual', $idPdtAnual);
-            $pdtAnual->update();
+            $pdtAnual->update($idPdtAnual, [
+                'estado' => 0,
+                'user_delete' => session()->id
+            ]);
 
             return $this->response->setJSON([
                 "status" => "success",

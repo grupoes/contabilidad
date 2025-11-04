@@ -67,7 +67,7 @@ class Pdt0621 extends BaseController
             $periodo = $data['periodo'];
             $anio = $data['anio'];
 
-            $consultaRenta = $pdtRenta->where('ruc_empresa', $ruc)->where('periodo', $periodo)->where('anio', $anio)->first();
+            $consultaRenta = $pdtRenta->where('ruc_empresa', $ruc)->where('periodo', $periodo)->where('anio', $anio)->where('estado', 1)->first();
 
             if ($consultaRenta) {
                 return $this->response->setJSON(['error' => 'success', 'message' => "El periodo y año ya existe."]);
@@ -587,6 +587,34 @@ class Pdt0621 extends BaseController
             return $this->response->setJSON([
                 "status" => "success",
                 "message" => "Se actualizo correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Ocurrio un error " . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function delete($id_pdt_renta, $id_archivos_pdt)
+    {
+        $files = new ArchivosPdt0621Model();
+        $pdtRenta = new PdtRentaModel();
+
+        try {
+            $files->update($id_archivos_pdt, array(
+                "estado" => 0,
+                "user_delete" => session()->id,
+            ));
+
+            $pdtRenta->update($id_pdt_renta, array(
+                "estado" => 0,
+                "user_delete" => session()->id,
+            ));
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se elimino correctamente"
             ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([

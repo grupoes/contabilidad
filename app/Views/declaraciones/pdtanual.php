@@ -160,6 +160,7 @@
                                     <td>Año</td>
                                     <td>Tipo Pdt</td>
                                     <td>Archivos</td>
+                                    <td>Acción</td>
                                 </tr>
                             </thead>
                             <tbody id="listFiles"></tbody>
