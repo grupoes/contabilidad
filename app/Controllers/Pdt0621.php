@@ -201,12 +201,34 @@ class Pdt0621 extends BaseController
         $ruc = $this->request->getVar('ruc');
 
         $consulta = $pdtRenta->query("SELECT
-        pdt_renta.periodo,pdt_renta.anio,archivos_pdt0621.id_archivos_pdt,archivos_pdt0621.nombre_pdt,archivos_pdt0621.nombre_constancia,archivos_pdt0621.estado,archivos_pdt0621.id_pdt_renta,anio.anio_descripcion,mes.mes_descripcion
+        pdt_renta.periodo,pdt_renta.anio, pdt_renta.ruc_empresa,archivos_pdt0621.id_archivos_pdt,archivos_pdt0621.nombre_pdt,archivos_pdt0621.nombre_constancia,archivos_pdt0621.estado,archivos_pdt0621.id_pdt_renta,anio.anio_descripcion,mes.mes_descripcion
         FROM pdt_renta
         INNER JOIN archivos_pdt0621 ON archivos_pdt0621.id_pdt_renta = pdt_renta.id_pdt_renta
         INNER JOIN anio ON pdt_renta.anio = anio.id_anio
         INNER JOIN mes ON mes.id_mes = pdt_renta.periodo
-        WHERE pdt_renta.ruc_empresa = $ruc AND pdt_renta.anio = $anio AND pdt_renta.periodo = $periodo AND archivos_pdt0621.estado = 1")->getResult();
+        WHERE pdt_renta.ruc_empresa = $ruc AND pdt_renta.anio = $anio AND pdt_renta.periodo = $periodo AND archivos_pdt0621.estado = 1")->getResultArray();
+
+        $rectificar = $this->getPermisosAcciones(8, session()->perfil_id, 'rectificar');
+        $detalle = $this->getPermisosAcciones(8, session()->perfil_id, 'ver detalle');
+        $eliminar = $this->getPermisosAcciones(8, session()->perfil_id, 'eliminar');
+
+        foreach ($consulta as $key => $value) {
+            $acciones = "";
+
+            if ($rectificar) {
+                $acciones .= '<button type="button" class="btn btn-warning btn-sm" title="Rectificar Archivos" onclick="rectificar(' . $value['id_pdt_renta'] . ', ' . $value['id_archivos_pdt'] . ', ' . $value['periodo'] . ', ' . $value['anio'] . ', ' . $value['ruc_empresa'] . ', \'' . $value['mes_descripcion'] . '\', ' . $value['anio_descripcion'] . ')">RECT</button> ';
+            }
+
+            if ($detalle) {
+                $acciones .= '<button type="button" class="btn btn-info btn-sm" title="detalle" onclick="details_archivos(' . $value['id_pdt_renta'] . ', \'' . $value['mes_descripcion'] . '\', ' . $value['anio_descripcion'] . ')">DET</button> ';
+            }
+
+            if ($eliminar) {
+                $acciones .= '<button type="button" class="btn btn-danger btn-sm" title="eliminar" onclick="eliminar(' . $value['id_pdt_renta'] . ', ' . $value['id_archivos_pdt'] . ')"><i class="ti ti-trash"></i></button>';
+            }
+
+            $consulta[$key]['acciones'] = $acciones;
+        }
 
         return $this->response->setJSON($consulta);
     }

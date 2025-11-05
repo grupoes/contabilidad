@@ -296,10 +296,7 @@ function viewBalance(data) {
             </td>
 
             <td>
-              <button type='button' class='btn btn-warning btn-sm' title='Rectificar Archivos' onclick='rectificar(${pdt.id_pdt_anual},${pdt.id_archivo_anual},${pdt.periodo},${pdt.id_pdt_tipo}, "${pdt.pdt_descripcion}", ${pdt.anio_descripcion})'>RECT</button>
-              <!--<button type='button' class='btn btn-warning btn-sm' title='Detalle' onclick='details_archivos(${pdt.id_pdt_anual})'>DET</button>-->
-
-              <button type='button' class='btn btn-danger btn-sm' title='Eliminar' onclick='deletePdtAnual(${pdt.id_archivo_anual}, ${pdt.id_pdt_anual})'> <i class="fas fa-trash"></i> </button>
+              ${pdt.acciones}
             </td>
         </tr>
         `;
@@ -538,6 +535,8 @@ function deletePdtAnual(idArchivo, idPdtAnual) {
 
                 getBalance(anioDescarga.value, tipoPdt.value);
               }, 1600);
+            } else {
+              swalWithBootstrapButtons.fire("Error!", data.message, "error");
             }
           });
       } else {

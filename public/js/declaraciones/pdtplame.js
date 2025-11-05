@@ -250,9 +250,7 @@ function viewArchivos(data) {
               ${r08}
             </td>
             <td> 
-              <button type='button' class='btn btn-info btn-sm' title='Rectificar Archivos' onclick='rectificar(${data.id_pdtplame},${data.id_archivos_pdtplame},${data.periodo},${data.anio}, "${data.mes_descripcion}", "${data.anio_descripcion}")'>RECT</button>
-
-              <button type='button' class='btn btn-danger btn-sm' title='Eliminar Archivos' onclick='eliminar(${data.id_pdtplame},${data.id_archivos_pdtplame})'> <i class="fas fa-trash"></i> </button>
+              ${data.acciones}
               
             </td>
         </tr>

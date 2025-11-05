@@ -87,7 +87,7 @@
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label for="nombre_perfil" class="form-label">Nombre del perfil</label>
-                                <input type="text" class="form-control" id="nombre_perfil" name="nombre_perfil" placeholder="Nombre del perfil">
+                                <input type="text" class="form-control" id="nombre_perfil" name="nombre_perfil" placeholder="Nombre del perfil" required>
                             </div>
                         </div>
                     </div>

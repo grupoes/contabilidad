@@ -261,10 +261,7 @@ function viewArchivos(data, ruc) {
                 <a href='${base_url}archivos/pdt/${archivo.nombre_constancia}' target='_blank' class='btn btn-primary btn-sm' title='Descargar constancia'>CONSTANCIA</a>
             </td>
             <td>
-              <button type='button' class='btn btn-info btn-sm' title='Rectificar Archivos' onclick='rectificar(${archivo.id_pdt_renta},${archivo.id_archivos_pdt},${archivo.periodo},${archivo.anio}, ${ruc}, "${archivo.mes_descripcion}", "${archivo.anio_descripcion}")'>RECT</button>
-              <button type='button' class='btn btn-warning btn-sm' title='Detalle' onclick='details_archivos(${archivo.id_pdt_renta}, "${archivo.mes_descripcion}", "${archivo.anio_descripcion}")'>DET</button>
-
-              <button type='button' class='btn btn-danger btn-sm' title='Eliminar' onclick='eliminar(${archivo.id_pdt_renta}, ${archivo.id_archivos_pdt})'> <i class="fas fa-trash"></i> </button>
+              ${archivo.acciones}
             </td>
         </tr>
         `;

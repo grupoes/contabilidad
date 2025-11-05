@@ -9,6 +9,7 @@ use App\Models\TributoModel;
 use App\Models\ContribuyenteModel;
 use App\Models\PdtModel;
 use App\Models\PagoAnualModel;
+use App\Models\AmortizacionPagoAnualModel;
 
 class PdtAnual extends BaseController
 {
@@ -98,6 +99,23 @@ class PdtAnual extends BaseController
         INNER JOIN archivos_pdtanual ON pdt_anual.id_pdt_anual = archivos_pdtanual.id_pdt_anual
         INNER JOIN anio ON pdt_anual.periodo = anio.id_anio
         WHERE pdt_anual.ruc_empresa = $ruc AND archivos_pdtanual.estado = 1 $sql")->getResult();
+
+        $rectificar = $this->getPermisosAcciones(10, session()->perfil_id, 'rectificar');
+        $eliminar = $this->getPermisosAcciones(10, session()->perfil_id, 'eliminar');
+
+        foreach ($consulta as $key => $value) {
+            $acciones = "";
+
+            if ($rectificar) {
+                $acciones .= "<button type='button' class='btn btn-warning btn-sm' title='Rectificar Archivos' onclick='rectificar(" . $value->id_pdt_anual . "," . $value->id_archivo_anual . "," . $value->periodo . "," . $value->id_pdt_tipo . ", \"" . $value->pdt_descripcion . "\", " . $value->anio_descripcion . ")'>RECT</button> ";
+            }
+
+            if ($eliminar) {
+                $acciones .= "<button type='button' class='btn btn-danger btn-sm' title='Eliminar' onclick='deletePdtAnual(" . $value->id_archivo_anual . ", " . $value->id_pdt_anual . ")'> <i class='fas fa-trash'></i> </button>";
+            }
+
+            $consulta[$key]->acciones = $acciones;
+        }
 
         return $this->response->setJSON($consulta);
     }
@@ -348,8 +366,31 @@ class PdtAnual extends BaseController
     {
         $archivosPdtAnual = new ArchivosPdtAnualModel();
         $pdtAnual = new PdtAnualModel();
+        $pagoAnual = new PagoAnualModel();
+        $amor = new AmortizacionPagoAnualModel();
 
         try {
+
+            $pago = $pagoAnual->where('pdt_anual_id', $idPdtAnual)->first();
+
+            if ($pago) {
+
+                $idpago = $pago['id'];
+
+                $amortizaciones = $amor->where('pago_anual_id', $idpago)->findAll();
+
+                if ($amortizaciones) {
+                    return $this->response->setJSON([
+                        'status' => 'error',
+                        'message' => "No se puede eliminar el registro porque tiene amortizaciones asociadas"
+                    ]);
+                }
+
+                $pagoAnual->update($pago['id'], [
+                    'estado' => 'eliminado',
+                ]);
+            }
+
             $archivosPdtAnual->update($idArchivo, [
                 'estado' => 0,
                 'user_delete' => session()->id

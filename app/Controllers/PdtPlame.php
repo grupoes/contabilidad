@@ -189,6 +189,9 @@ class PdtPlame extends BaseController
         INNER JOIN mes ON mes.id_mes = pdt_plame.periodo
         WHERE pdt_plame.ruc_empresa = $ruc AND pdt_plame.anio = $anio AND pdt_plame.periodo = $periodo AND archivos_pdtplame.estado = 1")->getRow();
 
+        $rectificar = $this->getPermisosAcciones(9, session()->perfil_id, 'rectificar');
+        $eliminar = $this->getPermisosAcciones(9, session()->perfil_id, 'eliminar');
+
         if ($consulta) {
             $idpdt = $consulta->id_pdt_plame;
 
@@ -201,6 +204,18 @@ class PdtPlame extends BaseController
             } else {
                 $consulta->r08 = "0";
             }
+
+            $acciones = "";
+
+            if ($rectificar) {
+                $acciones .= '<button type="button" class="btn btn-info btn-sm" title="Rectificar Archivos" onclick="rectificar(' . $consulta->id_pdtplame . ', ' . $consulta->id_archivos_pdtplame . ', ' . $consulta->periodo . ', ' . $consulta->anio . ', \'' . $consulta->mes_descripcion . '\', ' . $consulta->anio_descripcion . ')">RECT</button> ';
+            }
+
+            if ($eliminar) {
+                $acciones .= '<button type="button" class="btn btn-danger btn-sm" title="Eliminar Archivos" onclick="eliminar(' . $consulta->id_pdtplame . ', ' . $consulta->id_archivos_pdtplame . ')"><i class="ti ti-trash"></i></button>';
+            }
+
+            $consulta->acciones = $acciones;
         }
 
         return $this->response->setJSON($consulta);
