@@ -8,6 +8,7 @@ use App\Models\MovimientoModel;
 use App\Models\BancosModel;
 use App\Models\PagosHonorariosModel;
 use App\Models\DetallePagosModel;
+use App\Models\SedeModel;
 use DateTime;
 
 class Movimiento extends BaseController
@@ -22,6 +23,7 @@ class Movimiento extends BaseController
 
         $metodo = new MetodoPagoModel();
         $tipoComp = new TipoComprobanteModel();
+        $sede = new SedeModel();
 
         $metodos = $metodo->where('estado', 1)->findAll();
         $comprobantes = $tipoComp->where('tipo_comprobante_estado', 1)->findAll();
@@ -40,13 +42,9 @@ class Movimiento extends BaseController
             $isIngreso = true;
         }
 
-        return view('movimiento/cajero', compact('metodos', 'comprobantes', 'menu', 'isEgreso', 'isIngreso'));
-
-        /*$sede = new SedeModel();
-
         $sedes = $sede->where('estado', 1)->findAll();
 
-        return view('movimiento/index', compact('sedes', 'menu'));*/
+        return view('movimiento/cajero', compact('metodos', 'comprobantes', 'menu', 'isEgreso', 'isIngreso', 'sedes'));
     }
 
     public function guardar()
@@ -66,8 +64,13 @@ class Movimiento extends BaseController
             $comprobante = $this->request->getVar('comprobante');
             $serie = $this->request->getVar('serie');
             $numero = $this->request->getVar('correlativo');
+            $sede = $this->request->getVar('sede');
 
-            $dataSede = $this->Aperturar($metodoPago, session()->sede_id);
+            if ($metodoPago == 1) {
+                $dataSede = $this->Aperturar($metodoPago, $sede);
+            } else {
+                $dataSede = $this->Aperturar($metodoPago, session()->sede_id);
+            }
 
             $tipo_descripcion = $serie . "-" . $numero;
 

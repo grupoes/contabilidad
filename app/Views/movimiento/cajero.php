@@ -153,6 +153,16 @@
                             <input type="text" class="form-control" placeholder="Ingrese el número" name="correlativo" id="correlativo" />
                         </div>
 
+                        <div class="col-md-3 mb-3" id="selectSede" hidden>
+                            <label class="form-label" for="sede">Sede</label>
+                            <select name="sede" id="sede" class="form-select">
+                                <option value="">Seleccione...</option>
+                                <?php foreach ($sedes as $key => $value) { ?>
+                                    <option value="<?= $value['id'] ?>"><?= $value['nombre_sede'] ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+
                         <div class="col-md-12 mb-3" id="fileVaucher">
                             <label for="vaucher" class="form-label">Ingrese el vaucher</label>
                             <input type="file" class="form-control" name="vaucher" id="vaucher" accept="image/*" />

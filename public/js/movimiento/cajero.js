@@ -63,6 +63,8 @@ const numero = document.getElementById("correlativo");
 const vaucher = document.getElementById("vaucher");
 const fileVaucher = document.getElementById("fileVaucher");
 const metodoPago = document.getElementById("metodoPago");
+const selectSede = document.getElementById("selectSede");
+const sede = document.getElementById("sede");
 
 metodoPago.addEventListener("change", (e) => {
   const metodo = e.target.value;
@@ -71,9 +73,20 @@ metodoPago.addEventListener("change", (e) => {
     if (metodo == "1" || metodo == "") {
       vaucher.removeAttribute("required");
       fileVaucher.setAttribute("hidden", true);
+
+      selectSede.removeAttribute("hidden");
     } else {
       fileVaucher.removeAttribute("hidden");
       vaucher.setAttribute("required", "true");
+      selectSede.setAttribute("hidden", true);
+      sede.value = "";
+    }
+  } else {
+    if (metodo == "1") {
+      selectSede.removeAttribute("hidden");
+    } else {
+      selectSede.setAttribute("hidden", true);
+      sede.value = "";
     }
   }
 });
