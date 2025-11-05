@@ -62,32 +62,34 @@ let prefijo = new Choices("#selectPais", {
   itemSelectText: "",
 });
 
-btnModal.addEventListener("click", (e) => {
-  $("#modalAddEdit").modal("show");
+if (btnModal) {
+  btnModal.addEventListener("click", (e) => {
+    $("#modalAddEdit").modal("show");
 
-  titleModal.textContent = "Agregar Empresa";
-  input_contrato.removeAttribute("hidden", true);
-  contrato.setAttribute("required", true);
+    titleModal.textContent = "Agregar Empresa";
+    input_contrato.removeAttribute("hidden", true);
+    contrato.setAttribute("required", true);
 
-  idTable.value = 0;
-  numeroDocumento.value = "";
-  razonSocial.value = "";
-  nombreComercial.value = "";
-  direccionFiscal.value = "";
-  listaUbigeo.removeActiveItems();
-  urbanizacion.value = "";
-  tipoSuscripcion.value = "NO GRATUITO";
-  tipoServicio.value = "CONTABLE";
-  tipoPago.value = "ADELANTADO";
-  costoMensual.value = "";
-  costoAnual.value = "";
-  diaCobro.value = "01";
-  fechaContrato.value = "";
-  multipleSystem.removeActiveItems();
-  clientesVarios.value = "00000001";
-  boletaAnulado.value = "00000000";
-  facturaAnulado.value = "00000000001";
-});
+    idTable.value = 0;
+    numeroDocumento.value = "";
+    razonSocial.value = "";
+    nombreComercial.value = "";
+    direccionFiscal.value = "";
+    listaUbigeo.removeActiveItems();
+    urbanizacion.value = "";
+    tipoSuscripcion.value = "NO GRATUITO";
+    tipoServicio.value = "CONTABLE";
+    tipoPago.value = "ADELANTADO";
+    costoMensual.value = "";
+    costoAnual.value = "";
+    diaCobro.value = "01";
+    fechaContrato.value = "";
+    multipleSystem.removeActiveItems();
+    clientesVarios.value = "00000001";
+    boletaAnulado.value = "00000000";
+    facturaAnulado.value = "00000000001";
+  });
+}
 
 // Función para cargar datos de ubigeo
 async function cargarUbigeo() {
@@ -239,14 +241,19 @@ function listaContribuyentes() {
   )
     .then((res) => res.json())
     .then((data) => {
-      viewListContribuyentes(data);
+      viewListContribuyentes(data.data, data.eliminar, data.editar);
     });
 }
 
-function optionsTable(id, ruc) {
+function optionsTable(id, ruc, eliminar) {
+  let del = "";
+  if (eliminar) {
+    del = `<a class="dropdown-item" href="#" onclick="deleteEmpresa(event, ${id})"><i class="ti ti-trash"></i>Eliminar Empresa</a>`;
+  }
+
   return `
         <a class="dropdown-item" href="#" onclick="importarBoletas(event, ${id})"><i class="ti ti-file-import"></i>Importar Boletas</a>
-        <a class="dropdown-item" href="#" onclick="deleteEmpresa(event, ${id})"><i class="ti ti-trash"></i>Eliminar Empresa</a>
+        ${del}
         <a class="dropdown-item" href="#" onclick="configurarDeclaraciones(event, ${id})"><i class="ti ti-settings"></i>Configurar declaraciones</a>
         <a class="dropdown-item" href="#"><i class="ti ti-settings-automation"></i>Declaración tributaria</a>
         <a class="dropdown-item" href="#" onclick="verAcceso(event, ${id})"><i class="ti ti-key"></i>Ver contraseña</a>
@@ -259,11 +266,11 @@ function optionsTable(id, ruc) {
     `;
 }
 
-function viewListContribuyentes(data) {
+function viewListContribuyentes(data, eliminar, editar) {
   let html = "";
 
   data.forEach((emp, index) => {
-    let opciones = optionsTable(emp.id, emp.ruc);
+    let opciones = optionsTable(emp.id, emp.ruc, eliminar);
 
     let tieneSistema =
       emp.tiene_sistema === "SI"
@@ -326,15 +333,23 @@ function viewListContribuyentes(data) {
         break;
     }
 
+    let edit = "";
+    let per = "No tiene permisos para editar";
+
+    if (editar) {
+      edit = "num-doc";
+      per = "Editar";
+    }
+
     html += `
             <tr>
                 <td>${index + 1}</td>
                 <td>
                     <div class="row">
                         <div class="col">
-                            <h6 class="mb-1"><a href="#" class="num-doc" data-id="${
-                              emp.id
-                            }">${emp.ruc}</a></h6>
+                            <h6 class="mb-1" title="${per}"><a href="javascript:void(0);" class="${edit}" data-id="${
+      emp.id
+    }">${emp.ruc}</a></h6>
                             <p class="text-muted f-14 mb-0"> ${
                               emp.razon_social
                             } </p>

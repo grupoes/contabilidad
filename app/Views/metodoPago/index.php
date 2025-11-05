@@ -36,9 +36,13 @@
                         <!-- Contenedor para los botones -->
                         <div class="d-flex align-items-center gap-2 ms-auto">
 
-                            <button type="button" id="btnModal" class="btn btn-success d-inline-flex align-items-center gap-2">
-                                <i class="ti ti-plus f-18"></i> Nuevo Método de Pago
-                            </button>
+                            <?php if ($crear) { ?>
+
+                                <button type="button" id="btnModal" class="btn btn-success d-inline-flex align-items-center gap-2">
+                                    <i class="ti ti-plus f-18"></i> Nuevo Método de Pago
+                                </button>
+
+                            <?php } ?>
                         </div>
                     </div>
 
@@ -88,7 +92,7 @@
                             <select name="banco" id="banco" class="form-select" required>
                                 <option value="">Seleccione...</option>
                                 <?php foreach ($bancos as $key => $value) { ?>
-                                <option value="<?= $value['id'] ?>"><?= $value['nombre_banco'] ?></option>
+                                    <option value="<?= $value['id'] ?>"><?= $value['nombre_banco'] ?></option>
                                 <?php } ?>
                             </select>
                         </div>
@@ -97,8 +101,8 @@
                             <label class="form-label" for="descripcion">Descripción</label>
                             <input type="text" class="form-control" name="descripcion" id="descripcion">
                         </div>
-                        
-                        
+
+
                     </div>
 
                 </div>

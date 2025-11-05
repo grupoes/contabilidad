@@ -71,10 +71,12 @@
                             <?php } ?>
                         </div>
 
-                        <!-- Botón alineado a la derecha -->
-                        <button type="button" id="btnModal" class="btn btn-primary d-inline-flex align-items-center gap-2">
-                            <i class="ti ti-plus f-18"></i> Nueva Empresa
-                        </button>
+                        <?php if ($crear) { ?>
+                            <!-- Botón alineado a la derecha -->
+                            <button type="button" id="btnModal" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                                <i class="ti ti-plus f-18"></i> Nueva Empresa
+                            </button>
+                        <?php } ?>
                     </div>
 
 

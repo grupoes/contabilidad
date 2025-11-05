@@ -35,6 +35,8 @@ class Cobros extends BaseController
         $sistema = new SistemaModel();
         $pagoServidor = new PagoServidorModel();
 
+        $cobrar = $this->getPermisosAcciones(13, session()->perfil_id, 'cobrar servidor');
+
         $contribuyentes = $contribuyente->query("SELECT 
             c.id,
             c.ruc,
@@ -95,6 +97,14 @@ class Cobros extends BaseController
                     $contribuyentes[$key]['pagos'] = $value['periodos_deuda'] . " PERIODOS";
                 }
             }
+
+            $cobrarSer = "";
+
+            if ($cobrar) {
+                $cobrarSer = "<a href='" . base_url() . "cobrar-servidor/" . $value['id'] . "' class='btn btn-success'>COBRAR</a>";
+            }
+
+            $contribuyentes[$key]['cobrar'] = $cobrarSer;
         }
 
         return $this->response->setJSON($contribuyentes);
@@ -257,6 +267,8 @@ class Cobros extends BaseController
     {
         $contribuyente = new ContribuyenteModel();
 
+        $cobrar = $this->getPermisosAcciones(13, session()->perfil_id, 'cobrar anual');
+
         $tipo_servicio = "";
 
         if ($tipo !== "TODOS") {
@@ -264,6 +276,16 @@ class Cobros extends BaseController
         }
 
         $contribuyentes = $contribuyente->query("SELECT c.id, c.ruc, c.razon_social, (SELECT COUNT(*) FROM pago_anual p WHERE p.contribuyente_id = c.id AND p.estado = 'Pendiente') AS pagos_pendientes FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo IN (11, 12, 13, 14) and c.estado = $estado $tipo_servicio GROUP BY c.id, c.ruc, c.razon_social ORDER BY pagos_pendientes DESC")->getResultArray();
+
+        foreach ($contribuyentes as $key => $value) {
+            $cobrarAnual = "";
+
+            if ($cobrar) {
+                $cobrarAnual = "<a href='" . base_url() . "cobrar-anual/" . $value['id'] . "' class='btn btn-success'> COBRAR</a>";
+            }
+
+            $contribuyentes[$key]['cobrar'] = $cobrarAnual;
+        }
 
         return $this->response->setJSON($contribuyentes);
     }

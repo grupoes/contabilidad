@@ -48,7 +48,9 @@
                                         <td><?= $renta['tri_descripcion'] ?></td>
                                         <td><?= $renta['tri_codigo'] ?></td>
                                         <td class="text-center">
-                                            <a href="#" onclick="rentasAnuales(event, <?= $renta['id_tributo'] ?>)"> <i class="fas fa-pencil-alt"></i> </a>
+                                            <?php if ($isEdit) { ?>
+                                                <a href="#" onclick="rentasAnuales(event, <?= $renta['id_tributo'] ?>)"> <i class="fas fa-pencil-alt"></i> </a>
+                                            <?php } ?>
                                         </td>
                                     </tr>
 

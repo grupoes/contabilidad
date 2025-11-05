@@ -32,9 +32,11 @@
             <div class="card">
                 <div class="card-body">
                     <div class="text-end p-2 pb-sm-2">
-                        <a href="#" class="btn btn-primary d-inline-flex align-items-center gap-2" id="btnModal">
-                            <i class="ti ti-plus f-18"></i> Nuevo Usuario
-                        </a>
+                        <?php if ($crear) { ?>
+                            <a href="#" class="btn btn-primary d-inline-flex align-items-center gap-2" id="btnModal">
+                                <i class="ti ti-plus f-18"></i> Nuevo Usuario
+                            </a>
+                        <?php } ?>
                     </div>
                     <div class="table-responsive">
                         <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableData">

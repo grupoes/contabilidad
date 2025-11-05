@@ -68,7 +68,9 @@ class Contribuyentes extends BaseController
 
         $menu = $this->permisos_menu();
 
-        return view('contribuyente/lista', compact('sistemas', 'consulta_certificado_por_vencer', 'menu', 'numeros_whatsapp'));
+        $crear = $this->getPermisosAcciones(27, session()->perfil_id, 'crear');
+
+        return view('contribuyente/lista', compact('sistemas', 'consulta_certificado_por_vencer', 'menu', 'numeros_whatsapp', 'crear'));
     }
 
     public function getIdContribuyente($id)
@@ -146,6 +148,21 @@ class Contribuyentes extends BaseController
         $declaracionSunat = new DeclaracionSunatModel();
         $tributo = new TributoModel();
         $uit_ = new UitModel();
+
+        $eliminar = $this->getPermisosAcciones(27, session()->perfil_id, 'eliminar');
+        $editar = $this->getPermisosAcciones(27, session()->perfil_id, 'editar');
+
+        $isDeleted = false;
+
+        if ($eliminar) {
+            $isDeleted = true;
+        }
+
+        $isEdit = false;
+
+        if ($editar) {
+            $isEdit = true;
+        }
 
         $sql = "";
         $asig = "";
@@ -300,7 +317,13 @@ class Contribuyentes extends BaseController
             }
         }
 
-        return $this->response->setJSON($data);
+        $array = [
+            "eliminar" => $isDeleted,
+            "editar" => $isEdit,
+            "data" => $data
+        ];
+
+        return $this->response->setJSON($array);
     }
 
     public function guardar()
@@ -738,6 +761,8 @@ class Contribuyentes extends BaseController
         $model = new ContribuyenteModel();
         $pago = new PagosModel();
 
+        $cobrar = $this->getPermisosAcciones(13, session()->perfil_id, 'cobrar honorario');
+
         $sql = "";
 
         if ($select !== 'TODOS') {
@@ -838,8 +863,15 @@ class Contribuyentes extends BaseController
                 }
             }
 
+            $cobrarHono = "";
+
+            if ($cobrar) {
+                $cobrarHono = '<a href="' . base_url() . 'pago-honorario/' . $value->id . '" class="btn btn-success">COBRAR</a>';
+            }
+
             $value->debe = $debe;
             $value->amortizo = $amortizo;
+            $value->cobrar = $cobrarHono;
         }
 
         return $this->response->setJSON($datos);

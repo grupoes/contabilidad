@@ -23,10 +23,12 @@ const numeroCuenta = document.getElementById("numeroCuenta");
 const moneda = document.getElementById("moneda");
 const saldo_inicial = document.getElementById("saldo_inicial");
 
-btnModal.addEventListener("click", () => {
-  $("#modalBancos").modal("show");
-  titleModal.textContent = "Agregar Banco";
-});
+if (btnModal) {
+  btnModal.addEventListener("click", () => {
+    $("#modalBancos").modal("show");
+    titleModal.textContent = "Agregar Banco";
+  });
+}
 
 renderBancos();
 
@@ -52,17 +54,7 @@ function viewBancos(data) {
             <td>${banco.saldo_inicial}</td>
             <td>
                 <ul class="list-inline me-auto mb-0">
-                    <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Editar">
-                        <a href="#" onclick="editarBanco(event, ${
-                          banco.id
-                        })" class="avtar avtar-xs btn-link-success btn-pc-default"><i class="ti ti-edit-circle f-18"></i></a>
-                    </li>
-
-                    <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
-                        <a href="#" onclick="deleteBanco(event, ${
-                          banco.id
-                        })" class="avtar avtar-xs btn-link-danger btn-pc-default"><i class="ti ti-trash f-18"></i></a>
-                    </li>
+                    ${banco.acciones}
                 </ul>
             </td>
         </tr>

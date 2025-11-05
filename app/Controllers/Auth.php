@@ -37,7 +37,9 @@ class Auth extends BaseController
 
         $menu = $this->permisos_menu();
 
-        return view('auth/listaUsuarios', compact('profiles', 'sedes', 'menu'));
+        $crear = $this->getPermisosAcciones(23, session()->perfil_id, 'crear');
+
+        return view('auth/listaUsuarios', compact('profiles', 'sedes', 'menu', 'crear'));
     }
 
     public function login()
@@ -266,7 +268,24 @@ class Auth extends BaseController
     {
         $user = new UserModel();
 
+        $editar = $this->getPermisosAcciones(23, session()->perfil_id, 'editar');
+        $eliminar = $this->getPermisosAcciones(23, session()->perfil_id, 'eliminar');
+
         $usuarios = $user->usersAll();
+
+        foreach ($usuarios as $key => $value) {
+            $acciones = "";
+
+            if ($editar) {
+                $acciones .= '<a href="#" class="avtar avtar-s btn-link-info btn-pc-default" title="Editar" onclick="editUser(event, ' . $value['id'] . ')"><i class="ti ti-edit f-20"></i></a>';
+            }
+
+            if ($eliminar) {
+                $acciones .= '<a href="#" class="avtar avtar-s btn-link-danger btn-pc-default" title="Eliminar" onclick="deleteUser(event, ' . $value['id'] . ')"><i class="ti ti-trash f-20"></i></a>';
+            }
+
+            $usuarios[$key]['acciones'] = $acciones;
+        }
 
         return $this->response->setJSON($usuarios);
     }
@@ -438,6 +457,6 @@ class Auth extends BaseController
 
     public function sistemaventas()
     {
-       return view('auth/ventas'); 
+        return view('auth/ventas');
     }
 }

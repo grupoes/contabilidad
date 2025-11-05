@@ -78,44 +78,48 @@ metodoPago.addEventListener("change", (e) => {
   }
 });
 
-btnNuevoIngreso.addEventListener("click", (e) => {
-  $("#modalTipoMovimiento").modal("show");
-  titleModalMovimiento.textContent = "AGREGAR UN INGRESO";
-  tipo_movimiento.value = 1;
+if (btnNuevoIngreso) {
+  btnNuevoIngreso.addEventListener("click", (e) => {
+    $("#modalTipoMovimiento").modal("show");
+    titleModalMovimiento.textContent = "AGREGAR UN INGRESO";
+    tipo_movimiento.value = 1;
 
-  formMovimiento.reset();
+    formMovimiento.reset();
 
-  conceptosTipoMovimiento(1);
+    conceptosTipoMovimiento(1);
 
-  ocultarMov.forEach((ocultar) => {
-    ocultar.classList.remove("d-none");
+    ocultarMov.forEach((ocultar) => {
+      ocultar.classList.remove("d-none");
+    });
+
+    comprobante.setAttribute("required", "true");
+    serieMov.setAttribute("required", "true");
+    numero.setAttribute("required", "true");
   });
+}
 
-  comprobante.setAttribute("required", "true");
-  serieMov.setAttribute("required", "true");
-  numero.setAttribute("required", "true");
-});
+if (btnNuevoEgreso) {
+  btnNuevoEgreso.addEventListener("click", (e) => {
+    $("#modalTipoMovimiento").modal("show");
+    titleModalMovimiento.textContent = "AGREGAR UN EGRESO";
+    tipo_movimiento.value = 2;
 
-btnNuevoEgreso.addEventListener("click", (e) => {
-  $("#modalTipoMovimiento").modal("show");
-  titleModalMovimiento.textContent = "AGREGAR UN EGRESO";
-  tipo_movimiento.value = 2;
+    formMovimiento.reset();
 
-  formMovimiento.reset();
+    conceptosTipoMovimiento(2);
 
-  conceptosTipoMovimiento(2);
+    ocultarMov.forEach((ocultar) => {
+      ocultar.classList.add("d-none");
+    });
 
-  ocultarMov.forEach((ocultar) => {
-    ocultar.classList.add("d-none");
+    comprobante.removeAttribute("required");
+    serieMov.removeAttribute("required");
+    numero.removeAttribute("required");
+    fileVaucher.setAttribute("hidden", "true");
+    vaucher.removeAttribute("required");
+    vaucher.value = "";
   });
-
-  comprobante.removeAttribute("required");
-  serieMov.removeAttribute("required");
-  numero.removeAttribute("required");
-  fileVaucher.setAttribute("hidden", "true");
-  vaucher.removeAttribute("required");
-  vaucher.value = "";
-});
+}
 
 function conceptosTipoMovimiento(tipo) {
   fetch(base_url + "conceptos-tipo-movimiento/" + tipo)

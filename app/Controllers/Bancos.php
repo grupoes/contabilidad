@@ -14,14 +14,39 @@ class Bancos extends BaseController
 
         $menu = $this->permisos_menu();
 
-        return view('bancos/index', compact('menu'));
+        $crear = $this->getPermisosAcciones(18, session()->perfil_id, 'crear');
+
+        return view('bancos/index', compact('menu', 'crear'));
     }
 
     public function show()
     {
         $banco = new BancosModel();
 
+        $editar = $this->getPermisosAcciones(18, session()->perfil_id, 'editar');
+        $eliminar = $this->getPermisosAcciones(18, session()->perfil_id, 'eliminar');
+
         $bancos = $banco->where('estado', 1)->findAll();
+
+        foreach ($bancos as $key => $value) {
+            $acciones = "";
+
+            if ($editar) {
+                $acciones .= '
+                <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Editar">
+                    <a href="#" onclick="editarBanco(event, ' . $value['id'] . ')" class="avtar avtar-xs btn-link-success btn-pc-default"><i class="ti ti-edit-circle f-18"></i></a>
+                </li>';
+            }
+
+            if ($eliminar) {
+                $acciones .= '
+                <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
+                    <a href="#" onclick="deleteBanco(event, ' . $value['id'] . ')" class="avtar avtar-xs btn-link-danger btn-pc-default"><i class="ti ti-trash f-18"></i></a>
+                </li>';
+            }
+
+            $bancos[$key]['acciones'] = $acciones;
+        }
 
         return $this->response->setJSON($bancos);
     }

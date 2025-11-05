@@ -68,12 +68,6 @@ function viewContadores(data) {
   let html = "";
 
   data.forEach((contador, index) => {
-    let check_radio = "";
-
-    if (contador.estado == 2) {
-      check_radio = "checked";
-    }
-
     html += `
         <tr>
             <td>${index + 1}</td>
@@ -81,26 +75,11 @@ function viewContadores(data) {
             <td>${contador.dni}</td>
             <td>${contador.numero_colegiatura}</td>
             <td>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" onclick="elegirContador(${
-                      contador.id_contador
-                    })" name="elegir" id="elegir-${
-      contador.id_contador
-    }" value="${contador.id_contador}" ${check_radio}>
-                </div>
+                ${contador.elegir}
             </td>
             <td>
                 <ul class="list-inline me-auto mb-0">
-                    <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Editar">
-                        <a href="#" class="avtar avtar-xs btn-link-success btn-pc-default" onclick="editContador(event, ${
-                          contador.id_contador
-                        })"><i class="ti ti-edit-circle f-18"></i></a>
-                    </li>
-                    <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
-                        <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default" onclick="deleteContador(event, ${
-                          contador.id_contador
-                        })"><i class="ti ti-trash f-18"></i></a>
-                    </li>
+                    ${contador.acciones}
                 </ul>
             </td>
         </tr>

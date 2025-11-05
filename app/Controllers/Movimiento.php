@@ -26,7 +26,21 @@ class Movimiento extends BaseController
         $metodos = $metodo->where('estado', 1)->findAll();
         $comprobantes = $tipoComp->where('tipo_comprobante_estado', 1)->findAll();
 
-        return view('movimiento/cajero', compact('metodos', 'comprobantes', 'menu'));
+        $egreso = $this->getPermisosAcciones(16, session()->perfil_id, 'egreso');
+        $ingreso = $this->getPermisosAcciones(16, session()->perfil_id, 'ingreso');
+
+        $isEgreso = false;
+        $isIngreso = false;
+
+        if ($egreso) {
+            $isEgreso = true;
+        }
+
+        if ($ingreso) {
+            $isIngreso = true;
+        }
+
+        return view('movimiento/cajero', compact('metodos', 'comprobantes', 'menu', 'isEgreso', 'isIngreso'));
 
         /*$sede = new SedeModel();
 

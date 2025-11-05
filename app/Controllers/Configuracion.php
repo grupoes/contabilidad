@@ -24,7 +24,15 @@ class Configuracion extends BaseController
 
         $menu = $this->permisos_menu();
 
-        return view('configuracion/cajaVirtual', compact('sedes', 'menu'));
+        $editar = $this->getPermisosAcciones(6, session()->perfil_id, 'editar');
+
+        $isEdit = false;
+
+        if ($editar) {
+            $isEdit = true;
+        }
+
+        return view('configuracion/cajaVirtual', compact('sedes', 'menu', 'isEdit'));
     }
 
     public function saveCajaVirtual()
@@ -70,7 +78,15 @@ class Configuracion extends BaseController
 
         $menu = $this->permisos_menu();
 
-        return view('configuracion/uit', compact('monto_uit', 'menu'));
+        $editar = $this->getPermisosAcciones(2, session()->perfil_id, 'editar');
+
+        $isEdit = false;
+
+        if ($editar) {
+            $isEdit = true;
+        }
+
+        return view('configuracion/uit', compact('monto_uit', 'menu', 'isEdit'));
     }
 
     public function saveUit()
@@ -112,7 +128,15 @@ class Configuracion extends BaseController
 
         $menu = $this->permisos_menu();
 
-        return view('configuracion/renta', compact('rentas', 'menu'));
+        $editar = $this->getPermisosAcciones(3, session()->perfil_id, 'editar');
+
+        $isEdit = false;
+
+        if ($editar) {
+            $isEdit = true;
+        }
+
+        return view('configuracion/renta', compact('rentas', 'menu', 'isEdit'));
     }
 
     public function getRentas($id)
@@ -160,7 +184,15 @@ class Configuracion extends BaseController
 
         $menu = $this->permisos_menu();
 
-        return view('configuracion/contadores', compact('menu'));
+        $crear = $this->getPermisosAcciones(5, session()->perfil_id, 'crear');
+
+        $isCrear = false;
+
+        if ($crear) {
+            $isCrear = true;
+        }
+
+        return view('configuracion/contadores', compact('menu', 'isCrear'));
     }
 
     public function renderContadores()
@@ -168,6 +200,45 @@ class Configuracion extends BaseController
         $contador = new ContadorModel();
 
         $contadores = $contador->where('estado !=', 0)->findAll();
+
+        $editar = $this->getPermisosAcciones(5, session()->perfil_id, 'editar');
+        $eliminar = $this->getPermisosAcciones(5, session()->perfil_id, 'eliminar');
+        $elegir = $this->getPermisosAcciones(5, session()->perfil_id, 'elegir');
+
+        foreach ($contadores as $key => $value) {
+            $acciones = "";
+            $elegirContador = "";
+
+            $check_radio = "";
+
+            if ($value['estado'] == 2) {
+                $check_radio = "checked";
+            }
+
+            if ($elegir) {
+                $elegirContador = '
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" onclick="elegirContador(' . $value['id_contador'] . ')" name="elegir" id="elegir-' . $value['id_contador'] . '" value="' . $value['id_contador'] . '" ' . $check_radio . '>
+                </div>';
+            }
+
+            if ($editar) {
+                $acciones .= '
+                <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Editar">
+                    <a href="#" class="avtar avtar-xs btn-link-success btn-pc-default" onclick="editContador(event, ' . $value['id_contador'] . ')"><i class="ti ti-edit-circle f-18"></i></a>
+                </li>';
+            }
+
+            if ($eliminar) {
+                $acciones .= '
+                <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
+                    <a href="#" class="avtar avtar-xs btn-link-danger btn-pc-default" onclick="deleteContador(event, ' . $value['id_contador'] . ')"><i class="ti ti-trash f-18"></i></a>
+                </li>';
+            }
+
+            $contadores[$key]['acciones'] = $acciones;
+            $contadores[$key]['elegir'] = $elegirContador;
+        }
 
         return $this->response->setJSON($contadores);
     }

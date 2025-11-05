@@ -96,9 +96,7 @@ function viewListContribuyentes(data) {
     }</a></td>
                 <td>${deuda}</td>
                 <td>
-                    <a href="${base_url}pago-honorario/${
-      emp.id
-    }" class="btn btn-success">COBRAR</a>
+                    ${emp.cobrar}
                 </td>
             </tr>
         `;
@@ -183,9 +181,7 @@ function viewListContribuyentesServidor(data) {
                 <td>${emp.ultima_fecha_fin}</td>
                 <td>${emp.pagos}</td>
                 <td>
-                    <a href="${base_url}cobrar-servidor/${
-      emp.id
-    }" class="btn btn-success">COBRAR</a>
+                    ${emp.cobrar}
                 </td>
             </tr>
         `;
@@ -252,9 +248,7 @@ function viewDeudasAnuales(data) {
       </td>
       <td>${emp.pagos_pendientes}</td>
       <td>
-        <a href="${base_url}cobrar-anual/${
-      emp.id
-    }" class="btn btn-success">COBRAR</a>
+        ${emp.cobrar}
       </td>
     </tr>
     `;

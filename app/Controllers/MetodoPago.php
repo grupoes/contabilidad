@@ -19,14 +19,45 @@ class MetodoPago extends BaseController
 
         $menu = $this->permisos_menu();
 
-        return view('metodoPago/index', compact('bancos', 'menu'));
+        $crear = $this->getPermisosAcciones(17, session()->perfil_id, 'crear');
+
+        return view('metodoPago/index', compact('bancos', 'menu', 'crear'));
     }
 
     public function show()
     {
         $metodo = new MetodoPagoModel();
 
+        $editar = $this->getPermisosAcciones(17, session()->perfil_id, 'editar');
+        $eliminar = $this->getPermisosAcciones(17, session()->perfil_id, 'eliminar');
+
         $metodos = $metodo->query("SELECT mp.id, mp.metodo, mp.descripcion, mp.estado, mp.id_banco, b.nombre_banco FROM metodos_pagos as mp LEFT JOIN bancos as b ON b.id = mp.id_banco WHERE mp.estado = 1")->getResult();
+
+        foreach ($metodos as $key => $value) {
+            $acciones = "";
+
+            if ($value->id != 1) {
+                $acciones .= '<ul class="list-inline me-auto mb-0">';
+
+                if ($editar) {
+                    $acciones .= '
+                    <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Editar">
+                        <a href="#" onclick="editarMetodo(event, ' . $value->id . ')" class="avtar avtar-xs btn-link-success btn-pc-default"><i class="ti ti-edit-circle f-18"></i></a>
+                    </li>';
+                }
+
+                if ($eliminar) {
+                    $acciones .= '
+                    <li class="list-inline-item align-bottom" data-bs-toggle="tooltip" title="Eliminar">
+                        <a href="#" onclick="deleteMetodo(event, ' . $value->id . ')" class="avtar avtar-xs btn-link-danger btn-pc-default"><i class="ti ti-trash f-18"></i></a>
+                    </li>';
+                }
+
+                $acciones .= '</ul>';
+            }
+
+            $metodos[$key]->acciones = $acciones;
+        }
 
         return $this->response->setJSON($metodos);
     }

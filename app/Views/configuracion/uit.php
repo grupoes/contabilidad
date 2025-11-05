@@ -34,11 +34,13 @@
                             <label class="form-label">Ingresar UIT</label>
                             <input type="text" name="uit" id="uit" class="form-control" value="<?= $monto_uit['uit_monto'] ?>" required>
 
-                            <div class="row mt-3">
-                                <div class="col-md-12 d-flex justify-content-center">
-                                    <button type="submit" class="btn btn-success">Guardar</button>
+                            <?php if ($isEdit) { ?>
+                                <div class="row mt-3">
+                                    <div class="col-md-12 d-flex justify-content-center">
+                                        <button type="submit" class="btn btn-success">Guardar</button>
+                                    </div>
                                 </div>
-                            </div>
+                            <?php } ?>
 
                         </div>
                     </form>

@@ -27,25 +27,27 @@ const staUser = document.getElementById("staUser");
 
 const titleModal = document.getElementById("titleModal");
 
-btnModal.addEventListener("click", (e) => {
-  e.preventDefault();
+if (btnModal) {
+  btnModal.addEventListener("click", (e) => {
+    e.preventDefault();
 
-  formDatos.reset();
+    formDatos.reset();
 
-  $("#modalAddEdit").modal("show");
-  titleModal.textContent = "Agregar usuario";
-  iduser.value = "0";
-  staCorreo.value = "0";
-  staUser.value = "0";
+    $("#modalAddEdit").modal("show");
+    titleModal.textContent = "Agregar usuario";
+    iduser.value = "0";
+    staCorreo.value = "0";
+    staUser.value = "0";
 
-  const rutaUser = base_url + "assets/images/user/avatar-2.jpg";
+    const rutaUser = base_url + "assets/images/user/avatar-2.jpg";
 
-  path.value = rutaUser;
+    path.value = rutaUser;
 
-  const preview = document.getElementById("preview");
-  preview.src = rutaUser;
-  preview.style.display = "block";
-});
+    const preview = document.getElementById("preview");
+    preview.src = rutaUser;
+    preview.style.display = "block";
+  });
+}
 
 document.getElementById("foto").addEventListener("change", function (event) {
   const file = event.target.files[0];
@@ -197,12 +199,7 @@ function viewUsers(data) {
                 ${user.nombre_perfil}
             </td>
             <td class="text-center">
-                <a href="#" class="avtar avtar-s btn-link-info btn-pc-default" title="Editar" onclick="editUser(event, ${
-                  user.id
-                })"><i class="ti ti-edit f-20"></i></a>
-                <a href="#" class="avtar avtar-s btn-link-danger btn-pc-default" title="Eliminar" onclick="deleteUser(event, ${
-                  user.id
-                })"><i class="ti ti-trash f-20"></i></a>
+                ${user.acciones}
             </td>
         </tr>
         `;

@@ -33,10 +33,11 @@
                     <div class="d-flex justify-content-between align-items-center p-2 pb-sm-2">
                         <!-- Contenedor para los botones -->
                         <div class="d-flex align-items-center gap-2 ms-auto">
-
-                            <button type="button" id="btnModal" class="btn btn-success d-inline-flex align-items-center gap-2">
-                                <i class="ti ti-plus f-18"></i> Nuevo Contador
-                            </button>
+                            <?php if ($isCrear) { ?>
+                                <button type="button" id="btnModal" class="btn btn-success d-inline-flex align-items-center gap-2">
+                                    <i class="ti ti-plus f-18"></i> Nuevo Contador
+                                </button>
+                            <?php } ?>
                         </div>
                     </div>
 
