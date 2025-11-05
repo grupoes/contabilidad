@@ -261,6 +261,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/buttons.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/flatpickr-es.js"></script>
-<script src="<?= base_url() ?>js/movimiento/cajero.js"></script>
+<script src="<?= base_url() ?>js/movimiento/cajero.js?v=2"></script>
 
 <?= $this->endSection() ?>

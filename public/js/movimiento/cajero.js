@@ -75,18 +75,22 @@ metodoPago.addEventListener("change", (e) => {
       fileVaucher.setAttribute("hidden", true);
 
       selectSede.removeAttribute("hidden");
+      sede.setAttribute("required", "true");
     } else {
       fileVaucher.removeAttribute("hidden");
       vaucher.setAttribute("required", "true");
       selectSede.setAttribute("hidden", true);
       sede.value = "";
+      sede.removeAttribute("required");
     }
   } else {
     if (metodo == "1") {
       selectSede.removeAttribute("hidden");
+      sede.setAttribute("required", "true");
     } else {
       selectSede.setAttribute("hidden", true);
       sede.value = "";
+      sede.removeAttribute("required");
     }
   }
 });
