@@ -553,4 +553,40 @@ class PdtPlame extends BaseController
             ]);
         }
     }
+
+    public function eliminarAll()
+    {
+        $r08 = new R08PlameModel();
+
+        try {
+            $data = $this->request->getJSON();
+
+            $ids = $data->ids;
+
+            $id = $ids[0];
+
+            $dataR08 = $r08->find($id);
+
+            $idplame = $dataR08['plameId'];
+
+            $r08
+                ->whereIn('id', $ids)
+                ->set([
+                    'status' => 0,
+                    'user_delete' => session()->id
+                ])
+                ->update();
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Archivos r08 eliminado correctamente",
+                "idplame" => $idplame
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Error al eliminar el plame, ' . $e->getMessage()
+            ]);
+        }
+    }
 }

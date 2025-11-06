@@ -263,20 +263,34 @@ function viewR08(id) {
   fetch(base_url + "consulta-pdt-plame/r08/" + id)
     .then((res) => res.json())
     .then((data) => {
-      viewR08_archivo(data);
+      if (data.length != 0) {
+        viewR08_archivo(data);
+      } else {
+        r08view.innerHTML = "";
+      }
     });
 }
 
 function viewR08_archivo(data) {
   let tr = "";
 
-  data.forEach((item) => {
+  data.forEach((item, i) => {
     tr += `
         <tr>
-            <td><a href="${base_url}archivos/pdt/${item.nameFile}" target="_blank">${item.nameFile}</a></td>
+            <td>${i + 1}</td>
+            <td><a href="${base_url}archivos/pdt/${
+      item.nameFile
+    }" target="_blank">${item.nameFile}</a></td>
             <td>
-              <a href="#" style="font-size: 16px" title="RECTIFICAR" onclick="rectificarR08(event, ${item.id})"> <i class="fas fa-edit"> </i> </a>
-              <a href="#" style="font-size: 16px" title="ELIMINAR" onclick="eliminarR08(event, ${item.id})"> <i class="fas fa-trash-alt text-danger" style="font-size: 16px" > </i> </a>
+              <input type="checkbox" class="form-check-input checkR08" id="checkR08_${
+                item.id
+              }" value="${item.id}" />
+              <a href="#" style="font-size: 16px" title="RECTIFICAR" onclick="rectificarR08(event, ${
+                item.id
+              })"> <i class="fas fa-edit"> </i> </a>
+              <a href="#" style="font-size: 16px" title="ELIMINAR" onclick="eliminarR08(event, ${
+                item.id
+              })"> <i class="fas fa-trash-alt text-danger" style="font-size: 16px" > </i> </a>
             </td>
         </tr>
         `;
@@ -285,11 +299,14 @@ function viewR08_archivo(data) {
   let html = `
     <h4 class="d-flex justify-content-between align-items-center">
         R08
-        <a href="${base_url}descargarR08All/${data[0].plameId}" download title="Descargar Todo">
-            <i class="fas fa-cloud-download-alt"></i>
-        </a>
+        <div class="me-4" id="iconos-actions">
+          <input type="checkbox" onclick="checkListR08(event)" id="checkAll" class="form-check-input me-3" />
+          <a href="${base_url}descargarR08All/${data[0].plameId}" download title="Descargar Todo">
+              <i class="fas fa-cloud-download-alt"></i>
+          </a>
+        </div>
     </h4>
-    <table class="table">
+    <table class="table" id="tableR08">
         <tbody>
             ${tr}
         </tbody>
@@ -547,4 +564,167 @@ function eliminar(idPlame, idArchivoPlame) {
         $("#modalDescargarArchivo").modal("show");
       }
     });
+}
+
+function checkListR08(e) {
+  const actions = document.getElementById("iconos-actions");
+  if (e.target.checked) {
+    const iconDelAll = document.getElementById("iconDelAll");
+    if (iconDelAll) {
+      iconDelAll.remove();
+    }
+
+    const iconoDeleteAll = document.createElement("i");
+    iconoDeleteAll.classList.add("fas", "fa-trash-alt", "text-danger", "me-2");
+    iconoDeleteAll.style.fontSize = "16px";
+    iconoDeleteAll.setAttribute("id", "iconDelAll");
+    iconoDeleteAll.style.cursor = "pointer";
+    iconoDeleteAll.setAttribute("title", "ELIMINAR");
+    iconoDeleteAll.setAttribute("onclick", "eliminarR08All()");
+    actions.prepend(iconoDeleteAll);
+
+    document
+      .querySelectorAll(".checkR08")
+      .forEach((chk) => (chk.checked = true));
+  } else {
+    document
+      .querySelectorAll(".checkR08")
+      .forEach((chk) => (chk.checked = false));
+
+    const cant = contarChecksR08();
+
+    if (cant <= 0) {
+      actions.removeChild(actions.firstChild);
+    }
+  }
+}
+
+function contarChecksR08() {
+  const seleccionados = document.querySelectorAll(".checkR08:checked").length;
+  return seleccionados;
+}
+
+r08view.addEventListener("click", (e) => {
+  const actions = document.getElementById("iconos-actions");
+
+  if (e.target.classList.contains("checkR08")) {
+    if (e.target.checked) {
+      const totalFilas = document.querySelectorAll("#tableR08 tr").length;
+      const seleccionados = contarChecksR08();
+
+      if (seleccionados == totalFilas) {
+        const check = document.querySelector("#checkAll");
+        check.checked = true;
+      }
+
+      if (seleccionados > 0) {
+        const iconDelAll = document.getElementById("iconDelAll");
+        if (iconDelAll) {
+          iconDelAll.remove();
+        }
+
+        const iconoDeleteAll = document.createElement("i");
+        iconoDeleteAll.classList.add(
+          "fas",
+          "fa-trash-alt",
+          "text-danger",
+          "me-2"
+        );
+        iconoDeleteAll.setAttribute("id", "iconDelAll");
+        iconoDeleteAll.style.fontSize = "16px";
+        iconoDeleteAll.style.cursor = "pointer";
+        iconoDeleteAll.setAttribute("title", "ELIMINAR");
+        iconoDeleteAll.setAttribute("onclick", "eliminarR08All()");
+        actions.prepend(iconoDeleteAll);
+      }
+    } else {
+      const totalFilas = document.querySelectorAll("#tableR08 tr").length;
+      const seleccionados = contarChecksR08();
+
+      if (totalFilas != seleccionados) {
+        const check = document.querySelector("#checkAll");
+        check.checked = false;
+      }
+
+      if (seleccionados == 0) {
+        actions.removeChild(actions.firstChild);
+      }
+    }
+  }
+});
+
+function eliminarR08All() {
+  const ids = [];
+  const table = document.getElementById("tableR08");
+  const rows = table.querySelectorAll("tr");
+
+  rows.forEach((row) => {
+    const checkbox = row.querySelector(".checkR08");
+    if (checkbox && checkbox.checked) {
+      ids.push(checkbox.value);
+    }
+  });
+
+  if (ids.length > 0) {
+    $("#modalDescargarArchivo").modal("hide");
+
+    swalWithBootstrapButtons
+      .fire({
+        title: "¿Esta seguro de eliminar los archivos R08?",
+        text: "Ya no podrá revertir después!",
+        icon: "error",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Si, eliminar!",
+        cancelButtonText: "Cancelar",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          fetch(`${base_url}eliminar-pdt-plame/r08/all`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ ids: ids }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.status === "success") {
+                Swal.fire({
+                  position: "top-center",
+                  icon: "success",
+                  title: data.message,
+                  showConfirmButton: false,
+                  timer: 1500,
+                });
+
+                setTimeout(() => {
+                  $("#modalDescargarArchivo").modal("show");
+                  viewR08(data.idplame);
+                }, 1600);
+              }
+            });
+        } else {
+          $("#modalDescargarArchivo").modal("show");
+        }
+      });
+  } else {
+    swalWithBootstrapButtons
+      .fire({
+        icon: "warning",
+        title: "Oops...",
+        text: "No hay archivos seleccionados",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        confirmButtonText: "OK",
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          $("#modalDescargarArchivo").modal("show");
+        }
+      });
+  }
 }

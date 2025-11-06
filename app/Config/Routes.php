@@ -175,6 +175,7 @@ $routes->post('rectificar-pdt-plame', 'PdtPlame::rectificarPlame');
 $routes->post('rectificar-pdt-plame/r08', 'PdtPlame::rectificarR08');
 $routes->get('eliminar-pdt-plame/r08/(:num)', 'PdtPlame::eliminarR08/$1');
 $routes->get('eliminar-pdt-plame/(:num)/(:num)', 'PdtPlame::eliminar/$1/$2');
+$routes->post('eliminar-pdt-plame/r08/all', 'PdtPlame::eliminarAll');
 
 $routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
 $routes->get('pdtAnual/verificar/(:num)', 'PdtAnual::verificar/$1');
