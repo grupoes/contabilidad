@@ -767,7 +767,7 @@ class Cobros extends BaseController
             $anioActual = $anio->where('anio_descripcion', $actual)->first();
             $idanio = $anioActual['id_anio'];
 
-            $data = $fecha->query("SELECT DISTINCT fd.id_anio, fd.id_numero, fd.fecha_exacta, fd.fecha_declaracion_estado, fd.id_tributo, fd.dia_exacto, fd.fecha_notificar, a.anio_descripcion, t.id_pdt, t.tri_descripcion FROM `fecha_declaracion` fd INNER JOIN tributo t ON t.id_tributo = fd.id_tributo INNER JOIN anio a ON a.id_anio = fd.id_anio WHERE t.id_pdt = 3 and fd.id_anio >= $idanio and fd.dia_exacto != 0 GROUP BY fd.fecha_exacta order by fd.id_fecha_declaracion asc;")->getResultArray();
+            $data = $fecha->query("SELECT fd.id_fecha_declaracion,fd.id_anio, fd.id_numero, fd.fecha_exacta, fd.fecha_declaracion_estado, fd.id_tributo, fd.dia_exacto, fd.fecha_notificar, a.anio_descripcion, t.id_pdt, t.tri_descripcion FROM `fecha_declaracion` fd INNER JOIN tributo t ON t.id_tributo = fd.id_tributo INNER JOIN anio a ON a.id_anio = fd.id_anio WHERE t.id_pdt = 3 and fd.id_anio >= $idanio and fd.dia_exacto != 0 GROUP BY fd.fecha_exacta, fd.id_fecha_declaracion,fd.id_anio, fd.id_numero, fd.fecha_declaracion_estado, fd.id_tributo, fd.dia_exacto, fd.fecha_notificar, a.anio_descripcion, t.id_pdt, t.tri_descripcion order by fd.id_fecha_declaracion asc;")->getResultArray();
 
             $empresas = [];
 
