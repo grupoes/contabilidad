@@ -95,9 +95,6 @@ class Pdt0621 extends BaseController
             //aqui verificar si coinciden los archivos correspondientes
             $datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
 
-            unlink($rutaPdt);
-            unlink($rutaConstancia);
-
             return $this->response->setJSON(['status' => 'error', 'message' => "no se pudo crear, comunicate con el administrador", 'datos' => $datos_pdt_file, "ruta" => $rutaPdt]);
 
             /*if ($datos_pdt_file['texto'] !== "") {
