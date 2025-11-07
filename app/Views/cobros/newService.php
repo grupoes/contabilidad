@@ -76,9 +76,9 @@
                             <div class="col-md-4 mb-3">
                                 <label class="form-label" for="comprobante">Comprobante</label>
                                 <select class="form-select" name="comprobante" id="comprobante">
-                                    <option value="">Nota de Venta</option>
-                                    <option value="">Factura Electrónica</option>
-                                    <option value="">Boleta de Venta Electrónica</option>
+                                    <option value="3">Nota de Venta</option>
+                                    <option value="2">Factura Electrónica</option>
+                                    <option value="1">Boleta de Venta Electrónica</option>
                                 </select>
                             </div>
 

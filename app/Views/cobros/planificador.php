@@ -44,7 +44,7 @@
                         <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableData">
                             <thead>
                                 <tr>
-                                    <th>#</th>
+                                    <th>Fecha</th>
                                     <th>Empresa</th>
                                     <th>Descripción</th>
                                     <th>Monto</th>

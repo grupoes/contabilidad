@@ -65,6 +65,7 @@ $routes->get('listaCobros/(:any)/(:num)', 'Contribuyentes::listaHonorariosCobros
 $routes->get('servicio', 'Cobros::cobroPlanificador');
 $routes->get('crear/servicio', 'Cobros::createCobroServicio');
 $routes->post('save-service', 'Cobros::saveService');
+$routes->get('services/all', 'Cobros::allServices');
 
 $routes->get('cobro-servidor', 'Cobros::index');
 $routes->get('render-contribuyentes', 'Cobros::renderContribuyentes');

@@ -1,5 +1,8 @@
 const formService = document.getElementById("formService");
 
+const estado = document.getElementById("estado");
+const metodo_pago = document.getElementById("metodo_pago");
+
 formService.addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -11,7 +14,25 @@ formService.addEventListener("submit", (e) => {
   })
     .then((res) => res.json())
     .then((data) => {
-      console.log(data);
+      if (data.status === "success") {
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: data.message,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+
+        setTimeout(() => {
+          window.location.href = base_url + "servicio";
+        }, 1600);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: data.message,
+        });
+      }
     });
 });
 
@@ -20,8 +41,6 @@ const numeroDocumento = document.getElementById("numeroDocumento");
 const razon_social = document.getElementById("razon_social");
 
 searchDocumento.addEventListener("click", () => {
-  console.log("hola");
-
   const ruc = numeroDocumento.value;
 
   if (ruc.length == 11) {
@@ -36,5 +55,13 @@ searchDocumento.addEventListener("click", () => {
       });
   } else {
     alert("Agregue un R.U.C. de 11 dígitos");
+  }
+});
+
+estado.addEventListener("change", () => {
+  if (estado.value == "pendiente") {
+    metodo_pago.removeAttribute("required");
+  } else {
+    metodo_pago.setAttribute("required", "true");
   }
 });

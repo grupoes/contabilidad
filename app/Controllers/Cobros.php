@@ -14,6 +14,7 @@ use App\Models\AmortizacionPagoAnualModel;
 use App\Models\FechaDeclaracionModel;
 use App\Models\AnioModel;
 use App\Models\PdtAnualModel;
+use App\Models\ServicioModel;
 use DateTime;
 
 class Cobros extends BaseController
@@ -155,6 +156,8 @@ class Cobros extends BaseController
         $servidor = new ServidorModel();
         $pagoServidor = new PagoServidorModel();
 
+        $servidor->db->transStart();
+
         try {
 
             $data = $this->request->getPost();
@@ -217,8 +220,15 @@ class Cobros extends BaseController
                 }
             }
 
+            $servidor->db->transComplete();
+
+            if ($servidor->db->transStatus() === false) {
+                throw new \Exception("Error al realizar la operación.");
+            }
+
             return $this->response->setJSON(['status' => 'success', 'message' => "Monto agregado correctamente"]);
         } catch (\Exception $e) {
+            $servidor->db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
@@ -743,11 +753,42 @@ class Cobros extends BaseController
 
     public function saveService()
     {
+        $service = new ServicioModel();
         try {
             $data = $this->request->getPost();
+
+            $datos = [
+                "metodo_id" => $data['metodo_pago'],
+                "comprobante_id" => $data['comprobante'],
+                "ruc" => $data['numeroDocumento'],
+                "razon_social" => $data['razon_social'],
+                "monto" => $data['monto'],
+                "estado" => $data['estado'],
+                "descripcion" => $data['description_service'],
+                "url_pdf" => "",
+                "url_ticket" => "",
+                "user_add" => session()->id,
+            ];
+
+            $service->insert($datos);
+
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Se guardo correctamente']);
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
+    }
+
+    public function allServices()
+    {
+        if (!session()->logged_in) {
+            return redirect()->to(base_url());
+        }
+
+        $services = new ServicioModel();
+
+        $data = $services->findAll();
+
+        return $this->response->setJSON($data);
     }
 
     public function renderDeudoresAnuales()
