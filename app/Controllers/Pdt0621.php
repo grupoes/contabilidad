@@ -107,9 +107,7 @@ class Pdt0621 extends BaseController
             //aqui verificar si coinciden los archivos correspondientes
             $datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
 
-            return $this->response->setJSON(['status' => 'error', 'message' => "no se pudo crear, comunicate con el administrador", 'datos' => $datos_pdt_file, "ruta" => $rutaPdt]);
-
-            /*if ($datos_pdt_file['texto'] !== "") {
+            if ($datos_pdt_file['texto'] !== "") {
                 if ($datos_pdt_file['success'] == false || $datos_pdt_file['texto_encontrado'] === false) {
                     unlink($rutaPdt);
                     unlink($rutaConstancia);
@@ -143,7 +141,7 @@ class Pdt0621 extends BaseController
                     unlink($rutaConstancia);
                     return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto, periodo o RUC no coinciden.", 'datos' => $datos_constancia_file]);
                 }
-            }*/
+            }
 
             $datos_pdt = array(
                 "ruc_empresa" => $ruc,
@@ -172,23 +170,23 @@ class Pdt0621 extends BaseController
 
             $datos = $this->apiLoadPdtFile($rutaPdt);
 
-            //if ($datos_pdt_file['texto'] !== "") {
-            if ($datos['status'] === 'success') {
-                $compras = $datos['igv_compras'];
-                $ventas = $datos['igv_ventas'];
+            if ($datos_pdt_file['texto'] !== "") {
+                if ($datos['status'] === 'success') {
+                    $compras = $datos['igv_compras'];
+                    $ventas = $datos['igv_ventas'];
 
-                $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
+                    $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
 
-                $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
+                    $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
 
-                $data_update = array(
-                    "total_ventas" => $totalVentas,
-                    "total_compras" => $totalCompras
-                );
+                    $data_update = array(
+                        "total_ventas" => $totalVentas,
+                        "total_compras" => $totalCompras
+                    );
 
-                $pdtRenta->update($pdtRentaId, $data_update);
+                    $pdtRenta->update($pdtRentaId, $data_update);
+                }
             }
-            //}
 
             $rutaLink = 'archivos/pdt/' . $archivo_pdt;
 
@@ -387,18 +385,27 @@ class Pdt0621 extends BaseController
 
             $dataArchivo = $files->find($idarchivo);
 
-            //$m = "1";
+            $modo = getenv("MODO");
+
+            $m = "1";
 
             if ($file1->isValid()) {
                 $ext_pdt = $file1->getExtension();
                 $archivo_pdt = "PDT0621_" . $ruc . "_" . $per . $ani . "_RECT_" . $codigo . "." . $ext_pdt;
                 $file1->move(FCPATH . 'archivos/pdt', $archivo_pdt);
 
-                $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
+                if ($modo == "PRODUCCION") {
+                    $dockerPath = FCPATH; // /var/www/html/public/
+                    $realPath = str_replace('/var/www/html', '/var/www/html/contabilidad', $dockerPath);
 
-                //$datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
+                    $rutaPdt = $realPath . 'archivos/pdt/' . $archivo_pdt;
+                } else {
+                    $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
+                }
 
-                /*if ($datos_pdt_file['texto'] !== "") {
+                $datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
+
+                if ($datos_pdt_file['texto'] !== "") {
                     if ($datos_pdt_file['success'] == false || $datos_pdt_file['texto_encontrado'] === false) {
                         unlink($rutaPdt);
                         return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto.", 'datos' => $datos_pdt_file]);
@@ -412,31 +419,31 @@ class Pdt0621 extends BaseController
                     if ($datos_pdt_file['periodo'] != $ani . $data_periodo['mes_fecha']) {
                         unlink($rutaPdt);
                         return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto, periodo no coincide.", 'datos' => $datos_pdt_file]);
-                    }*/
+                    }
 
-                $totalVentas = 0;
-                $totalCompras = 0;
+                    $totalVentas = 0;
+                    $totalCompras = 0;
 
-                $datos = $this->apiLoadPdtFile($rutaPdt);
+                    $datos = $this->apiLoadPdtFile($rutaPdt);
 
-                if ($datos['status'] === 'success') {
-                    $compras = $datos['igv_compras'];
-                    $ventas = $datos['igv_ventas'];
+                    if ($datos['status'] === 'success') {
+                        $compras = $datos['igv_compras'];
+                        $ventas = $datos['igv_ventas'];
 
-                    $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
+                        $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
 
-                    $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
+                        $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
 
-                    $data_update = array(
-                        "total_ventas" => $totalVentas,
-                        "total_compras" => $totalCompras
-                    );
+                        $data_update = array(
+                            "total_ventas" => $totalVentas,
+                            "total_compras" => $totalCompras
+                        );
 
-                    $pdtRenta->update($dataArchivo['id_pdt_renta'], $data_update);
-                }
-                /*} else {
+                        $pdtRenta->update($dataArchivo['id_pdt_renta'], $data_update);
+                    }
+                } else {
                     $m = "";
-                }*/
+                }
             } else {
                 $archivo_pdt = $dataArchivo['nombre_pdt'];
             }
@@ -446,9 +453,16 @@ class Pdt0621 extends BaseController
                 $archivo_constancia = "CONST_" . $ruc . "_" . $per . $ani . "_RECT_" . $codigo . "." . $ext_constancia;
                 $file2->move(FCPATH . 'archivos/pdt', $archivo_constancia);
 
-                $rutaConstancia = FCPATH . 'archivos/pdt/' . $archivo_constancia;
+                if ($modo == "PRODUCCION") {
+                    $dockerPath = FCPATH; // /var/www/html/public/
+                    $realPath = str_replace('/var/www/html', '/var/www/html/contabilidad', $dockerPath);
 
-                /*$datos_constancia_file = $this->apiLoadPdtArchivos($rutaConstancia);
+                    $rutaConstancia = $realPath . 'archivos/pdt/' . $archivo_constancia;
+                } else {
+                    $rutaConstancia = FCPATH . 'archivos/pdt/' . $archivo_constancia;
+                }
+
+                $datos_constancia_file = $this->apiLoadPdtArchivos($rutaConstancia);
 
                 if ($datos_constancia_file['texto'] !== "") {
                     if ($datos_constancia_file['success'] == 0 || $datos_constancia_file['texto_encontrado'] === false) {
@@ -460,7 +474,7 @@ class Pdt0621 extends BaseController
                         unlink($rutaConstancia);
                         return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto, periodo o RUC no coinciden.", 'datos' => $datos_constancia_file]);
                     }
-                }*/
+                }
             } else {
                 $archivo_constancia = $dataArchivo['nombre_constancia'];
             }
@@ -489,7 +503,7 @@ class Pdt0621 extends BaseController
             return $this->response->setJSON([
                 "status" => "success",
                 "message" => "Se registro correctamente",
-                "texto" => "",
+                "texto" => $m,
                 "ruta" => "archivos/pdt/" . $archivo_pdt,
                 "idpdt" => $idpdt
             ]);
