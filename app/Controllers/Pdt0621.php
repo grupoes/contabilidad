@@ -98,7 +98,7 @@ class Pdt0621 extends BaseController
             unlink($rutaPdt);
             unlink($rutaConstancia);
 
-            return $this->response->setJSON(['status' => 'error', 'message' => "no se pudo crear, comunicate con el administrador", 'datos' => $datos_pdt_file]);
+            return $this->response->setJSON(['status' => 'error', 'message' => "no se pudo crear, comunicate con el administrador", 'datos' => $datos_pdt_file, "ruta" => $rutaPdt]);
 
             /*if ($datos_pdt_file['texto'] !== "") {
                 if ($datos_pdt_file['success'] == false || $datos_pdt_file['texto_encontrado'] === false) {
