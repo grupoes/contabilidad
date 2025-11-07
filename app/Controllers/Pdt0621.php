@@ -89,8 +89,8 @@ class Pdt0621 extends BaseController
             $file_renta->move(FCPATH . 'archivos/pdt', $archivo_pdt);
             $file_constancia->move(FCPATH . 'archivos/pdt', $archivo_constancia);
 
-            $rutaPdt = ROOTPATH . 'public/archivos/pdt/' . $archivo_pdt;
-            $rutaConstancia = ROOTPATH . 'public/archivos/pdt/' . $archivo_constancia;
+            $rutaPdt = ROOTPATH . 'contabilidad/public/archivos/pdt/' . $archivo_pdt;
+            $rutaConstancia = ROOTPATH . 'contabilidad/public/archivos/pdt/' . $archivo_constancia;
 
             //aqui verificar si coinciden los archivos correspondientes
             $datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
