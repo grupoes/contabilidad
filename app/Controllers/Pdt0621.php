@@ -83,14 +83,16 @@ class Pdt0621 extends BaseController
             $ext_renta = $file_renta->getExtension();
             $ext_constancia = $file_constancia->getExtension();
 
-            $archivo_pdt = "PDT0621_" . $ruc . "_" . $per . $ani . "." . $ext_renta;
+            $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+
+            $archivo_pdt = "PDT0621_" . $ruc . "_" . $per . $ani . "_" . $codigo . "." . $ext_renta;
             $archivo_constancia = "CONST_" . $ruc . "_" . $per . $ani . "." . $ext_constancia;
 
             $file_renta->move(FCPATH . 'archivos/pdt', $archivo_pdt);
             $file_constancia->move(FCPATH . 'archivos/pdt', $archivo_constancia);
 
-            $rutaPdt = ROOTPATH . 'contabilidad/public/archivos/pdt/' . $archivo_pdt;
-            $rutaConstancia = ROOTPATH . 'contabilidad/public/archivos/pdt/' . $archivo_constancia;
+            $rutaPdt = FCPATH . '/archivos/pdt/' . $archivo_pdt;
+            $rutaConstancia = FCPATH . '/archivos/pdt/' . $archivo_constancia;
 
             //aqui verificar si coinciden los archivos correspondientes
             $datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
@@ -527,22 +529,22 @@ class Pdt0621 extends BaseController
 
         switch ($filter) {
             case 1:
-                $order = "ORDER BY (total_compras + total_ventas) DESC";
+                $order = "ORDER BY (SUM(pr.total_compras) + SUM(pr.total_ventas)) DESC";
                 break;
             case 2:
-                $order = "ORDER BY (total_compras + total_ventas) ASC";
+                $order = "ORDER BY (SUM(pr.total_compras) + SUM(pr.total_ventas)) ASC";
                 break;
             case 3:
-                $order = "ORDER BY total_compras DESC";
+                $order = "ORDER BY SUM(pr.total_compras) DESC";
                 break;
             case 4:
-                $order = "ORDER BY total_compras ASC";
+                $order = "ORDER BY SUM(pr.total_compras) ASC";
                 break;
             case 5:
-                $order = "ORDER BY total_ventas DESC";
+                $order = "ORDER BY SUM(pr.total_ventas) DESC";
                 break;
             case 6:
-                $order = "ORDER BY total_ventas ASC";
+                $order = "ORDER BY SUM(pr.total_ventas) ASC";
                 break;
             default:
                 $order = "";
@@ -560,7 +562,6 @@ class Pdt0621 extends BaseController
         FORMAT(IFNULL(SUM(pr.total_ventas), 0), 2) AS total_ventas_decimal,
         IFNULL(SUM(pr.total_compras), 0) AS total_compras,
         IFNULL(SUM(pr.total_ventas), 0) AS total_ventas
-
         FROM contribuyentes c
         INNER JOIN configuracion_notificacion cn 
         ON cn.ruc_empresa_numero = c.ruc
