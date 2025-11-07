@@ -93,9 +93,14 @@ class Pdt0621 extends BaseController
             $rutaConstancia = FCPATH . 'archivos/pdt/' . $archivo_constancia;
 
             //aqui verificar si coinciden los archivos correspondientes
-            /*$datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
+            $datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
 
-            if ($datos_pdt_file['texto'] !== "") {
+            unlink($rutaPdt);
+            unlink($rutaConstancia);
+
+            return $this->response->setJSON(['status' => 'error', 'message' => "no se pudo crear, comunicate con el administrador", 'datos' => $datos_pdt_file]);
+
+            /*if ($datos_pdt_file['texto'] !== "") {
                 if ($datos_pdt_file['success'] == false || $datos_pdt_file['texto_encontrado'] === false) {
                     unlink($rutaPdt);
                     unlink($rutaConstancia);
