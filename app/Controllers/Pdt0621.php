@@ -107,6 +107,8 @@ class Pdt0621 extends BaseController
             //aqui verificar si coinciden los archivos correspondientes
             $datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
 
+            return $this->response->setJSON(['status' => 'success', 'message' => "Se subieron los archivos correctamente.", 'datos' => $datos_pdt_file]);
+
             if ($datos_pdt_file['texto'] !== "") {
                 if ($datos_pdt_file['success'] == false || $datos_pdt_file['texto_encontrado'] === false) {
                     unlink($rutaPdt);
