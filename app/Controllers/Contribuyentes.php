@@ -49,19 +49,7 @@ class Contribuyentes extends BaseController
         $sistema = new SistemaModel();
         $sistemas = $sistema->where('status', 1)->findAll();
 
-        $certi = new CertificadoDigitalModel();
-
-        $consulta_certificado_por_vencer = $certi->query("SELECT c.ruc, c.razon_social, cd.tipo_certificado, 
-        DATE_FORMAT(cd.fecha_inicio, '%d-%m-%Y') as fecha_inicio, 
-        DATE_FORMAT(cd.fecha_vencimiento, '%d-%m-%Y') as fecha_vencimiento
-        FROM certificado_digital cd
-        INNER JOIN contribuyentes c ON c.id = cd.contribuyente_id
-        INNER JOIN sistemas_contribuyente sc ON sc.contribuyente_id = c.id
-        WHERE cd.fecha_vencimiento <= DATE_ADD(NOW(), INTERVAL 30 DAY) 
-        AND cd.estado = 1 
-        AND c.estado = 1
-        AND sc.system_id != 3
-        ORDER BY cd.fecha_vencimiento ASC;")->getResult();
+        $consulta_certificado_por_vencer = $this->certificados_por_vencer();
 
         $numeros = new NumeroWhatsappModel();
         $numeros_whatsapp = $numeros->where('estado', 1)->findAll();

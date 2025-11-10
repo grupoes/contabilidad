@@ -35,4 +35,11 @@ class Home extends BaseController
                 break;
         }
     }
+
+    public function certificadosVencer()
+    {
+        $vencer = $this->certificados_por_vencer();
+
+        return json_encode($vencer);
+    }
 }

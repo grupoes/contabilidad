@@ -426,7 +426,9 @@ class Pdt0621 extends BaseController
                     $totalVentas = 0;
                     $totalCompras = 0;
 
-                    $datos = $this->apiLoadPdtFile($rutaPdt);
+                    $rutaPdtMontos = FCPATH . '/archivos/pdt/' . $archivo_pdt;
+
+                    $datos = $this->apiLoadPdtFile($rutaPdtMontos);
 
                     if ($datos['status'] === 'success') {
                         $compras = $datos['igv_compras'];

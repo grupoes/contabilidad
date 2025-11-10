@@ -22,6 +22,7 @@ $routes->get('user/delete/(:num)', 'Auth::deleteUser/$1');
 $routes->get('migration-users', 'Auth::migrationUsers');
 
 $routes->get('home', 'Home::index');
+$routes->get('certificados-vencer', 'Home::certificadosVencer');
 
 $routes->get('contribuyentes', 'Contribuyentes::index');
 $routes->get('contribuyentes/getId/(:num)', 'Contribuyentes::getIdContribuyente/$1');

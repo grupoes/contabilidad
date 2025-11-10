@@ -298,6 +298,40 @@
     </div>
 </div>
 
+<div id="modalCertificado" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="titleModal">Certificados Digitales por vencer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table" id="tableCertificados">
+                        <thead>
+                            <tr>
+                                <th>FECHA VENCIMIENTO</th>
+                                <th>FECHA INICIO</th>
+                                <th>RUC</th>
+                                <th>RAZON SOCIAL</th>
+                                <th>TIPO CERTIFICADO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyCertificados">
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>

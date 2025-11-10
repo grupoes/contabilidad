@@ -126,6 +126,30 @@ async function loadPdtsSubir() {
       const nuevoNodoAnual = tempAnuales.firstElementChild;
       listCards.insertBefore(nuevoNodoAnual, listCards.firstElementChild);
     }
+
+    const cer_vencer = await fetch(base_url + "certificados-vencer");
+    const cvencer = await cer_vencer.json();
+
+    const quantyVencer = cvencer.length;
+
+    if (quantyVencer > 0) {
+      const htmlVencer = `
+        <div class="col-md-6 col-xl-3">
+            <div class="card social-widget-card alerta-card" onclick="viewCertificadosVencer()">
+                <div class="card-body">
+                    <h3 class="text-black m-0">${quantyVencer}</h3>
+                    <span class="m-t-10 text-black">PDT ANUAL</span>
+                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                </div>
+            </div>
+        </div>
+      `;
+
+      const tempVencer = document.createElement("div");
+      tempVencer.innerHTML = htmlVencer.trim();
+      const nuevoNodoVencer = tempVencer.firstElementChild;
+      listCards.insertBefore(nuevoNodoVencer, listCards.firstElementChild);
+    }
   } catch (error) {
     console.error("Error al cargar notificaciones PDT:", error);
   }
@@ -378,6 +402,39 @@ function viewContribuyentesServidores() {
       const newcs = $("#tableServidor").DataTable(optionsTableDefault);
 
       new $.fn.dataTable.Responsive(newcs);
+    });
+}
+
+function viewCertificadosVencer() {
+  $("#modalCertificado").modal("show");
+  fetch(base_url + "certificados-vencer")
+    .then((res) => res.json())
+    .then((data) => {
+      let html = "";
+
+      const tbodyCertificados = document.getElementById("tbodyCertificados");
+
+      console.log(tbodyCertificados);
+
+      data.forEach((info) => {
+        html += `
+        <tr>
+          <td>${info.fecha_vencimiento} </td>
+          <td>${info.fecha_inicio}</td>
+          <td>${info.ruc}</td>
+          <td>${info.razon_social}</td>
+          <td>${info.tipo_certificado}</td>
+        </tr>
+        `;
+      });
+
+      $("#tableCertificados").DataTable().destroy();
+
+      tbodyCertificados.innerHTML = html;
+
+      const newcsss = $("#tableCertificados").DataTable(optionsTableDefault);
+
+      new $.fn.dataTable.Responsive(newcsss);
     });
 }
 
