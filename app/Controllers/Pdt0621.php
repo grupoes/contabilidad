@@ -107,8 +107,6 @@ class Pdt0621 extends BaseController
             //aqui verificar si coinciden los archivos correspondientes
             $datos_pdt_file = $this->apiLoadPdtArchivos($rutaPdt);
 
-            return $this->response->setJSON(['status' => 'success', 'message' => "Se subieron los archivos correctamente.", 'datos' => $datos_pdt_file]);
-
             if ($datos_pdt_file['texto'] !== "") {
                 if ($datos_pdt_file['success'] == false || $datos_pdt_file['texto_encontrado'] === false) {
                     unlink($rutaPdt);
@@ -130,6 +128,8 @@ class Pdt0621 extends BaseController
             }
 
             $datos_constancia_file = $this->apiLoadPdtArchivos($rutaConstancia);
+
+            return $this->response->setJSON(['status' => 'success', 'message' => "Se registro correctamente", "datos" => $datos_constancia_file]);
 
             if ($datos_constancia_file['texto'] !== "") {
                 if ($datos_constancia_file['success'] == 0 || $datos_constancia_file['texto_encontrado'] === false) {
