@@ -168,9 +168,9 @@ class Pdt0621 extends BaseController
             $totalVentas = 0;
             $totalCompras = 0;
 
-            $datos = $this->apiLoadPdtFile($rutaPdt);
+            $rutaPdtMontos = FCPATH . '/archivos/pdt/' . $archivo_pdt;
 
-            return $this->response->setJSON(['status' => 'success', 'message' => "Se registro correctamente", "datos" => $datos]);
+            $datos = $this->apiLoadPdtFile($rutaPdtMontos);
 
             if ($datos_pdt_file['texto'] !== "") {
                 if ($datos['status'] === 'success') {
