@@ -269,6 +269,21 @@
                         </div>
                     </div>
 
+                    <h5 class="contacto">Contacto</h5>
+                    <hr class="contacto">
+
+                    <div class="row mb-3 contacto">
+                        <div class="col-md-4">
+                            <label class="form-label" for="clientesVarios">Numero de Whatsapp</label>
+                            <input type="number" class="form-control" name="numero_what" id="numero_what">
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label" for="clientesVarios">Nombre del Contacto</label>
+                            <input type="text" class="form-control" name="nameContact" id="nameContact">
+                        </div>
+                    </div>
+
                     <h5>Boletas</h5>
                     <hr>
                     <div class="row">
@@ -835,6 +850,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/contribuyente/lista.js?v=5"></script>
+<script src="<?= base_url() ?>js/contribuyente/lista.js?v=6"></script>
 
 <?= $this->endSection() ?>

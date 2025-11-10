@@ -320,6 +320,7 @@ class Contribuyentes extends BaseController
         $model = new ContribuyenteModel();
         $codificacion = new CodificacionModel();
         $contrato = new ContratosModel();
+        $contacto = new ContactosContribuyenteModel();
 
         $model->db->transStart();
 
@@ -425,6 +426,18 @@ class Contribuyentes extends BaseController
                 $contribuyente_id = $model->insertID();
 
                 $model->update($contribuyente_id, ['user_add' => session()->id]);
+
+                $data_contacto = array(
+                    'nombre_contacto' => $data['nameContact'],
+                    'telefono' => $data['numero_what'],
+                    'prefijo' => "51",
+                    'numero_whatsapp' => "51" . $data['numero_what'],
+                    'correo' => "",
+                    'estado' => 1,
+                    'contribuyente_id' => $contribuyente_id
+                );
+
+                $contacto->insert($data_contacto);
 
                 if (isset($data['nameSystem'])) {
                     for ($i = 0; $i < count($sistemas); $i++) {

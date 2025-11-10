@@ -40,6 +40,9 @@ const tableCertificado = document.getElementById("tableCertificado");
 const input_contrato = document.getElementById("input_contrato");
 const contrato = document.getElementById("contrato");
 
+const numero_what = document.getElementById("numero_what");
+const nameContact = document.getElementById("nameContact");
+
 const selectSystem = document.getElementById("choices-system");
 
 let multipleSystem = new Choices("#choices-system", {
@@ -65,6 +68,14 @@ let prefijo = new Choices("#selectPais", {
 if (btnModal) {
   btnModal.addEventListener("click", (e) => {
     $("#modalAddEdit").modal("show");
+
+    const aparecer = document.querySelectorAll(".contacto");
+    aparecer.forEach((element) => {
+      element.removeAttribute("hidden", true);
+    });
+
+    numero_what.setAttribute("required", true);
+    nameContact.setAttribute("required", true);
 
     titleModal.textContent = "Agregar Empresa";
     input_contrato.removeAttribute("hidden", true);
@@ -422,7 +433,13 @@ tableBody.addEventListener("click", (e) => {
     input_contrato.setAttribute("hidden", true);
     contrato.removeAttribute("required");
 
+    numero_what.removeAttribute("required");
+    nameContact.removeAttribute("required");
+
     $("#modalAddEdit").modal("show");
+
+    const ocultar = document.querySelectorAll(".contacto");
+    ocultar.forEach((ocultar) => ocultar.setAttribute("hidden", true));
 
     titleModal.textContent = "Editar Empresa";
 
