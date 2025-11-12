@@ -213,6 +213,14 @@ const tanual = $("#tableDataAnual").DataTable(optionsTableDefault);
 
 new $.fn.dataTable.Responsive(tanual);
 
+estado_anual.addEventListener("change", (e) => {
+  loadDeudasAnuales();
+});
+
+selectOpcionesAnual.addEventListener("change", (e) => {
+  loadDeudasAnuales();
+});
+
 loadDeudasAnuales();
 
 function loadDeudasAnuales() {
@@ -263,6 +271,7 @@ function viewDeudasAnuales(data) {
     responsive: true, // Hace que la tabla sea responsiva
     autoWidth: false, // Desactiva el ajuste automático de ancho
     scrollX: false, // Evita el scroll horizontal
+    processing: true,
     columnDefs: [
       { targets: "_all", className: "text-wrap" }, // Permite el ajuste de texto en las columnas
     ],
