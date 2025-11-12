@@ -258,7 +258,15 @@ function viewDeudasAnuales(data) {
 
   tableBodyAnual.innerHTML = html;
 
-  const tanual1 = $("#tableDataAnual").DataTable(optionsTableDefault);
+  const tanual1 = $("#tableDataAnual").DataTable({
+    language: language,
+    responsive: true, // Hace que la tabla sea responsiva
+    autoWidth: false, // Desactiva el ajuste automático de ancho
+    scrollX: false, // Evita el scroll horizontal
+    columnDefs: [
+      { targets: "_all", className: "text-wrap" }, // Permite el ajuste de texto en las columnas
+    ],
+  });
 
   new $.fn.dataTable.Responsive(tanual1);
 }
