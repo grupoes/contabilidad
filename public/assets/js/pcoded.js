@@ -127,9 +127,9 @@ function setLayout() {
       localStorage.setItem("layout", "vertical"));
 }
 function add_scroller() {
-  menu_click(),
-    document.querySelector(".navbar-content") &&
-      new SimpleBar(document.querySelector(".navbar-content"));
+  if (document.querySelector(".navbar-content")) {
+    new SimpleBar(document.querySelector(".navbar-content"));
+  }
 }
 function rm_menu() {
   document.querySelector(".pc-sidebar") &&
