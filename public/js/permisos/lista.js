@@ -92,6 +92,8 @@ const listPermisos = document.getElementById("listPermisos");
 function viewPermisos(data) {
   let html = "";
 
+  listPermisos.innerHTML = "";
+
   const modulos = data.modulos;
 
   modulos.forEach((modulo) => {
