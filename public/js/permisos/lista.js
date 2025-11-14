@@ -15,8 +15,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Modo móvil
         perfilesCard.classList.add("d-none"); // Oculta la lista de perfiles
         perfilInfo.classList.remove("d-none"); // Muestra la info del perfil
-        infoTexto.innerText =
-          "Información de: " + this.nextElementSibling.innerText;
+        //infoTexto.innerText = "Información de: " + this.nextElementSibling.innerText;
+        console.log("mobil");
       }
 
       fetch(base_url + "permisos-perfil/" + idperfil)
@@ -195,8 +195,7 @@ function permisos_details(id) {
     // Modo móvil
     perfilesCard.classList.add("d-none"); // Oculta la lista de perfiles
     perfilInfo.classList.remove("d-none"); // Muestra la info del perfil
-    infoTexto.innerText =
-      "Información de: " + this.nextElementSibling.innerText;
+    //infoTexto.innerText = "Información de: " + this.nextElementSibling.innerText;
   }
 
   fetch(base_url + "permisos-perfil/" + idperfil)
