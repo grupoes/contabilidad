@@ -149,94 +149,94 @@ function remove_overlay_menu() {
     document.querySelector(".pc-sidebar .pc-menu-overlay").remove(),
     document.querySelector(".topbar .pc-menu-overlay").remove();
 }
-document.addEventListener("DOMContentLoaded", menu_click),
-  document.addEventListener("DOMContentLoaded", function () {
-    feather.replace(),
-      (!document.querySelector("body").hasAttribute("data-pc-layout") ||
-        ("horizontal" ==
-          document.querySelector("body").getAttribute("data-pc-layout") &&
-          window.innerWidth <= 1024)) &&
-        add_scroller();
-    var e = document.querySelector("#mobile-collapse"),
-      e =
-        (e &&
-          e.addEventListener("click", function () {
-            document.querySelector(".pc-sidebar") &&
-              (document
-                .querySelector(".pc-sidebar")
-                .classList.contains("mob-sidebar-active")
-                ? rm_menu()
-                : (document
-                    .querySelector(".pc-sidebar")
-                    .classList.add("mob-sidebar-active"),
-                  document
-                    .querySelector(".pc-sidebar")
-                    .insertAdjacentHTML(
-                      "beforeend",
-                      '<div class="pc-menu-overlay"></div>'
-                    ),
-                  document
-                    .querySelector(".pc-menu-overlay")
-                    .addEventListener("click", function () {
-                      rm_menu();
-                    })));
-          }),
-        document.querySelector(".header-notification-scroll") &&
-          new SimpleBar(document.querySelector(".header-notification-scroll")),
-        document.querySelector(".profile-notification-scroll") &&
-          new SimpleBar(document.querySelector(".profile-notification-scroll")),
-        document.querySelector(".component-list-card .card-body") &&
-          new SimpleBar(
-            document.querySelector(".component-list-card .card-body")
-          ),
-        document.querySelector("#sidebar-hide")),
-      e =
-        (e &&
-          e.addEventListener("click", function () {
-            document
-              .querySelector(".pc-sidebar")
-              .classList.contains("pc-sidebar-hide")
-              ? document
-                  .querySelector(".pc-sidebar")
-                  .classList.remove("pc-sidebar-hide")
-              : document
-                  .querySelector(".pc-sidebar")
-                  .classList.add("pc-sidebar-hide");
-          }),
-        document.querySelector(".trig-drp-search") &&
-          document
-            .querySelector(".trig-drp-search")
-            .addEventListener("shown.bs.dropdown", (e) => {
-              document.querySelector(".drp-search input").focus();
-            }),
-        setLayout(),
-        document.querySelectorAll(".theme-main-layout")),
-      t = "vertical";
-    e &&
-      document.querySelectorAll(".theme-main-layout > a").forEach(function (e) {
+//document.addEventListener("DOMContentLoaded", menu_click),
+document.addEventListener("DOMContentLoaded", function () {
+  feather.replace(),
+    (!document.querySelector("body").hasAttribute("data-pc-layout") ||
+      ("horizontal" ==
+        document.querySelector("body").getAttribute("data-pc-layout") &&
+        window.innerWidth <= 1024)) &&
+      add_scroller();
+  var e = document.querySelector("#mobile-collapse"),
+    e =
+      (e &&
         e.addEventListener("click", function () {
-          location.reload(),
-            document
-              .querySelectorAll(".theme-main-layout > a")
-              .forEach(function (e) {
-                e.classList.remove("active");
-              }),
-            this.classList.add("active"),
-            (t =
-              "horizontal" == this.getAttribute("data-value")
-                ? "horizontal"
-                : "compact" == this.getAttribute("data-value")
-                ? "compact"
-                : "tab" == this.getAttribute("data-value")
-                ? "tab"
-                : "color-header" == this.getAttribute("data-value")
-                ? "color-header"
-                : "vertical"),
-            localStorage.setItem("layout", t),
-            setLayout();
-        });
+          document.querySelector(".pc-sidebar") &&
+            (document
+              .querySelector(".pc-sidebar")
+              .classList.contains("mob-sidebar-active")
+              ? rm_menu()
+              : (document
+                  .querySelector(".pc-sidebar")
+                  .classList.add("mob-sidebar-active"),
+                document
+                  .querySelector(".pc-sidebar")
+                  .insertAdjacentHTML(
+                    "beforeend",
+                    '<div class="pc-menu-overlay"></div>'
+                  ),
+                document
+                  .querySelector(".pc-menu-overlay")
+                  .addEventListener("click", function () {
+                    rm_menu();
+                  })));
+        }),
+      document.querySelector(".header-notification-scroll") &&
+        new SimpleBar(document.querySelector(".header-notification-scroll")),
+      document.querySelector(".profile-notification-scroll") &&
+        new SimpleBar(document.querySelector(".profile-notification-scroll")),
+      document.querySelector(".component-list-card .card-body") &&
+        new SimpleBar(
+          document.querySelector(".component-list-card .card-body")
+        ),
+      document.querySelector("#sidebar-hide")),
+    e =
+      (e &&
+        e.addEventListener("click", function () {
+          document
+            .querySelector(".pc-sidebar")
+            .classList.contains("pc-sidebar-hide")
+            ? document
+                .querySelector(".pc-sidebar")
+                .classList.remove("pc-sidebar-hide")
+            : document
+                .querySelector(".pc-sidebar")
+                .classList.add("pc-sidebar-hide");
+        }),
+      document.querySelector(".trig-drp-search") &&
+        document
+          .querySelector(".trig-drp-search")
+          .addEventListener("shown.bs.dropdown", (e) => {
+            document.querySelector(".drp-search input").focus();
+          }),
+      setLayout(),
+      document.querySelectorAll(".theme-main-layout")),
+    t = "vertical";
+  e &&
+    document.querySelectorAll(".theme-main-layout > a").forEach(function (e) {
+      e.addEventListener("click", function () {
+        location.reload(),
+          document
+            .querySelectorAll(".theme-main-layout > a")
+            .forEach(function (e) {
+              e.classList.remove("active");
+            }),
+          this.classList.add("active"),
+          (t =
+            "horizontal" == this.getAttribute("data-value")
+              ? "horizontal"
+              : "compact" == this.getAttribute("data-value")
+              ? "compact"
+              : "tab" == this.getAttribute("data-value")
+              ? "tab"
+              : "color-header" == this.getAttribute("data-value")
+              ? "color-header"
+              : "vertical"),
+          localStorage.setItem("layout", t),
+          setLayout();
       });
-  }),
+    });
+}),
   window.addEventListener("load", function () {
     [].slice
       .call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
