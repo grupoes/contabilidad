@@ -66,7 +66,7 @@ function viewEmpresas(data) {
                 <p class="mb-0 d-flex justify-content-between align-items-center">${item.ruc}  ${campanita} </p>
 
                 <div class="row g-3 mt-1">
-                    <div class="col-sm-6 mt-1">
+                    <div class="col-6 col-sm-6 mt-1">
                         <div class="bg-body py-3 px-2 rounded">
                             <div class="d-flex align-items-center mb-2">
                                 <div class="flex-grow-1 ms-2">
@@ -78,7 +78,7 @@ function viewEmpresas(data) {
                             </h6>
                         </div>
                     </div>
-                    <div class="col-sm-6 mt-1">
+                    <div class="col-6 col-sm-6 mt-1">
                         <div class="bg-body py-3 px-2 rounded">
                             <div class="d-flex align-items-center mb-2">
                                 <div class="flex-grow-1 ms-2">

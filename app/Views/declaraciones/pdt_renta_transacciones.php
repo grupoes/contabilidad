@@ -44,6 +44,20 @@
             transform: rotate(0);
         }
     }
+
+    @media (max-width: 576px) {
+        .list-inline-item {
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 10px;
+            /* opcional para separar inputs */
+        }
+
+        .list-inline-item select,
+        .list-inline-item .form-search input {
+            width: 100% !important;
+        }
+    }
 </style>
 
 <?= $this->endSection() ?>
@@ -90,7 +104,7 @@
                                 </select>
                             </li>
 
-                            <li class="list-inline-item">
+                            <li class="list-inline-item mt-2">
                                 <select name="estado" id="estado" class="form-select">
                                     <option value="1">Activos</option>
                                     <option value="2">Inactivos</option>
@@ -99,7 +113,7 @@
 
                         </ul>
 
-                        <ul class="list-inline ms-auto my-1">
+                        <ul class="list-inline ms-auto my-1 mt-2">
                             <li class="list-inline-item">
                                 <div class="form-search">
                                     <i class="ti ti-search"></i>
