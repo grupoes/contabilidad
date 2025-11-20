@@ -296,7 +296,7 @@ function viewAfps(data) {
     } else {
         html += `
             <tr>
-                <td colspan="3">
+                <td colspan="4">
                     <h4 class="text-center">No se encontraron resultados</h4>
                 </td>
             </tr>
