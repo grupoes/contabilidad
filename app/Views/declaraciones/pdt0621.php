@@ -373,6 +373,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.responsive.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 
-<script src="<?= base_url() ?>js/declaraciones/pdt0621.js?v=3"></script>
+<script src="<?= base_url() ?>js/declaraciones/pdt0621.js?v=4"></script>
 
 <?= $this->endSection() ?>

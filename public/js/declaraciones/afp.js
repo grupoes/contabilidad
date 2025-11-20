@@ -20,7 +20,7 @@ const anio_file = document.getElementById("anio_file");
 const loadFiles = document.getElementById("loadFiles");
 
 const formConsulta = document.getElementById("formConsulta");
-const contentPdts = document.getElementById("contentPdts");
+const contentAfps = document.getElementById("contentAfps");
 
 const envio_archivos = document.getElementById("envio_archivos");
 
@@ -61,8 +61,8 @@ function vistaContribuyentes(data) {
             }, '${cont.ruc
             }')"> <i class="ti ti-file-upload"></i> </button> 
                     <button type="button" class="btn btn-info" title="Descargar archivos" onclick="descargarArchivos(${cont.id
-            },'${cont.ruc
-            }')"> <i class="ti ti-file-download"></i> </button> 
+            })"> <i class="ti ti-file-download"></i> </button>
+            </button> 
                     <button type="button" class="btn btn-primary" title="Descargar archivos" onclick="descargaMasiva(${cont.id
             })"> <i class="ti ti-file-export"></i> </button>
                 </div>
@@ -107,10 +107,10 @@ function modalArchivo(id, ruc) {
         });
 }
 
-function descargarArchivos(id, ruc) {
+function descargarArchivos(id) {
     $("#modalDescargarArchivo").modal("show");
 
-    rucEmpresa.value = ruc;
+    rucEmpresa.value = id;
 
     periodo_file.value = "";
     anio_file.value = "";
@@ -122,7 +122,7 @@ function descargarArchivos(id, ruc) {
     fetch(base_url + "contribuyentes/getId/" + id)
         .then((res) => res.json())
         .then((data) => {
-            titleModalDownload.innerHTML = `DESCARGAR ARCHIVOS - <span class="text-primary" id="nameComp">${data.razon_social}</span>`;
+            titleModalDownload.innerHTML = `DESCARGAR ARCHIVOS AFP - <span class="text-primary" id="nameComp">${data.razon_social}</span>`;
         });
 }
 
@@ -130,7 +130,7 @@ function descargaMasiva(id) {
     $("#modalDescargarArchivoMasivo").modal("show");
 
     formConsulta.reset();
-    contentPdts.innerHTML = "";
+    contentAfps.innerHTML = "";
 
     const correo = document.getElementById("correo");
     const whatsapp = document.getElementById("whatsapp");
@@ -140,11 +140,13 @@ function descargaMasiva(id) {
 
     const titleModalConsult = document.getElementById("titleModalConsult");
     const empresa_ruc = document.getElementById("empresa_ruc");
+    const idcont = document.getElementById("idcont");
+    idcont.value = id;
 
     fetch(base_url + "contribuyentes/getId/" + id)
         .then((res) => res.json())
         .then((data) => {
-            titleModalConsult.textContent = "DESCARGAR PDT - " + data.razon_social;
+            titleModalConsult.textContent = "DESCARGAR AFP - " + data.razon_social;
             empresa_ruc.value = data.ruc;
         });
 }
@@ -160,7 +162,7 @@ formArchivo.addEventListener("submit", (e) => {
 
     const formData = new FormData(formArchivo);
 
-    fetch(`${base_url}contribuyentes/file-save-pdt0621`, {
+    fetch(`${base_url}afp`, {
         method: "POST",
         body: formData,
     })
@@ -178,18 +180,6 @@ formArchivo.addEventListener("submit", (e) => {
                     showConfirmButton: false,
                     timer: 1500,
                 });
-
-                /*if (data.texto == "") {
-                  setTimeout(() => {
-                    $("#modalIngresarMontos").modal("show");
-        
-                    const link_pdt = document.getElementById("link_pdt");
-                    link_pdt.href = `${base_url}${data.ruta}`;
-        
-                    const idPdt = document.getElementById("idPdt");
-                    idPdt.value = data.idpdt;
-                  }, 2000);
-                }*/
 
                 return false;
             }
@@ -227,23 +217,23 @@ anio_file.addEventListener("change", (e) => {
     }
 });
 
-function renderArchivos(periodo, anio, ruc) {
+function renderArchivos(periodo, anio, id) {
     const formData = new FormData();
     formData.append("periodo", periodo);
     formData.append("anio", anio);
-    formData.append("ruc", ruc);
+    formData.append("contribuyente_id", id);
 
-    fetch(base_url + "consulta-pdt-renta", {
+    fetch(base_url + "consulta-afp", {
         method: "POST",
         body: formData,
     })
         .then((res) => res.json())
         .then((data) => {
-            viewArchivos(data, ruc);
+            viewArchivos(data, id);
         });
 }
 
-function viewArchivos(data, ruc) {
+function viewArchivos(data, id) {
     let html = "";
 
     data.forEach((archivo) => {
@@ -252,8 +242,9 @@ function viewArchivos(data, ruc) {
             <td>${archivo.mes_descripcion}</td>
             <td>${archivo.anio_descripcion}</td>
             <td>
-                <a href='${base_url}archivos/pdt/${archivo.nombre_pdt}' class='btn btn-success btn-sm' target='_blank' title='Descargar Renta'>PDT</a> 
-                <a href='${base_url}archivos/pdt/${archivo.nombre_constancia}' target='_blank' class='btn btn-primary btn-sm' title='Descargar constancia'>CONSTANCIA</a>
+                <a href='${base_url}archivos/afp/${archivo.archivo_reporte}' class='btn btn-success btn-sm' target='_blank' title='Descargar reporte'>REPORTE</a> 
+                <a href='${base_url}archivos/afp/${archivo.archivo_ticket}' target='_blank' class='btn btn-primary btn-sm' title='Descargar ticket'>TICKET</a>
+                <a href='${base_url}archivos/afp/${archivo.archivo_plantilla}' target='_blank' class='btn btn-info btn-sm' title='Descargar plantilla'>PLANTILLA</a>
             </td>
             <td>
               ${archivo.acciones}
@@ -270,29 +261,32 @@ formConsulta.addEventListener("submit", (e) => {
 
     const formData = new FormData(formConsulta);
 
-    fetch(base_url + "consulta-pdt-rango", {
+    fetch(base_url + "consulta-afp-rango", {
         method: "POST",
         body: formData,
     })
         .then((res) => res.json())
         .then((data) => {
-            viewPdts(data.data);
+            viewAfps(data.data);
         });
 });
 
-function viewPdts(data) {
+function viewAfps(data) {
     let html = "";
 
     if (data.length > 0) {
-        data.forEach((pdt) => {
+        data.forEach((afp) => {
             html += `
             <tr>
-                <td>${pdt.mes_descripcion}</td>
+                <td>${afp.mes_descripcion}</td>
                 <td>
-                  <a href='${base_url}archivos/pdt/${pdt.nombre_pdt}' target='_blank'>PDT</a>
+                  <a href='${base_url}archivos/afp/${afp.archivo_reporte}' target='_blank'>REPORTE</a>
                 </td>
                 <td>
-                <a href='${base_url}archivos/pdt/${pdt.nombre_constancia}' target='_blank'>CONSTANCIA</a>
+                    <a href='${base_url}archivos/afp/${afp.archivo_ticket}' target='_blank'>TICKET</a>
+                </td>
+                <td>
+                    <a href='${base_url}archivos/afp/${afp.archivo_plantilla}' target='_blank'>PLANTILLA</a>
                 </td>
             </tr>
             `;
@@ -311,7 +305,7 @@ function viewPdts(data) {
         envio_archivos.setAttribute("hidden", true);
     }
 
-    contentPdts.innerHTML = html;
+    contentAfps.innerHTML = html;
 }
 
 function verificarInputs() {
@@ -452,7 +446,7 @@ formRectificacion.addEventListener("submit", (e) => {
 
     const formData = new FormData(formRectificacion);
 
-    fetch(base_url + "rectificacion-pdt-renta", {
+    fetch(base_url + "rectificar-afp", {
         method: "POST",
         body: formData,
     })
@@ -469,51 +463,29 @@ formRectificacion.addEventListener("submit", (e) => {
             $("#modalRectificacion").modal("hide");
             $("#modalDescargarArchivo").modal("hide");
 
-            if (data.texto == "") {
-                Swal.fire({
-                    position: "top-center",
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Exitoso!",
+                    text: data.message,
                     icon: "success",
-                    title: data.message,
-                    showConfirmButton: false,
-                    timer: 1500,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        renderArchivos(
+                            periodoRectificacion.value,
+                            anioRectificacion.value,
+                            rucEmpresa.value
+                        );
+                        $("#modalDescargarArchivo").modal("show");
+                    }
                 });
-
-                if (data.texto == "") {
-                    setTimeout(() => {
-                        $("#modalIngresarMontos").modal("show");
-
-                        const link_pdt = document.getElementById("link_pdt");
-                        link_pdt.href = `${base_url}${data.ruta}`;
-
-                        const idPdt = document.getElementById("idPdt");
-                        idPdt.value = data.idpdt;
-                    }, 2000);
-                }
-            } else {
-                swalWithBootstrapButtons
-                    .fire({
-                        title: "Exitoso!",
-                        text: data.message,
-                        icon: "success",
-                    })
-                    .then((result) => {
-                        if (result.isConfirmed) {
-                            renderArchivos(
-                                periodoRectificacion.value,
-                                anioRectificacion.value,
-                                rucEmpresa.value
-                            );
-                            $("#modalDescargarArchivo").modal("show");
-                        }
-                    });
-            }
         });
 });
 
 const getFilesDetails = document.getElementById("getFilesDetails");
 const titleDetallePdt = document.getElementById("titleDetallePdt");
 
-function details_archivos(id_pdt_renta, periodo, anio) {
+function details_archivos(id_afp, periodo, anio) {
     $("#modalDescargarArchivo").modal("hide");
     $("#modalDetalle").modal("show");
 
@@ -523,7 +495,7 @@ function details_archivos(id_pdt_renta, periodo, anio) {
 
     getFilesDetails.innerHTML = "";
 
-    fetch(base_url + "pdt-0621/get-files-details/" + id_pdt_renta)
+    fetch(base_url + "afp/get-files-details/" + id_afp)
         .then((res) => res.json())
         .then((data) => {
             let html = "";
@@ -531,70 +503,38 @@ function details_archivos(id_pdt_renta, periodo, anio) {
             data.forEach((file) => {
                 if (file.estado == 1) {
                     html += `
-            <tr>
-                <td>
-                    <a href='${base_url}archivos/pdt/${file.nombre_pdt}' target='_blank'>${file.nombre_pdt}</a>
-                </td>
-                <td>
-                  <a href='${base_url}archivos/pdt/${file.nombre_constancia}' target='_blank'>${file.nombre_constancia}</a>
-                </td>
-            </tr>
-            `;
+                    <tr class="text-center">
+                        <td>
+                            <a href='${base_url}archivos/afp/${file.archivo_reporte}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-danger"></i> </a>
+                        </td>
+                        <td>
+                            <a href='${base_url}archivos/afp/${file.archivo_ticket}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-warning"></i> </a>
+                        </td>
+                        <td>
+                            <a href='${base_url}archivos/afp/${file.archivo_plantilla}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-success"></i> </a>
+                        </td>
+                    </tr>
+                    `;
                 } else {
                     html += `
-            <tr>
-                <td>${file.nombre_pdt}</td>
-                <td>${file.nombre_constancia}</td>
-            </tr>
-            `;
+                    <tr class="text-center">
+                        <td>
+                            <a href='${base_url}archivos/afp/${file.archivo_reporte}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>
+                        </td>
+                        <td>
+                            <a href='${base_url}archivos/afp/${file.archivo_ticket}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>
+                        </td>
+                        <td>
+                            <a href='${base_url}archivos/afp/${file.archivo_plantilla}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>
+                        </td>
+                    </tr>
+                    `;
                 }
             });
 
             getFilesDetails.innerHTML = html;
         });
 }
-
-const formMontosComprasVentas = document.getElementById(
-    "formMontosComprasVentas"
-);
-
-formMontosComprasVentas.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(formMontosComprasVentas);
-
-    fetch(base_url + "pdt-0621/save-montos", {
-        method: "POST",
-        body: formData,
-    })
-        .then((res) => res.json())
-        .then((data) => {
-            if (data.status === "success") {
-                $("#modalIngresarMontos").modal("hide");
-
-                Swal.fire({
-                    position: "top-center",
-                    icon: "success",
-                    title: data.message,
-                    showConfirmButton: false,
-                    timer: 1500,
-                });
-                return false;
-            }
-
-            swalWithBootstrapButtons
-                .fire({
-                    title: "Error!",
-                    text: data.message,
-                    icon: "error",
-                })
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        $("#modalIngresarMontos").modal("show");
-                    }
-                });
-        });
-});
 
 const modalRectificacion = document.getElementById("modalRectificacion");
 
@@ -612,7 +552,7 @@ modalDetalle.addEventListener("click", (e) => {
     }
 });
 
-function eliminar(id_pdt_renta, id_archivos_pdt) {
+function eliminar(afp_id, id) {
     $("#modalDescargarArchivo").modal("hide");
     Swal.fire({
         title: "¿Estás seguro?",
@@ -627,7 +567,7 @@ function eliminar(id_pdt_renta, id_archivos_pdt) {
     }).then((result) => {
         if (result.isConfirmed) {
             fetch(
-                base_url + "pdt-0621/delete/" + id_pdt_renta + "/" + id_archivos_pdt
+                base_url + "afp/delete/" + afp_id + "/" + id
             )
                 .then((res) => res.json())
                 .then((data) => {

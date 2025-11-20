@@ -57,19 +57,14 @@ function vistaContribuyentes(data) {
             <td>${cont.razon_social}</td>
             <td class="text-center">
                 <div class="btn-group" role="group" aria-label="Basic example">
-                    <button type="button" class="btn btn-success" title="Subir archivos" onclick="modalArchivo(${
-                      cont.id
-                    }, '${
-      cont.ruc
-    }')"> <i class="ti ti-file-upload"></i> </button> 
-                    <button type="button" class="btn btn-info" title="Descargar archivos" onclick="descargarArchivos(${
-                      cont.id
-                    },'${
-      cont.ruc
-    }')"> <i class="ti ti-file-download"></i> </button> 
-                    <button type="button" class="btn btn-primary" title="Descargar archivos" onclick="descargaMasiva(${
-                      cont.id
-                    })"> <i class="ti ti-file-export"></i> </button>
+                    <button type="button" class="btn btn-success" title="Subir archivos" onclick="modalArchivo(${cont.id
+      }, '${cont.ruc
+      }')"> <i class="ti ti-file-upload"></i> </button> 
+                    <button type="button" class="btn btn-info" title="Descargar archivos" onclick="descargarArchivos(${cont.id
+      },'${cont.ruc
+      }')"> <i class="ti ti-file-download"></i> </button> 
+                    <button type="button" class="btn btn-primary" title="Descargar archivos" onclick="descargaMasiva(${cont.id
+      })"> <i class="ti ti-file-export"></i> </button>
                 </div>
             </td>
         </tr>
@@ -184,7 +179,7 @@ formArchivo.addEventListener("submit", (e) => {
           timer: 1500,
         });
 
-        /*if (data.texto == "") {
+        if (data.texto == "") {
           setTimeout(() => {
             $("#modalIngresarMontos").modal("show");
 
@@ -194,7 +189,7 @@ formArchivo.addEventListener("submit", (e) => {
             const idPdt = document.getElementById("idPdt");
             idPdt.value = data.idpdt;
           }, 2000);
-        }*/
+        }
 
         return false;
       }

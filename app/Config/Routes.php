@@ -280,3 +280,9 @@ $routes->get('/chat', 'Chat::index');
 $routes->get('/chat-whatsapp', 'Chat::chatWhatsapp');
 
 $routes->get('/afp', 'Afp::index');
+$routes->post('/afp', 'Afp::save');
+$routes->post('/consulta-afp', 'Afp::consulta');
+$routes->post('/rectificar-afp', 'Afp::rectificar');
+$routes->get('/afp/get-files-details/(:num)', 'Afp::getArchivos/$1');
+$routes->get('/afp/delete/(:num)/(:num)', 'Afp::delete/$1/$2');
+$routes->post('/consulta-afp-rango', 'Afp::consultaAfpRango');

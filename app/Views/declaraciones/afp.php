@@ -95,12 +95,16 @@
 
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="file_renta">Subir Renta</label>
-                            <input type="file" class="form-control" name="file_renta" accept=".pdf" id="file_renta" required>
+                            <label class="form-label" for="file_reporte">Subir Reporte</label>
+                            <input type="file" class="form-control" name="file_reporte" accept=".pdf" id="file_reporte" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="file_constancia">Subir Constancia</label>
-                            <input type="file" class="form-control" name="file_constancia" accept=".pdf" id="file_constancia" required>
+                            <label class="form-label" for="file_ticket">Subir Ticket</label>
+                            <input type="file" class="form-control" name="file_ticket" accept=".pdf" id="file_ticket" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="file_plantilla">Subir Plantilla</label>
+                            <input type="file" class="form-control" name="file_plantilla" accept=".xlsx" id="file_plantilla" required>
                         </div>
                     </div>
                 </div>
@@ -179,6 +183,7 @@
             <div class="modal-body">
                 <form id="formConsulta">
                     <input type="hidden" name="empresa_ruc" id="empresa_ruc" value="0">
+                    <input type="hidden" name="idcont" id="idcont" value="0">
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <label class="form-label" for="anio_consulta">Año</label>
@@ -224,11 +229,12 @@
                             <thead>
                                 <tr>
                                     <th>Periodo</th>
-                                    <th>Archivo pdt</th>
-                                    <th>Archivo Constancia</th>
+                                    <th>Archivo Reporte</th>
+                                    <th>Archivo ticket</th>
+                                    <th>Archivo Plantilla</th>
                                 </tr>
                             </thead>
-                            <tbody id="contentPdts"></tbody>
+                            <tbody id="contentAfps"></tbody>
                         </table>
                     </div>
                 </div>
@@ -271,13 +277,18 @@
                     <input type="hidden" name="rucRect" id="rucRect" value="0" />
                     <div class="row">
                         <div class="col-md-12 mb-3">
-                            <label for="filePdt" class="form-label">Elige el nuevo pdt</label>
-                            <input type="file" name="filePdt" id="filePdt" class="form-control" accept=".pdf" />
+                            <label for="fileReporte" class="form-label">Elige el nuevo reporte</label>
+                            <input type="file" name="fileReporte" id="fileReporte" class="form-control" accept=".pdf" />
                         </div>
 
                         <div class="col-md-12 mb-3">
-                            <label for="fileConstancia" class="form-label">Elige la nueva constancia</label>
-                            <input type="file" name="fileConstancia" id="fileConstancia" class="form-control" accept=".pdf" />
+                            <label for="fileTicket" class="form-label">Elige el nuevo ticket</label>
+                            <input type="file" name="fileTicket" id="fileTicket" class="form-control" accept=".pdf" />
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label for="filePlantilla" class="form-label">Elige la nueva plantilla</label>
+                            <input type="file" name="filePlantilla" id="filePlantilla" class="form-control" accept=".xlsx" />
                         </div>
 
                         <div class="col-md-12" id="viewAlert">
@@ -297,7 +308,7 @@
 
 <div class="modal fade bd-example-modal-sm" id="modalDetalle" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
     aria-labelledby="mySmallModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title h4" id="titleDetallePdt"></h5>
@@ -309,8 +320,9 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Archivo Pdt</th>
-                                <th>Archivo Constancia</th>
+                                <th>Archivo Reporte</th>
+                                <th>Archivo Ticket</th>
+                                <th>Archivo Plantilla</th>
                             </tr>
                         </thead>
                         <tbody id="getFilesDetails">
@@ -324,39 +336,6 @@
                 <button type="submit" class="btn btn-primary" id="btnFormRectificacion">Guardar</button>
             </div>
 
-        </div>
-    </div>
-</div>
-
-<div class="modal fade bd-example-modal-sm" id="modalIngresarMontos" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
-    aria-labelledby="mySmallModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title h4" id="mySmallModalLabel">Agregar los Montos de Compras y Ventas</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <form id="formMontosComprasVentas">
-                <input type="hidden" name="idPdt" id="idPdt" />
-                <div class="modal-body">
-                    <h4>Hemos detectado que los montos de compras y ventas son 0.00 - <a href="#" class="text-danger" id="link_pdt" target="_blank"><i class="fas fa-file-pdf"></a></i> </h4>
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label for="monto_compra" class="form-label">Ingrese el Monto de las Compras</label>
-                            <input type="number" name="monto_compra" id="monto_compra" class="form-control" value="0.00" />
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="monto_venta" class="form-label">Ingrese el Monto de las ventas</label>
-                            <input type="number" name="monto_venta" id="monto_venta" class="form-control" value="0.00" />
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-primary" id="btnFormRectificacion">Guardar</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
