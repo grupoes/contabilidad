@@ -278,3 +278,5 @@ $routes->get('/sistema-ventas', 'Auth::sistemaventas');
 
 $routes->get('/chat', 'Chat::index');
 $routes->get('/chat-whatsapp', 'Chat::chatWhatsapp');
+
+$routes->get('/afp', 'Afp::index');
