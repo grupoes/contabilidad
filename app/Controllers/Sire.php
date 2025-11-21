@@ -54,6 +54,8 @@ class Sire extends BaseController
             $detalle_preliminar = $this->request->getFile('detalle_preliminar');
             $archivos = $this->request->getFileMultiple('archivos');
 
+            $archivo_detalle_preliminar = "";
+
             if (!$constancia_ventas) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de constancia de ventas']);
             }
@@ -62,15 +64,11 @@ class Sire extends BaseController
                 return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de constancia de compras']);
             }
 
-            if (!$detalle_preliminar) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de detalle preliminar']);
-            }
-
-            if (!$constancia_ventas->isValid() || !$constancia_compras->isValid() || !$detalle_preliminar->isValid()) {
+            if (!$constancia_ventas->isValid() || !$constancia_compras->isValid()) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
             }
 
-            if ($constancia_ventas->getClientMimeType() !== 'application/pdf' || $constancia_compras->getClientMimeType() !== 'application/pdf' || $detalle_preliminar->getClientMimeType() !== 'application/pdf') {
+            if ($constancia_ventas->getClientMimeType() !== 'application/pdf' || $constancia_compras->getClientMimeType() !== 'application/pdf') {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos PDF']);
             }
 
@@ -92,19 +90,24 @@ class Sire extends BaseController
             $per = strtoupper($data_periodo['mes_descripcion']);
             $ani = $data_anio['anio_descripcion'];
 
+            $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+
+            if ($detalle_preliminar && $detalle_preliminar->isValid()) {
+                $ext_detalle_preliminar = $detalle_preliminar->getExtension();
+                $archivo_detalle_preliminar = "DETALLE_PRELIMINAR_" . $ruc . "_" . $per . $ani . "_" . $codigo . "." . $ext_detalle_preliminar;
+                $detalle_preliminar->move(FCPATH . 'archivos/sire', $archivo_detalle_preliminar);
+            }
+
             $ext_constancia_ventas = $constancia_ventas->getExtension();
             $ext_constancia_compras = $constancia_compras->getExtension();
-            $ext_detalle_preliminar = $detalle_preliminar->getExtension();
-
-            $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
 
             $archivo_constancia_ventas = "CONST_VENTAS_" . $ruc . "_" . $per . $ani . "_" . $codigo . "." . $ext_constancia_ventas;
             $archivo_constancia_compras = "CONST_COMPRAS_" . $ruc . "_" . $per . $ani . "_"     . $codigo . "." . $ext_constancia_compras;
-            $archivo_detalle_preliminar = "DETALLE_PRELIMINAR_" . $ruc . "_" . $per . $ani . "_" . $codigo . "." . $ext_detalle_preliminar;
+
 
             $constancia_ventas->move(FCPATH . 'archivos/sire', $archivo_constancia_ventas);
             $constancia_compras->move(FCPATH . 'archivos/sire', $archivo_constancia_compras);
-            $detalle_preliminar->move(FCPATH . 'archivos/sire', $archivo_detalle_preliminar);
+
 
             $datos_pdt = array(
                 "contribuyente_id" => $idCont,

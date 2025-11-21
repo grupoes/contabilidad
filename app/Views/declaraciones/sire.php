@@ -104,7 +104,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="detalle_preliminar">Detalle Preliminar</label>
-                            <input type="file" class="form-control" name="detalle_preliminar" accept=".pdf" id="detalle_preliminar" required>
+                            <input type="file" class="form-control" name="detalle_preliminar" accept=".pdf" id="detalle_preliminar">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="archivos">Archivos txt o zip</label>
@@ -298,7 +298,7 @@
 
                         <div class="col-md-12 mb-3">
                             <label for="rectDetallePreliminar" class="form-label">Elige el nuevo detalle Preliminar</label>
-                            <input type="file" name="rectDetallePreliminar" id="rectDetallePreliminar" class="form-control" accept=".pdf" required />
+                            <input type="file" name="rectDetallePreliminar" id="rectDetallePreliminar" class="form-control" accept=".pdf" />
                         </div>
 
                         <div class="col-md-12 mb-3">

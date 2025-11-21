@@ -238,9 +238,14 @@ function viewArchivos(data, id) {
     data.forEach((archivo) => {
 
         let ajustes_posteriores = "";
+        let detalle_preliminar = "";
 
         if (archivo.ajustes_posteriores !== "") {
             ajustes_posteriores = `<a href='${base_url}archivos/sire/${archivo.ajustes_posteriores}' target='_blank' class='btn btn-primary btn-sm' title='Descargar ticket'>A. Posteriores</a>`;
+        }
+
+        if (archivo.detalle_preliminar !== "") {
+            detalle_preliminar = `<a href='${base_url}archivos/sire/${archivo.detalle_preliminar}' target='_blank' class='btn btn-info btn-sm' title='Descargar plantilla'>Det. Preliminar</a>`;
         }
 
         html += `
@@ -250,7 +255,7 @@ function viewArchivos(data, id) {
             <td>
                 <a href='${base_url}archivos/sire/${archivo.constancia_ventas}' class='btn btn-success btn-sm' target='_blank' title='Descargar reporte'>C. Ventas</a> 
                 <a href='${base_url}archivos/sire/${archivo.constancia_compras}' target='_blank' class='btn btn-primary btn-sm' title='Descargar ticket'>C. Compras</a>
-                <a href='${base_url}archivos/sire/${archivo.detalle_preliminar}' target='_blank' class='btn btn-info btn-sm' title='Descargar plantilla'>Det. Preliminar</a>
+                ${detalle_preliminar}
                 ${ajustes_posteriores}
                 <a href='#' onclick="viewArchivosSire(event, ${archivo.sire_id})" class='btn btn-primary btn-sm' title='Descargar archivos'>Archivos</a>
             </td>
@@ -512,10 +517,19 @@ function details_archivos(id_sire, periodo, anio) {
                 let ajuste = "";
                 let ajuste2 = "";
 
+                let detalle_preliminar = "";
+                let detalle_preliminar2 = "";
+
                 if (file.ajustes_posteriores != "") {
                     ajuste = `<a href='${base_url}archivos/sire/${file.ajustes_posteriores}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-danger"></i> </a>`;
 
                     ajuste2 = `<a href='${base_url}archivos/sire/${file.ajustes_posteriores}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>`;
+                }
+
+                if (file.detalle_preliminar != "") {
+                    detalle_preliminar = `<a href='${base_url}archivos/sire/${file.detalle_preliminar}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-danger"></i> </a>`;
+
+                    detalle_preliminar2 = `<a href='${base_url}archivos/sire/${file.detalle_preliminar}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>`;
                 }
 
                 if (file.estado == 1) {
@@ -528,7 +542,7 @@ function details_archivos(id_sire, periodo, anio) {
                             <a href='${base_url}archivos/sire/${file.constancia_compras}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-danger"></i> </a>
                         </td>
                         <td>
-                            <a href='${base_url}archivos/sire/${file.detalle_preliminar}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-danger"></i> </a>
+                            ${detalle_preliminar}
                         </td>
                         <td>
                             ${ajuste}
@@ -545,7 +559,7 @@ function details_archivos(id_sire, periodo, anio) {
                             <a href='${base_url}archivos/sire/${file.constancia_compras}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>
                         </td>
                         <td>
-                            <a href='${base_url}archivos/sire/${file.detalle_preliminar}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>
+                            ${detalle_preliminar2s}
                         </td>
                         <td>
                             ${ajuste2}
