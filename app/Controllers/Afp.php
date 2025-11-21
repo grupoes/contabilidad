@@ -252,7 +252,7 @@ class Afp extends BaseController
             if ($file3->isValid()) {
                 $ext_plantilla = $file3->getExtension();
                 $archivo_plantilla = "AFP_PLANILLA_" . $ruc . "_" . $per . $ani . "_RECT_" . $codigo . "." . $ext_plantilla;
-                $file2->move(FCPATH . 'archivos/afp', $archivo_plantilla);
+                $file3->move(FCPATH . 'archivos/afp', $archivo_plantilla);
             } else {
                 $archivo_plantilla = $dataArchivo['archivo_plantilla'];
             }

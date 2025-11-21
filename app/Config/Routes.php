@@ -286,3 +286,12 @@ $routes->post('/rectificar-afp', 'Afp::rectificar');
 $routes->get('/afp/get-files-details/(:num)', 'Afp::getArchivos/$1');
 $routes->get('/afp/delete/(:num)/(:num)', 'Afp::delete/$1/$2');
 $routes->post('/consulta-afp-rango', 'Afp::consultaAfpRango');
+
+$routes->get('/sire', 'Sire::index');
+$routes->post('/sire', 'Sire::save');
+$routes->post('/consulta-sire', 'Sire::consulta');
+$routes->post('/rectificar-sire', 'Sire::rectificar');
+$routes->get('/sire/get-files-details/(:num)', 'Sire::getArchivos/$1');
+$routes->get('/sire/delete/(:num)/(:num)', 'Sire::delete/$1/$2');
+$routes->post('/consulta-sire-rango', 'Sire::consultaSireRango');
+$routes->get('/sire/files/(:num)', 'Sire::files/$1');
