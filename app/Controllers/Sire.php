@@ -344,19 +344,20 @@ class Sire extends BaseController
         }
     }
 
-    public function getArchivos($id_afp)
+    public function getArchivos($id_sire)
     {
-        $files = new ArchivosAfpModel();
+        $files = new ArchivosSireModel();
 
-        $data = $files->where('afp_id', $id_afp)->orderBy('id', 'desc')->findAll();
+        $data = $files->where('sire_id', $id_sire)->orderBy('id', 'desc')->findAll();
 
         return $this->response->setJSON($data);
     }
 
-    public function delete($id_afp, $id_archivo)
+    public function delete($id_sire, $id_archivo)
     {
-        $files = new ArchivosAfpModel();
-        $afp = new AfpModel();
+        $files = new ArchivosSireModel();
+        $sire = new SireModel();
+        $archivos = new ArchivoTextZipSireModel();
 
         try {
             $files->update($id_archivo, array(
@@ -365,11 +366,17 @@ class Sire extends BaseController
                 "deleted_at" => date('Y-m-d H:i:s')
             ));
 
-            $afp->update($id_afp, array(
+            $sire->update($id_sire, array(
                 "estado" => 0,
                 "user_delete" => session()->id,
                 "deleted_at" => date('Y-m-d H:i:s')
             ));
+
+            $archivos->where('sire_id', $id_sire)->set([
+                "estado" => 0,
+                "user_delete" => session()->id,
+                "deleted_at" => date('Y-m-d H:i:s')
+            ])->update();
 
             return $this->response->setJSON([
                 "status" => "success",
@@ -383,9 +390,9 @@ class Sire extends BaseController
         }
     }
 
-    public function consultaAfpRango()
+    public function consultaSireRango()
     {
-        $afp = new AfpModel();
+        $sire = new SireModel();
 
         $anio = $this->request->getVar('anio_consulta');
         $desde = $this->request->getVar('desde');
@@ -400,7 +407,7 @@ class Sire extends BaseController
             ]);
         }
 
-        $data = $afp->query("SELECT * from afp inner join mes ON mes.id_mes = afp.periodo inner join archivos_afp ON afp.id = archivos_afp.afp_id where afp.contribuyente_id = '$idcont' and afp.anio = $anio and archivos_afp.estado = 1 and afp.periodo BETWEEN '$desde' and '$hasta'")->getResult();
+        $data = $sire->query("SELECT * from sire inner join mes ON mes.id_mes = sire.periodo inner join archivos_sire ON sire.id = archivos_sire.sire_id where sire.contribuyente_id = '$idcont' and sire.anio = $anio and archivos_sire.estado = 1 and sire.periodo BETWEEN '$desde' and '$hasta'")->getResult();
 
         return $this->response->setJSON([
             "status" => "success",
