@@ -328,7 +328,7 @@
 
 <div class="modal fade bd-example-modal-sm" id="modalDetalle" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
     aria-labelledby="mySmallModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title h4" id="titleDetallePdt"></h5>
@@ -340,9 +340,10 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Archivo Reporte</th>
-                                <th>Archivo Ticket</th>
-                                <th>Archivo Plantilla</th>
+                                <th>Constancia de Ventas</th>
+                                <th>Constancia de Compras</th>
+                                <th>Detalle Preliminar</th>
+                                <th>Ajuste Posterior</th>
                             </tr>
                         </thead>
                         <tbody id="getFilesDetails">

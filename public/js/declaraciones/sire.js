@@ -62,9 +62,6 @@ function vistaContribuyentes(data) {
             }')"> <i class="ti ti-file-upload"></i> </button> 
                     <button type="button" class="btn btn-info" title="Descargar archivos" onclick="descargarArchivos(${cont.id
             })"> <i class="ti ti-file-download"></i> </button>
-            </button> 
-                    <button type="button" class="btn btn-primary" title="Descargar archivos" onclick="descargaMasiva(${cont.id
-            })"> <i class="ti ti-file-export"></i> </button>
                 </div>
             </td>
         </tr>
@@ -109,11 +106,13 @@ function modalArchivo(id, ruc) {
 
 function descargarArchivos(id) {
     $("#modalDescargarArchivo").modal("show");
+    const render = document.getElementById("archivos_sire");
 
     rucEmpresa.value = id;
 
     periodo_file.value = "";
     anio_file.value = "";
+    render.innerHTML = "";
 
     loadFiles.innerHTML = "";
 
@@ -494,7 +493,7 @@ formRectificacion.addEventListener("submit", (e) => {
 const getFilesDetails = document.getElementById("getFilesDetails");
 const titleDetallePdt = document.getElementById("titleDetallePdt");
 
-function details_archivos(id_afp, periodo, anio) {
+function details_archivos(id_sire, periodo, anio) {
     $("#modalDescargarArchivo").modal("hide");
     $("#modalDetalle").modal("show");
 
@@ -504,23 +503,35 @@ function details_archivos(id_afp, periodo, anio) {
 
     getFilesDetails.innerHTML = "";
 
-    fetch(base_url + "afp/get-files-details/" + id_afp)
+    fetch(base_url + "sire/get-files-details/" + id_sire)
         .then((res) => res.json())
         .then((data) => {
             let html = "";
 
             data.forEach((file) => {
+                let ajuste = "";
+                let ajuste2 = "";
+
+                if (file.ajustes_posteriores != "") {
+                    ajuste = `<a href='${base_url}archivos/sire/${file.ajustes_posteriores}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-danger"></i> </a>`;
+
+                    ajuste2 = `<a href='${base_url}archivos/sire/${file.ajustes_posteriores}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>`;
+                }
+
                 if (file.estado == 1) {
                     html += `
                     <tr class="text-center">
                         <td>
-                            <a href='${base_url}archivos/afp/${file.archivo_reporte}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-danger"></i> </a>
+                            <a href='${base_url}archivos/sire/${file.constancia_ventas}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-danger"></i> </a>
                         </td>
                         <td>
-                            <a href='${base_url}archivos/afp/${file.archivo_ticket}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-warning"></i> </a>
+                            <a href='${base_url}archivos/sire/${file.constancia_compras}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-danger"></i> </a>
                         </td>
                         <td>
-                            <a href='${base_url}archivos/afp/${file.archivo_plantilla}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-success"></i> </a>
+                            <a href='${base_url}archivos/sire/${file.detalle_preliminar}' target='_blank'> <i class="fas fa-file-pdf fs-4 text-danger"></i> </a>
+                        </td>
+                        <td>
+                            ${ajuste}
                         </td>
                     </tr>
                     `;
@@ -528,13 +539,16 @@ function details_archivos(id_afp, periodo, anio) {
                     html += `
                     <tr class="text-center">
                         <td>
-                            <a href='${base_url}archivos/afp/${file.archivo_reporte}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>
+                            <a href='${base_url}archivos/sire/${file.constancia_ventas}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>
                         </td>
                         <td>
-                            <a href='${base_url}archivos/afp/${file.archivo_ticket}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>
+                            <a href='${base_url}archivos/sire/${file.constancia_compras}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>
                         </td>
                         <td>
-                            <a href='${base_url}archivos/afp/${file.archivo_plantilla}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>
+                            <a href='${base_url}archivos/sire/${file.detalle_preliminar}' target='_blank'> <i class="fas fa-file-pdf fs-4"></i> </a>
+                        </td>
+                        <td>
+                            ${ajuste2}
                         </td>
                     </tr>
                     `;
@@ -561,7 +575,7 @@ modalDetalle.addEventListener("click", (e) => {
     }
 });
 
-function eliminar(afp_id, id) {
+function eliminar(sire_id, id) {
     $("#modalDescargarArchivo").modal("hide");
     Swal.fire({
         title: "¿Estás seguro?",
@@ -576,7 +590,7 @@ function eliminar(afp_id, id) {
     }).then((result) => {
         if (result.isConfirmed) {
             fetch(
-                base_url + "afp/delete/" + afp_id + "/" + id
+                base_url + "sire/delete/" + sire_id + "/" + id
             )
                 .then((res) => res.json())
                 .then((data) => {
@@ -621,8 +635,7 @@ function viewArchivosSire(e, sire_id) {
                     <td>${index + 1}</td>
                     <td> <a href="${base_url}archivos/sire/${file.name_file}" target="_blank"> ${file.name_file} </a> </td>
                     <td>
-                        <a href="#" style="font-size: 16px" title="RECTIFICAR" onclick="rectificarFile(event, ${file.id})"> <i class="fas fa-edit"> </i> </a>
-                        <a href='#' onclick="eliminar(event, ${file.id})" title='Eliminar'> <i class="fas fa-trash-alt text-danger" style="font-size: 16px"> </i> </a>
+                        <a href='#' onclick="eliminarArc(event, ${file.id})" title='Eliminar'> <i class="fas fa-trash-alt text-danger" style="font-size: 16px"> </i> </a>
                     </td>
                 </tr>
                 `;
@@ -639,4 +652,40 @@ function viewArchivosSire(e, sire_id) {
 
             archivos_sire.innerHTML = htmlTable;
         })
+}
+
+function eliminarArc(event, id) {
+    event.preventDefault();
+    $("#modalDescargarArchivo").modal("hide");
+    Swal.fire({
+        title: "¿Estás seguro?",
+        text: "Esta acción no se puede deshacer",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "No, cancelar!",
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(
+                base_url + "sire/delete-file/" + id
+            )
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.status === "success") {
+                        Swal.fire({
+                            position: "top-center",
+                            icon: "success",
+                            title: data.message,
+                            showConfirmButton: false,
+                            timer: 1500,
+                        });
+                    }
+                });
+        } else {
+            $("#modalDescargarArchivo").modal("show");
+        }
+    });
 }

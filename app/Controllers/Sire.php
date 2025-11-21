@@ -424,4 +424,20 @@ class Sire extends BaseController
 
         return $this->response->setJSON($data);
     }
+
+    public function deleteFile($id)
+    {
+        $files = new ArchivoTextZipSireModel();
+
+        $files->update($id, array(
+            "estado" => 0,
+            "user_delete" => session()->id,
+            "deleted_at" => date('Y-m-d H:i:s')
+        ));
+
+        return $this->response->setJSON([
+            "status" => "success",
+            "message" => "Se elimino correctamente"
+        ]);
+    }
 }
