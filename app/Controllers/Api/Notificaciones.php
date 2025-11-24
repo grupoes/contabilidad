@@ -665,7 +665,7 @@ class Notificaciones extends ResourceController
     {
         $pdtRenta = new PdtRentaModel();
 
-        $pdts = $pdtRenta->query("SELECT pr.id_pdt_renta, pr.ruc_empresa, pr.periodo, pr.anio, pr.total_compras, pr.total_ventas, ap.id_archivos_pdt, ap.nombre_pdt FROM pdt_renta pr INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.estado = 1 AND ap.estado = 1 AND pr.anio = 11 AND pr.total_ventas = 0 order by pr.periodo asc")->getResultArray();
+        $pdts = $pdtRenta->query("SELECT pr.id_pdt_renta, pr.ruc_empresa, pr.periodo, pr.anio, pr.total_compras, pr.total_ventas, ap.id_archivos_pdt, ap.nombre_pdt FROM pdt_renta pr INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.estado = 1 AND ap.estado = 1 AND pr.anio = 11 /*AND pr.total_ventas = 0*/ order by pr.periodo asc")->getResultArray();
 
         $array = [];
 
@@ -676,16 +676,19 @@ class Notificaciones extends ResourceController
                 $datos = $this->apiLoadPdtFile($rutaPdt);
 
                 if ($datos['status'] === 'success') {
-                    $compras = $datos['igv_compras'];
-                    $ventas = $datos['igv_ventas'];
+                    //$compras = $datos['igv_compras'];
+                    //$ventas = $datos['igv_ventas'];
 
-                    $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
+                    //$totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
 
-                    $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
+                    //$totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
 
                     $data_update = array(
-                        "total_ventas" => $totalVentas,
-                        "total_compras" => $totalCompras
+                        "compras_gravadas" => $datos['compra_gravada'],
+                        "compras_no_gravadas" => $datos['compra_no_gravada'],
+                        "ventas_gravadas" => $datos['venta_gravada'],
+                        "ventas_no_gravadas" => $datos['venta_no_gravada'],
+                        "renta_pdt" => $datos['renta_pdt']
                     );
 
                     $pdtRenta->update($value['id_pdt_renta'], $data_update);

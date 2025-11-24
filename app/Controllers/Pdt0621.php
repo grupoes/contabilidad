@@ -183,7 +183,12 @@ class Pdt0621 extends BaseController
 
                     $data_update = array(
                         "total_ventas" => $totalVentas,
-                        "total_compras" => $totalCompras
+                        "total_compras" => $totalCompras,
+                        "compras_gravadas" => $datos['compra_gravada'],
+                        "compras_no_gravadas" => $datos['compra_no_gravada'],
+                        "ventas_gravadas" => $datos['venta_gravada'],
+                        "ventas_no_gravadas" => $datos['venta_no_gravada'],
+                        "renta_pdt" => $datos['renta_pdt']
                     );
 
                     $pdtRenta->update($pdtRentaId, $data_update);
@@ -440,7 +445,12 @@ class Pdt0621 extends BaseController
 
                         $data_update = array(
                             "total_ventas" => $totalVentas,
-                            "total_compras" => $totalCompras
+                            "total_compras" => $totalCompras,
+                            "compras_gravadas" => $datos['compra_gravada'],
+                            "compras_no_gravadas" => $datos['compra_no_gravada'],
+                            "ventas_gravadas" => $datos['venta_gravada'],
+                            "ventas_no_gravadas" => $datos['venta_no_gravada'],
+                            "renta_pdt" => $datos['renta_pdt']
                         );
 
                         $pdtRenta->update($dataArchivo['id_pdt_renta'], $data_update);
@@ -675,5 +685,21 @@ class Pdt0621 extends BaseController
                 "message" => "Ocurrio un error " . $e->getMessage()
             ]);
         }
+    }
+
+    public function mypes()
+    {
+        if (!session()->logged_in) {
+            return redirect()->to(base_url());
+        }
+
+        $anio = new AnioModel();
+        $mes = new MesModel();
+
+        $anios = $anio->query("SELECT * FROM anio WHERE anio_estado = 1 AND anio_descripcion BETWEEN '2025' AND YEAR(CURDATE()) ORDER BY anio_descripcion DESC")->getResult();
+
+        $menu = $this->permisos_menu();
+
+        return view('declaraciones/pdt_renta_mypes', compact('anios', 'menu'));
     }
 }

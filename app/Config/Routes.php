@@ -296,3 +296,5 @@ $routes->get('/sire/delete/(:num)/(:num)', 'Sire::delete/$1/$2');
 $routes->post('/consulta-sire-rango', 'Sire::consultaSireRango');
 $routes->get('/sire/files/(:num)', 'Sire::files/$1');
 $routes->get('/sire/delete-file/(:num)', 'Sire::deleteFile/$1');
+
+$routes->get('/customer-mypes', 'Pdt0621::mypes');
