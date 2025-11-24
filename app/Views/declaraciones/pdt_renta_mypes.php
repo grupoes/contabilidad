@@ -140,7 +140,7 @@
 
 <div id="modalPeriodos" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="myLargeModalLabel" data-bs-backdrop="static" aria-hidden="true">
-    <div class="modal-dialog modal-lg" id="tamModal">
+    <div class="modal-dialog modal-xl" id="tamModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title h4" id="titleContribuyente"></h5>
@@ -155,7 +155,11 @@
                                 <thead>
                                     <tr>
                                         <th>Periodo</th>
+                                        <th>V. Gravadas</th>
+                                        <th>V. No Gravadas</th>
                                         <th>Total Ventas</th>
+                                        <th>C. Gravadas</th>
+                                        <th>C. No Gravadas</th>
                                         <th>Total Compras</th>
                                         <th>Archivo</th>
                                     </tr>

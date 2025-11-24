@@ -27,7 +27,7 @@ function obtenerDatos() {
     formData.append("filter", filterTotales.value);
     formData.append("estado", estado.value);
 
-    fetch(`${base_url}declaraciones/obtenerDatosPdtRentaTransacciones`, {
+    fetch(`${base_url}customer-mypes-list`, {
         method: "POST",
         body: formData,
     })
@@ -41,11 +41,6 @@ function viewEmpresas(data) {
     let html = "";
 
     data.forEach((item) => {
-        let style = "";
-
-        if (item.total_compras >= 300000 || item.total_ventas >= 300000) {
-            style = 'style="border: 1px solid red; border-radius: 10px;"';
-        }
 
         let campanita = "";
 
@@ -56,7 +51,7 @@ function viewEmpresas(data) {
         html += `
     <div class="col-md-4 col-xxl-3">
         <div class="card shadow-none border mb-0">
-            <div class="card-body p-3" ${style}>
+            <div class="card-body p-3">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <h5 class="mb-0">${item.razon_social}</h5>
                     <button type="button" class="btn btn-light btn-sm" title="Ver periodos" onclick="loadPeriodos('${item.ruc}')"><i class="ti ti-eye f-18"></i></button>
@@ -135,7 +130,7 @@ function loadPeriodos(ruc) {
 }
 
 function loadTablePeriodos(ruc, anio) {
-    fetch(`${base_url}declaraciones/periodosPdtRenta/${ruc}/${anio}`)
+    fetch(`${base_url}customer-mypes-periodos/${ruc}/${anio}`)
         .then((response) => response.json())
         .then((data) => {
             title.innerHTML = `Periodos ${data[0].anio_descripcion} - ${data[0].razon_social}`;
@@ -162,7 +157,11 @@ function viewPeriodos(data) {
         html += `
     <tr>
         <td>${item.mes_descripcion}</td>
+        <td>${item.ventas_gravadas_decimal}</td>
+        <td>${item.ventas_no_gravadas_decimal}</td>
         <td>${item.total_ventas_decimal}</td>
+        <td>${item.compras_gravadas_decimal}</td>
+        <td>${item.compras_no_gravadas_decimal}</td>
         <td>${item.total_compras_decimal}</td>
         <td>
             <a href="${base_url}archivos/pdt/${item.nombre_pdt}" class="btn btn-danger btn-sm viewPdf" title="Ver">
@@ -177,15 +176,21 @@ function viewPeriodos(data) {
     html += `
     <tr>
         <td></td>
+        <td></td>
+        <td></td>
         <td> <strong>${total_ventas.toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     })}</strong></td>
+        <td></td>
+        <td></td>
         <td> <strong>${total_compras.toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     })}</strong></>
-        <td></td>
+        <td>
+            <button class="btn btn-success btn-sm btn-edit" data-id=""> <i class="fas fa-file-excel"></i> Excel </button>
+        </td>
     </tr>
     `;
 

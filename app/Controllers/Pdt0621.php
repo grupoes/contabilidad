@@ -629,6 +629,15 @@ class Pdt0621 extends BaseController
         return $this->response->setJSON($data);
     }
 
+    public function listaPeriodosMypes($ruc, $anio)
+    {
+        $pdt = new PdtRentaModel();
+
+        $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, FORMAT(pr.total_compras, 2, 'es_PE') as total_compras_decimal, FORMAT(pr.total_ventas, 2, 'es_PE') as total_ventas_decimal, FORMAT(pr.compras_gravadas, 2, 'es_PE') as compras_gravadas_decimal, FORMAT(pr.compras_no_gravadas, 2, 'es_PE') as compras_no_gravadas_decimal, FORMAT(pr.ventas_gravadas, 2, 'es_PE') as ventas_gravadas_decimal, FORMAT(pr.ventas_no_gravadas, 2, 'es_PE') as ventas_no_gravadas_decimal, pr.total_compras, pr.total_ventas, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
+
+        return $this->response->setJSON($data);
+    }
+
     public function updateMontos()
     {
         $pdt = new PdtRentaModel();
@@ -701,5 +710,70 @@ class Pdt0621 extends BaseController
         $menu = $this->permisos_menu();
 
         return view('declaraciones/pdt_renta_mypes', compact('anios', 'menu'));
+    }
+
+    public function listEmpresasMypes()
+    {
+        $contri = new ContribuyenteModel();
+        $data = $this->request->getPost();
+
+        $anio = $data['anio'];
+        $search = $data['search'];
+        $filter = $data['filter'];
+        $estado = $data['estado'];
+
+        switch ($filter) {
+            case 1:
+                $order = "ORDER BY (SUM(pr.total_compras) + SUM(pr.total_ventas)) DESC";
+                break;
+            case 2:
+                $order = "ORDER BY (SUM(pr.total_compras) + SUM(pr.total_ventas)) ASC";
+                break;
+            case 3:
+                $order = "ORDER BY SUM(pr.total_compras) DESC";
+                break;
+            case 4:
+                $order = "ORDER BY SUM(pr.total_compras) ASC";
+                break;
+            case 5:
+                $order = "ORDER BY SUM(pr.total_ventas) DESC";
+                break;
+            case 6:
+                $order = "ORDER BY SUM(pr.total_ventas) ASC";
+                break;
+            default:
+                $order = "";
+                break;
+        }
+
+        $data = $contri->query("SELECT 
+        c.ruc,
+        c.razon_social,
+        -- Contar solo los que tienen 0.00 y excluido = 'NO'
+        SUM(CASE WHEN pr.total_compras = 0.00 AND pr.excluido = 'NO' THEN 1 ELSE 0 END) AS compras_en_cero,
+        SUM(CASE WHEN pr.total_ventas = 0.00 AND pr.excluido = 'NO' THEN 1 ELSE 0 END) AS ventas_en_cero,
+        -- Totales generales (sin importar excluido)
+        FORMAT(IFNULL(SUM(pr.total_compras), 0), 2) AS total_compras_decimal,
+        FORMAT(IFNULL(SUM(pr.total_ventas), 0), 2) AS total_ventas_decimal,
+        IFNULL(SUM(pr.total_compras), 0) AS total_compras,
+        IFNULL(SUM(pr.total_ventas), 0) AS total_ventas
+        FROM contribuyentes c
+        INNER JOIN configuracion_notificacion cn 
+        ON cn.ruc_empresa_numero = c.ruc
+        LEFT JOIN pdt_renta pr 
+        ON pr.ruc_empresa = c.ruc 
+        AND pr.anio = $anio
+        AND pr.estado = 1
+
+        WHERE 
+        (cn.id_tributo = 1 or cn.id_tributo = 3 or cn.id_tributo = 4)
+        AND c.estado = $estado 
+        AND (c.razon_social LIKE '%$search%' OR c.ruc like '%$search%')
+
+        GROUP BY 
+        c.ruc, c.razon_social
+        $order;")->getResultArray();
+
+        return $this->response->setJSON($data);
     }
 }
