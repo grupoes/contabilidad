@@ -10,10 +10,10 @@ use App\Models\ContribuyenteModel;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class Pdt0621 extends BaseController
 {
@@ -806,11 +806,11 @@ class Pdt0621 extends BaseController
 
         // Configurar contenido
         $sheet->setCellValue('A2', 'Empresa');
-        $sheet->setCellValue('B2', 'IMPORTACIONES RODSON MUSIC SAC');
+        $sheet->setCellValue('B2', $data[0]['razon_social']);
         $sheet->getStyle('B2')->getFont()->setBold(true);
         $sheet->getStyle('B2')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
         $sheet->setCellValue('A3', 'RUC');
-        $sheet->setCellValue('B3', '20445761550');
+        $sheet->setCellValue('B3', $ruc);
         $sheet->getStyle('B3')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
         $sheet->getStyle('B3')->getFont()->setBold(true);
         $sheet->setCellValue('A4', 'Regimen');
@@ -819,62 +819,104 @@ class Pdt0621 extends BaseController
         $sheet->getStyle('B4')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
 
         $sheet->setCellValue('B6', 'PERIODO');
+        $sheet->getStyle('B6')->getFont()->setBold(true);
         $sheet->mergeCells('B6:B8');
         $sheet->getStyle('B6')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER)->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         // SEGÚN PDT
         $sheet->setCellValue('C6', 'SEGÚN PDT');
+        $sheet->getStyle('C6')->getFont()->setBold(true);
         $sheet->mergeCells('C6:F6');
         $sheet->getStyle('C6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         // SEGÚN SIGA
         $sheet->setCellValue('G6', 'SEGÚN SIGA');
+        $sheet->getStyle('G6')->getFont()->setBold(true);
         $sheet->mergeCells('G6:J6');
         $sheet->getStyle('G6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         //RENTA SEGUN PDT
         $sheet->setCellValue('K6', 'RENTA SEGÚN PDT');
+        $sheet->getStyle('K6')->getFont()->setBold(true);
         $sheet->mergeCells('K6:K8');
         $sheet->getStyle('K6')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER)->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getColumnDimension('K')->setAutoSize(true);
 
         //RENTA PAGADA SEGUN SIGA
         $sheet->setCellValue('L6', 'RENTA PAGADA SEGÚN SIGA');
+        $sheet->getStyle('L6')->getFont()->setBold(true);
         $sheet->mergeCells('L6:L8');
         $sheet->getStyle('L6')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER)->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getColumnDimension('L')->setAutoSize(true);
 
         //ventas
         $sheet->setCellValue('C7', 'VENTAS');
+        $sheet->getStyle('C7')->getFont()->setBold(true);
         $sheet->mergeCells('C7:D7');
         $sheet->getStyle('C7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
+        $sheet->setCellValue('G7', 'VENTAS');
+        $sheet->getStyle('G7')->getFont()->setBold(true);
+        $sheet->mergeCells('G7:H7');
+        $sheet->getStyle('G7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
         //compras
         $sheet->setCellValue('E7', 'COMPRAS');
+        $sheet->getStyle('E7')->getFont()->setBold(true);
         $sheet->mergeCells('E7:F7');
         $sheet->getStyle('E7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
+        $sheet->setCellValue('I7', 'COMPRAS');
+        $sheet->getStyle('I7')->getFont()->setBold(true);
+        $sheet->mergeCells('I7:J7');
+        $sheet->getStyle('I7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
         // Subencabezados PDT
         $sheet->setCellValue('C8', 'Gravadas');
+        $sheet->getStyle('C8')->getFont()->setBold(true);
         $sheet->setCellValue('D8', 'Exoneradas');
+        $sheet->getStyle('D8')->getFont()->setBold(true);
         $sheet->setCellValue('E8', 'Base Imp.');
+        $sheet->getStyle('E8')->getFont()->setBold(true);
         $sheet->setCellValue('F8', 'Inafectos');
+        $sheet->getStyle('F8')->getFont()->setBold(true);
         $sheet->setCellValue('G8', 'Gravadas');
+        $sheet->getStyle('G8')->getFont()->setBold(true);
         $sheet->setCellValue('H8', 'Exoneradas');
+        $sheet->getStyle('H8')->getFont()->setBold(true);
         $sheet->setCellValue('I8', 'Base Imp.');
+        $sheet->getStyle('I8')->getFont()->setBold(true);
         $sheet->setCellValue('J8', 'Inafectos');
+        $sheet->getStyle('J8')->getFont()->setBold(true);
 
         foreach ($data as $key => $value) {
-            $sheet->setCellValue('B' . ($key + 9), 'Ene');
+            $mes = substr($value['mes_descripcion'], 0, 3);
+            $periodo = $mes . "-" . $value['anio_descripcion'];
+
+            $sheet->setCellValue('B' . ($key + 9), $periodo);
             $sheet->setCellValue('C' . ($key + 9), $value['ventas_gravadas_decimal']);
             $sheet->setCellValue('D' . ($key + 9), $value['ventas_no_gravadas_decimal']);
             $sheet->setCellValue('E' . ($key + 9), $value['compras_gravadas_decimal']);
             $sheet->setCellValue('F' . ($key + 9), $value['compras_no_gravadas_decimal']);
+            $sheet->setCellValue('K' . ($key + 9), $value['renta_pdt']);
         }
+
+        $sheet->getStyle('B6:L' . ($key + 9))->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000']
+                ]
+            ]
+        ]);
+
+        $sheet->getStyle('C6:F' . ($key + 9))->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FFE699');
+
+        $sheet->getStyle('G6:J' . ($key + 9))->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('7EB445');
 
 
         $writer = new Xlsx($spreadsheet);
-        $filename = 'maqueta_venta_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $filename = $ruc . "_" . $data[0]['anio_descripcion'] . '.xlsx';
         $filePath = WRITEPATH . 'temp/' . $filename;
 
         // Crear directorio si no existe
