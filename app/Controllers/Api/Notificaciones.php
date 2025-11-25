@@ -683,7 +683,7 @@ class Notificaciones extends ResourceController
 
                     //$totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
 
-                    $descuentos = $ventas['100'] + $ventas['162'];
+                    $descuentos = $ventas['102'] + $ventas['162'];
 
                     if ($ventas['100'] >= $descuentos) {
                         $venta_gravada = $ventas['100'] - $descuentos;
