@@ -665,7 +665,7 @@ class Notificaciones extends ResourceController
     {
         $pdtRenta = new PdtRentaModel();
 
-        $pdts = $pdtRenta->query("SELECT pr.id_pdt_renta, pr.ruc_empresa, pr.periodo, pr.anio, pr.total_compras, pr.total_ventas, ap.id_archivos_pdt, ap.nombre_pdt FROM pdt_renta pr INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.estado = 1 AND ap.estado = 1 AND pr.anio = 11 and pr.periodo between 1 and 3 /*AND pr.total_ventas = 0*/ order by pr.periodo asc")->getResultArray();
+        $pdts = $pdtRenta->query("SELECT pr.id_pdt_renta, pr.ruc_empresa, pr.periodo, pr.anio, pr.total_compras, pr.total_ventas, ap.id_archivos_pdt, ap.nombre_pdt FROM pdt_renta pr INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.estado = 1 AND ap.estado = 1 AND pr.anio = 11 and pr.periodo between 2 and 2 /*AND pr.total_ventas = 0*/ order by pr.periodo asc")->getResultArray();
 
         $array = [];
 
@@ -685,7 +685,10 @@ class Notificaciones extends ResourceController
 
                     $descuentos = $ventas['102'] + $ventas['162'];
 
-                    if ($ventas['100'] >= $descuentos) {
+                    $venta_gravada = $ventas['100'] - $descuentos;
+                    $venta_no_gravada = $totalVentas - $venta_gravada + $descuentos;
+
+                    /*if ($ventas['100'] >= $descuentos) {
                         $venta_gravada = $ventas['100'] - $descuentos;
                         $venta_no_gravada = $totalVentas - $venta_gravada + $descuentos;
                         $mayor = "si";
@@ -693,7 +696,7 @@ class Notificaciones extends ResourceController
                         $venta_gravada = $ventas['100'];
                         $venta_no_gravada = $totalVentas - $venta_gravada;
                         $mayor = "no";
-                    }
+                    }*/
 
                     $data_update = array(
                         "compras_gravadas" => $datos['compra_gravada'],
@@ -712,7 +715,6 @@ class Notificaciones extends ResourceController
                         'anio' => $value['anio'],
                         "ventas_gravadas" => $venta_gravada,
                         "ventas_no_gravadas" => $venta_no_gravada,
-                        "mayor" => $mayor,
                         "descuentos" => $descuentos
                     ];
                 } else {
