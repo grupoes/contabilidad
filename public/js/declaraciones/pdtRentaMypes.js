@@ -44,7 +44,7 @@ function viewEmpresas(data) {
 
         let campanita = "";
 
-        if (item.compras_en_cero > 0 || item.ventas_en_cero > 0) {
+        if (item.tiene_estado_cero == 1) {
             campanita = `<i class="material-icons-two-tone text-danger fs-2 bell-shake"> notifications</i>`;
         }
 
@@ -203,20 +203,35 @@ listaPeriodos.addEventListener("click", (e) => {
 
     if (editBtn) {
         const row = e.target.closest("tr");
-        const comprasCell = row.children[1];
-        const ventasCell = row.children[2];
+        const ventasGravadasCell = row.children[1];
+        const ventasNoGravadasCell = row.children[2];
+        const totalVentasCell = row.children[3];
+        const comprasGravadasCell = row.children[4];
+        const comprasNoGravadasCell = row.children[5];
+        const totalComprasCell = row.children[6];
+
         const isEditing = row.classList.toggle("editing");
 
         const id = editBtn.getAttribute("data-id");
 
         if (isEditing) {
             // Guardamos valores actuales
-            const comprasValue = comprasCell.textContent.trim().replace(/,/g, "");
-            const ventasValue = ventasCell.textContent.trim().replace(/,/g, "");
+            const ventasGravadasValue = ventasGravadasCell.textContent.trim().replace(/,/g, "");
+            const ventasNoGravadasValue = ventasNoGravadasCell.textContent.trim().replace(/,/g, "");
+            const totalVentasValue = totalVentasCell.textContent.trim().replace(/,/g, "");
+            const ComprasGravadasValue = comprasGravadasCell.textContent.trim().replace(/,/g, "");
+            const comprasNoGravadasValue = comprasNoGravadasCell.textContent.trim().replace(/,/g, "");
+            const totalComprasValue = totalComprasCell.textContent.trim().replace(/,/g, "");
 
-            // Reemplazamos por inputs
-            comprasCell.innerHTML = `<input type="number" class="form-control form-control-sm" id="total-ventas-${id}" value="${comprasValue}">`;
-            ventasCell.innerHTML = `<input type="number" class="form-control form-control-sm" id="total-compras-${id}" value="${ventasValue}">`;
+            // Reemplazamos por inputstotal_compras_decimal 
+            ventasGravadasCell.innerHTML = `<input type="number" class="form-control form-control-sm" id="ventasGravadas-${id}" value="${ventasGravadasValue}">`;
+            ventasNoGravadasCell.innerHTML = `<input type="number" class="form-control form-control-sm" id="ventasNoGravadas-${id}" value="${ventasNoGravadasValue}">`;
+
+            totalVentasCell.innerHTML = `<input type="number" class="form-control form-control-sm" id="ventastotal-${id}" value="${totalVentasValue}">`;
+            comprasGravadasCell.innerHTML = `<input type="number" class="form-control form-control-sm" id="comprasGravadas-${id}" value="${ComprasGravadasValue}">`;
+
+            comprasNoGravadasCell.innerHTML = `<input type="number" class="form-control form-control-sm" id="comprasNoGravadas-${id}" value="${comprasNoGravadasValue}">`;
+            totalComprasCell.innerHTML = `<input type="number" class="form-control form-control-sm" id="totalCompras-${id}" value="${totalComprasValue}">`;
 
             // Cambiamos el botón
             editBtn.innerHTML = '<i class="ti ti-check"></i>';
@@ -253,16 +268,36 @@ listaPeriodos.addEventListener("click", (e) => {
     const cancelBtn = e.target.closest(".btn-cancel");
     if (cancelBtn) {
         const row = cancelBtn.closest("tr");
-        const comprasCell = row.children[1];
-        const ventasCell = row.children[2];
+        const ventasGravadasCell = row.children[1];
+        const ventasNoGravadasCell = row.children[2];
+        const ventasCell = row.children[3];
+        const comprasGravadasCell = row.children[4];
+        const comprasNoGravadasCell = row.children[5];
+        const comprasCell = row.children[6];
 
-        const oldCompras = comprasCell.querySelector("input").defaultValue;
-        const oldVentas = ventasCell.querySelector("input").defaultValue;
+        const ventasGravadas = ventasGravadasCell.querySelector("input").defaultValue;
+        const ventasNoGravadas = ventasNoGravadasCell.querySelector("input").defaultValue;
+        const ventas = ventasCell.querySelector("input").defaultValue;
+        const comprasGravadas = comprasGravadasCell.querySelector("input").defaultValue;
+        const comprasNoGravadas = comprasNoGravadasCell.querySelector("input").defaultValue;
+        const compras = comprasCell.querySelector("input").defaultValue;
 
-        comprasCell.textContent = parseFloat(oldCompras).toLocaleString("es-PE", {
+        ventasGravadasCell.textContent = parseFloat(ventasGravadas).toLocaleString("es-PE", {
             minimumFractionDigits: 2,
         });
-        ventasCell.textContent = parseFloat(oldVentas).toLocaleString("es-PE", {
+        ventasNoGravadasCell.textContent = parseFloat(ventasNoGravadas).toLocaleString("es-PE", {
+            minimumFractionDigits: 2,
+        });
+        ventasCell.textContent = parseFloat(ventas).toLocaleString("es-PE", {
+            minimumFractionDigits: 2,
+        });
+        comprasGravadasCell.textContent = parseFloat(comprasGravadas).toLocaleString("es-PE", {
+            minimumFractionDigits: 2,
+        });
+        comprasNoGravadasCell.textContent = parseFloat(comprasNoGravadas).toLocaleString("es-PE", {
+            minimumFractionDigits: 2,
+        });
+        comprasCell.textContent = parseFloat(compras).toLocaleString("es-PE", {
             minimumFractionDigits: 2,
         });
 
@@ -283,15 +318,25 @@ listaPeriodos.addEventListener("click", (e) => {
     if (btnSave) {
         const idp = btnSave.getAttribute("data-id");
 
-        const compras = document.getElementById(`total-compras-${idp}`).value;
-        const ventas = document.getElementById(`total-ventas-${idp}`).value;
+        const compras = document.getElementById(`totalCompras-${idp}`).value;
+        const ventas = document.getElementById(`ventastotal-${idp}`).value;
+
+        const ventasGravadas = document.getElementById(`ventasGravadas-${idp}`).value;
+        const ventasNoGravadas = document.getElementById(`ventasNoGravadas-${idp}`).value;
+
+        const comprasGravadas = document.getElementById(`comprasGravadas-${idp}`).value;
+        const comprasNoGravadas = document.getElementById(`comprasNoGravadas-${idp}`).value;
 
         const formData = new FormData();
         formData.append("idPdt", idp);
         formData.append("monto_compra", compras);
         formData.append("monto_venta", ventas);
+        formData.append("ventas_gravadas", ventasGravadas);
+        formData.append("ventas_no_gravadas", ventasNoGravadas);
+        formData.append("compras_gravadas", comprasGravadas);
+        formData.append("compras_no_gravadas", comprasNoGravadas);
 
-        fetch(`${base_url}pdt-0621/save-montos`, {
+        fetch(`${base_url}pdt-0621/save-montos-mypes`, {
             method: "POST",
             body: formData,
         })
@@ -299,6 +344,7 @@ listaPeriodos.addEventListener("click", (e) => {
             .then((data) => {
                 if (data.status == "success") {
                     loadTablePeriodos(rucEmpresa.value, anios.value);
+                    obtenerDatos();
                     return false;
                 }
 

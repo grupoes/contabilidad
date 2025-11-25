@@ -191,6 +191,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.responsive.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 
-<script src="<?= base_url() ?>js/declaraciones/pdtRentaMypes.js?v=1"></script>
+<script src="<?= base_url() ?>js/declaraciones/pdtRentaMypes.js?v=2"></script>
 
 <?= $this->endSection() ?>

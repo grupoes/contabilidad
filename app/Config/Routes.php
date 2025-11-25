@@ -303,3 +303,4 @@ $routes->get('/customer-mypes-periodos/(:num)/(:num)', 'Pdt0621::listaPeriodosMy
 $routes->get('/download-excel-mypes/(:num)/(:num)', 'Pdt0621::downloadExcelMypes/$1/$2');
 $routes->get('excel/download-mypes/(:any)', 'Pdt0621::download/$1');
 $routes->get('/update-estado-datos', 'Api\Notificaciones::actualizarMontosVentasComprasEstado');
+$routes->post('pdt-0621/save-montos-mypes', 'Pdt0621::updateMontosMypes');

@@ -702,6 +702,46 @@ class Pdt0621 extends BaseController
         }
     }
 
+    public function updateMontosMypes()
+    {
+        $pdt = new PdtRentaModel();
+
+        try {
+            $data = $this->request->getPost();
+
+            $id = $data['idPdt'];
+            $total_ventas = $data['monto_venta'];
+            $total_compras = $data['monto_compra'];
+
+            $ventas_gravadas = $data['ventas_gravadas'];
+            $ventas_no_gravadas = $data['ventas_no_gravadas'];
+            $compras_gravadas = $data['compras_gravadas'];
+            $compras_no_gravadas = $data['compras_no_gravadas'];
+
+            $data_update = array(
+                "total_ventas" => $total_ventas,
+                "total_compras" => $total_compras,
+                "ventas_gravadas" => $ventas_gravadas,
+                "ventas_no_gravadas" => $ventas_no_gravadas,
+                "compras_gravadas" => $compras_gravadas,
+                "compras_no_gravadas" => $compras_no_gravadas,
+                "estado_datos" => 1
+            );
+
+            $pdt->update($id, $data_update);
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Se actualizo correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => "Ocurrio un error " . $e->getMessage()
+            ]);
+        }
+    }
+
     public function delete($id_pdt_renta, $id_archivos_pdt)
     {
         $files = new ArchivosPdt0621Model();
@@ -786,6 +826,7 @@ class Pdt0621 extends BaseController
         -- Contar solo los que tienen 0.00 y excluido = 'NO'
         SUM(CASE WHEN pr.total_compras = 0.00 AND pr.excluido = 'NO' THEN 1 ELSE 0 END) AS compras_en_cero,
         SUM(CASE WHEN pr.total_ventas = 0.00 AND pr.excluido = 'NO' THEN 1 ELSE 0 END) AS ventas_en_cero,
+        MAX(CASE WHEN pr.estado_datos = 0 AND pr.excluido = 'NO' THEN 1 ELSE 0 END) AS tiene_estado_cero,
         -- Totales generales (sin importar excluido)
         FORMAT(IFNULL(SUM(pr.total_compras), 0), 2) AS total_compras_decimal,
         FORMAT(IFNULL(SUM(pr.total_ventas), 0), 2) AS total_ventas_decimal,
