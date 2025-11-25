@@ -210,6 +210,9 @@ class Pdt0621 extends BaseController
 
                     $pdtRenta->update($pdtRentaId, $data_update);
                 }
+            } else {
+                $data_update = array('estado_datos' => 0);
+                $pdtRenta->update($pdtRentaId, $data_update);
             }
 
             $rutaLink = 'archivos/pdt/' . $archivo_pdt;
@@ -484,6 +487,8 @@ class Pdt0621 extends BaseController
                     }
                 } else {
                     $m = "";
+                    $data_update = array('estado_datos' => 0);
+                    $pdtRenta->update($dataArchivo['id_pdt_renta'], $data_update);
                 }
             } else {
                 $archivo_pdt = $dataArchivo['nombre_pdt'];

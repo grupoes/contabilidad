@@ -1171,6 +1171,32 @@ class Notificaciones extends ResourceController
         }
     }
 
+    public function actualizarMontosVentasComprasEstado()
+    {
+        $pdt = new PdtRentaModel();
+
+        $datos = $pdt->where('anio', 11)->where('estado', 1)->findAll();
+
+        $data = [];
+
+        foreach ($datos as $key => $value) {
+            if ($value['total_compras'] == 0.00 || $value['total_ventas'] == 0.00) {
+                $update = array('estado_datos' => 0);
+                $pdt->update($value['id_pdt_renta'], $update);
+
+                $add = array(
+                    "ruc" => $value['ruc_empresa'],
+                    "total_ventas" => $value['total_ventas'],
+                    "total_compras" => $value['total_compras']
+                );
+
+                array_push($data, $add);
+            }
+        }
+
+        return $this->respond($data);
+    }
+
     /**
      * Return the properties of a resource object.
      *
