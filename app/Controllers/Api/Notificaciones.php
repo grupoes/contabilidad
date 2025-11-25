@@ -688,9 +688,11 @@ class Notificaciones extends ResourceController
                     if ($ventas['100'] >= $descuentos) {
                         $venta_gravada = $ventas['100'] - $descuentos;
                         $venta_no_gravada = $totalVentas - $venta_gravada + $descuentos;
+                        $mayor = "si";
                     } else {
                         $venta_gravada = $ventas['100'];
                         $venta_no_gravada = $totalVentas - $venta_gravada;
+                        $mayor = "no";
                     }
 
                     $data_update = array(
@@ -709,7 +711,9 @@ class Notificaciones extends ResourceController
                         'periodo' => $value['periodo'],
                         'anio' => $value['anio'],
                         "ventas_gravadas" => $venta_gravada,
-                        "ventas_no_gravadas" => $venta_no_gravada
+                        "ventas_no_gravadas" => $venta_no_gravada,
+                        "mayor" => $mayor,
+                        "descuentos" => $descuentos
                     ];
                 } else {
                     $array[] = [
