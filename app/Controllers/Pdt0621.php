@@ -627,6 +627,7 @@ class Pdt0621 extends BaseController
         -- Contar solo los que tienen 0.00 y excluido = 'NO'
         SUM(CASE WHEN pr.total_compras = 0.00 AND pr.excluido = 'NO' THEN 1 ELSE 0 END) AS compras_en_cero,
         SUM(CASE WHEN pr.total_ventas = 0.00 AND pr.excluido = 'NO' THEN 1 ELSE 0 END) AS ventas_en_cero,
+        MAX(CASE WHEN pr.estado_datos = 0 AND pr.excluido = 'NO' THEN 1 ELSE 0 END) AS tiene_estado_cero,
         -- Totales generales (sin importar excluido)
         FORMAT(IFNULL(SUM(pr.total_compras), 0), 2) AS total_compras_decimal,
         FORMAT(IFNULL(SUM(pr.total_ventas), 0), 2) AS total_ventas_decimal,
@@ -656,7 +657,7 @@ class Pdt0621 extends BaseController
     {
         $pdt = new PdtRentaModel();
 
-        $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, FORMAT(pr.total_compras, 2, 'es_PE') as total_compras_decimal, FORMAT(pr.total_ventas, 2, 'es_PE') as total_ventas_decimal, pr.total_compras, pr.total_ventas, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
+        $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, FORMAT(pr.total_compras, 2, 'es_PE') as total_compras_decimal, FORMAT(pr.total_ventas, 2, 'es_PE') as total_ventas_decimal, pr.total_compras, pr.total_ventas, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt, pr.estado_datos FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
 
         return $this->response->setJSON($data);
     }
@@ -683,7 +684,8 @@ class Pdt0621 extends BaseController
 
             $data_update = array(
                 "total_ventas" => $total_ventas,
-                "total_compras" => $total_compras
+                "total_compras" => $total_compras,
+                "estado_datos" => 1
             );
 
             $pdt->update($id, $data_update);

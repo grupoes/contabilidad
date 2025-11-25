@@ -49,7 +49,7 @@ function viewEmpresas(data) {
 
     let campanita = "";
 
-    if (item.compras_en_cero > 0 || item.ventas_en_cero > 0) {
+    if (item.tiene_estado_cero == 1) {
       campanita = `<i class="material-icons-two-tone text-danger fs-2 bell-shake"> notifications</i>`;
     }
 
@@ -155,7 +155,7 @@ function viewPeriodos(data) {
 
     let boton_edit = "";
 
-    if (item.total_compras == 0 || item.total_ventas == 0) {
+    if (item.estado_datos == 0) {
       boton_edit = `<button class="btn btn-primary btn-sm btn-edit" data-id="${item.id_pdt_renta}"> <i class="ti ti-pencil"></i> </button>`;
     }
 
@@ -178,13 +178,13 @@ function viewPeriodos(data) {
     <tr>
         <td></td>
         <td> <strong>${total_ventas.toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}</strong></td>
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}</strong></td>
         <td> <strong>${total_compras.toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}</strong></>
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}</strong></>
         <td></td>
     </tr>
     `;
@@ -294,6 +294,7 @@ listaPeriodos.addEventListener("click", (e) => {
       .then((data) => {
         if (data.status == "success") {
           loadTablePeriodos(rucEmpresa.value, anios.value);
+          obtenerDatos();
           return false;
         }
 
