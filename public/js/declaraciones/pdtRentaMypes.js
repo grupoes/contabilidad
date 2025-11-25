@@ -134,11 +134,11 @@ function loadTablePeriodos(ruc, anio) {
         .then((response) => response.json())
         .then((data) => {
             title.innerHTML = `Periodos ${data[0].anio_descripcion} - ${data[0].razon_social}`;
-            viewPeriodos(data);
+            viewPeriodos(data, ruc, anio);
         });
 }
 
-function viewPeriodos(data) {
+function viewPeriodos(data, ruc, anio) {
     let html = "";
 
     let total_compras = 0;
@@ -189,7 +189,7 @@ function viewPeriodos(data) {
         maximumFractionDigits: 2,
     })}</strong></>
         <td>
-            <button class="btn btn-success btn-sm btn-edit" data-id=""> <i class="fas fa-file-excel"></i> Excel </button>
+            <button class="btn btn-success btn-sm" title="Descargar en Excel" onclick="descargarExcelMypes('${ruc}', ${anio})"> <i class="fas fa-file-excel"></i> Excel </button>
         </td>
     </tr>
     `;
@@ -331,3 +331,18 @@ listaPeriodos.addEventListener("click", (e) => {
         const iframe = document.getElementById("pdfViewer");
     }
 });
+
+function descargarExcelMypes(ruc, anio) {
+    fetch(`${base_url}download-excel-mypes/${ruc}/${anio}`)
+        .then((response) => response.json())
+        .then((data) => {
+
+            if (data.status == "success") {
+                // Descarga automática
+                window.open(data.downloadUrl, "_blank");
+            } else {
+                console.log('error');
+
+            }
+        });
+}

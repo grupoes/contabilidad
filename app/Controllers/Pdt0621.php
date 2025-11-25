@@ -8,6 +8,13 @@ use App\Models\PdtRentaModel;
 use App\Models\ArchivosPdt0621Model;
 use App\Models\ContribuyenteModel;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+
 class Pdt0621 extends BaseController
 {
     public function index()
@@ -785,5 +792,124 @@ class Pdt0621 extends BaseController
         $order;")->getResultArray();
 
         return $this->response->setJSON($data);
+    }
+
+    public function downloadExcelMypes($ruc, $anio)
+    {
+
+        $pdt = new PdtRentaModel();
+
+        $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, FORMAT(pr.total_compras, 2, 'es_PE') as total_compras_decimal, FORMAT(pr.total_ventas, 2, 'es_PE') as total_ventas_decimal, FORMAT(pr.compras_gravadas, 2, 'es_PE') as compras_gravadas_decimal, FORMAT(pr.compras_no_gravadas, 2, 'es_PE') as compras_no_gravadas_decimal, FORMAT(pr.ventas_gravadas, 2, 'es_PE') as ventas_gravadas_decimal, FORMAT(pr.ventas_no_gravadas, 2, 'es_PE') as ventas_no_gravadas_decimal, pr.total_compras, pr.total_ventas, pr.renta_pdt, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Configurar contenido
+        $sheet->setCellValue('A2', 'Empresa');
+        $sheet->setCellValue('B2', 'IMPORTACIONES RODSON MUSIC SAC');
+        $sheet->getStyle('B2')->getFont()->setBold(true);
+        $sheet->getStyle('B2')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
+        $sheet->setCellValue('A3', 'RUC');
+        $sheet->setCellValue('B3', '20445761550');
+        $sheet->getStyle('B3')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
+        $sheet->getStyle('B3')->getFont()->setBold(true);
+        $sheet->setCellValue('A4', 'Regimen');
+        $sheet->setCellValue('B4', 'MYPE');
+        $sheet->getStyle('B4')->getFont()->setBold(true);
+        $sheet->getStyle('B4')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
+
+        $sheet->setCellValue('B6', 'PERIODO');
+        $sheet->mergeCells('B6:B8');
+        $sheet->getStyle('B6')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER)->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // SEGÚN PDT
+        $sheet->setCellValue('C6', 'SEGÚN PDT');
+        $sheet->mergeCells('C6:F6');
+        $sheet->getStyle('C6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // SEGÚN SIGA
+        $sheet->setCellValue('G6', 'SEGÚN SIGA');
+        $sheet->mergeCells('G6:J6');
+        $sheet->getStyle('G6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        //RENTA SEGUN PDT
+        $sheet->setCellValue('K6', 'RENTA SEGÚN PDT');
+        $sheet->mergeCells('K6:K8');
+        $sheet->getStyle('K6')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER)->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getColumnDimension('K')->setAutoSize(true);
+
+        //RENTA PAGADA SEGUN SIGA
+        $sheet->setCellValue('L6', 'RENTA PAGADA SEGÚN SIGA');
+        $sheet->mergeCells('L6:L8');
+        $sheet->getStyle('L6')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER)->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getColumnDimension('L')->setAutoSize(true);
+
+        //ventas
+        $sheet->setCellValue('C7', 'VENTAS');
+        $sheet->mergeCells('C7:D7');
+        $sheet->getStyle('C7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        //compras
+        $sheet->setCellValue('E7', 'COMPRAS');
+        $sheet->mergeCells('E7:F7');
+        $sheet->getStyle('E7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Subencabezados PDT
+        $sheet->setCellValue('C8', 'Gravadas');
+        $sheet->setCellValue('D8', 'Exoneradas');
+        $sheet->setCellValue('E8', 'Base Imp.');
+        $sheet->setCellValue('F8', 'Inafectos');
+        $sheet->setCellValue('G8', 'Gravadas');
+        $sheet->setCellValue('H8', 'Exoneradas');
+        $sheet->setCellValue('I8', 'Base Imp.');
+        $sheet->setCellValue('J8', 'Inafectos');
+
+        foreach ($data as $key => $value) {
+            $sheet->setCellValue('B' . ($key + 9), 'Ene');
+            $sheet->setCellValue('C' . ($key + 9), $value['ventas_gravadas_decimal']);
+            $sheet->setCellValue('D' . ($key + 9), $value['ventas_no_gravadas_decimal']);
+            $sheet->setCellValue('E' . ($key + 9), $value['compras_gravadas_decimal']);
+            $sheet->setCellValue('F' . ($key + 9), $value['compras_no_gravadas_decimal']);
+        }
+
+
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'maqueta_venta_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $filePath = WRITEPATH . 'temp/' . $filename;
+
+        // Crear directorio si no existe
+        if (!is_dir(WRITEPATH . 'temp')) {
+            mkdir(WRITEPATH . 'temp', 0755, true);
+        }
+
+        $writer->save($filePath);
+
+        return $this->response->setJSON([
+            "status" => "success",
+            "message" => "Se descargo correctamente",
+            'downloadUrl' => site_url("excel/download-mypes/$filename"),
+            'filename' => $filename
+        ]);
+    }
+
+    public function download($filename)
+    {
+        $filePath = WRITEPATH . 'temp/' . $filename;
+
+        if (!file_exists($filePath)) {
+            return $this->response->setStatusCode(404)->setJSON([
+                'error' => 'Archivo no encontrado'
+            ]);
+        }
+
+        // Descargar y eliminar archivo temporal
+        $response = $this->response->download($filePath, null);
+        register_shutdown_function(function () use ($filePath) {
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        });
+
+        return $response;
     }
 }

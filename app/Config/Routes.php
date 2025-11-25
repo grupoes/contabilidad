@@ -300,3 +300,5 @@ $routes->get('/sire/delete-file/(:num)', 'Sire::deleteFile/$1');
 $routes->get('/customer-mypes', 'Pdt0621::mypes');
 $routes->post('/customer-mypes-list', 'Pdt0621::listEmpresasMypes');
 $routes->get('/customer-mypes-periodos/(:num)/(:num)', 'Pdt0621::listaPeriodosMypes/$1/$2');
+$routes->get('/download-excel-mypes/(:num)/(:num)', 'Pdt0621::downloadExcelMypes/$1/$2');
+$routes->get('excel/download-mypes/(:any)', 'Pdt0621::download/$1');
