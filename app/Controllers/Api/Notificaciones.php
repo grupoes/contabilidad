@@ -665,7 +665,7 @@ class Notificaciones extends ResourceController
     {
         $pdtRenta = new PdtRentaModel();
 
-        $pdts = $pdtRenta->query("SELECT pr.id_pdt_renta, pr.ruc_empresa, pr.periodo, pr.anio, pr.total_compras, pr.total_ventas, ap.id_archivos_pdt, ap.nombre_pdt FROM pdt_renta pr INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.estado = 1 AND ap.estado = 1 AND pr.anio = 11 and pr.periodo between 3 and 5 /*AND pr.total_ventas = 0*/ order by pr.periodo asc")->getResultArray();
+        $pdts = $pdtRenta->query("SELECT pr.id_pdt_renta, pr.ruc_empresa, pr.periodo, pr.anio, pr.total_compras, pr.total_ventas, ap.id_archivos_pdt, ap.nombre_pdt FROM pdt_renta pr INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.estado = 1 AND ap.estado = 1 AND pr.anio = 11 and pr.periodo between 6 and 8 /*AND pr.total_ventas = 0*/ order by pr.periodo asc")->getResultArray();
 
         $array = [];
 
