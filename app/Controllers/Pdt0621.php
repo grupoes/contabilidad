@@ -185,7 +185,7 @@ class Pdt0621 extends BaseController
 
                     if ($ventas['100'] >= $descuentos) {
                         $venta_gravada = $ventas['100'] - $descuentos;
-                        $venta_no_gravada = $totalVentas - $venta_gravada + $descuentos;
+                        $venta_no_gravada = $ventas['154'] + $ventas['160'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
                     } else {
                         $venta_gravada = $ventas['100'];
                         $venta_no_gravada = $totalVentas - $venta_gravada;
