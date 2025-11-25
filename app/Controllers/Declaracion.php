@@ -21,7 +21,7 @@ class Declaracion extends BaseController
 
         $declaracion = new DeclaracionModel();
 
-        $declaraciones = $declaracion->where('id_declaracion', 1)->findAll();
+        $declaraciones = $declaracion->where('id_declaracion', 1)->orWhere('id_declaracion', 4)->findAll();
 
         $menu = $this->permisos_menu();
 
@@ -152,7 +152,7 @@ class Declaracion extends BaseController
                     $dia_exacto = $dia;
                 } else {
 
-                    if ($lista == 1) {
+                    if ($lista == 1 || $lista == 16) {
                         $fecha_final = $anio . "-" . $mes_exacto . "-" . $dia;
 
                         $date = date_create($fecha_final);

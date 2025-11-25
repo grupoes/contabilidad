@@ -15,6 +15,12 @@
         color: #fff;
     }
 
+    .bg-success-800 {
+        background-color: #269726ff;
+        border-color: #269726ff;
+        color: #fff;
+    }
+
     .bg-danger-800 {
         background-color: #C62828;
         border-color: #C62828;
