@@ -677,17 +677,27 @@ class Notificaciones extends ResourceController
 
                 if ($datos['status'] === 'success') {
                     //$compras = $datos['igv_compras'];
-                    //$ventas = $datos['igv_ventas'];
+                    $ventas = $datos['igv_ventas'];
 
-                    //$totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
+                    $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
 
                     //$totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
+
+                    $descuentos = $ventas['100'] + $ventas['162'];
+
+                    if ($ventas['100'] >= $descuentos) {
+                        $venta_gravada = $ventas['100'] - $descuentos;
+                        $venta_no_gravada = $totalVentas - $venta_gravada + $descuentos;
+                    } else {
+                        $venta_gravada = $ventas['100'];
+                        $venta_no_gravada = $totalVentas - $venta_gravada;
+                    }
 
                     $data_update = array(
                         "compras_gravadas" => $datos['compra_gravada'],
                         "compras_no_gravadas" => $datos['compra_no_gravada'],
-                        "ventas_gravadas" => $datos['venta_gravada'],
-                        "ventas_no_gravadas" => $datos['venta_no_gravada'],
+                        "ventas_gravadas" => $venta_gravada,
+                        "ventas_no_gravadas" => $venta_no_gravada,
                         "renta_pdt" => $datos['renta_pdt']
                     );
 
