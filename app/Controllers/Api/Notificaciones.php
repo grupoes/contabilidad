@@ -705,7 +705,11 @@ class Notificaciones extends ResourceController
 
                     $array[] = [
                         'ruc' => $value['ruc_empresa'],
-                        'actualizado' => 'SI'
+                        'actualizado' => 'SI',
+                        'periodo' => $value['periodo'],
+                        'anio' => $value['anio'],
+                        "ventas_gravadas" => $venta_gravada,
+                        "ventas_no_gravadas" => $venta_no_gravada
                     ];
                 } else {
                     $array[] = [
