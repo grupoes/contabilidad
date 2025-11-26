@@ -235,7 +235,7 @@ $routes->post('api/excluir-periodo-pdt-renta', 'Api\Notificaciones::excluirPerio
 $routes->get('api/getMontos', 'Api\Notificaciones::getMontosPdtRenta');
 $routes->get('api/notificacion-pdt-plame', 'Api\Notificaciones::notificationPdtPlame');
 $routes->post('api/excluir-periodo-pdt-plame', 'Api\Notificaciones::excluirPeriodoPdtPlame');
-
+$routes->get('api/notificacion-sire', 'Api\Notificaciones::notificationSire');
 $routes->get('api/envioNotaCredito/(:num)', 'Facturas::getIdFactura/$1');
 
 $routes->get('listaHonorarioFacturas/(:num)', 'Api\Notificaciones::getFacturasHonorarios/$1');

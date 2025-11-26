@@ -150,7 +150,7 @@ function viewPeriodos(data, ruc, anio) {
 
         let boton_edit = "";
 
-        if (item.total_compras == 0 || item.total_ventas == 0) {
+        if (item.estado_datos == 0) {
             boton_edit = `<button class="btn btn-primary btn-sm btn-edit" data-id="${item.id_pdt_renta}"> <i class="ti ti-pencil"></i> </button>`;
         }
 

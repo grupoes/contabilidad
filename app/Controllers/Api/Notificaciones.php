@@ -1197,6 +1197,15 @@ class Notificaciones extends ResourceController
         return $this->respond($data);
     }
 
+    public function notificationSire()
+    {
+        $fecha_declaracion = new FechaDeclaracionModel();
+
+        $fechas = $fecha_declaracion->where('id_tributo', 27)->findAll();
+
+        return $this->respond($fechas);
+    }
+
     /**
      * Return the properties of a resource object.
      *
