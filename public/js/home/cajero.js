@@ -160,7 +160,7 @@ async function loadPdtsSubir() {
     }
 
     //para los afps
-    const afps = await fetch(base_url + "faltan-subir-pdt");
+    const afps = await fetch(base_url + "faltan-subir-afp");
     const afpsubir = await afps.json();
 
     const quantyAfps = afpsubir.length;
@@ -499,7 +499,7 @@ function viewCertificadosVencer() {
 
 function viewAfps() {
   $("#modalAfp").modal("show");
-  fetch(base_url + "faltan-subir-pdt")
+  fetch(base_url + "faltan-subir-afp")
     .then((res) => res.json())
     .then((data) => {
       let html = "";
