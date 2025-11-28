@@ -16,6 +16,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const newAnuales = $("#tableAnuales").DataTable(optionsTableDefault);
 
   new $.fn.dataTable.Responsive(newAnuales);
+
+  const newAfp = $("#tableAfp").DataTable(optionsTableDefault);
+
+  new $.fn.dataTable.Responsive(newAfp);
+
+  const newSire = $("#tableSire").DataTable(optionsTableDefault);
+
+  new $.fn.dataTable.Responsive(newSire);
 });
 
 const swalWithBootstrapButtons = Swal.mixin({
@@ -150,6 +158,57 @@ async function loadPdtsSubir() {
       const nuevoNodoVencer = tempVencer.firstElementChild;
       listCards.insertBefore(nuevoNodoVencer, listCards.firstElementChild);
     }
+
+    //para los afps
+    const afps = await fetch(base_url + "faltan-subir-pdt");
+    const afpsubir = await afps.json();
+
+    const quantyAfps = afpsubir.length;
+
+    if (quantyAfps > 0) {
+      const htmlAfps = `
+        <div class="col-md-6 col-xl-3">
+            <div class="card social-widget-card alerta-card" onclick="viewAfps()">
+                <div class="card-body">
+                    <h3 class="text-black m-0">${quantyAfps}</h3>
+                    <span class="m-t-10 text-black">AFP</span>
+                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                </div>
+            </div>
+        </div>
+      `;
+
+      const tempAfps = document.createElement("div");
+      tempAfps.innerHTML = htmlAfps.trim();
+      const nuevoNodoAfps = tempAfps.firstElementChild;
+      listCards.insertBefore(nuevoNodoAfps, listCards.firstElementChild);
+    }
+
+    //para cargar los que faltan subir de sire
+    const sire = await fetch(base_url + "notificar-sire");
+    const siresubir = await sire.json();
+
+    const quantySire = siresubir.length;
+
+    if (quantySire > 0) {
+      const htmlSire = `
+        <div class="col-md-6 col-xl-3">
+            <div class="card social-widget-card alerta-card" onclick="viewSire()">
+                <div class="card-body">
+                    <h3 class="text-black m-0">${quantySire}</h3>
+                    <span class="m-t-10 text-black">SIRE</span>
+                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                </div>
+            </div>
+        </div>
+      `;
+
+      const tempSire = document.createElement("div");
+      tempSire.innerHTML = htmlSire.trim();
+      const nuevoNodoSire = tempSire.firstElementChild;
+      listCards.insertBefore(nuevoNodoSire, listCards.firstElementChild);
+    }
+
   } catch (error) {
     console.error("Error al cargar notificaciones PDT:", error);
   }
@@ -433,6 +492,62 @@ function viewCertificadosVencer() {
       tbodyCertificados.innerHTML = html;
 
       const newcsss = $("#tableCertificados").DataTable(optionsTableDefault);
+
+      new $.fn.dataTable.Responsive(newcsss);
+    });
+}
+
+function viewAfps() {
+  $("#modalAfp").modal("show");
+  fetch(base_url + "faltan-subir-pdt")
+    .then((res) => res.json())
+    .then((data) => {
+      let html = "";
+
+      const tbodyAfp = document.getElementById("tbodyAfp");
+
+      data.forEach((info) => {
+        html += `
+        <tr>
+          <td>${info.contribuyente}</td>
+          <td>${info.mes} ${info.anio}</td>
+        </tr>
+        `;
+      });
+
+      $("#tableAfp").DataTable().destroy();
+
+      tbodyAfp.innerHTML = html;
+
+      const newcsss = $("#tableAfp").DataTable(optionsTableDefault);
+
+      new $.fn.dataTable.Responsive(newcsss);
+    });
+}
+
+function viewSire() {
+  $("#modalSire").modal("show");
+  fetch(base_url + "notificar-sire")
+    .then((res) => res.json())
+    .then((data) => {
+      let html = "";
+
+      const tbodySire = document.getElementById("tbodySire");
+
+      data.forEach((info) => {
+        html += `
+        <tr>
+          <td>${info.contribuyente}</td>
+          <td>${info.mes} ${info.anio}</td>
+        </tr>
+        `;
+      });
+
+      $("#tableSire").DataTable().destroy();
+
+      tbodySire.innerHTML = html;
+
+      const newcsss = $("#tableSire").DataTable(optionsTableDefault);
 
       new $.fn.dataTable.Responsive(newcsss);
     });

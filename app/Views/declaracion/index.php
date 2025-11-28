@@ -63,7 +63,7 @@
                     <div class="row">
                         <?php foreach ($declaraciones as $key => $value) { ?>
                             <div class="col-md-4" onclick="declaracion(<?= $value['id_declaracion'] ?>, '<?= $value['decl_nombre'] ?>')" style="margin-bottom: 20px;">
-                                <div class="cursor-pointer card social-widget-card <?= $value['decl_color'] ?>">
+                                <div class="cursor-pointer card social-widget-card <?= $value['decl_color'] ?>" style="margin-bottom: 0;">
                                     <div class="card-body" style="padding: 20px;">
                                         <h3 class="text-white m-0"><?= $value['decl_nombre'] ?></h3>
                                         <span class="m-t-10" style="font-size: 12px;"><?= $value['decl_descripcion'] ?></span>

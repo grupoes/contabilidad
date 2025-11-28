@@ -7,6 +7,7 @@ use App\Models\AnioModel;
 use App\Models\MesModel;
 use App\Models\ArchivosAfpModel;
 use App\Models\ContribuyenteModel;
+use App\Models\FechaDeclaracionModel;
 
 class Afp extends BaseController
 {
@@ -356,5 +357,45 @@ class Afp extends BaseController
             "message" => "Consulta correctamente",
             "data" => $data
         ]);
+    }
+
+    public function notificar_afp()
+    {
+        $afp = new AfpModel();
+        $contrib = new ContribuyenteModel();
+        $fecha_declaracion = new FechaDeclaracionModel();
+
+        $hoy = date('Y-m-d');
+
+        $contrib_afp = $contrib->select('contribuyentes.id, contribuyentes.ruc, contribuyentes.razon_social')->join('configuracion_notificacion', 'configuracion_notificacion.ruc_empresa_numero = contribuyentes.ruc')->where('configuracion_notificacion.id_tributo', 22)->where('contribuyentes.tipoServicio', 'CONTABLE')->where('contribuyentes.estado', 1)->findAll();
+
+        //consulta de las notificaciones
+        $declaracion = $fecha_declaracion->query("SELECT fd.id_anio, fd.id_mes, fd.fecha_exacta, fd.fecha_notificar, a.anio_descripcion, m.mes_descripcion FROM `fecha_declaracion` AS fd INNER JOIN anio as a ON a.id_anio = fd.id_anio INNER JOIN mes as m ON m.id_mes = fd.id_mes WHERE fd.id_tributo = 22 and fd.id_anio >= 11 and fd.fecha_exacta != '0000-00-00' and fd.fecha_notificar <= '$hoy' GROUP BY fd.id_anio, fd.id_mes, fd.fecha_exacta, fd.fecha_notificar, a.anio_descripcion, m.mes_descripcion;")->getResultArray();
+
+        $data_notificacion = [];
+
+        foreach ($declaracion as $key => $value) {
+            $idanio = $value['id_anio'];
+            $idmes = $value['id_mes'];
+
+            foreach ($contrib_afp as $keys => $values) {
+                $id = $values['id'];
+
+                $verificar_afp = $afp->query("SELECT af.id, af.periodo, af.anio, a.anio_descripcion, m.mes_descripcion FROM afp af INNER JOIN anio as a ON a.id_anio = af.anio INNER JOIN mes as m ON m.id_mes = af.periodo WHERE af.contribuyente_id = $id AND af.anio = $idanio AND af.periodo = $idmes AND af.estado = 1")->getResultArray();
+
+                if (!$verificar_afp) {
+                    $insert = [
+                        "contribuyente_id" => $id,
+                        "contribuyente" => $values['razon_social'],
+                        "mes" => $value['mes_descripcion'],
+                        "anio" => $value['anio_descripcion']
+                    ];
+
+                    array_push($data_notificacion, $insert);
+                }
+            }
+        }
+
+        return $this->response->setJSON($data_notificacion);
     }
 }

@@ -235,7 +235,6 @@ $routes->post('api/excluir-periodo-pdt-renta', 'Api\Notificaciones::excluirPerio
 $routes->get('api/getMontos', 'Api\Notificaciones::getMontosPdtRenta');
 $routes->get('api/notificacion-pdt-plame', 'Api\Notificaciones::notificationPdtPlame');
 $routes->post('api/excluir-periodo-pdt-plame', 'Api\Notificaciones::excluirPeriodoPdtPlame');
-$routes->get('api/notificacion-sire', 'Api\Notificaciones::notificationSire');
 $routes->get('api/envioNotaCredito/(:num)', 'Facturas::getIdFactura/$1');
 
 $routes->get('api/notificacion-afp', 'Api\Notificaciones::notificacionAfp');
@@ -289,6 +288,7 @@ $routes->post('/rectificar-afp', 'Afp::rectificar');
 $routes->get('/afp/get-files-details/(:num)', 'Afp::getArchivos/$1');
 $routes->get('/afp/delete/(:num)/(:num)', 'Afp::delete/$1/$2');
 $routes->post('/consulta-afp-rango', 'Afp::consultaAfpRango');
+$routes->get('/faltan-subir-pdt', 'Afp::notificar_afp');
 
 $routes->get('/sire', 'Sire::index');
 $routes->post('/sire', 'Sire::save');
@@ -299,6 +299,7 @@ $routes->get('/sire/delete/(:num)/(:num)', 'Sire::delete/$1/$2');
 $routes->post('/consulta-sire-rango', 'Sire::consultaSireRango');
 $routes->get('/sire/files/(:num)', 'Sire::files/$1');
 $routes->get('/sire/delete-file/(:num)', 'Sire::deleteFile/$1');
+$routes->get('/notificar-sire', 'Sire::notificacionSire');
 
 $routes->get('/customer-mypes', 'Pdt0621::mypes');
 $routes->post('/customer-mypes-list', 'Pdt0621::listEmpresasMypes');

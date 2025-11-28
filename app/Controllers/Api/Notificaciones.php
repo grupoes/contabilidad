@@ -1200,15 +1200,6 @@ class Notificaciones extends ResourceController
         return $this->respond($data);
     }
 
-    public function notificationSire()
-    {
-        $fecha_declaracion = new FechaDeclaracionModel();
-
-        $fechas = $fecha_declaracion->where('id_tributo', 27)->findAll();
-
-        return $this->respond($fechas);
-    }
-
     public function notificacionAfp($fecha)
     {
         $feriados = new FeriadoModel();
