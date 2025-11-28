@@ -238,6 +238,8 @@ $routes->post('api/excluir-periodo-pdt-plame', 'Api\Notificaciones::excluirPerio
 $routes->get('api/notificacion-sire', 'Api\Notificaciones::notificationSire');
 $routes->get('api/envioNotaCredito/(:num)', 'Facturas::getIdFactura/$1');
 
+$routes->get('api/notificacion-afp', 'Api\Notificaciones::notificacionAfp');
+
 $routes->get('listaHonorarioFacturas/(:num)', 'Api\Notificaciones::getFacturasHonorarios/$1');
 $routes->post('sendNotaCredito', 'Api\Notificaciones::sendApiEnviarNotaCredito');
 
@@ -304,3 +306,11 @@ $routes->get('/download-excel-mypes/(:num)/(:num)', 'Pdt0621::downloadExcelMypes
 $routes->get('excel/download-mypes/(:any)', 'Pdt0621::download/$1');
 $routes->get('/update-estado-datos', 'Api\Notificaciones::actualizarMontosVentasComprasEstado');
 $routes->post('pdt-0621/save-montos-mypes', 'Pdt0621::updateMontosMypes');
+
+$routes->group('feriados', function ($routes) {
+    $routes->get('/', 'Feriados::index'); // Todos
+    $routes->get('fecha/(:segment)', 'Feriados::porFecha/$1');
+    $routes->get('rango', 'Feriados::porRango');
+    $routes->get('mes/(:num)/(:num)', 'Feriados::porMes/$1/$2');
+    $routes->get('es-feriado/(:segment)', 'Feriados::esFeriado/$1');
+});

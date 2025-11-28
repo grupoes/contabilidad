@@ -14,6 +14,7 @@ use App\Models\EnviosModel;
 use App\Models\ContratosModel;
 use App\Models\HonorariosModel;
 use App\Models\FacturasHonorariosModel;
+use App\Models\FeriadoModel;
 use App\Models\PdtRentaModel;
 use App\Models\PdtPlameModel;
 use App\Models\TipoCambioModel;
@@ -1204,6 +1205,43 @@ class Notificaciones extends ResourceController
         $fechas = $fecha_declaracion->where('id_tributo', 27)->findAll();
 
         return $this->respond($fechas);
+    }
+
+    public function notificacionAfp()
+    {
+        /*$feriados = [
+            '2025-12-08',
+            '2025-12-09',
+            '2025-12-25',
+            '2026-01-01'
+        ];*/
+
+        $feriados = new FeriadoModel();
+
+        $allFeriados = $feriados->select('fecha')->findAll();
+
+        $contador = 0;
+        $fecha = new DateTime("2026-01-01");
+
+        while ($contador < 5) {
+            $diaSemana = $fecha->format('N'); // 1 = Lunes ... 7 = Domingo
+            $fechaStr = $fecha->format('Y-m-d');
+
+            if ($diaSemana >= 1 && $diaSemana <= 5 && !in_array($fechaStr, $allFeriados)) {
+                $contador++;
+                if ($contador === 5) {
+                    $data = [
+                        "status" => "ok",
+                        "fecha" => $fechaStr
+                    ];
+                    return $this->respond($data);
+                }
+            }
+
+            $fecha->modify('+1 day');
+        }
+
+        return $this->respond(["status" => "error", "mensaje" => "ocurrio algo inesperado"]);
     }
 
     /**
