@@ -1,5 +1,7 @@
 const perfilId = document.getElementById("perfilId").value;
 
+const btnForm = document.getElementById('btnForm');
+
 const newcs = $($table).DataTable(optionsTableDefault);
 
 new $.fn.dataTable.Responsive(newcs);
@@ -157,6 +159,9 @@ function conceptosTipoMovimiento(tipo) {
 formMovimiento.addEventListener("submit", (e) => {
   e.preventDefault();
 
+  btnForm.innerText = 'Guardando...';
+  btnForm.disabled = true;
+
   const formData = new FormData(formMovimiento);
 
   fetch(base_url + "movimiento/guardar", {
@@ -165,6 +170,10 @@ formMovimiento.addEventListener("submit", (e) => {
   })
     .then((res) => res.json())
     .then((data) => {
+
+      btnForm.innerText = 'Guardar';
+      btnForm.disabled = false;
+
       if (data.status === "success") {
         $("#modalTipoMovimiento").modal("hide");
         renderMovimientos();
