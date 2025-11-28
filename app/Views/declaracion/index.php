@@ -120,6 +120,6 @@
 <?= $this->section('js') ?>
 
 <script src="<?= base_url() ?>assets/js/plugins/notifier.js"></script>
-<script src="<?= base_url() ?>js/declaracion/lista.js"></script>
+<script src="<?= base_url() ?>js/declaracion/lista.js?v=1"></script>
 
 <?= $this->endSection() ?>

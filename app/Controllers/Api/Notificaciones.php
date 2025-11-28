@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Api;
 
+use App\Models\AnioModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
 
@@ -15,6 +16,7 @@ use App\Models\ContratosModel;
 use App\Models\HonorariosModel;
 use App\Models\FacturasHonorariosModel;
 use App\Models\FeriadoModel;
+use App\Models\MesModel;
 use App\Models\PdtRentaModel;
 use App\Models\PdtPlameModel;
 use App\Models\TipoCambioModel;
@@ -1207,21 +1209,14 @@ class Notificaciones extends ResourceController
         return $this->respond($fechas);
     }
 
-    public function notificacionAfp()
+    public function notificacionAfp($fecha)
     {
-        /*$feriados = [
-            '2025-12-08',
-            '2025-12-09',
-            '2025-12-25',
-            '2026-01-01'
-        ];*/
-
         $feriados = new FeriadoModel();
 
-        $allFeriados = $feriados->select('fecha')->findAll();
+        $allFeriados = array_column($feriados->select('fecha')->findAll(), 'fecha');
 
         $contador = 0;
-        $fecha = new DateTime("2026-01-01");
+        $fecha = new DateTime($fecha);
 
         while ($contador < 5) {
             $diaSemana = $fecha->format('N'); // 1 = Lunes ... 7 = Domingo
@@ -1234,14 +1229,133 @@ class Notificaciones extends ResourceController
                         "status" => "ok",
                         "fecha" => $fechaStr
                     ];
-                    return $this->respond($data);
+                    return $data;
                 }
             }
 
             $fecha->modify('+1 day');
         }
 
-        return $this->respond(["status" => "error", "mensaje" => "ocurrio algo inesperado"]);
+        $data = ["status" => "error", "mensaje" => "ocurrio algo inesperado"];
+
+        return $data;
+    }
+
+    public function insert_fecha_declaracion_afp()
+    {
+        $fechas = [
+            "2025-12-01",
+            "2026-01-01",
+            "2026-02-01",
+            "2026-03-01",
+            "2026-04-01",
+            "2026-05-01",
+            "2026-06-01",
+            "2026-07-01",
+            "2026-08-01",
+            "2026-09-01",
+            "2026-10-01",
+            "2026-11-01",
+            "2026-12-01",
+            "2027-01-01",
+            "2027-02-01",
+            "2027-03-01",
+            "2027-04-01",
+            "2027-05-01",
+            "2027-06-01",
+            "2027-07-01",
+            "2027-08-01",
+            "2027-09-01",
+            "2027-10-01",
+            "2027-11-01",
+            "2027-12-01",
+            "2028-01-01",
+            "2028-02-01",
+            "2028-03-01",
+            "2028-04-01",
+            "2028-05-01",
+            "2028-06-01",
+            "2028-07-01",
+            "2028-08-01",
+            "2028-09-01",
+            "2028-10-01",
+            "2028-11-01",
+            "2028-12-01",
+            "2029-01-01"
+        ];
+
+        $month = new MesModel();
+        $year = new AnioModel();
+        $feriados = new FeriadoModel();
+        $fecha_declaracion = new FechaDeclaracionModel();
+
+        try {
+            $allFeriados = array_column($feriados->select('fecha')->findAll(), 'fecha');
+
+            $data_fechas = [];
+
+            for ($i = 0; $i < count($fechas); $i++) {
+                $fecha = $this->notificacionAfp($fechas[$i]);
+
+                if ($fecha['status'] === 'ok') {
+
+                    $fecha_exacta = $fecha['fecha'];
+
+                    $d = new DateTime($fecha_exacta);
+                    $d->modify('-1 month');
+
+                    $mes_correspondiente = $d->format('m');
+                    $anio_correspondiente = $d->format('Y');
+
+                    $data_mes = $month->where('mes_fecha', $mes_correspondiente)->first();
+                    $data_anio = $year->where('anio_descripcion', $anio_correspondiente)->first();
+
+                    $dia_notificacion = $this->restarDiaHabil($fecha_exacta, $allFeriados);
+
+                    for ($j = 1; $j < 11; $j++) {
+                        $data_insert = [
+                            "id_anio" => $data_anio['id_anio'],
+                            "id_mes" => $data_mes['id_mes'],
+                            "id_numero" => $j,
+                            "fecha_exacta" => $fecha_exacta,
+                            "fecha_declaracion_estado" => 1,
+                            "id_tributo" => 22,
+                            "dia_exacto" => date('d', strtotime($fecha_exacta)),
+                            "fecha_notificar" => $dia_notificacion
+                        ];
+
+                        //array_push($data_fechas, $data_insert);
+                        $fecha_declaracion->insert($data_insert);
+                    }
+                }
+            }
+
+            return $this->respond([
+                "status" => "ok",
+                "message" => "Se insertaron correctamente los datos"
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                "status" => "error",
+                "message" => $e->getMessage()
+            ]);
+        }
+    }
+
+    function restarDiaHabil($fecha, $feriados = [])
+    {
+        // Convertimos la fecha a timestamp
+        $timestamp = strtotime($fecha);
+
+        // Restar hasta encontrar día hábil
+        do {
+            $timestamp = strtotime('-1 day', $timestamp);
+            $diaSemana = date('N', $timestamp); // 1 (Lunes) - 7 (Domingo)
+            $fechaCheck = date('Y-m-d', $timestamp);
+        } while ($diaSemana >= 6 || in_array($fechaCheck, $feriados));
+        // >=6 significa sábado(6) o domingo(7)
+
+        return date('Y-m-d', $timestamp);
     }
 
     /**

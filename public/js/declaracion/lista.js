@@ -21,14 +21,14 @@ function declaracion(id, nombre) {
       let html = "";
 
       data.forEach((decla) => {
-        if (decla.id_pdt == 1 || decla.id_pdt == 3 || decla.id_pdt == 16) {
-          html += `
+
+        html += `
           <div class="form-check mb-3">
               <input class="form-check-input" type="radio" name="lista" id="list-${decla.id_pdt}" value="${decla.id_pdt}">
               <label class="form-check-label" for="list-${decla.id_pdt}">${decla.pdt_descripcion}</label>
           </div>
           `;
-        }
+
       });
 
       listDeclaracion.innerHTML = html;
@@ -76,7 +76,7 @@ function viewConfiguracion(data) {
   const meses = data.meses;
   let mesesHtml = "";
 
-  if (data.lista === "1" || data.lista === "16") {
+  if (data.lista === "1" || data.lista === "16" || data.lista === "11") {
     meses.forEach((mes) => {
       mesesHtml += `<tr>
                       <td class="sticky-col" style="background: #f1eeee;"><b>${mes.mes_descripcion}</b> se declara (${mes.mes_declaracion})</td>`;

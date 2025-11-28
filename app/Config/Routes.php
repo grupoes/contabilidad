@@ -239,6 +239,7 @@ $routes->get('api/notificacion-sire', 'Api\Notificaciones::notificationSire');
 $routes->get('api/envioNotaCredito/(:num)', 'Facturas::getIdFactura/$1');
 
 $routes->get('api/notificacion-afp', 'Api\Notificaciones::notificacionAfp');
+$routes->get('api/insert-fecha_declaracion_afp', 'Api\Notificaciones::insert_fecha_declaracion_afp');
 
 $routes->get('listaHonorarioFacturas/(:num)', 'Api\Notificaciones::getFacturasHonorarios/$1');
 $routes->post('sendNotaCredito', 'Api\Notificaciones::sendApiEnviarNotaCredito');
