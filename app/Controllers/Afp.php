@@ -370,7 +370,7 @@ class Afp extends BaseController
         $contrib_afp = $contrib->select('contribuyentes.id, contribuyentes.ruc, contribuyentes.razon_social')->join('configuracion_notificacion', 'configuracion_notificacion.ruc_empresa_numero = contribuyentes.ruc')->where('configuracion_notificacion.id_tributo', 22)->where('contribuyentes.tipoServicio', 'CONTABLE')->where('contribuyentes.estado', 1)->findAll();
 
         //consulta de las notificaciones
-        $declaracion = $fecha_declaracion->query("SELECT fd.id_anio, fd.id_mes, fd.fecha_exacta, fd.fecha_notificar, a.anio_descripcion, m.mes_descripcion FROM `fecha_declaracion` AS fd INNER JOIN anio as a ON a.id_anio = fd.id_anio INNER JOIN mes as m ON m.id_mes = fd.id_mes WHERE fd.id_tributo = 22 and fd.id_anio >= 11 and fd.fecha_exacta != '0000-00-00' and fd.fecha_notificar <= '$hoy' GROUP BY fd.id_anio, fd.id_mes, fd.fecha_exacta, fd.fecha_notificar, a.anio_descripcion, m.mes_descripcion;")->getResultArray();
+        $declaracion = $fecha_declaracion->query("SELECT fd.id_anio, fd.id_mes, fd.fecha_exacta, fd.fecha_notificar, a.anio_descripcion, m.mes_descripcion FROM `fecha_declaracion` AS fd INNER JOIN anio as a ON a.id_anio = fd.id_anio INNER JOIN mes as m ON m.id_mes = fd.id_mes WHERE fd.id_tributo = 22 and fd.id_anio >= 11 and fd.fecha_exacta is not null and fd.fecha_notificar <= '$hoy' GROUP BY fd.id_anio, fd.id_mes, fd.fecha_exacta, fd.fecha_notificar, a.anio_descripcion, m.mes_descripcion;")->getResultArray();
 
         $data_notificacion = [];
 

@@ -454,7 +454,7 @@ class Sire extends BaseController
         $hoy = date('Y-m-d');
 
         //consulta de las notificaciones
-        $declaracion = $fecha_declaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, fd.fecha_notificar, a.anio_descripcion, m.mes_descripcion FROM `fecha_declaracion` AS fd INNER JOIN anio as a ON a.id_anio = fd.id_anio INNER JOIN mes as m ON m.id_mes = fd.id_mes WHERE fd.id_tributo = 27 and fd.id_anio >= 11 and fd.fecha_exacta != '0000-00-00' and fd.fecha_notificar <= '$hoy'")->getResultArray();
+        $declaracion = $fecha_declaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, fd.fecha_notificar, a.anio_descripcion, m.mes_descripcion FROM `fecha_declaracion` AS fd INNER JOIN anio as a ON a.id_anio = fd.id_anio INNER JOIN mes as m ON m.id_mes = fd.id_mes WHERE fd.id_tributo = 27 and fd.id_anio >= 11 and fd.fecha_exacta is not null and fd.fecha_notificar <= '$hoy'")->getResultArray();
 
         $data_declarar = [];
 
