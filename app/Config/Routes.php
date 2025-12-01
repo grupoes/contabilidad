@@ -316,3 +316,10 @@ $routes->group('feriados', function ($routes) {
     $routes->get('mes/(:num)/(:num)', 'Feriados::porMes/$1/$2');
     $routes->get('es-feriado/(:segment)', 'Feriados::esFeriado/$1');
 });
+
+$routes->get('/agenda', 'Agenda::index');
+$routes->get('/agenda/getAgenda', 'Agenda::getAgenda');
+$routes->post('/agenda/save', 'Agenda::save');
+$routes->get('/agenda/delete/(:num)', 'Agenda::delete/$1');
+$routes->get('/agenda/edit/(:num)', 'Agenda::edit/$1');
+$routes->post('/agenda/update/(:num)', 'Agenda::update/$1');

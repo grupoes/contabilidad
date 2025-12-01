@@ -9,10 +9,25 @@
   var y = date.getFullYear();
 
   var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    locale: 'es',
+    displayEventTime: true,  // <-- aquí
+    displayEventEnd: false,
+    eventTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      meridiem: true // si quieres AM/PM pon: true
+    },
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+      right: 'dayGridMonth,listMonth'
+    },
+    buttonText: {
+      today: 'Hoy',
+      month: 'Mes',
+      week: 'Semana',
+      day: 'Día',
+      list: 'Lista'
     },
     themeSystem: 'bootstrap',
     initialDate: new Date(y, m, 16),
@@ -26,22 +41,23 @@
     dayMaxEvents: true,
     handleWindowResize: true,
     select: function (info) {
-      var sdt = new Date(info.start);
-      var edt = new Date(info.end);
-      document.getElementById('pc-e-sdate').value = sdt.getFullYear() + '-' + getRound(sdt.getMonth() + 1) + '-' + getRound(sdt.getDate());
-      document.getElementById('pc-e-edate').value = edt.getFullYear() + '-' + getRound(edt.getMonth() + 1) + '-' + getRound(edt.getDate());
 
+      document.getElementById('agenda_id').value = 0;
+      document.getElementById('pc-e-date').value = info.startStr;
       document.getElementById('pc-e-title').value = "";
-      document.getElementById('pc-e-venue').value = "";
       document.getElementById('pc-e-description').value = "";
-      document.getElementById('pc-e-type').value = "";
-      document.getElementById('pc-e-btn-text').innerHTML = '<i class="align-text-bottom me-1 ti ti-calendar-plus"></i> Add';
+      document.getElementById('pc-e-notify-time').value = "0";
+      document.getElementById('pc-e-btn-text').innerHTML = '<i class="align-text-bottom me-1 ti ti-calendar-plus"></i> Agregar';
       document.querySelector('#pc_event_add').setAttribute('data-pc-action', 'add');
+
+      document.getElementById('calendar-add_event-title').innerHTML = 'Agregar Actividad';
 
       calendaroffcanvas.show();
       calendar.unselect();
     },
     eventClick: function (info) {
+      console.log(info.event);
+
       calendevent = info.event;
       var clickedevent = info.event;
       var e_title = clickedevent.title === undefined ? '' : clickedevent.title;
@@ -49,131 +65,34 @@
       var e_date_start = clickedevent.start === null ? '' : dateformat(clickedevent.start);
       var e_date_end = clickedevent.end === null ? '' : " <i class='text-sm'>to</i> " + dateformat(clickedevent.end);
       e_date_end = clickedevent.end === null ? '' : e_date_end;
-      var e_venue = clickedevent.extendedProps.description === undefined ? '' : clickedevent.extendedProps.venue;
+      var dias_notificar = clickedevent.extendedProps.dias_notificar === undefined ? '' : clickedevent.extendedProps.dias_notificar;
+      var horas_notificar = clickedevent.extendedProps.horas_notificar === undefined ? '' : clickedevent.extendedProps.horas_notificar;
+
+      if (dias_notificar > 0) {
+        document.querySelector('.pc-event-notificar').innerHTML = dias_notificar + " días";
+      } else {
+        document.querySelector('.pc-event-notificar').innerHTML = horas_notificar + " horas";
+      }
 
       document.querySelector('.calendar-modal-title').innerHTML = e_title;
       document.querySelector('.pc-event-title').innerHTML = e_title;
       document.querySelector('.pc-event-description').innerHTML = e_desc;
       document.querySelector('.pc-event-date').innerHTML = e_date_start + e_date_end;
-      document.querySelector('.pc-event-venue').innerHTML = e_venue;
 
       calendarmodal.show();
     },
-    events: [
-      {
-        title: 'All Day Event',
-        start: new Date(y, m, 1),
-        allDay: true,
-        description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s.',
-        venue: 'City Town',
-        className: 'event-warning'
-      },
-      {
-        title: 'Long Event',
-        start: new Date(y, m, 7),
-        end: new Date(y, m, 10),
-        allDay: true,
-        description:
-          'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-        venue: 'City Town',
-        className: 'event-primary'
-      },
-      {
-        groupId: 999,
-        title: 'Repeating Event',
-        start: new Date(y, m, 9, 16, 0),
-        allDay: false,
-        description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s.',
-        venue: 'City Town',
-        className: 'event-danger'
-      },
-      {
-        groupId: 999,
-        title: 'Repeating Event',
-        start: new Date(y, m, 16, 16, 0),
-        allDay: false,
-        description:
-          'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-        venue: 'City Town',
-        className: 'event-danger'
-      },
-      {
-        title: 'Conference',
-        start: new Date(y, m, 11),
-        end: new Date(y, m, 13),
-        allDay: true,
-        description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s.',
-        venue: 'City Town',
-        className: 'event-info'
-      },
-      {
-        title: 'Meeting',
-        start: new Date(y, m, 12, 10, 30),
-        end: new Date(y, m, 12, 12, 30),
-        allDay: false,
-        description:
-          'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-        venue: 'City Town',
-        className: 'event-danger'
-      },
-      {
-        title: 'Lunch',
-        start: new Date(y, m, 12, 12, 30),
-        allDay: false,
-        description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s.',
-        venue: 'City Town',
-        className: 'event-success'
-      },
-      {
-        title: 'Meeting',
-        start: new Date(y, m, 14, 14, 30),
-        allDay: false,
-        description:
-          'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-        venue: 'City Town',
-        className: 'event-warning'
-      },
-      {
-        title: 'Happy Hour',
-        start: new Date(y, m, 14, 17, 30),
-        allDay: false,
-        description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s.',
-        venue: 'City Town',
-        className: 'event-info'
-      },
-      {
-        title: 'Dinner',
-        start: new Date(y, m, 15, 20, 0),
-        allDay: false,
-        description:
-          'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-        venue: 'City Town',
-        className: 'event-primary'
-      },
-      {
-        title: 'Birthday Party',
-        start: new Date(y, m, 13, 0, 0),
-        allDay: false,
-        description:
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s.',
-        venue: 'City Town',
-        className: 'event-success'
-      },
-      {
-        title: 'Click for Google',
-        url: 'http://google.com/',
-        allDay: true,
-        description:
-          'It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.',
-        venue: 'City Town',
-        start: new Date(y, m, 28)
-      }
-    ]
+    events: function (info, successCallback, failureCallback) {
+      fetch('agenda/getAgenda') // URL de tu endpoint
+        .then(response => response.json())
+        .then(data => {
+
+          successCallback(data);
+        })
+        .catch(error => {
+          console.error('Error al cargar eventos:', error);
+          failureCallback(error);
+        });
+    }
   });
 
   calendar.render();
@@ -218,73 +137,92 @@
     });
   }
 
-  var pc_event_add = document.querySelector('#pc_event_add');
-  if (pc_event_add) {
-    pc_event_add.addEventListener('click', function () {
-      var day = true;
-      var end = null;
-      var e_date_start = document.getElementById('pc-e-sdate').value === null ? '' : document.getElementById('pc-e-sdate').value;
-      var e_date_end = document.getElementById('pc-e-edate').value === null ? '' : document.getElementById('pc-e-edate').value;
-      if (!e_date_end == '') {
-        end = new Date(e_date_end);
-      }
-      calendar.addEvent({
-        title: document.getElementById('pc-e-title').value,
-        start: new Date(e_date_start),
-        end: end,
-        allDay: day,
-        description: document.getElementById('pc-e-description').value,
-        venue: document.getElementById('pc-e-venue').value,
-        className: document.getElementById('pc-e-type').value
-      });
-      if (pc_event_add.getAttribute('data-pc-action') == 'add') {
-        Swal.fire({
-          customClass: {
-            confirmButton: 'btn btn-light-primary'
-          },
-          buttonsStyling: false,
-          icon: 'success',
-          title: 'Success',
-          text: 'Event added successfully'
+  //agregar una actividad
+  const formAdd = document.querySelector('#pc-form-event');
+  if (formAdd) {
+    formAdd.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const formData = new FormData(formAdd);
+
+      const pc_event_add = document.getElementById('pc_event_add');
+      pc_event_add.disabled = true;
+
+      fetch('agenda/save', {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => response.json())
+        .then(data => {
+          pc_event_add.disabled = false;
+          if (data.status == 'success') {
+            calendar.refetchEvents();
+            calendaroffcanvas.hide();
+            Swal.fire({
+              customClass: {
+                confirmButton: 'btn btn-light-primary'
+              },
+              buttonsStyling: false,
+              icon: 'success',
+              title: 'Success',
+              text: data.message
+            });
+          } else {
+            Swal.fire({
+              customClass: {
+                confirmButton: 'btn btn-light-primary'
+              },
+              buttonsStyling: false,
+              icon: 'error',
+              title: 'Error',
+              text: data.message
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error al agregar actividad:', error);
         });
-      } else {
-        calendevent.remove();
-        document.getElementById('pc-e-btn-text').innerHTML = '<i class="align-text-bottom me-1 ti ti-calendar-plus"></i> Add';
-        document.querySelector('#pc_event_add').setAttribute('data-pc-action', 'add');
-        Swal.fire({
-          customClass: {
-            confirmButton: 'btn btn-light-primary'
-          },
-          buttonsStyling: false,
-          icon: 'success',
-          title: 'Success',
-          text: 'Event Updated successfully'
-        });
-      }
-      calendaroffcanvas.hide();
     });
   }
 
   var pc_event_edit = document.querySelector('#pc_event_edit');
   if (pc_event_edit) {
-    pc_event_edit.addEventListener('click', function () {
+    pc_event_edit.addEventListener('click', function (event) {
+      event.preventDefault();
+
       var e_title = calendevent.title === undefined ? '' : calendevent.title;
       var e_desc = calendevent.extendedProps.description === undefined ? '' : calendevent.extendedProps.description;
-      var e_date_start = calendevent.start === null ? '' : dateformat(calendevent.start);
-      var e_date_end = calendevent.end === null ? '' : " <i class='text-sm'>to</i> " + dateformat(calendevent.end);
-      e_date_end = calendevent.end === null ? '' : e_date_end;
-      var e_venue = calendevent.extendedProps.description === undefined ? '' : calendevent.extendedProps.venue;
-      var e_type = calendevent.classNames[0] === undefined ? '' : calendevent.classNames[0];
 
+      document.getElementById('calendar-add_event-title').innerHTML = 'Editar Actividad';
+
+      document.getElementById('agenda_id').value = calendevent.id;
       document.getElementById('pc-e-title').value = e_title;
-      document.getElementById('pc-e-venue').value = e_venue;
       document.getElementById('pc-e-description').value = e_desc;
-      document.getElementById('pc-e-type').value = e_type;
-      var sdt = new Date(e_date_start);
-      var edt = new Date(e_date_end);
-      document.getElementById('pc-e-sdate').value = sdt.getFullYear() + '-' + getRound(sdt.getMonth() + 1) + '-' + getRound(sdt.getDate());
-      document.getElementById('pc-e-edate').value = edt.getFullYear() + '-' + getRound(edt.getMonth() + 1) + '-' + getRound(edt.getDate());
-      document.getElementById('pc-e-btn-text').innerHTML = '<i class="align-text-bottom me-1 ti ti-calendar-stats"></i> Update';
+      var sdt = calendevent.start;
+
+      const fecha = sdt.getFullYear() + '-' + getRound(sdt.getMonth() + 1) + '-' + getRound(sdt.getDate());
+
+      const hora = getRound(sdt.getHours()) + ':' + getRound(sdt.getMinutes());
+
+      document.getElementById('pc-e-date').value = fecha;
+      document.getElementById('pc-e-time').value = hora;
+
+      const dias_notificar = calendevent.extendedProps.dias_notificar;
+      let notify_time;
+
+      if (dias_notificar > 0) {
+        document.getElementById('por_dia').checked = true;
+        document.getElementById('por_hora').checked = false;
+        notify_time = dias_notificar;
+      } else {
+        document.getElementById('por_hora').checked = true;
+        document.getElementById('por_dia').checked = false;
+        notify_time = calendevent.extendedProps.horas_notificar;
+      }
+
+      document.getElementById('pc-e-notify-time').value = notify_time;
+
+
+      document.getElementById('pc-e-btn-text').innerHTML = '<i class="align-text-bottom me-1 ti ti-calendar-stats"></i> Editar';
       document.querySelector('#pc_event_add').setAttribute('data-pc-action', 'edit');
       calendarmodal.hide();
       calendaroffcanvas.show();
@@ -313,14 +251,19 @@
 
   //  get date
   function dateformat(dt) {
-    var mn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    var d = new Date(dt),
-      month = '' + mn[d.getMonth()],
-      day = '' + d.getDate(),
-      year = d.getFullYear();
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-    return [day + ' ' + month, year].join(',');
+    var d = new Date(dt);
+
+    var day = d.getDate().toString().padStart(2, '0');
+    var month = (d.getMonth() + 1).toString().padStart(2, '0');
+    var year = d.getFullYear();
+
+    var hours = d.getHours();
+    var minutes = d.getMinutes().toString().padStart(2, '0');
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
   }
 
   //  get full date
