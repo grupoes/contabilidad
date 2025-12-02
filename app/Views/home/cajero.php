@@ -68,64 +68,34 @@
                 <div class="card-body">
                     <div
                         class="d-flex align-items-center justify-content-between mb-3">
-                        <h5 class="mb-0">Estado de Caja</h5>
-                        <div class="dropdown">
-                            <a
-                                class="avtar avtar-s btn-link-secondary dropdown-toggle arrow-none"
-                                href="#"
-                                data-bs-toggle="dropdown"
-                                aria-haspopup="true"
-                                aria-expanded="false"><i class="ti ti-dots-vertical f-18"></i></a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="#">Name</a>
-                                <a class="dropdown-item" href="#">Date</a>
-                                <a class="dropdown-item" href="#">Ratting</a>
-                                <a class="dropdown-item" href="#">Unread</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="my-3">
-                        <div id="overview-product-graph"></div>
-                    </div>
-                    <div class="row g-3 text-center">
-                        <div class="col-6 col-lg-4 col-xxl-4">
-                            <div class="overview-product-legends">
-                                <p class="text-dark mb-1"><span>Apps</span></p>
-                                <h6 class="mb-0">10+</h6>
-                            </div>
-                        </div>
-                        <div class="col-6 col-lg-4 col-xxl-4">
-                            <div class="overview-product-legends">
-                                <p class="text-dark mb-1"><span>Other</span></p>
-                                <h6 class="mb-0">5+</h6>
-                            </div>
-                        </div>
-                        <div class="col-6 col-lg-4 col-xxl-4">
-                            <div class="overview-product-legends">
-                                <p class="text-secondary mb-1"><span>Widgets</span></p>
-                                <h6 class="mb-0">150+</h6>
-                            </div>
-                        </div>
-                        <div class="col-6 col-lg-4 col-xxl-4">
-                            <div class="overview-product-legends">
-                                <p class="text-secondary mb-1"><span>Forms</span></p>
-                                <h6 class="mb-0">50+</h6>
-                            </div>
-                        </div>
-                        <div class="col-6 col-lg-4 col-xxl-4">
-                            <div class="overview-product-legends">
-                                <p class="text-primary mb-1"><span>Components</span></p>
-                                <h6 class="mb-0">200+</h6>
-                            </div>
-                        </div>
-                        <div class="col-6 col-lg-4 col-xxl-4">
-                            <div class="overview-product-legends">
-                                <p class="text-primary mb-1"><span>Pages</span></p>
-                                <h6 class="mb-0">150+</h6>
-                            </div>
-                        </div>
-                    </div>
+                        <h5 class="mb-0">Mis Actividades</h5>
 
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="avtar avtar-s border">9:30 am</div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="row g-1">
+                                        <div class="col-6">
+                                            <h6 class="mb-0">Apple Inc.</h6>
+                                            <p class="text-muted mb-0">
+                                                <small>#ABLE-PRO-T00232</small>
+                                            </p>
+                                        </div>
+                                        <div class="col-6 text-end">
+                                            <h6 class="mb-1">$210,000</h6>
+                                            <p class="text-danger mb-0">
+                                                <i class="ti ti-arrow-down-left"></i> 10.6%
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -444,8 +414,6 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>
-
-<script src="<?= base_url('assets/js/plugins/apexcharts.min.js') ?>"></script>
 
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/dataTables.bootstrap5.min.js"></script>
