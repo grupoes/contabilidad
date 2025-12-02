@@ -589,4 +589,11 @@ class PdtPlame extends BaseController
             ]);
         }
     }
+
+    public function notificacionPdtPlame()
+    {
+        $data = $this->notificationPdtPlame();
+
+        return $this->response->setJSON($data);
+    }
 }

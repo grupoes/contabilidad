@@ -82,4 +82,12 @@ class Agenda extends BaseController
             return $this->response->setJSON(['status' => 'error', 'message' => "Actividad no agregada. " . $e->getMessage()]);
         }
     }
+
+    public function getAgendaHoy()
+    {
+        $agenda = new AgendaModel();
+        $agendaAll = $agenda->select("id, title, DATE_FORMAT(start, '%Y-%m-%dT%H:%i:%s') AS start, description, allDay, dias_notificar, horas_notificar")->where('DATE(start) = CURDATE()')->findAll();
+
+        return $this->response->setJSON($agendaAll);
+    }
 }

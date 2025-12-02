@@ -445,42 +445,10 @@ class Sire extends BaseController
         ]);
     }
 
-    public function notificacionSire()
+    public function notificacionSireAll()
     {
-        $sire = new SireModel();
-        $contrib = new ContribuyenteModel();
-        $fecha_declaracion = new FechaDeclaracionModel();
+        $data = $this->notificacionSire();
 
-        $hoy = date('Y-m-d');
-
-        //consulta de las notificaciones
-        $declaracion = $fecha_declaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, fd.fecha_notificar, a.anio_descripcion, m.mes_descripcion FROM `fecha_declaracion` AS fd INNER JOIN anio as a ON a.id_anio = fd.id_anio INNER JOIN mes as m ON m.id_mes = fd.id_mes WHERE fd.id_tributo = 27 and fd.id_anio >= 11 and fd.fecha_exacta is not null and fd.fecha_notificar <= '$hoy'")->getResultArray();
-
-        $data_declarar = [];
-
-        foreach ($declaracion as $key => $value) {
-            $digito = $value['id_numero'] - 1;
-
-            $listaContrib = $contrib->query("SELECT id, razon_social, ruc FROM contribuyentes WHERE estado = 1 AND tipoServicio = 'CONTABLE' AND RIGHT(ruc, 1) = $digito")->getResultArray();
-
-            foreach ($listaContrib as $keys => $values) {
-                $id = $values['id'];
-
-                $querySire = $sire->where('contribuyente_id', $id)->where('periodo', $value['id_mes'])->where('anio', $value['id_anio'])->where('estado', 1)->first();
-
-                if (!$querySire) {
-                    $insert = [
-                        "contribuyente_id" => $id,
-                        "contribuyente" => $values['razon_social'],
-                        "anio" => $value['anio_descripcion'],
-                        "mes" => $value['mes_descripcion']
-                    ];
-
-                    array_push($data_declarar, $insert);
-                }
-            }
-        }
-
-        return $this->response->setJSON($data_declarar);
+        return $this->response->setJSON($data);
     }
 }

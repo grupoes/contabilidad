@@ -1012,4 +1012,11 @@ class Pdt0621 extends BaseController
 
         return $response;
     }
+
+    public function notificacionPdtRenta()
+    {
+        $data = $this->notificationPdtRenta();
+
+        return $this->response->setJSON($data);
+    }
 }

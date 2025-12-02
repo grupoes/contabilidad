@@ -50,6 +50,90 @@
 
     <div class="row" id="listCards">
 
+        <?php if ($notificacionSire > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewSire()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionSire ?></h3>
+                        <span class="m-t-10 text-black">SIRE</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($notificacionAfp > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewAfps()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionAfp ?></h3>
+                        <span class="m-t-10 text-black">AFP</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($notificacionCertificadosVencer > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewCertificadosVencer()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionCertificadosVencer ?></h3>
+                        <span class="m-t-10 text-black">CERTIFADOS POR VENCER</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($notificacionDeudoresAnuales > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewContribuyentesAnuales()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionDeudoresAnuales ?></h3>
+                        <span class="m-t-10 text-black">PDT ANUAL</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($notificacionDeudoresServidor > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewContribuyentesServidores()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionDeudoresServidor ?></h3>
+                        <span class="m-t-10 text-black">SERVIDOR</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($notificacionPdtPlame > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewContribuyentesPdtsPlame()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionPdtPlame ?></h3>
+                        <span class="m-t-10 text-black">PDT PLAME</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($notificacionPdtRenta > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewContribuyentesPdts()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionPdtRenta ?></h3>
+                        <span class="m-t-10 text-black">PDT RENTA</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <div class="col-md-6 col-xl-3">
             <div class="card social-widget-card bg-primary">
                 <div class="card-body">
@@ -75,20 +159,43 @@
                         <li class="list-group-item px-0">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0">
-                                    <div class="avtar avtar-s border">9:30 am</div>
+                                    <div class="avtar avtar-s">19:30 am</div>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
                                     <div class="row g-1">
-                                        <div class="col-6">
-                                            <h6 class="mb-0">Apple Inc.</h6>
+                                        <div class="col-8">
+                                            <h6 class="mb-0">Llamar a cliente de san martin</h6>
                                             <p class="text-muted mb-0">
-                                                <small>#ABLE-PRO-T00232</small>
+                                                <small>Para coordinar sobre el sistema para capacitación</small>
                                             </p>
                                         </div>
-                                        <div class="col-6 text-end">
-                                            <h6 class="mb-1">$210,000</h6>
+                                        <div class="col-4 text-end">
+                                            <h6 class="mb-1"> <button type="button" class="btn btn-primary btn-sm">Ok</button> </h6>
                                             <p class="text-danger mb-0">
-                                                <i class="ti ti-arrow-down-left"></i> 10.6%
+                                                <button type="button" class="btn btn-success btn-sm">Atendido</button>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item px-0">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="avtar avtar-s">19:30 am</div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="row g-1">
+                                        <div class="col-8">
+                                            <h6 class="mb-0">Llamar a cliente de san martin</h6>
+                                            <p class="text-muted mb-0">
+                                                <small>Para coordinar sobre el sistema para capacitación</small>
+                                            </p>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <h6 class="mb-1"> <button type="button" class="btn btn-primary btn-sm">Ok</button> </h6>
+                                            <p class="text-danger mb-0">
+                                                <button type="button" class="btn btn-success btn-sm">Atendido</button>
                                             </p>
                                         </div>
                                     </div>
@@ -421,6 +528,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 
-<script src="<?= base_url() ?>js/home/cajero.js?v=6"></script>
+<script src="<?= base_url() ?>js/home/cajero.js?v=7"></script>
 
 <?= $this->endSection() ?>

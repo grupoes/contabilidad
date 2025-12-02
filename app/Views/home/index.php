@@ -48,6 +48,90 @@
     <!-- [ breadcrumb ] end -->
     <!-- [ Main Content ] start -->
     <div class="row" id="listCards">
+        <?php if ($notificacionSire > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewSire()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionSire ?></h3>
+                        <span class="m-t-10 text-black">SIRE</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($notificacionAfp > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewAfps()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionAfp ?></h3>
+                        <span class="m-t-10 text-black">AFP</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($notificacionCertificadosVencer > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewCertificadosVencer()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionCertificadosVencer ?></h3>
+                        <span class="m-t-10 text-black">CERTIFADOS POR VENCER</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($notificacionDeudoresAnuales > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewContribuyentesAnuales()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionDeudoresAnuales ?></h3>
+                        <span class="m-t-10 text-black">PDT ANUAL</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($notificacionDeudoresServidor > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewContribuyentesServidores()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionDeudoresServidor ?></h3>
+                        <span class="m-t-10 text-black">SERVIDOR</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($notificacionPdtPlame > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewContribuyentesPdtsPlame()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionPdtPlame ?></h3>
+                        <span class="m-t-10 text-black">PDT PLAME</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($notificacionPdtRenta > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewContribuyentesPdts()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionPdtRenta ?></h3>
+                        <span class="m-t-10 text-black">PDT RENTA</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <div class="col-md-6 col-xl-3">
             <div class="card social-widget-card bg-primary">
                 <div class="card-body">
@@ -406,6 +490,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 
-<script src="<?= base_url() ?>js/home/admin.js?v=5"></script>
+<script src="<?= base_url() ?>js/home/admin.js?v=6"></script>
 
 <?= $this->endSection() ?>

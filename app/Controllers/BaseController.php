@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\AfpModel;
+use App\Models\AnioModel;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\CLIRequest;
 use CodeIgniter\HTTP\IncomingRequest;
@@ -20,7 +22,12 @@ use App\Models\SedeModel;
 use App\Models\SedeCajaModel;
 use App\Models\UserModel;
 use App\Models\CertificadoDigitalModel;
-
+use App\Models\FechaDeclaracionModel;
+use App\Models\PagoAnualModel;
+use App\Models\PdtAnualModel;
+use App\Models\PdtPlameModel;
+use App\Models\PdtRentaModel;
+use App\Models\SireModel;
 use DateTime;
 
 /**
@@ -659,5 +666,309 @@ abstract class BaseController extends Controller
         ORDER BY cd.fecha_vencimiento ASC;")->getResult();
 
         return $consulta_certificado_por_vencer;
+    }
+
+    public function notificacionSire()
+    {
+        $sire = new SireModel();
+        $contrib = new ContribuyenteModel();
+        $fecha_declaracion = new FechaDeclaracionModel();
+
+        $hoy = date('Y-m-d');
+
+        //consulta de las notificaciones
+        $declaracion = $fecha_declaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, fd.fecha_notificar, a.anio_descripcion, m.mes_descripcion FROM `fecha_declaracion` AS fd INNER JOIN anio as a ON a.id_anio = fd.id_anio INNER JOIN mes as m ON m.id_mes = fd.id_mes WHERE fd.id_tributo = 27 and fd.id_anio >= 11 and fd.fecha_notificar >= '2025-12-01' and fd.fecha_exacta is not null and fd.fecha_notificar <= '$hoy'")->getResultArray();
+
+        $data_declarar = [];
+
+        foreach ($declaracion as $key => $value) {
+            $digito = $value['id_numero'] - 1;
+
+            $listaContrib = $contrib->query("SELECT id, razon_social, ruc FROM contribuyentes WHERE estado = 1 AND tipoServicio = 'CONTABLE' AND RIGHT(ruc, 1) = $digito")->getResultArray();
+
+            foreach ($listaContrib as $keys => $values) {
+                $id = $values['id'];
+
+                $querySire = $sire->where('contribuyente_id', $id)->where('periodo', $value['id_mes'])->where('anio', $value['id_anio'])->where('estado', 1)->first();
+
+                if (!$querySire) {
+                    $insert = [
+                        "contribuyente_id" => $id,
+                        "contribuyente" => $values['razon_social'],
+                        "anio" => $value['anio_descripcion'],
+                        "mes" => $value['mes_descripcion']
+                    ];
+
+                    array_push($data_declarar, $insert);
+                }
+            }
+        }
+
+        return $data_declarar;
+    }
+
+    public function notificar_afp()
+    {
+        $afp = new AfpModel();
+        $contrib = new ContribuyenteModel();
+        $fecha_declaracion = new FechaDeclaracionModel();
+
+        $hoy = date('Y-m-d');
+
+        $contrib_afp = $contrib->select('contribuyentes.id, contribuyentes.ruc, contribuyentes.razon_social')->join('configuracion_notificacion', 'configuracion_notificacion.ruc_empresa_numero = contribuyentes.ruc')->where('configuracion_notificacion.id_tributo', 22)->where('contribuyentes.tipoServicio', 'CONTABLE')->where('contribuyentes.estado', 1)->findAll();
+
+        //consulta de las notificaciones
+        $declaracion = $fecha_declaracion->query("SELECT fd.id_anio, fd.id_mes, fd.fecha_exacta, fd.fecha_notificar, a.anio_descripcion, m.mes_descripcion FROM `fecha_declaracion` AS fd INNER JOIN anio as a ON a.id_anio = fd.id_anio INNER JOIN mes as m ON m.id_mes = fd.id_mes WHERE fd.id_tributo = 22 and fd.id_anio >= 11 and fd.fecha_exacta is not null and fd.fecha_notificar <= '$hoy' GROUP BY fd.id_anio, fd.id_mes, fd.fecha_exacta, fd.fecha_notificar, a.anio_descripcion, m.mes_descripcion;")->getResultArray();
+
+        $data_notificacion = [];
+
+        foreach ($declaracion as $key => $value) {
+            $idanio = $value['id_anio'];
+            $idmes = $value['id_mes'];
+
+            foreach ($contrib_afp as $keys => $values) {
+                $id = $values['id'];
+
+                $verificar_afp = $afp->query("SELECT af.id, af.periodo, af.anio, a.anio_descripcion, m.mes_descripcion FROM afp af INNER JOIN anio as a ON a.id_anio = af.anio INNER JOIN mes as m ON m.id_mes = af.periodo WHERE af.contribuyente_id = $id AND af.anio = $idanio AND af.periodo = $idmes AND af.estado = 1")->getResultArray();
+
+                if (!$verificar_afp) {
+                    $insert = [
+                        "contribuyente_id" => $id,
+                        "contribuyente" => $values['razon_social'],
+                        "mes" => $value['mes_descripcion'],
+                        "anio" => $value['anio_descripcion']
+                    ];
+
+                    array_push($data_notificacion, $insert);
+                }
+            }
+        }
+
+        return $data_notificacion;
+    }
+
+    public function notificationPdtRenta()
+    {
+        $fechaDeclaracion = new FechaDeclaracionModel();
+        $cont = new ContribuyenteModel();
+        $pdt = new PdtRentaModel();
+
+        $array = [];
+
+        $vencimientos = $fechaDeclaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, DATE_SUB(fd.fecha_exacta, INTERVAL 2 DAY) AS nueva_fecha, m.mes_descripcion, a.anio_descripcion FROM fecha_declaracion fd INNER JOIN mes m ON m.id_mes = fd.id_mes INNER JOIN anio a ON a.id_anio = fd.id_anio where fd.id_tributo = 2 and fd.fecha_exacta BETWEEN '2025-07-01' and CURDATE() + INTERVAL 2 DAY")->getResultArray();
+
+        foreach ($vencimientos as $key => $value) {
+            $id_anio = $value['id_anio'];
+            $id_mes = $value['id_mes'];
+            $id_numero = $value['id_numero'];
+            $anio_des = (int) $value['anio_descripcion'];
+
+            $digito = $id_numero - 1;
+
+            $contribuyentes = $cont->select('id, razon_social, ruc, fechaContrato, IF(MONTH(fechaContrato) = MONTH(CURDATE()) AND YEAR(fechaContrato) <= YEAR(CURDATE()), "actual", "antiguo") AS tipo_contrato')->where('estado', 1)->where('RIGHT(ruc, 1)', $digito)->where('tipoServicio', 'CONTABLE')->findAll();
+
+            foreach ($contribuyentes as $keys => $values) {
+                $ruc = $values['ruc'];
+
+                $mes = (int)date("m", strtotime($values['fechaContrato']));
+                $anio = (int)date("Y", strtotime($values['fechaContrato']));
+
+                if ($id_mes >= $mes && $anio_des >= $anio) {
+                    $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getResultArray();
+
+                    if (!$pdtRenta) {
+                        $renta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc'")->getResultArray();
+
+                        $registro = 0;
+
+                        if ($renta) {
+                            $registro = 1;
+                        }
+
+                        $array[] = [
+                            'contribuyente_id' => $values['id'],
+                            'ruc' => $ruc,
+                            'razon_social' => $values['razon_social'],
+                            'anio' => $value['anio_descripcion'],
+                            'mes' => $value['mes_descripcion'],
+                            'numero' => $id_numero - 1,
+                            'fecha_exacta' => $value['fecha_exacta'],
+                            'fechaContrato' => $values['fechaContrato'],
+                            'tipo_contrato' => $values['tipo_contrato'],
+                            'id_anio' => $id_anio,
+                            'id_mes' => $id_mes,
+                            'registro' => $registro
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $array;
+    }
+
+    public function notificationPdtPlame()
+    {
+        $fechaDeclaracion = new FechaDeclaracionModel();
+        $cont = new ContribuyenteModel();
+        $pdt = new PdtPlameModel();
+
+        $array = [];
+
+        $vencimientos = $fechaDeclaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, DATE_SUB(fd.fecha_exacta, INTERVAL 2 DAY) AS nueva_fecha, m.mes_descripcion, a.anio_descripcion FROM fecha_declaracion fd INNER JOIN mes m ON m.id_mes = fd.id_mes INNER JOIN anio a ON a.id_anio = fd.id_anio where fd.id_tributo = 2 and fd.fecha_exacta BETWEEN '2025-07-01' and CURDATE() + INTERVAL 2 DAY")->getResultArray();
+
+        foreach ($vencimientos as $key => $value) {
+            $id_anio = $value['id_anio'];
+            $id_mes = $value['id_mes'];
+            $id_numero = $value['id_numero'];
+
+            $digito = $id_numero - 1;
+
+            $contribuyentes = $cont->query("SELECT c.ruc, MAX(c.id) AS id, MAX(c.razon_social) AS razon_social, MAX(c.fechaContrato) AS fechaContrato, IF(MONTH(MAX(c.fechaContrato)) <= MONTH(CURDATE()) AND YEAR(MAX(c.fechaContrato)) = YEAR(CURDATE()), 'actual', 'antiguo') AS tipo_contrato FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc INNER JOIN tributo t ON t.id_tributo = cn.id_tributo WHERE c.estado = 1 AND RIGHT(c.ruc, 1) = $digito AND c.tipoServicio = 'CONTABLE' AND t.id_pdt = 2 GROUP BY c.ruc")->getResultArray();
+
+            foreach ($contribuyentes as $keys => $values) {
+                $ruc = $values['ruc'];
+
+                $pdtPlame = $pdt->query("SELECT pp.id_pdt_plame, ap.archivo_constancia, pp.excluido FROM pdt_plame pp LEFT JOIN archivos_pdtplame ap ON ap.id_pdtplame = pp.id_pdt_plame where pp.ruc_empresa = '$ruc' and pp.periodo = $id_mes and pp.anio = $id_anio and pp.estado = 1 ORDER BY ap.id_archivos_pdtplame desc")->getRowArray();
+
+                if ($pdtPlame) {
+                    if (($pdtPlame['archivo_constancia'] === null || $pdtPlame['archivo_constancia'] === '') && $pdtPlame['excluido'] === 'NO') {
+                        $array[] = [
+                            'contribuyente_id' => $values['id'],
+                            'ruc' => $ruc,
+                            'razon_social' => $values['razon_social'],
+                            'anio' => $value['anio_descripcion'],
+                            'mes' => $value['mes_descripcion'],
+                            'numero' => $id_numero - 1,
+                            'fecha_exacta' => $value['fecha_exacta'],
+                            'fechaContrato' => $values['fechaContrato'],
+                            'tipo_contrato' => $values['tipo_contrato'],
+                            'id_anio' => $id_anio,
+                            'id_mes' => $id_mes
+                        ];
+                    }
+                } else {
+                    $array[] = [
+                        'contribuyente_id' => $values['id'],
+                        'ruc' => $ruc,
+                        'razon_social' => $values['razon_social'],
+                        'anio' => $value['anio_descripcion'],
+                        'mes' => $value['mes_descripcion'],
+                        'numero' => $id_numero - 1,
+                        'fecha_exacta' => $value['fecha_exacta'],
+                        'fechaContrato' => $values['fechaContrato'],
+                        'tipo_contrato' => $values['tipo_contrato'],
+                        'id_anio' => $id_anio,
+                        'id_mes' => $id_mes
+                    ];
+                }
+            }
+        }
+
+        return $array;
+    }
+
+    public function renderContribuyentesDeuda()
+    {
+        $contribuyente = new ContribuyenteModel();
+
+        $contribuyentes = $contribuyente->query("SELECT 
+            c.id,
+            c.ruc,
+            c.razon_social,
+            c.telefono,
+            COUNT(ps.id) as periodos_deuda,
+            GROUP_CONCAT(DISTINCT ps.fecha_inicio ORDER BY ps.fecha_inicio DESC) as fechas_vencidas,
+            MIN(ps.fecha_inicio) as primera_fecha_vencida,
+            MAX(ps.fecha_inicio) as ultima_fecha_vencida,
+            SUM(ps.monto_pendiente) as total_deuda
+        FROM contribuyentes c
+        INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id
+        INNER JOIN sistemas s ON sc.system_id = s.id
+        LEFT JOIN pago_servidor ps ON c.id = ps.contribuyente_id 
+            AND ps.estado = 'pendiente' 
+            AND ps.fecha_inicio < CURDATE()
+        WHERE s.status = 1
+            AND c.tipoServicio = 'CONTABLE'
+            AND c.tipoSuscripcion = 'NO GRATUITO'
+        GROUP BY c.id, c.ruc, c.razon_social, c.telefono
+        HAVING COUNT(ps.id) > 0
+            AND SUM(ps.monto_pendiente) > 0
+        ORDER BY SUM(ps.monto_pendiente) DESC;")->getResultArray();
+
+        return $contribuyentes;
+    }
+
+    public function renderDeudoresAnuales()
+    {
+        $contribuyente = new ContribuyenteModel();
+        $fecha = new FechaDeclaracionModel();
+        $anio = new AnioModel();
+        $pagoAnual = new PagoAnualModel();
+        $pdtAnual = new PdtAnualModel();
+
+        $fecha->query("SET lc_time_names = 'es_ES'");
+
+        $actual = '2025';
+
+        $anioActual = $anio->where('anio_descripcion', $actual)->first();
+        $idanio = $anioActual['id_anio'];
+
+        $data = $fecha->query("SELECT fd.fecha_exacta, MAX(fd.id_fecha_declaracion) as id_fecha_declaraccion,MAX(fd.id_anio) as id_anio, MAX(fd.id_numero) as id_numero, MAX(fd.id_tributo) as id_tributo, MAX(fd.dia_exacto) as dia_exacto, MAX(fd.fecha_notificar) as fecha_notificar, MAX(a.anio_descripcion) as anio_descripcion, MAX(t.id_pdt) as id_pdt, MAX(t.tri_descripcion) as tri_descripcion FROM `fecha_declaracion` fd INNER JOIN tributo t ON t.id_tributo = fd.id_tributo INNER JOIN anio a ON a.id_anio = fd.id_anio WHERE t.id_pdt = 3 and fd.id_anio >= $idanio and fd.dia_exacto != 0 GROUP BY fd.fecha_exacta order by MAX(fd.id_fecha_declaracion) asc;")->getResultArray();
+
+        $empresas = [];
+
+        foreach ($data as $key => $value) {
+            $fechaExacta = $value['fecha_exacta'];
+            $fechaNotificar = $value['fecha_notificar'];
+
+            if (date('Y-m-d') >= $fechaNotificar) {
+                $digito = $value['id_numero'] - 1;
+                $datos = $contribuyente->query("SELECT c.id, c.ruc, c.razon_social FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc where cn.id_tributo IN (11, 12, 13, 14) and c.estado = 1 and c.tipoServicio = 'CONTABLE' and RIGHT(c.ruc, 1) = $digito GROUP BY c.id, c.ruc, c.razon_social;")->getResultArray();
+
+                foreach ($datos as $keys => $values) {
+                    $idc = $values['id'];
+                    $ruc = $values['ruc'];
+                    $razonSocial = $values['razon_social'];
+
+                    $existePdtAnual = $pdtAnual->where('ruc_empresa', $ruc)->where('id_pdt_tipo', 3)->where('periodo', $value['id_anio'])->where('estado', 1)->first();
+
+                    if ($existePdtAnual) {
+
+                        if ($existePdtAnual['cargo'] == 1) {
+                            $existePagoAnual = $pagoAnual->where('contribuyente_id', $idc)->where('anio_correspondiente', $value['anio_descripcion'])->where('estado', 'pendiente')->first();
+
+                            if ($existePagoAnual) {
+                                $mensaje = "Falta Pago Anual";
+
+                                $data_emp = [
+                                    "id" => $idc,
+                                    "ruc" => $ruc,
+                                    "razon_social" => $razonSocial,
+                                    'mensaje' => $mensaje,
+                                    'anio' => $value['anio_descripcion'],
+                                ];
+
+                                array_push($empresas, $data_emp);
+                            }
+                        }
+                    } else {
+                        $mensaje = "Falta subir su pdt anual";
+
+                        $data_emp = [
+                            "id" => $idc,
+                            "ruc" => $ruc,
+                            "razon_social" => $razonSocial,
+                            'mensaje' => $mensaje,
+                            'anio' => $value['anio_descripcion'],
+                        ];
+
+                        array_push($empresas, $data_emp);
+                    }
+                }
+            }
+        }
+
+        return $empresas;
     }
 }

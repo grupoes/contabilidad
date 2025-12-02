@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-  loadPdtsSubir();
 
   const newcs = $($table).DataTable(optionsTableDefault);
 
@@ -39,188 +38,9 @@ const swalWithBootstrapButtons = Swal.mixin({
   buttonsStyling: false,
 });
 
-async function loadPdtsSubir() {
-  const listCards = document.getElementById("listCards");
-
-  try {
-    const responseRenta = await fetch(base_url + "api/notificacion-pdt-renta");
-    const dataRenta = await responseRenta.json();
-
-    const quantyRenta = dataRenta.length;
-
-    if (quantyRenta > 0) {
-      const html = `
-        <div class="col-md-6 col-xl-3">
-            <div class="card social-widget-card alerta-card" onclick="viewContribuyentesPdts()">
-                <div class="card-body">
-                    <h3 class="text-black m-0">${quantyRenta}</h3>
-                    <span class="m-t-10 text-black">PDT RENTA</span>
-                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
-                </div>
-            </div>
-        </div>
-      `;
-
-      const temp = document.createElement("div");
-      temp.innerHTML = html.trim();
-      const nuevoNodo = temp.firstElementChild;
-      listCards.insertBefore(nuevoNodo, listCards.firstElementChild);
-    }
-
-    const responsePlame = await fetch(base_url + "api/notificacion-pdt-plame");
-    const dataPlame = await responsePlame.json();
-
-    const quantyPlame = dataPlame.length;
-
-    if (quantyPlame > 0) {
-      const htmlPlame = `
-        <div class="col-md-6 col-xl-3">
-            <div class="card social-widget-card alerta-card" onclick="viewContribuyentesPdtsPlame()">
-                <div class="card-body">
-                    <h3 class="text-black m-0">${quantyPlame}</h3>
-                    <span class="m-t-10 text-black">PDT PLAME</span>
-                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
-                </div>
-            </div>
-        </div>
-      `;
-
-      const tempPlame = document.createElement("div");
-      tempPlame.innerHTML = htmlPlame.trim();
-      const nuevoNodoPlame = tempPlame.firstElementChild;
-      listCards.insertBefore(nuevoNodoPlame, listCards.firstElementChild);
-    }
-
-    const deudores = await fetch(base_url + "deudores-servidor");
-    const dataDeudores = await deudores.json();
-
-    const quantyDeudor = dataDeudores.length;
-
-    if (quantyDeudor > 0) {
-      const htmlDeudores = `
-        <div class="col-md-6 col-xl-3">
-            <div class="card social-widget-card alerta-card" onclick="viewContribuyentesServidores()">
-                <div class="card-body">
-                    <h3 class="text-black m-0">${quantyDeudor}</h3>
-                    <span class="m-t-10 text-black">SERVIDOR</span>
-                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
-                </div>
-            </div>
-        </div>
-      `;
-
-      const tempDeudores = document.createElement("div");
-      tempDeudores.innerHTML = htmlDeudores.trim();
-      const nuevoNodoPlame = tempDeudores.firstElementChild;
-      listCards.insertBefore(nuevoNodoPlame, listCards.firstElementChild);
-    }
-
-    const pdtAnuales = await fetch(base_url + "deudores-anuales");
-    const dataAnuales = await pdtAnuales.json();
-
-    const quantyAnuales = dataAnuales.length;
-
-    if (quantyAnuales > 0) {
-      const htmlAnuales = `
-        <div class="col-md-6 col-xl-3">
-            <div class="card social-widget-card alerta-card" onclick="viewContribuyentesAnuales()">
-                <div class="card-body">
-                    <h3 class="text-black m-0">${quantyAnuales}</h3>
-                    <span class="m-t-10 text-black">PDT ANUAL</span>
-                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
-                </div>
-            </div>
-        </div>
-      `;
-
-      const tempAnuales = document.createElement("div");
-      tempAnuales.innerHTML = htmlAnuales.trim();
-      const nuevoNodoAnual = tempAnuales.firstElementChild;
-      listCards.insertBefore(nuevoNodoAnual, listCards.firstElementChild);
-    }
-
-    const cer_vencer = await fetch(base_url + "certificados-vencer");
-    const cvencer = await cer_vencer.json();
-
-    const quantyVencer = cvencer.length;
-
-    if (quantyVencer > 0) {
-      const htmlVencer = `
-        <div class="col-md-6 col-xl-3">
-            <div class="card social-widget-card alerta-card" onclick="viewCertificadosVencer()">
-                <div class="card-body">
-                    <h3 class="text-black m-0">${quantyVencer}</h3>
-                    <span class="m-t-10 text-black">CERTIFADOS POR VENCER</span>
-                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
-                </div>
-            </div>
-        </div>
-      `;
-
-      const tempVencer = document.createElement("div");
-      tempVencer.innerHTML = htmlVencer.trim();
-      const nuevoNodoVencer = tempVencer.firstElementChild;
-      listCards.insertBefore(nuevoNodoVencer, listCards.firstElementChild);
-    }
-
-    //para los afps
-    const afps = await fetch(base_url + "faltan-subir-afp");
-    const afpsubir = await afps.json();
-
-    const quantyAfps = afpsubir.length;
-
-    if (quantyAfps > 0) {
-      const htmlAfps = `
-        <div class="col-md-6 col-xl-3">
-            <div class="card social-widget-card alerta-card" onclick="viewAfps()">
-                <div class="card-body">
-                    <h3 class="text-black m-0">${quantyAfps}</h3>
-                    <span class="m-t-10 text-black">AFP</span>
-                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
-                </div>
-            </div>
-        </div>
-      `;
-
-      const tempAfps = document.createElement("div");
-      tempAfps.innerHTML = htmlAfps.trim();
-      const nuevoNodoAfps = tempAfps.firstElementChild;
-      listCards.insertBefore(nuevoNodoAfps, listCards.firstElementChild);
-    }
-
-    //para cargar los que faltan subir de sire
-    const sire = await fetch(base_url + "notificar-sire");
-    const siresubir = await sire.json();
-
-    const quantySire = siresubir.length;
-
-    if (quantySire > 0) {
-      const htmlSire = `
-        <div class="col-md-6 col-xl-3">
-            <div class="card social-widget-card alerta-card" onclick="viewSire()">
-                <div class="card-body">
-                    <h3 class="text-black m-0">${quantySire}</h3>
-                    <span class="m-t-10 text-black">SIRE</span>
-                    <i class="fas fa-book fa-2x mt-2 text-danger"></i>
-                </div>
-            </div>
-        </div>
-      `;
-
-      const tempSire = document.createElement("div");
-      tempSire.innerHTML = htmlSire.trim();
-      const nuevoNodoSire = tempSire.firstElementChild;
-      listCards.insertBefore(nuevoNodoSire, listCards.firstElementChild);
-    }
-
-  } catch (error) {
-    console.error("Error al cargar notificaciones PDT:", error);
-  }
-}
-
 function viewContribuyentesPdts() {
   $("#modalPdts").modal("show");
-  fetch(base_url + "api/notificacion-pdt-renta")
+  fetch(base_url + "notificacion-pdt-renta")
     .then((res) => res.json())
     .then((data) => {
       const listPdts = document.getElementById("listPdts");
@@ -316,7 +136,7 @@ function excluirPeriodo(ruc, id_mes, id_anio) {
 
 function viewContribuyentesPdtsPlame() {
   $("#modalPdtsPlame").modal("show");
-  fetch(base_url + "api/notificacion-pdt-plame")
+  fetch(base_url + "notificacion-pdt-plame")
     .then((res) => res.json())
     .then((data) => {
       const listPdts = document.getElementById("listPdtsPlame");

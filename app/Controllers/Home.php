@@ -18,20 +18,28 @@ class Home extends BaseController
         $contribuyentes = $cont->where('estado', 1)->findAll();
         $countCont = count($contribuyentes);
 
+        $notificacionSire = count($this->notificacionSire());
+        $notificacionAfp = count($this->notificar_afp());
+        $notificacionPdtRenta = count($this->notificationPdtRenta());
+        $notificacionPdtPlame = count($this->notificationPdtPlame());
+        $notificacionDeudoresServidor = count($this->renderContribuyentesDeuda());
+        $notificacionDeudoresAnuales = count($this->renderDeudoresAnuales());
+        $notificacionCertificadosVencer = count($this->certificados_por_vencer());
+
         switch (session()->perfil_id) {
             case '3':
-                return view('home/cajero', compact('menu', 'countCont'));
+                return view('home/cajero', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer'));
                 break;
 
             case '2':
-                return view('home/index', compact('menu', 'countCont'));
+                return view('home/index', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer'));
                 break;
             case '1':
-                return view('home/index', compact('menu', 'countCont'));
+                return view('home/index', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer'));
                 break;
 
             default:
-                return view('home/cajero', compact('menu', 'countCont'));
+                return view('home/cajero', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer'));
                 break;
         }
     }

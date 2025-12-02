@@ -74,7 +74,7 @@ $routes->get('cobrar-servidor/(:num)', 'Cobros::cobrarView/$1');
 $routes->get('render-montos/(:num)', 'Cobros::renderMontos/$1');
 $routes->post('montos/add-monto', 'Cobros::addMonto');
 $routes->get('render-pagos-servidor/(:num)', 'Cobros::renderPagosServidor/$1');
-$routes->get('deudores-servidor', 'Cobros::renderContribuyentesDeuda');
+$routes->get('deudores-servidor', 'Cobros::renderContribuyentesDeudaAll');
 $routes->get('deudas-anuales/(:any)/(:num)', 'Cobros::getCobrosAnuales/$1/$2');
 $routes->get('cobrar-anual/(:num)', 'Cobros::cobrarAnualView/$1');
 $routes->get('render-pagos-anuales/(:num)', 'Cobros::renderPagosAnual/$1');
@@ -85,7 +85,7 @@ $routes->get('detail-amort-anual/(:num)', 'Cobros::getPagoAnual/$1');
 $routes->get('cobros/delete-pago-anual/(:num)', 'Cobros::deletePagoAnual/$1');
 $routes->post('cobros/update-pago-anual', 'Cobros::updatePagoAnual');
 $routes->post('cobros/update-voucher-anual', 'Cobros::updateVaucherAnual');
-$routes->get('deudores-anuales', 'Cobros::renderDeudoresAnuales');
+$routes->get('deudores-anuales', 'Cobros::renderDeudoresAnualesAll');
 
 $routes->get('pago-honorario/(:num)', 'Pago::pagosHonorarios/$1');
 $routes->get('pagos/lista-pagos/(:num)', 'Pago::listaPagos/$1');
@@ -163,6 +163,7 @@ $routes->post('rectificacion-pdt-renta', 'Pdt0621::pdtRectificacion');
 $routes->get('pdt-0621/get-files-details/(:num)', 'Pdt0621::getArchivos/$1');
 $routes->post('pdt-0621/save-montos', 'Pdt0621::updateMontos');
 $routes->get('pdt-0621/delete/(:num)/(:num)', 'Pdt0621::delete/$1/$2');
+$routes->get('notificacion-pdt-renta', 'Pdt0621::notificacionPdtRenta');
 
 $routes->get('declaraciones/pdt-renta-transacciones', 'Pdt0621::transacciones');
 $routes->post('declaraciones/obtenerDatosPdtRentaTransacciones', 'Pdt0621::listEmpresas');
@@ -178,6 +179,7 @@ $routes->post('rectificar-pdt-plame/r08', 'PdtPlame::rectificarR08');
 $routes->get('eliminar-pdt-plame/r08/(:num)', 'PdtPlame::eliminarR08/$1');
 $routes->get('eliminar-pdt-plame/(:num)/(:num)', 'PdtPlame::eliminar/$1/$2');
 $routes->post('eliminar-pdt-plame/r08/all', 'PdtPlame::eliminarAll');
+$routes->get('notificacion-pdt-plame', 'PdtPlame::notificacionPdtPlame');
 
 $routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
 $routes->get('pdtAnual/verificar/(:num)', 'PdtAnual::verificar/$1');
@@ -230,10 +232,8 @@ $routes->post('api/send-factura', 'Api\Notificaciones::sendFacturas');
 $routes->get('api/listEmpresas', 'Api\Notificaciones::listEmpresas');
 $routes->post('api/saveHonorario', 'Api\Notificaciones::saveHonorario');
 $routes->post('api/save-factura', 'Api\Notificaciones::saveFactura');
-$routes->get('api/notificacion-pdt-renta', 'Api\Notificaciones::notificationPdtRenta');
 $routes->post('api/excluir-periodo-pdt-renta', 'Api\Notificaciones::excluirPeriodoPdtRenta');
 $routes->get('api/getMontos', 'Api\Notificaciones::getMontosPdtRenta');
-$routes->get('api/notificacion-pdt-plame', 'Api\Notificaciones::notificationPdtPlame');
 $routes->post('api/excluir-periodo-pdt-plame', 'Api\Notificaciones::excluirPeriodoPdtPlame');
 $routes->get('api/envioNotaCredito/(:num)', 'Facturas::getIdFactura/$1');
 
@@ -288,7 +288,7 @@ $routes->post('/rectificar-afp', 'Afp::rectificar');
 $routes->get('/afp/get-files-details/(:num)', 'Afp::getArchivos/$1');
 $routes->get('/afp/delete/(:num)/(:num)', 'Afp::delete/$1/$2');
 $routes->post('/consulta-afp-rango', 'Afp::consultaAfpRango');
-$routes->get('/faltan-subir-afp', 'Afp::notificar_afp');
+$routes->get('/faltan-subir-afp', 'Afp::notificar_afp_all');
 
 $routes->get('/sire', 'Sire::index');
 $routes->post('/sire', 'Sire::save');
@@ -299,7 +299,7 @@ $routes->get('/sire/delete/(:num)/(:num)', 'Sire::delete/$1/$2');
 $routes->post('/consulta-sire-rango', 'Sire::consultaSireRango');
 $routes->get('/sire/files/(:num)', 'Sire::files/$1');
 $routes->get('/sire/delete-file/(:num)', 'Sire::deleteFile/$1');
-$routes->get('/notificar-sire', 'Sire::notificacionSire');
+$routes->get('/notificar-sire', 'Sire::notificacionSireAll');
 
 $routes->get('/customer-mypes', 'Pdt0621::mypes');
 $routes->post('/customer-mypes-list', 'Pdt0621::listEmpresasMypes');

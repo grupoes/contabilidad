@@ -577,66 +577,6 @@ class Notificaciones extends ResourceController
         return $meses[$mes];
     }
 
-    public function notificationPdtRenta()
-    {
-        $fechaDeclaracion = new FechaDeclaracionModel();
-        $cont = new ContribuyenteModel();
-        $pdt = new PdtRentaModel();
-
-        $array = [];
-
-        $vencimientos = $fechaDeclaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, DATE_SUB(fd.fecha_exacta, INTERVAL 2 DAY) AS nueva_fecha, m.mes_descripcion, a.anio_descripcion FROM fecha_declaracion fd INNER JOIN mes m ON m.id_mes = fd.id_mes INNER JOIN anio a ON a.id_anio = fd.id_anio where fd.id_tributo = 2 and fd.fecha_exacta BETWEEN '2025-07-01' and CURDATE() + INTERVAL 2 DAY")->getResultArray();
-
-        foreach ($vencimientos as $key => $value) {
-            $id_anio = $value['id_anio'];
-            $id_mes = $value['id_mes'];
-            $id_numero = $value['id_numero'];
-            $anio_des = (int) $value['anio_descripcion'];
-
-            $digito = $id_numero - 1;
-
-            $contribuyentes = $cont->select('id, razon_social, ruc, fechaContrato, IF(MONTH(fechaContrato) = MONTH(CURDATE()) AND YEAR(fechaContrato) <= YEAR(CURDATE()), "actual", "antiguo") AS tipo_contrato')->where('estado', 1)->where('RIGHT(ruc, 1)', $digito)->where('tipoServicio', 'CONTABLE')->findAll();
-
-            foreach ($contribuyentes as $keys => $values) {
-                $ruc = $values['ruc'];
-
-                $mes = (int)date("m", strtotime($values['fechaContrato']));
-                $anio = (int)date("Y", strtotime($values['fechaContrato']));
-
-                if ($id_mes >= $mes && $anio_des >= $anio) {
-                    $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getResultArray();
-
-                    if (!$pdtRenta) {
-                        $renta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc'")->getResultArray();
-
-                        $registro = 0;
-
-                        if ($renta) {
-                            $registro = 1;
-                        }
-
-                        $array[] = [
-                            'contribuyente_id' => $values['id'],
-                            'ruc' => $ruc,
-                            'razon_social' => $values['razon_social'],
-                            'anio' => $value['anio_descripcion'],
-                            'mes' => $value['mes_descripcion'],
-                            'numero' => $id_numero - 1,
-                            'fecha_exacta' => $value['fecha_exacta'],
-                            'fechaContrato' => $values['fechaContrato'],
-                            'tipo_contrato' => $values['tipo_contrato'],
-                            'id_anio' => $id_anio,
-                            'id_mes' => $id_mes,
-                            'registro' => $registro
-                        ];
-                    }
-                }
-            }
-        }
-
-        return $this->respond($array);
-    }
-
     public function excluirPeriodoPdtRenta()
     {
         $pdt = new PdtRentaModel();
@@ -750,69 +690,6 @@ class Notificaciones extends ResourceController
 
         curl_close($curl);
         return json_decode($response, true);
-    }
-
-    public function notificationPdtPlame()
-    {
-        $fechaDeclaracion = new FechaDeclaracionModel();
-        $cont = new ContribuyenteModel();
-        $pdt = new PdtPlameModel();
-
-        $array = [];
-
-        $vencimientos = $fechaDeclaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, DATE_SUB(fd.fecha_exacta, INTERVAL 2 DAY) AS nueva_fecha, m.mes_descripcion, a.anio_descripcion FROM fecha_declaracion fd INNER JOIN mes m ON m.id_mes = fd.id_mes INNER JOIN anio a ON a.id_anio = fd.id_anio where fd.id_tributo = 2 and fd.fecha_exacta BETWEEN '2025-07-01' and CURDATE() + INTERVAL 2 DAY")->getResultArray();
-
-        foreach ($vencimientos as $key => $value) {
-            $id_anio = $value['id_anio'];
-            $id_mes = $value['id_mes'];
-            $id_numero = $value['id_numero'];
-
-            $digito = $id_numero - 1;
-
-            /*$contribuyentes = $cont->select('id, razon_social, ruc, fechaContrato, IF(MONTH(fechaContrato) = MONTH(CURDATE()) AND YEAR(fechaContrato) = YEAR(CURDATE()), "actual", "antiguo") AS tipo_contrato')->where('estado', 1)->where('RIGHT(ruc, 1)', $digito)->where('tipoServicio', 'CONTABLE')->findAll();*/
-
-            $contribuyentes = $cont->query("SELECT c.ruc, MAX(c.id) AS id, MAX(c.razon_social) AS razon_social, MAX(c.fechaContrato) AS fechaContrato, IF(MONTH(MAX(c.fechaContrato)) <= MONTH(CURDATE()) AND YEAR(MAX(c.fechaContrato)) = YEAR(CURDATE()), 'actual', 'antiguo') AS tipo_contrato FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc INNER JOIN tributo t ON t.id_tributo = cn.id_tributo WHERE c.estado = 1 AND RIGHT(c.ruc, 1) = $digito AND c.tipoServicio = 'CONTABLE' AND t.id_pdt = 2 GROUP BY c.ruc")->getResultArray();
-
-            foreach ($contribuyentes as $keys => $values) {
-                $ruc = $values['ruc'];
-
-                $pdtPlame = $pdt->query("SELECT pp.id_pdt_plame, ap.archivo_constancia, pp.excluido FROM pdt_plame pp LEFT JOIN archivos_pdtplame ap ON ap.id_pdtplame = pp.id_pdt_plame where pp.ruc_empresa = '$ruc' and pp.periodo = $id_mes and pp.anio = $id_anio and pp.estado = 1 ORDER BY ap.id_archivos_pdtplame desc")->getRowArray();
-
-                if ($pdtPlame) {
-                    if (($pdtPlame['archivo_constancia'] === null || $pdtPlame['archivo_constancia'] === '') && $pdtPlame['excluido'] === 'NO') {
-                        $array[] = [
-                            'contribuyente_id' => $values['id'],
-                            'ruc' => $ruc,
-                            'razon_social' => $values['razon_social'],
-                            'anio' => $value['anio_descripcion'],
-                            'mes' => $value['mes_descripcion'],
-                            'numero' => $id_numero - 1,
-                            'fecha_exacta' => $value['fecha_exacta'],
-                            'fechaContrato' => $values['fechaContrato'],
-                            'tipo_contrato' => $values['tipo_contrato'],
-                            'id_anio' => $id_anio,
-                            'id_mes' => $id_mes
-                        ];
-                    }
-                } else {
-                    $array[] = [
-                        'contribuyente_id' => $values['id'],
-                        'ruc' => $ruc,
-                        'razon_social' => $values['razon_social'],
-                        'anio' => $value['anio_descripcion'],
-                        'mes' => $value['mes_descripcion'],
-                        'numero' => $id_numero - 1,
-                        'fecha_exacta' => $value['fecha_exacta'],
-                        'fechaContrato' => $values['fechaContrato'],
-                        'tipo_contrato' => $values['tipo_contrato'],
-                        'id_anio' => $id_anio,
-                        'id_mes' => $id_mes
-                    ];
-                }
-            }
-        }
-
-        return $this->respond($array);
     }
 
     public function excluirPeriodoPdtPlame()
