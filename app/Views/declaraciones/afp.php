@@ -161,6 +161,7 @@
                             <tbody id="loadFiles"></tbody>
                         </table>
                     </div>
+                    <div id="viewFiles"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -277,13 +278,13 @@
                     <input type="hidden" name="rucRect" id="rucRect" value="0" />
                     <div class="row">
                         <div class="col-md-12 mb-3">
-                            <label for="fileReporte" class="form-label">Elige el nuevo reporte</label>
-                            <input type="file" name="fileReporte" id="fileReporte" class="form-control" accept=".pdf" />
+                            <label for="fileReporte" class="form-label">Elige reportes</label>
+                            <input type="file" name="fileReporte[]" id="fileReporte" class="form-control" accept=".pdf" multiple />
                         </div>
 
                         <div class="col-md-12 mb-3">
-                            <label for="fileTicket" class="form-label">Elige el nuevo ticket</label>
-                            <input type="file" name="fileTicket" id="fileTicket" class="form-control" accept=".pdf" />
+                            <label for="fileTicket" class="form-label">Elige tickets</label>
+                            <input type="file" name="fileTicket[]" id="fileTicket" class="form-control" accept=".pdf" multiple />
                         </div>
 
                         <div class="col-md-12 mb-3">

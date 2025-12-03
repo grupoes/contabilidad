@@ -242,8 +242,8 @@ function viewArchivos(data, id) {
             <td>${archivo.mes_descripcion}</td>
             <td>${archivo.anio_descripcion}</td>
             <td>
-                <a href='${base_url}archivos/afp/${archivo.archivo_reporte}' class='btn btn-success btn-sm' target='_blank' title='Descargar reporte'>REPORTE</a> 
-                <a href='${base_url}archivos/afp/${archivo.archivo_ticket}' target='_blank' class='btn btn-primary btn-sm' title='Descargar ticket'>TICKET</a>
+                <button type='button' class='btn btn-success btn-sm' onclick="descargarReporte(${archivo.afpId})" title='Descargar reporte'>REPORTE</button>
+                <button type='button' class='btn btn-primary btn-sm' onclick="descargarTicket(${archivo.afpId})" title='Descargar ticket'>TICKET</button>
                 <a href='${base_url}archivos/afp/${archivo.archivo_plantilla}' target='_blank' class='btn btn-info btn-sm' title='Descargar plantilla'>PLANTILLA</a>
             </td>
             <td>
@@ -595,3 +595,85 @@ function eliminar(afp_id, id) {
         }
     });
 }
+
+const viewFiles = document.getElementById("viewFiles");
+
+function descargarReporte(id) {
+
+    viewFiles.innerHTML = "";
+    fetch(`${base_url}afp/get-files-reporte/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+
+            viewFilesReportes(data);
+        })
+}
+
+function viewFilesReportes(data) {
+
+    let tr = "";
+
+    data.forEach((item, i) => {
+        tr += `
+        <tr>
+            <td>${i + 1}</td>
+            <td><a href="${base_url}archivos/afp/${item.name_file
+            }" target="_blank">${item.name_file}</a></td>
+            
+        </tr>
+        `;
+    });
+
+    let html = `
+    <h4 class="d-flex justify-content-between align-items-center">
+        Archivo Reportes AFP
+    </h4>
+    <table class="table" id="tableReporte">
+        <tbody>
+            ${tr}
+        </tbody>
+    </table>
+    `;
+
+    viewFiles.innerHTML = html;
+}
+
+function descargarTicket(id) {
+
+    viewFiles.innerHTML = "";
+    fetch(`${base_url}afp/get-files-ticket/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+            viewFilesTicket(data);
+        })
+}
+
+function viewFilesTicket(data) {
+    let tr = "";
+
+    data.forEach((item, i) => {
+        tr += `
+        <tr>
+            <td>${i + 1}</td>
+            <td><a href="${base_url}archivos/afp/${item.name_file
+            }" target="_blank">${item.name_file}</a></td>
+            
+        </tr>
+        `;
+    });
+
+    let html = `
+    <h4 class="d-flex justify-content-between align-items-center">
+        Archivo Tickets AFP
+    </h4>
+    <table class="table" id="tableTicket">
+        <tbody>
+            ${tr}
+        </tbody>
+    </table>
+    `;
+
+    viewFiles.innerHTML = html;
+}
+
+

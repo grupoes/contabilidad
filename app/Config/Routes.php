@@ -289,6 +289,8 @@ $routes->get('/afp/get-files-details/(:num)', 'Afp::getArchivos/$1');
 $routes->get('/afp/delete/(:num)/(:num)', 'Afp::delete/$1/$2');
 $routes->post('/consulta-afp-rango', 'Afp::consultaAfpRango');
 $routes->get('/faltan-subir-afp', 'Afp::notificar_afp_all');
+$routes->get('/afp/get-files-reporte/(:num)', 'Afp::getArchivosReporte/$1');
+$routes->get('/afp/get-files-ticket/(:num)', 'Afp::getArchivosTicket/$1');
 
 $routes->get('/sire', 'Sire::index');
 $routes->post('/sire', 'Sire::save');
