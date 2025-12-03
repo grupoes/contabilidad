@@ -52,6 +52,8 @@ class Afp extends BaseController
 
             $data = $this->request->getPost();
 
+            $ruc = $data['ruc_empresa'];
+
             $file_reportes = $this->request->getFileMultiple('file_reporte');
             $file_ticket = $this->request->getFileMultiple('file_ticket');
             $file_plantilla = $this->request->getFile('file_plantilla');
@@ -76,20 +78,23 @@ class Afp extends BaseController
 
             $hayTickets = false;
 
-            if (!empty($file_ticket)) {
-                foreach ($file_ticket as $archivo) {
-                    if ($archivo->isValid() && !$archivo->hasMoved()) {
-                        $hayTickets = true;
-                        break;
+            if ($ruc != '10438453291' && $ruc != '20542322412' && $ruc != '20603670249') {
+
+                if (!empty($file_ticket)) {
+                    foreach ($file_ticket as $archivo) {
+                        if ($archivo->isValid() && !$archivo->hasMoved()) {
+                            $hayTickets = true;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (!$hayTickets) {
-                return $this->response->setJSON([
-                    "status" => "error",
-                    "message" => "Debe seleccionar al menos un archivo de ticket"
-                ]);
+                if (!$hayTickets) {
+                    return $this->response->setJSON([
+                        "status" => "error",
+                        "message" => "Debe seleccionar al menos un archivo de ticket"
+                    ]);
+                }
             }
 
             if (!$file_plantilla) {
@@ -104,7 +109,7 @@ class Afp extends BaseController
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos Excel']);
             }
 
-            $ruc = $data['ruc_empresa'];
+
             $periodo = $data['periodo'];
             $anio = $data['anio'];
             $idCont = $data['idTabla'];
@@ -177,30 +182,34 @@ class Afp extends BaseController
                 }
             }
 
-            if ($hayTickets) {
-                for ($i = 0; $i < count($file_ticket); $i++) {
-                    if ($file_ticket[$i]->isValid() && !$file_ticket[$i]->hasMoved()) {
-                        $name_original = $file_ticket[$i]->getName();
+            if ($ruc != '10438453291' || $ruc != '20542322412' || $ruc != '20603670249') {
+                if ($hayTickets) {
+                    for ($i = 0; $i < count($file_ticket); $i++) {
+                        if ($file_ticket[$i]->isValid() && !$file_ticket[$i]->hasMoved()) {
+                            $name_original = $file_ticket[$i]->getName();
 
-                        $code = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+                            $code = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
 
-                        $name = $code . '_' . $name_original;
+                            $name = $code . '_' . $name_original;
 
-                        $file_ticket[$i]->move(FCPATH . 'archivos/afp', $name);
+                            $file_ticket[$i]->move(FCPATH . 'archivos/afp', $name);
 
-                        $data_ticket = array(
-                            "afp_id" => $afpId,
-                            "name_file" => $name,
-                            "estado" => 1,
-                            "user_add" => session()->id
-                        );
+                            $data_ticket = array(
+                                "afp_id" => $afpId,
+                                "name_file" => $name,
+                                "estado" => 1,
+                                "user_add" => session()->id
+                            );
 
-                        $archivosTicket->insert($data_ticket);
-                    } else {
-                        return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
+                            $archivosTicket->insert($data_ticket);
+                        } else {
+                            return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
+                        }
                     }
                 }
             }
+
+
 
             if ($files->db->transStatus() === false) {
                 $files->db->transRollback();
@@ -265,6 +274,8 @@ class Afp extends BaseController
         $anio_ = new AnioModel();
         $files = new ArchivosAfpModel();
         $contribuyente = new ContribuyenteModel();
+        $files_reportes = new ArchivosReporteAfpModel();
+        $files_tickets = new ArchivosTicketAfpModel();
 
         try {
             $files->db->transBegin();
@@ -279,6 +290,9 @@ class Afp extends BaseController
             $file2 = $this->request->getFileMultiple('fileTicket');
             $file3 = $this->request->getFile('filePlantilla');
 
+            $dataContribuyente = $contribuyente->select('ruc')->find($idContribuyente);
+            $ruc = $dataContribuyente['ruc'];
+
             $hayReportes = false;
 
             if (!empty($file1)) {
@@ -292,26 +306,32 @@ class Afp extends BaseController
 
             $hayTickets = false;
 
-            if (!empty($file2)) {
-                foreach ($file2 as $archivo) {
-                    if ($archivo->isValid() && !$archivo->hasMoved()) {
-                        $hayTickets = true;
-                        break;
+            if ($ruc != '10438453291' && $ruc != '20542322412' && $ruc != '20603670249') {
+                if (!empty($file2)) {
+                    foreach ($file2 as $archivo) {
+                        if ($archivo->isValid() && !$archivo->hasMoved()) {
+                            $hayTickets = true;
+                            break;
+                        }
                     }
                 }
+
+                // Verificar que al menos uno de los archivos esté presente
+                if (!$hayReportes && !$hayTickets && (!$file3 || !$file3->isValid())) {
+                    return $this->response->setJSON([
+                        "status" => "error",
+                        "message" => "Debe seleccionar al menos un archivo"
+                    ]);
+                }
+            } else {
+                // Verificar que al menos uno de los archivos esté presente
+                if (!$hayReportes && (!$file3 || !$file3->isValid())) {
+                    return $this->response->setJSON([
+                        "status" => "error",
+                        "message" => "Debe seleccionar al menos un archivo"
+                    ]);
+                }
             }
-
-            // Verificar que al menos uno de los archivos esté presente
-            if (!$hayReportes && !$hayTickets && (!$file3 || !$file3->isValid())) {
-                return $this->response->setJSON([
-                    "status" => "error",
-                    "message" => "Debe seleccionar al menos un archivo"
-                ]);
-            }
-
-
-
-            $dataContribuyente = $contribuyente->select('ruc')->find($idContribuyente);
 
             $data_periodo = $mes->find($periodo);
 
@@ -319,31 +339,12 @@ class Afp extends BaseController
 
             $per = strtoupper($data_periodo['mes_descripcion']);
             $ani = $data_anio['anio_descripcion'];
-            $ruc = $dataContribuyente['ruc'];
 
             $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
 
-            $archivo_reporte = "";
-            $archivo_ticket = "";
             $archivo_plantilla = "";
 
             $dataArchivo = $files->find($idarchivo);
-
-            if ($file1->isValid()) {
-                $ext_reporte = $file1->getExtension();
-                $archivo_reporte = "AFP_REPORTE_" . $ruc . "_" . $per . $ani . "_RECT_" . $codigo . "." . $ext_reporte;
-                $file1->move(FCPATH . 'archivos/afp', $archivo_reporte);
-            } else {
-                $archivo_reporte = $dataArchivo['archivo_reporte'];
-            }
-
-            if ($file2->isValid()) {
-                $ext_ticket = $file2->getExtension();
-                $archivo_ticket = "AFP_TICKET_" . $ruc . "_" . $per . $ani . "_RECT_" . $codigo . "." . $ext_ticket;
-                $file2->move(FCPATH . 'archivos/afp', $archivo_ticket);
-            } else {
-                $archivo_ticket = $dataArchivo['archivo_ticket'];
-            }
 
             if ($file3->isValid()) {
                 $ext_plantilla = $file3->getExtension();
@@ -355,8 +356,6 @@ class Afp extends BaseController
 
             $datos_files = array(
                 "afp_id" => $idafp,
-                "archivo_reporte" => $archivo_reporte,
-                "archivo_ticket" => $archivo_ticket,
                 "archivo_plantilla" => $archivo_plantilla,
                 "estado" => 1,
                 "user_add" => session()->id
@@ -368,6 +367,72 @@ class Afp extends BaseController
                 "estado" => 0,
                 "user_edit" => session()->id
             ));
+
+            if ($hayReportes) {
+
+                $files_reportes
+                    ->set('estado', 0)
+                    ->set('user_edit', session()->id)
+                    ->where('afp_id', $idarchivo)
+                    ->update();
+
+                for ($i = 0; $i < count($file1); $i++) {
+                    if ($file1[$i]->isValid() && !$file1[$i]->hasMoved()) {
+                        $name_original = $file1[$i]->getName();
+
+                        $code = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+
+                        $name = $code . '_' . $name_original;
+
+                        $file1[$i]->move(FCPATH . 'archivos/afp', $name);
+
+                        $data_reporte = array(
+                            "afp_id" => $idafp,
+                            "name_file" => $name,
+                            "estado" => 1,
+                            "user_add" => session()->id
+                        );
+
+                        $files_reportes->insert($data_reporte);
+                    } else {
+                        return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
+                    }
+                }
+            }
+
+            if ($ruc != '10438453291' && $ruc != '20542322412' && $ruc != '20603670249') {
+                if ($hayTickets) {
+                    $files_tickets
+                        ->set('estado', 0)
+                        ->set('user_edit', session()->id)
+                        ->where('afp_id', $idarchivo)
+                        ->update();
+
+                    for ($i = 0; $i < count($file2); $i++) {
+                        if ($file2[$i]->isValid() && !$file2[$i]->hasMoved()) {
+                            $name_original = $file2[$i]->getName();
+
+                            $code = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+
+                            $name = $code . '_' . $name_original;
+
+                            $file2[$i]->move(FCPATH . 'archivos/afp', $name);
+
+                            $data_tickets = array(
+                                "afp_id" => $idafp,
+                                "name_file" => $name,
+                                "estado" => 1,
+                                "user_add" => session()->id
+                            );
+
+                            $files_tickets->insert($data_tickets);
+                        } else {
+                            return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
+                        }
+                    }
+                }
+            }
+
 
             if ($files->db->transStatus() === false) {
                 $files->db->transRollback();

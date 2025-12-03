@@ -100,7 +100,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_ticket">Subir Ticket</label>
-                            <input type="file" class="form-control" name="file_ticket[]" accept=".pdf" id="file_ticket" multiple required>
+                            <input type="file" class="form-control" name="file_ticket[]" accept=".pdf" id="file_ticket" multiple>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_plantilla">Subir Plantilla</label>
