@@ -96,11 +96,11 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_reporte">Subir Reporte</label>
-                            <input type="file" class="form-control" name="file_reporte" accept=".pdf" id="file_reporte" required>
+                            <input type="file" class="form-control" name="file_reporte[]" accept=".pdf" id="file_reporte" multiple required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_ticket">Subir Ticket</label>
-                            <input type="file" class="form-control" name="file_ticket" accept=".pdf" id="file_ticket" required>
+                            <input type="file" class="form-control" name="file_ticket[]" accept=".pdf" id="file_ticket" multiple required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_plantilla">Subir Plantilla</label>
