@@ -110,15 +110,6 @@ class Afp extends BaseController
 
             $afpId = $afp->insertID();
 
-            $datos_files = array(
-                "afp_id" => $afpId,
-                "archivo_plantilla" => $file_plantilla,
-                "estado" => 1,
-                "user_add" => session()->id
-            );
-
-            $files->insert($datos_files);
-
             if ($hayPlantilla) {
                 for ($i = 0; $i < count($file_plantilla); $i++) {
                     if ($file_plantilla[$i]->isValid() && !$file_plantilla[$i]->hasMoved()) {
@@ -194,34 +185,31 @@ class Afp extends BaseController
         $idContribuyente = $this->request->getVar('contribuyente_id');
 
         $consulta = $afp->query("SELECT
-        afp.id as afpId, afp.periodo, afp.anio, afp.contribuyente_id,archivos_afp.id,archivos_afp.archivo_reporte,archivos_afp.archivo_ticket,archivos_afp.archivo_plantilla,archivos_afp.estado,archivos_afp.afp_id,anio.anio_descripcion,mes.mes_descripcion
+        afp.id as afpId, afp.periodo, afp.anio, afp.contribuyente_id,anio.anio_descripcion,mes.mes_descripcion
         FROM afp
-        INNER JOIN archivos_afp ON archivos_afp.afp_id = afp.id
         INNER JOIN anio ON afp.anio = anio.id_anio
         INNER JOIN mes ON mes.id_mes = afp.periodo
-        WHERE afp.contribuyente_id = $idContribuyente AND afp.anio = $anio AND afp.periodo = $periodo AND archivos_afp.estado = 1")->getResultArray();
+        WHERE afp.contribuyente_id = $idContribuyente AND afp.anio = $anio AND afp.periodo = $periodo AND afp.estado = 1")->getRowArray();
 
         $rectificar = $this->getPermisosAcciones(41, session()->perfil_id, 'rectificar');
         $detalle = $this->getPermisosAcciones(41, session()->perfil_id, 'ver detalle');
         $eliminar = $this->getPermisosAcciones(41, session()->perfil_id, 'eliminar');
 
-        foreach ($consulta as $key => $value) {
-            $acciones = "";
+        $acciones = "";
 
-            if ($rectificar) {
-                $acciones .= '<button type="button" class="btn btn-warning btn-sm" title="Rectificar Archivos" onclick="rectificar(' . $value['afp_id'] . ', ' . $value['id'] . ', ' . $value['periodo'] . ', ' . $value['anio'] . ', ' . $value['contribuyente_id'] . ', \'' . $value['mes_descripcion'] . '\', ' . $value['anio_descripcion'] . ')">RECT</button> ';
-            }
-
-            if ($detalle) {
-                $acciones .= '<button type="button" class="btn btn-info btn-sm" title="detalle" onclick="details_archivos(' . $value['afp_id'] . ', \'' . $value['mes_descripcion'] . '\', ' . $value['anio_descripcion'] . ')">DET</button> ';
-            }
-
-            if ($eliminar) {
-                $acciones .= '<button type="button" class="btn btn-danger btn-sm" title="eliminar" onclick="eliminar(' . $value['afp_id'] . ', ' . $value['id'] . ')"><i class="ti ti-trash"></i></button>';
-            }
-
-            $consulta[$key]['acciones'] = $acciones;
+        if ($rectificar) {
+            $acciones .= '<button type="button" class="btn btn-warning btn-sm" title="Rectificar Archivos" onclick="rectificar(' . $consulta['afpId'] . ', ' . $consulta['periodo'] . ', ' . $consulta['anio'] . ', ' . $consulta['contribuyente_id'] . ', \'' . $consulta['mes_descripcion'] . '\', ' . $consulta['anio_descripcion'] . ')">RECT</button> ';
         }
+
+        if ($detalle) {
+            $acciones .= '<button type="button" class="btn btn-info btn-sm" title="detalle" onclick="details_archivos(' . $consulta['afpId'] . ', \'' . $consulta['mes_descripcion'] . '\', ' . $consulta['anio_descripcion'] . ')">DET</button> ';
+        }
+
+        if ($eliminar) {
+            $acciones .= '<button type="button" class="btn btn-danger btn-sm" title="eliminar" onclick="eliminar(' . $consulta['afpId'] . ')"><i class="ti ti-trash"></i></button>';
+        }
+
+        $consulta['acciones'] = $acciones;
 
         return $this->response->setJSON($consulta);
     }

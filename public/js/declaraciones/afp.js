@@ -236,21 +236,19 @@ function renderArchivos(periodo, anio, id) {
 function viewArchivos(data, id) {
     let html = "";
 
-    data.forEach((archivo) => {
-        html += `
+    html += `
         <tr>
-            <td>${archivo.mes_descripcion}</td>
-            <td>${archivo.anio_descripcion}</td>
+            <td>${data.mes_descripcion}</td>
+            <td>${data.anio_descripcion}</td>
             <td>
-                <button type='button' class='btn btn-success btn-sm' onclick="descargarReporte(${archivo.afpId})" title='Descargar reporte'>REPORTE</button>
-                <button type='button' class='btn btn-primary btn-sm' onclick="descargarPlantilla(${archivo.afpId})" title='Descargar plantilla'>PLANTILLA</button>
+                <button type='button' class='btn btn-success btn-sm' onclick="descargarReporte(${data.afpId})" title='Descargar reporte'>REPORTE</button>
+                <button type='button' class='btn btn-primary btn-sm' onclick="descargarPlantilla(${data.afpId})" title='Descargar plantilla'>PLANTILLA</button>
             </td>
             <td>
-              ${archivo.acciones}
+              ${data.acciones}
             </td>
         </tr>
         `;
-    });
 
     loadFiles.innerHTML = html;
 }
@@ -412,7 +410,7 @@ const formRectificacion = document.getElementById("formRectificacion");
 
 function rectificar(
     id_pdt_renta,
-    id_archivos_pdt,
+    id_archivos_pdt = 0,
     periodo,
     anio,
     ruc,
