@@ -275,7 +275,7 @@ function viewR08_archivo(data) {
     tr += `
         <tr>
             <td>${i + 1}</td>
-            <td><a href="${base_url}pdf-view-r08?id=${item.id}&nameFile=${item.nameFile}" target="_blank">${item.nameFile}</a></td>
+            <td><a href="${base_url}pdf-view-r08?id=${item.id}&nameFile=${item.nameFile}" target="__blank">${item.nameFile}</a></td>
             <td>
               <input type="checkbox" class="form-check-input checkR08" id="checkR08_${item.id
       }" value="${item.id}" />
