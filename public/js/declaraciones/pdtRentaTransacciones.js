@@ -341,5 +341,5 @@ function closePdf() {
   viewTable.style.height = "75vh";
 
   viewFilePdf.classList.remove("col-md-6");
-  viewFilePdf.classList.add("col-md-12");
+  viewFilePdf.innerHTML = "";
 }
