@@ -243,8 +243,7 @@ function viewArchivos(data, id) {
             <td>${archivo.anio_descripcion}</td>
             <td>
                 <button type='button' class='btn btn-success btn-sm' onclick="descargarReporte(${archivo.afpId})" title='Descargar reporte'>REPORTE</button>
-                <button type='button' class='btn btn-primary btn-sm' onclick="descargarTicket(${archivo.afpId})" title='Descargar ticket'>TICKET</button>
-                <a href='${base_url}archivos/afp/${archivo.archivo_plantilla}' target='_blank' class='btn btn-info btn-sm' title='Descargar plantilla'>PLANTILLA</a>
+                <button type='button' class='btn btn-primary btn-sm' onclick="descargarPlantilla(${archivo.afpId})" title='Descargar plantilla'>PLANTILLA</button>
             </td>
             <td>
               ${archivo.acciones}
@@ -638,25 +637,25 @@ function viewFilesReportes(data) {
     viewFiles.innerHTML = html;
 }
 
-function descargarTicket(id) {
+function descargarPlantilla(id) {
 
     viewFiles.innerHTML = "";
-    fetch(`${base_url}afp/get-files-ticket/${id}`)
+    fetch(`${base_url}afp/get-files-plantilla/${id}`)
         .then((res) => res.json())
         .then((data) => {
-            viewFilesTicket(data);
+            viewFilesPlantilla(data);
         })
 }
 
-function viewFilesTicket(data) {
+function viewFilesPlantilla(data) {
     let tr = "";
 
     data.forEach((item, i) => {
         tr += `
         <tr>
             <td>${i + 1}</td>
-            <td><a href="${base_url}archivos/afp/${item.name_file
-            }" target="_blank">${item.name_file}</a></td>
+            <td><a href="${base_url}archivos/afp/${item.archivo_plantilla
+            }" target="_blank">${item.archivo_plantilla}</a></td>
             
         </tr>
         `;
@@ -664,9 +663,9 @@ function viewFilesTicket(data) {
 
     let html = `
     <h4 class="d-flex justify-content-between align-items-center">
-        Archivo Tickets AFP
+        Archivo Plantilla AFP
     </h4>
-    <table class="table" id="tableTicket">
+    <table class="table" id="tablePlantilla">
         <tbody>
             ${tr}
         </tbody>

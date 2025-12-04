@@ -438,9 +438,9 @@ class Afp extends BaseController
         return $this->response->setJSON($data);
     }
 
-    public function getArchivosTicket($id)
+    public function getArchivosPlantilla($id)
     {
-        $files = new ArchivosTicketAfpModel();
+        $files = new ArchivosAfpModel();
 
         $data = $files->where('afp_id', $id)->where('estado', 1)->findAll();
 
