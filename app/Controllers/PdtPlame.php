@@ -610,7 +610,10 @@ class PdtPlame extends BaseController
 
         $data = $r08->where('plameId', $idplame)->where('status', 1)->findAll();
 
-
+        echo "<pre>";
+        print_r($data);
+        echo "</pre>";
+        exit;
         return view('declaraciones/r08ViewPdf', compact('data', 'name'));
     }
 }
