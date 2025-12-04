@@ -357,7 +357,7 @@ listaPeriodos.addEventListener("click", (e) => {
         e.preventDefault();
         const url = viewPdf.href;
 
-        tamModal.classList.remove("modal-lg");
+        tamModal.classList.remove("modal-xl");
         tamModal.classList.add("modal-fullscreen");
 
         viewTable.classList.remove("col-md-12");
@@ -398,7 +398,7 @@ function descargarExcelMypes(ruc, anio) {
 
 function closePdf() {
     tamModal.classList.remove("modal-fullscreen");
-    tamModal.classList.add("modal-lg");
+    tamModal.classList.add("modal-xl");
 
     viewTable.classList.remove("col-md-6");
     viewTable.classList.add("col-md-12");
