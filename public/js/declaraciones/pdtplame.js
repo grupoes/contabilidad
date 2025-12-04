@@ -49,14 +49,11 @@ function vistaContribuyentes(data) {
             <td>${cont.razon_social}</td>
             <td class="text-center">
                 <div class="btn-group" role="group" aria-label="Basic example">
-                    <button type="button" class="btn btn-success" title="Subir archivos" onclick="modalArchivo(${
-                      cont.id
-                    })"> <i class="ti ti-file-upload"></i> </button> 
-                    <button type="button" class="btn btn-info" title="Descargar archivos" onclick="descargarArchivos(${
-                      cont.ruc
-                    }, ${
-      cont.id
-    })"> <i class="ti ti-file-download"></i> </button>
+                    <button type="button" class="btn btn-success" title="Subir archivos" onclick="modalArchivo(${cont.id
+      })"> <i class="ti ti-file-upload"></i> </button> 
+                    <button type="button" class="btn btn-info" title="Descargar archivos" onclick="descargarArchivos(${cont.ruc
+      }, ${cont.id
+      })"> <i class="ti ti-file-download"></i> </button>
                 </div>
             </td>
         </tr>
@@ -278,19 +275,14 @@ function viewR08_archivo(data) {
     tr += `
         <tr>
             <td>${i + 1}</td>
-            <td><a href="${base_url}archivos/pdt/${
-      item.nameFile
-    }" target="_blank">${item.nameFile}</a></td>
+            <td><a href="${base_url}pdf-view-r08?id=${item.id}&nameFile=${item.nameFile}" target="_blank">${item.nameFile}</a></td>
             <td>
-              <input type="checkbox" class="form-check-input checkR08" id="checkR08_${
-                item.id
-              }" value="${item.id}" />
-              <a href="#" style="font-size: 16px" title="RECTIFICAR" onclick="rectificarR08(event, ${
-                item.id
-              })"> <i class="fas fa-edit"> </i> </a>
-              <a href="#" style="font-size: 16px" title="ELIMINAR" onclick="eliminarR08(event, ${
-                item.id
-              })"> <i class="fas fa-trash-alt text-danger" style="font-size: 16px" > </i> </a>
+              <input type="checkbox" class="form-check-input checkR08" id="checkR08_${item.id
+      }" value="${item.id}" />
+              <a href="#" style="font-size: 16px" title="RECTIFICAR" onclick="rectificarR08(event, ${item.id
+      })"> <i class="fas fa-edit"> </i> </a>
+              <a href="#" style="font-size: 16px" title="ELIMINAR" onclick="eliminarR08(event, ${item.id
+      })"> <i class="fas fa-trash-alt text-danger" style="font-size: 16px" > </i> </a>
             </td>
         </tr>
         `;

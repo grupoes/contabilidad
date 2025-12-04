@@ -596,4 +596,20 @@ class PdtPlame extends BaseController
 
         return $this->response->setJSON($data);
     }
+
+    public function pdfViewR08()
+    {
+        $r08 = new R08PlameModel();
+
+        $name = $this->request->getGet('nameFile');
+        $idr08 = $this->request->getGet('id');
+
+        $dataR08 = $r08->find($idr08);
+
+        $idplame = $dataR08['plameId'];
+
+        $data = $r08->where('plameId', $idplame)->where('status', 1)->findAll();
+
+        return view('declaraciones/r08ViewPdf', compact('data', 'name'));
+    }
 }
