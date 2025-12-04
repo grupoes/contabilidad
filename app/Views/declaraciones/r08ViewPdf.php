@@ -62,7 +62,10 @@
             <div class="carousel-inner h-100">
 
                 <?php foreach ($data as $key => $value) { ?>
-                    <div class="carousel-item h-100">
+
+                    <?php $active = ($value['nameFile'] == $name) ? 'active' : ''; ?>
+
+                    <div class="carousel-item <?= $active ?> h-100">
                         <iframe
                             src="<?php echo base_url('archivos/pdt/' . $value['nameFile']); ?>"
                             data-name="<?php echo $value['nameFile']; ?>"
