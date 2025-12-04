@@ -109,7 +109,6 @@ class Afp extends BaseController
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos Excel']);
             }
 
-
             $periodo = $data['periodo'];
             $anio = $data['anio'];
             $idCont = $data['idTabla'];
@@ -130,7 +129,6 @@ class Afp extends BaseController
             $ext_plantilla = $file_plantilla->getExtension();
 
             $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
-
 
             $archivo_plantilla = "AFP_PLANTILLA_" . $ruc . "_" . $per . $ani . "_" . $codigo . "." . $ext_plantilla;
 
@@ -208,8 +206,6 @@ class Afp extends BaseController
                     }
                 }
             }
-
-
 
             if ($files->db->transStatus() === false) {
                 $files->db->transRollback();
