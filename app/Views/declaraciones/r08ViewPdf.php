@@ -54,26 +54,42 @@
 
             <!-- ✅ INDICADORES -->
             <div class="carousel-indicators">
-                <button type="button" data-bs-target="#carouselPDF" data-bs-slide-to="0" class="active"></button>
-                <button type="button" data-bs-target="#carouselPDF" data-bs-slide-to="1"></button>
+                <?php foreach ($data as $i => $value): ?>
+                    <button
+                        type="button"
+                        data-bs-target="#carouselPDF"
+                        data-bs-slide-to="<?= $i ?>"
+                        class="<?= ($value['nameFile'] == $name) ? 'active' : '' ?>">
+                    </button>
+                <?php endforeach; ?>
             </div>
 
             <!-- ✅ CONTENIDO -->
             <div class="carousel-inner h-100">
 
-                <?php foreach ($data as $key => $value) { ?>
-
-                    <?php $active = ($value['nameFile'] == $name) ? 'active' : ''; ?>
+                <?php
+                $foundActive = false;
+                foreach ($data as $key => $value):
+                    if ($value['nameFile'] == $name && !$foundActive) {
+                        $active = 'active';
+                        $foundActive = true;
+                    } else {
+                        $active = '';
+                    }
+                ?>
 
                     <div class="carousel-item <?= $active ?> h-100">
                         <iframe
-                            src="<?php echo base_url('archivos/pdt/' . $value['nameFile']); ?>"
-                            data-name="<?php echo $value['nameFile']; ?>"
-                            data-id="<?php echo $value['id']; ?>"></iframe>
+                            src="<?= base_url('archivos/pdt/' . $value['nameFile']); ?>"
+                            data-name="<?= $value['nameFile']; ?>"
+                            data-id="<?= $value['id']; ?>">
+                        </iframe>
                     </div>
-                <?php } ?>
+
+                <?php endforeach; ?>
 
             </div>
+
 
             <!-- ✅ CONTROLES -->
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselPDF" data-bs-slide="prev">
