@@ -197,19 +197,21 @@ class Afp extends BaseController
 
         $acciones = "";
 
-        if ($rectificar) {
-            $acciones .= '<button type="button" class="btn btn-warning btn-sm" title="Rectificar Archivos" onclick="rectificar(' . $consulta['afpId'] . ', ' . $consulta['periodo'] . ', ' . $consulta['anio'] . ', ' . $consulta['contribuyente_id'] . ', \'' . $consulta['mes_descripcion'] . '\', ' . $consulta['anio_descripcion'] . ')">RECT</button> ';
-        }
+        if ($consulta) {
+            if ($rectificar) {
+                $acciones .= '<button type="button" class="btn btn-warning btn-sm" title="Rectificar Archivos" onclick="rectificar(' . $consulta['afpId'] . ', ' . $consulta['periodo'] . ', ' . $consulta['anio'] . ', ' . $consulta['contribuyente_id'] . ', \'' . $consulta['mes_descripcion'] . '\', ' . $consulta['anio_descripcion'] . ')">RECT</button> ';
+            }
 
-        if ($detalle) {
-            $acciones .= '<button type="button" class="btn btn-info btn-sm" title="detalle" onclick="details_archivos(' . $consulta['afpId'] . ', \'' . $consulta['mes_descripcion'] . '\', ' . $consulta['anio_descripcion'] . ')">DET</button> ';
-        }
+            if ($detalle) {
+                $acciones .= '<button type="button" class="btn btn-info btn-sm" title="detalle" onclick="details_archivos(' . $consulta['afpId'] . ', \'' . $consulta['mes_descripcion'] . '\', ' . $consulta['anio_descripcion'] . ')">DET</button> ';
+            }
 
-        if ($eliminar) {
-            $acciones .= '<button type="button" class="btn btn-danger btn-sm" title="eliminar" onclick="eliminar(' . $consulta['afpId'] . ')"><i class="ti ti-trash"></i></button>';
-        }
+            if ($eliminar) {
+                $acciones .= '<button type="button" class="btn btn-danger btn-sm" title="eliminar" onclick="eliminar(' . $consulta['afpId'] . ')"><i class="ti ti-trash"></i></button>';
+            }
 
-        $consulta['acciones'] = $acciones;
+            $consulta['acciones'] = $acciones;
+        }
 
         return $this->response->setJSON($consulta);
     }

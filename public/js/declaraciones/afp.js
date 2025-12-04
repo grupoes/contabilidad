@@ -28,6 +28,8 @@ const rucEmpresa = document.getElementById("rucEmpresa");
 
 const estado = document.getElementById("estado");
 
+const viewFiles = document.getElementById("viewFiles");
+
 function validarNumero(input) {
     input.value = input.value.replace(/\D/g, "").slice(0, 9);
 }
@@ -229,11 +231,16 @@ function renderArchivos(periodo, anio, id) {
     })
         .then((res) => res.json())
         .then((data) => {
-            viewArchivos(data, id);
+            loadFiles.innerHTML = "";
+            viewFiles.innerHTML = "";
+            if (data != null) {
+                viewArchivos(data);
+            }
+
         });
 }
 
-function viewArchivos(data, id) {
+function viewArchivos(data) {
     let html = "";
 
     html += `
@@ -592,8 +599,6 @@ function eliminar(afp_id, id) {
         }
     });
 }
-
-const viewFiles = document.getElementById("viewFiles");
 
 function descargarReporte(id) {
 
