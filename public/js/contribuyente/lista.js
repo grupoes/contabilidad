@@ -245,10 +245,10 @@ listaContribuyentes();
 function listaContribuyentes() {
   fetch(
     base_url +
-      "contribuyente/all/" +
-      selectOpciones.value +
-      "/" +
-      selectEstado.value
+    "contribuyente/all/" +
+    selectOpciones.value +
+    "/" +
+    selectEstado.value
   )
     .then((res) => res.json())
     .then((data) => {
@@ -256,32 +256,42 @@ function listaContribuyentes() {
     });
 }
 
-function optionsTable(id, ruc, eliminar) {
+function optionsTable(id, ruc, eliminar, tipoServicio) {
   let del = "";
   if (eliminar) {
     del = `<a class="dropdown-item" href="#" onclick="deleteEmpresa(event, ${id})"><i class="ti ti-trash"></i>Eliminar Empresa</a>`;
   }
 
-  return `
+  if (tipoServicio === "ALQUILER") {
+    return `
+        ${del}
+        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9093/reportes/${ruc}" target="__blank"><i class="ti ti-file-analytics"></i>Reporte Comercial</a>
+        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9300/reporte-ventas/${ruc}" target="__blank"><i class="ti ti-file-text"></i>Reporte Restaurante</a>
+        <a class="dropdown-item" href="#" onclick="loadModalContactos(event, ${id})"><i class="ti ti-accessible"></i>Contactos</a>
+        <a class="dropdown-item" href="#" onclick="loadModalContratos(event, ${id})"><i class="ti ti-file-symlink"></i>Contratos</a>
+    `;
+  } else {
+    return `
         <a class="dropdown-item" href="#" onclick="importarBoletas(event, ${id})"><i class="ti ti-file-import"></i>Importar Boletas</a>
         ${del}
         <a class="dropdown-item" href="#" onclick="configurarDeclaraciones(event, ${id})"><i class="ti ti-settings"></i>Configurar declaraciones</a>
-        <a class="dropdown-item" href="#"><i class="ti ti-settings-automation"></i>Declaración tributaria</a>
         <a class="dropdown-item" href="#" onclick="verAcceso(event, ${id})"><i class="ti ti-key"></i>Ver contraseña</a>
         <a class="dropdown-item" href="https://esconsultoresyasesores.com:9094/maqueta-compras/${ruc}" target="__blank"><i class="ti ti-file-download"></i>Escanear y generar maquetas de compras</a>
         <a class="dropdown-item" href="https://esconsultoresyasesores.com:9093/reportes/${ruc}" target="__blank"><i class="ti ti-file-analytics"></i>Reporte Comercial</a>
         <a class="dropdown-item" href="https://esconsultoresyasesores.com:9300/reporte-ventas/${ruc}" target="__blank"><i class="ti ti-file-text"></i>Reporte Restaurante</a>
-        <a class="dropdown-item" href="https://grupoesconsultores.com/contagrupoes/maqueta-compras/${ruc}" target="__blank"><i class="ti ti-file-symlink"></i>Enviar archivos</a>
         <a class="dropdown-item" href="#" onclick="loadModalContactos(event, ${id})"><i class="ti ti-accessible"></i>Contactos</a>
         <a class="dropdown-item" href="#" onclick="loadModalContratos(event, ${id})"><i class="ti ti-file-symlink"></i>Contratos</a>
     `;
+  }
+
+
 }
 
 function viewListContribuyentes(data, eliminar, editar) {
   let html = "";
 
   data.forEach((emp, index) => {
-    let opciones = optionsTable(emp.id, emp.ruc, eliminar);
+    let opciones = optionsTable(emp.id, emp.ruc, eliminar, emp.tipoServicio);
 
     let tieneSistema =
       emp.tiene_sistema === "SI"
@@ -352,24 +362,27 @@ function viewListContribuyentes(data, eliminar, editar) {
       per = "Editar";
     }
 
+    let estadoEmpresaGeneral = "";
+
+    if (emp.tipoServicio === "CONTABLE") {
+      estadoEmpresaGeneral = estadoEmpresa;
+    }
+
     html += `
             <tr>
                 <td>${index + 1}</td>
                 <td>
                     <div class="row">
                         <div class="col">
-                            <h6 class="mb-1" title="${per}"><a href="javascript:void(0);" class="${edit}" data-id="${
-      emp.id
-    }">${emp.ruc}</a></h6>
-                            <p class="text-muted f-14 mb-0"> ${
-                              emp.razon_social
-                            } </p>
+                            <h6 class="mb-1" title="${per}"><a href="javascript:void(0);" class="${edit}" data-id="${emp.id
+      }">${emp.ruc}</a></h6>
+                            <p class="text-muted f-14 mb-0"> ${emp.razon_social
+      } </p>
                         </div>
                     </div>
                 </td>
-                <td><a href="#" class="tipoServicio" data-id="${emp.id}">${
-      emp.tipoServicio
-    }</a></td>
+                <td><a href="#" class="tipoServicio" data-id="${emp.id}">${emp.tipoServicio
+      }</a></td>
                 <td>
                     ${monto}
                 </td>
@@ -379,16 +392,14 @@ function viewListContribuyentes(data, eliminar, editar) {
                 </td>
                 <td> 
                     <div class="form-check form-switch custom-switch-v1 mb-2">
-                        <input type="checkbox" class="form-check-input input-success" name="estado" id="estado${
-                          emp.id
-                        }" ${estado} onchange="toggleSwitchStatus(this, ${
-      emp.id
-    })">
+                        <input type="checkbox" class="form-check-input input-success" name="estado" id="estado${emp.id
+      }" ${estado} onchange="toggleSwitchStatus(this, ${emp.id
+      })">
                     </div>
 
                 </td>
                 <td>
-                    ${estadoEmpresa}
+                    ${estadoEmpresaGeneral}
                 </td>
                 <td>
                     <div class="dropdown">

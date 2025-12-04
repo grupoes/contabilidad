@@ -300,7 +300,7 @@ class Contribuyentes extends BaseController
                     $value->respuesta = 0;
                 }
             } else {
-                $value->respuesta = 0;
+                $value->respuesta = 3;
                 $value->tipo = "Falta configuración";
             }
         }
