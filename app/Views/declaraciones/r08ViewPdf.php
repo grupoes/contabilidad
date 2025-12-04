@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Carrusel de PDFs</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="<?= base_url() ?>img/grupoes.ico" type="image/x-icon">
 
     <!-- ✅ BOOTSTRAP 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
