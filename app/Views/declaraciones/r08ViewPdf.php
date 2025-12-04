@@ -92,7 +92,7 @@
 
     <!-- ✅ FUNCIÓN CERRAR -->
     <script>
-        /*const carouselElement = document.getElementById('carouselPDF');
+        const carouselElement = document.getElementById('carouselPDF');
 
         carouselElement.addEventListener('slid.bs.carousel', function() {
             // Buscar el iframe activo
@@ -108,7 +108,7 @@
             // Cambiar el query string SIN recargar la página
             const newUrl = `${window.location.pathname}?id=${pdfId}&name=${pdfName}`;
             window.history.replaceState({}, '', newUrl);
-        })*/
+        })
     </script>
 
 </body>
