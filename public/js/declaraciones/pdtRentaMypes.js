@@ -370,7 +370,7 @@ listaPeriodos.addEventListener("click", (e) => {
 
         viewFilePdf.innerHTML = `
       <div class="pdf-viewer mt-3" style="height: 75vh;">
-        <div class="text-end mb-2">
+        <div class="text-end">
             <button class="btn btn-danger btn-sm" onclick="closePdf()" style="margin-top: -60px;">Cerrar</button>
         </div>
         <iframe src="${url}" id="iframe-pdf" width="100%" height="100%" style="border: none;"></iframe>

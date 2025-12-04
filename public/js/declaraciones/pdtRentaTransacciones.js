@@ -320,10 +320,26 @@ listaPeriodos.addEventListener("click", (e) => {
 
     viewFilePdf.innerHTML = `
       <div class="pdf-viewer mt-3" style="height: 75vh;">
+        <div class="text-end">
+            <button class="btn btn-danger btn-sm" onclick="closePdf()" style="margin-top: -60px;">Cerrar</button>
+        </div>
         <iframe src="${url}" id="iframe-pdf" src="" width="100%" height="100%" style="border: none;"></iframe>
       </div>
     `;
 
-    const iframe = document.getElementById("pdfViewer");
+    const iframe = document.getElementById("iframe-pdf");
   }
 });
+
+function closePdf() {
+  tamModal.classList.remove("modal-fullscreen");
+  tamModal.classList.add("modal-lg");
+
+  viewTable.classList.remove("col-md-6");
+  viewTable.classList.add("col-md-12");
+  viewTable.style.overflowY = "scroll";
+  viewTable.style.height = "75vh";
+
+  viewFilePdf.classList.remove("col-md-6");
+  viewFilePdf.classList.add("col-md-12");
+}
