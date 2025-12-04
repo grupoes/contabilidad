@@ -38,9 +38,6 @@ class Afp extends BaseController
         $afp = new AfpModel();
         $files = new ArchivosAfpModel();
         $archivosReporte = new ArchivosReporteAfpModel();
-        $archivosTicket = new ArchivosTicketAfpModel();
-        $mes = new MesModel();
-        $anio_ = new AnioModel();
 
         try {
 
@@ -52,11 +49,8 @@ class Afp extends BaseController
 
             $data = $this->request->getPost();
 
-            $ruc = $data['ruc_empresa'];
-
             $file_reportes = $this->request->getFileMultiple('file_reporte');
-            $file_ticket = $this->request->getFileMultiple('file_ticket');
-            $file_plantilla = $this->request->getFile('file_plantilla');
+            $file_plantilla = $this->request->getFileMultiple('file_plantilla');
 
             $hayReportes = false;
 
@@ -76,37 +70,22 @@ class Afp extends BaseController
                 ]);
             }
 
-            $hayTickets = false;
+            $hayPlantilla = false;
 
-            if ($ruc != '10438453291' && $ruc != '20542322412' && $ruc != '20603670249') {
-
-                if (!empty($file_ticket)) {
-                    foreach ($file_ticket as $archivo) {
-                        if ($archivo->isValid() && !$archivo->hasMoved()) {
-                            $hayTickets = true;
-                            break;
-                        }
+            if (!empty($file_plantilla)) {
+                foreach ($file_plantilla as $archivo) {
+                    if ($archivo->isValid() && !$archivo->hasMoved()) {
+                        $hayPlantilla = true;
+                        break;
                     }
                 }
-
-                if (!$hayTickets) {
-                    return $this->response->setJSON([
-                        "status" => "error",
-                        "message" => "Debe seleccionar al menos un archivo de ticket"
-                    ]);
-                }
             }
 
-            if (!$file_plantilla) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de plantilla']);
-            }
-
-            if (!$file_plantilla->isValid()) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'El archivo de plantilla no es válido']);
-            }
-
-            if ($file_plantilla->getClientMimeType() !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permiten archivos Excel']);
+            if (!$hayPlantilla) {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "Debe seleccionar al menos un archivo de plantilla"
+                ]);
             }
 
             $periodo = $data['periodo'];
@@ -118,21 +97,6 @@ class Afp extends BaseController
             if ($consultaAfp) {
                 return $this->response->setJSON(['error' => 'success', 'message' => "El periodo y año ya existe."]);
             }
-
-            $data_periodo = $mes->find($periodo);
-
-            $data_anio = $anio_->find($anio);
-
-            $per = strtoupper($data_periodo['mes_descripcion']);
-            $ani = $data_anio['anio_descripcion'];
-
-            $ext_plantilla = $file_plantilla->getExtension();
-
-            $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
-
-            $archivo_plantilla = "AFP_PLANTILLA_" . $ruc . "_" . $per . $ani . "_" . $codigo . "." . $ext_plantilla;
-
-            $file_plantilla->move(FCPATH . 'archivos/afp', $archivo_plantilla);
 
             $datos_pdt = array(
                 "contribuyente_id" => $idCont,
@@ -148,12 +112,37 @@ class Afp extends BaseController
 
             $datos_files = array(
                 "afp_id" => $afpId,
-                "archivo_plantilla" => $archivo_plantilla,
+                "archivo_plantilla" => $file_plantilla,
                 "estado" => 1,
                 "user_add" => session()->id
             );
 
             $files->insert($datos_files);
+
+            if ($hayPlantilla) {
+                for ($i = 0; $i < count($file_plantilla); $i++) {
+                    if ($file_plantilla[$i]->isValid() && !$file_plantilla[$i]->hasMoved()) {
+                        $name_original = $file_plantilla[$i]->getName();
+
+                        $code = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+
+                        $name = $code . '_' . $name_original;
+
+                        $file_plantilla[$i]->move(FCPATH . 'archivos/afp', $name);
+
+                        $data_plantilla = array(
+                            "afp_id" => $afpId,
+                            "archivo_plantilla" => $name,
+                            "estado" => 1,
+                            "user_add" => session()->id
+                        );
+
+                        $files->insert($data_plantilla);
+                    } else {
+                        return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
+                    }
+                }
+            }
 
             if ($hayReportes) {
                 for ($i = 0; $i < count($file_reportes); $i++) {
@@ -176,33 +165,6 @@ class Afp extends BaseController
                         $archivosReporte->insert($data_reporte);
                     } else {
                         return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
-                    }
-                }
-            }
-
-            if ($ruc != '10438453291' || $ruc != '20542322412' || $ruc != '20603670249') {
-                if ($hayTickets) {
-                    for ($i = 0; $i < count($file_ticket); $i++) {
-                        if ($file_ticket[$i]->isValid() && !$file_ticket[$i]->hasMoved()) {
-                            $name_original = $file_ticket[$i]->getName();
-
-                            $code = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
-
-                            $name = $code . '_' . $name_original;
-
-                            $file_ticket[$i]->move(FCPATH . 'archivos/afp', $name);
-
-                            $data_ticket = array(
-                                "afp_id" => $afpId,
-                                "name_file" => $name,
-                                "estado" => 1,
-                                "user_add" => session()->id
-                            );
-
-                            $archivosTicket->insert($data_ticket);
-                        } else {
-                            return $this->response->setJSON(['status' => 'error', 'message' => 'Uno o ambos archivos no son válidos']);
-                        }
                     }
                 }
             }
