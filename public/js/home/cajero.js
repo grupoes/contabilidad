@@ -36,7 +36,7 @@ const swalWithBootstrapButtons = Swal.mixin({
 
 function viewContribuyentesPdts() {
   $("#modalPdts").modal("show");
-  fetch(base_url + "api/notificacion-pdt-renta")
+  fetch(base_url + "notificacion-pdt-renta")
     .then((res) => res.json())
     .then((data) => {
       const listPdts = document.getElementById("listPdts");
@@ -132,7 +132,7 @@ function excluirPeriodo(ruc, id_mes, id_anio) {
 
 function viewContribuyentesPdtsPlame() {
   $("#modalPdtsPlame").modal("show");
-  fetch(base_url + "api/notificacion-pdt-plame")
+  fetch(base_url + "notificacion-pdt-plame")
     .then((res) => res.json())
     .then((data) => {
       const listPdts = document.getElementById("listPdtsPlame");

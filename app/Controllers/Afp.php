@@ -220,7 +220,6 @@ class Afp extends BaseController
     {
 
         $files = new ArchivosAfpModel();
-        $contribuyente = new ContribuyenteModel();
         $files_reportes = new ArchivosReporteAfpModel();
 
         try {
@@ -228,7 +227,6 @@ class Afp extends BaseController
 
             $idafp = $this->request->getVar('idpdtrenta');
             $idarchivo = $this->request->getVar('idarchivos');
-            $idContribuyente = $this->request->getVar('rucRect');
 
             $file1 = $this->request->getFileMultiple('fileReporte');
             $file3 = $this->request->getFileMultiple('filePlantilla');
