@@ -1276,12 +1276,12 @@ getPdtsSubir();
 
 async function getPdtsSubir() {
   try {
-    const responseRenta = await fetch(base_url + "api/notificacion-pdt-renta");
+    const responseRenta = await fetch(base_url + "notificacion-pdt-renta");
     const dataRenta = await responseRenta.json();
 
     const quantyRenta = dataRenta.length;
 
-    const responsePlame = await fetch(base_url + "api/notificacion-pdt-plame");
+    const responsePlame = await fetch(base_url + "notificacion-pdt-plame");
     const dataPlame = await responsePlame.json();
 
     const quantyPlame = dataPlame.length;
@@ -1328,7 +1328,7 @@ new $.fn.dataTable.Responsive(newcs2);
 
 function viewContribuyentesPdts() {
   $("#modalPdts").modal("show");
-  fetch(base_url + "api/notificacion-pdt-renta")
+  fetch(base_url + "notificacion-pdt-renta")
     .then((res) => res.json())
     .then((data) => {
       const listPdts = document.getElementById("listPdts");
@@ -1429,7 +1429,7 @@ new $.fn.dataTable.Responsive(newcs2);
 
 function viewContribuyentesPdtsPlame() {
   $("#modalPdtsPlame").modal("show");
-  fetch(base_url + "api/notificacion-pdt-plame")
+  fetch(base_url + "notificacion-pdt-plame")
     .then((res) => res.json())
     .then((data) => {
       const listPdts = document.getElementById("listPdtsPlame");
