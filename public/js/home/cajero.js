@@ -16,6 +16,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   new $.fn.dataTable.Responsive(newAnuales);
 
+  const newCerti = $("#tableCertificados").DataTable(optionsTableDefault);
+
+  new $.fn.dataTable.Responsive(newCerti);
+
   const newAfp = $("#tableAfp").DataTable(optionsTableDefault);
 
   new $.fn.dataTable.Responsive(newAfp);
