@@ -43,13 +43,8 @@ class Cobros extends BaseController
             c.ruc,
             c.razon_social,
             COUNT(DISTINCT ps.fecha_inicio) as periodos_deuda,
-            CASE 
-                WHEN COUNT(DISTINCT ps.fecha_inicio) = 0 THEN 'Sin deudas'
-                ELSE GROUP_CONCAT(DISTINCT ps.fecha_inicio ORDER BY ps.fecha_inicio DESC) 
-            END as fechas_vencidas,
-            MIN(ps.fecha_inicio) as primera_fecha_vencida,
             DATE_FORMAT(MAX(ps.fecha_inicio), '%d-%m-%Y') as ultima_fecha_vencida,
-                DATE_FORMAT(MAX(ps.fecha_fin), '%d-%m-%Y') as ultima_fecha_fin,
+            DATE_FORMAT(MAX(ps.fecha_fin), '%d-%m-%Y') as ultima_fecha_fin,
             COALESCE((
                 SELECT ps2.monto_total 
                 FROM pago_servidor ps2 
@@ -84,11 +79,20 @@ class Cobros extends BaseController
             $sistemas = $sistema->query("SELECT s.id, s.nameSystem FROM sistemas s INNER JOIN sistemas_contribuyente sc ON s.id = sc.system_id WHERE sc.contribuyente_id = " . $value['id'])->getResultArray();
             $contribuyentes[$key]['sistemas'] = $sistemas;
 
-            $pagos = $pagoServidor->where('contribuyente_id', $value['id'])->where('estado', 'pendiente')->orderBy('id', 'desc')->findAll();
+            $verificarRegistros = $pagoServidor
+                ->select("DATE_FORMAT(fecha_inicio, '%d-%m-%Y') as fecha_inicio, DATE_FORMAT(fecha_fin, '%d-%m-%Y') as fecha_fin")
+                ->where('contribuyente_id', $value['id'])
+                ->where('estado !=', 'eliminado')
+                ->orderBy('id', 'desc')
+                ->first();
 
-            if (!$pagos) {
+            if (!$verificarRegistros) {
                 $contribuyentes[$key]['pagos'] = "NO TIENE REGISTROS";
+                $contribuyentes[$key]['fecha_inicio'] = "";
+                $contribuyentes[$key]['fecha_fin'] = "";
             } else {
+                $contribuyentes[$key]['fecha_inicio'] = $verificarRegistros['fecha_inicio'];
+                $contribuyentes[$key]['fecha_fin'] = $verificarRegistros['fecha_fin'];
 
                 if ($value['periodos_deuda'] == 1) {
                     $contribuyentes[$key]['pagos'] = $value['periodos_deuda'] . " PERIODO";

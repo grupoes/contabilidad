@@ -80,20 +80,17 @@ function viewListContribuyentes(data) {
                 <td>
                     <div class="row">
                         <div class="col">
-                            <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${
-                              emp.id
-                            }">${emp.ruc}</a></h6>
-                            <p class="text-muted f-14 mb-0"> ${
-                              emp.razon_social
-                            } </p>
+                            <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${emp.id
+      }">${emp.ruc}</a></h6>
+                            <p class="text-muted f-14 mb-0"> ${emp.razon_social
+      } </p>
                         </div>
                     </div>
                 </td>
                 <td>${emp.diaCobro} cada mes</td>
                 <td>${emp.tipoPago}</td>
-                <td><a href="#" class="tipoServicio" data-id="${emp.id}">${
-      emp.tipoServicio
-    }</a></td>
+                <td><a href="#" class="tipoServicio" data-id="${emp.id}">${emp.tipoServicio
+      }</a></td>
                 <td>${deuda}</td>
                 <td>
                     ${emp.cobrar}
@@ -166,19 +163,17 @@ function viewListContribuyentesServidor(data) {
                 <td>
                     <div class="row">
                         <div class="col">
-                            <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${
-                              emp.id
-                            }">${emp.ruc}</a></h6>
-                            <p class="text-muted f-14 mb-0"> ${
-                              emp.razon_social
-                            } </p>
+                            <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${emp.id
+      }">${emp.ruc}</a></h6>
+                            <p class="text-muted f-14 mb-0"> ${emp.razon_social
+      } </p>
                         </div>
                     </div>
                 </td>
                 <td>${htmlSystem}</td>
                 <td>${emp.total_deuda}</td>
-                <td>${emp.ultima_fecha_vencida}</td>
-                <td>${emp.ultima_fecha_fin}</td>
+                <td>${emp.fecha_inicio}</td>
+                <td>${emp.fecha_fin}</td>
                 <td>${emp.pagos}</td>
                 <td>
                     ${emp.cobrar}
@@ -226,10 +221,10 @@ loadDeudasAnuales();
 function loadDeudasAnuales() {
   fetch(
     base_url +
-      "deudas-anuales/" +
-      selectOpcionesAnual.value +
-      "/" +
-      estado_anual.value
+    "deudas-anuales/" +
+    selectOpcionesAnual.value +
+    "/" +
+    estado_anual.value
   )
     .then((res) => res.json())
     .then((data) => {
@@ -247,9 +242,8 @@ function viewDeudasAnuales(data) {
       <td>
         <div class="row">
             <div class="col">
-                <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${
-                  emp.id
-                }">${emp.ruc}</a></h6>
+                <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${emp.id
+      }">${emp.ruc}</a></h6>
                 <p class="text-muted f-14 mb-0"> ${emp.razon_social} </p>
             </div>
         </div>
