@@ -11,11 +11,7 @@ use App\Models\PagoServidorModel;
 use App\Models\PagoAnualModel;
 use App\Models\PagoAmoAnualModel;
 use App\Models\AmortizacionPagoAnualModel;
-use App\Models\FechaDeclaracionModel;
-use App\Models\AnioModel;
-use App\Models\PdtAnualModel;
 use App\Models\ServicioModel;
-use DateTime;
 
 class Cobros extends BaseController
 {
@@ -35,6 +31,7 @@ class Cobros extends BaseController
         $contribuyente = new ContribuyenteModel();
         $sistema = new SistemaModel();
         $pagoServidor = new PagoServidorModel();
+        $servidor = new ServidorModel();
 
         $cobrar = $this->getPermisosAcciones(13, session()->perfil_id, 'cobrar servidor');
 
@@ -86,6 +83,14 @@ class Cobros extends BaseController
         foreach ($contribuyentes as $key => $value) {
             $sistemas = $sistema->query("SELECT s.id, s.nameSystem FROM sistemas s INNER JOIN sistemas_contribuyente sc ON s.id = sc.system_id WHERE sc.contribuyente_id = " . $value['id'])->getResultArray();
             $contribuyentes[$key]['sistemas'] = $sistemas;
+
+            $monto = $servidor->where('contribuyente_id', $value['id'])->where('estado', 1)->first();
+
+            if ($monto) {
+                $contribuyentes[$key]['monto'] = $monto['monto'];
+            } else {
+                $contribuyentes[$key]['monto'] = "";
+            }
 
             $verificarRegistros = $pagoServidor
                 ->select("DATE_FORMAT(fecha_inicio, '%d-%m-%Y') as fecha_inicio, DATE_FORMAT(fecha_fin, '%d-%m-%Y') as fecha_fin")

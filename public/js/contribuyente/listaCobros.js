@@ -183,7 +183,7 @@ function viewListContribuyentesServidor(data) {
                     </div>
                 </td>
                 <td>${htmlSystem}</td>
-                <td>${emp.total_deuda}</td>
+                <td>${emp.monto}</td>
                 <td>${emp.fecha_inicio}</td>
                 <td>${emp.fecha_fin}</td>
                 <td>${emp.pagos}</td>
