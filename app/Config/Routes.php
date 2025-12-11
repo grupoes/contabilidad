@@ -69,7 +69,7 @@ $routes->post('save-service', 'Cobros::saveService');
 $routes->get('services/all', 'Cobros::allServices');
 
 $routes->get('cobro-servidor', 'Cobros::index');
-$routes->get('render-contribuyentes', 'Cobros::renderContribuyentes');
+$routes->get('render-contribuyentes/(:any)/(:num)', 'Cobros::renderContribuyentes/$1/$2');
 $routes->get('cobrar-servidor/(:num)', 'Cobros::cobrarView/$1');
 $routes->get('render-montos/(:num)', 'Cobros::renderMontos/$1');
 $routes->post('montos/add-monto', 'Cobros::addMonto');

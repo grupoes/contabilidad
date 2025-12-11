@@ -30,13 +30,19 @@ class Cobros extends BaseController
         return view('cobros/servidor', compact('menu'));
     }
 
-    public function renderContribuyentes()
+    public function renderContribuyentes($servicio, $estado)
     {
         $contribuyente = new ContribuyenteModel();
         $sistema = new SistemaModel();
         $pagoServidor = new PagoServidorModel();
 
         $cobrar = $this->getPermisosAcciones(13, session()->perfil_id, 'cobrar servidor');
+
+        $sqlServicio = "";
+
+        if ($servicio != 'TODOS') {
+            $sqlServicio = "AND c.tipoServicio = '" . $servicio . "'";
+        }
 
         $contribuyentes = $contribuyente->query("SELECT 
             c.id,
@@ -72,6 +78,8 @@ class Cobros extends BaseController
         WHERE s.status = 1
             AND c.tipoServicio = 'CONTABLE'
             AND c.tipoSuscripcion = 'NO GRATUITO'
+            AND c.estado = $estado
+            $sqlServicio
         GROUP BY c.id, c.ruc, c.razon_social
         ORDER BY total_deuda DESC, c.razon_social ASC;")->getResultArray();
 

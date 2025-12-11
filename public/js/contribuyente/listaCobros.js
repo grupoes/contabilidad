@@ -131,15 +131,27 @@ const newcsServidor = $("#tableDataServidor").DataTable(optionsTableDefault);
 
 new $.fn.dataTable.Responsive(newcsServidor);
 
+const tipoServicio = document.getElementById("selectOpcionesServidor");
+const estado = document.getElementById('estadosServidor');
+
 listaContribuyentesServidor();
 
 function listaContribuyentesServidor() {
-  fetch(base_url + "render-contribuyentes")
+
+  fetch(base_url + "render-contribuyentes" + "/" + tipoServicio.value + "/" + estado.value)
     .then((res) => res.json())
     .then((data) => {
       viewListContribuyentesServidor(data);
     });
 }
+
+tipoServicio.addEventListener("change", (e) => {
+  listaContribuyentesServidor();
+});
+
+estado.addEventListener("change", (e) => {
+  listaContribuyentesServidor();
+});
 
 function viewListContribuyentesServidor(data) {
   let html = "";
