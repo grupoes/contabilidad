@@ -577,31 +577,31 @@
                             <div class="row">
                                 <div class="col-md-2 mb-3">
                                     <label for="fecha" class="form-label">Fecha</label>
-                                    <input type="text" class="form-control" name="fecha" id="fecha" required>
+                                    <input type="text" maxlength="1" oninput="soloLetraAZ(this)" class="form-control" name="fecha" id="fecha" required>
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="serie" class="form-label">Serie</label>
-                                    <input type="text" class="form-control" name="serie" id="serie" required>
+                                    <input type="text" class="form-control" name="serie" id="serie" maxlength="1" oninput="soloLetraAZ(this)" required>
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="numero" class="form-label">Número</label>
-                                    <input type="text" class="form-control" name="numero" id="numero" required>
+                                    <input type="text" maxlength="1" oninput="soloLetraAZ(this)" class="form-control" name="numero" id="numero" required>
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="monto" class="form-label">Monto</label>
-                                    <input type="text" class="form-control" name="monto" id="monto" required>
+                                    <input type="text" maxlength="1" oninput="soloLetraAZ(this)" class="form-control" name="monto" id="monto" required>
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="ruc" class="form-label">RUC</label>
-                                    <input type="text" class="form-control" name="ruc" id="ruc" required>
+                                    <input type="text" class="form-control" name="ruc" id="ruc" maxlength="1" oninput="soloLetraAZ(this)" required>
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="tipo" class="form-label">Tipo</label>
-                                    <input type="text" class="form-control" name="tipo" id="tipo" required>
+                                    <input type="text" class="form-control" name="tipo" id="tipo" maxlength="1" oninput="soloLetraAZ(this)" required>
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="razon_social" class="form-label">Razón Social</label>
-                                    <input type="text" class="form-control" name="razon_social" id="razon_social">
+                                    <input type="text" class="form-control" name="razon_social" id="razon_social" maxlength="1" oninput="soloLetraAZ(this)" required>
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label for="igv" class="form-label">IGV</label>
@@ -609,6 +609,10 @@
                                         <option value="0">no</option>
                                         <option value="1">si</option>
                                     </select>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="icbper" class="form-label">ICBPER</label>
+                                    <input type="text" class="form-control" name="icbper" id="icbper" maxlength="1" oninput="soloLetraAZ(this)" required>
                                 </div>
                                 <div class="col-md-2 mb-3 mt-5 form-check">
                                     <input type="checkbox" class="form-check-input" id="conHora" name="conHora">

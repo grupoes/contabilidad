@@ -86,3 +86,7 @@ function validarCaja() {
       }
     });
 }
+
+function soloLetraAZ(input) {
+  input.value = input.value.replace(/[^A-Za-z]/g, "");
+}

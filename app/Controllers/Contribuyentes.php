@@ -1202,8 +1202,9 @@ class Contribuyentes extends BaseController
         $sheet->setCellValue('H1', 'VVENTA');
         $sheet->setCellValue('I1', 'VALOR_DE_VENTA');
         $sheet->setCellValue('J1', 'IGV');
-        $sheet->setCellValue('K1', 'TOTAL');
-        $sheet->setCellValue('L1', 'TIPO_CAMBIO');
+        $sheet->setCellValue('K1', 'ICBPER');
+        $sheet->setCellValue('L1', 'TOTAL');
+        $sheet->setCellValue('M1', 'TIPO_CAMBIO');
 
         $series_factura = $migrar->select('serie')->where('id_migracion', $idMigracion)->where('tipo', '01')->groupBy('serie')->findAll();
 
@@ -1218,6 +1219,8 @@ class Contribuyentes extends BaseController
             $facturas = $migrar->where('id_migracion', $idMigracion)->where('tipo', '01')->where('serie', $serie_factura['serie'])->orderBy('fecha', 'asc')->orderBy('numero', 'asc')->findAll();
 
             foreach ($facturas as $factura) {
+                $subtotal = $factura['monto'] - $factura['icbper'];
+
                 $add = array(
                     "fecha" => $factura['fecha'],
                     "tipo_moneda" => $tipo_moneda,
@@ -1226,9 +1229,10 @@ class Contribuyentes extends BaseController
                     "condicion" => 'A',
                     "ruc" => $factura['ruc'],
                     "razon_social" => $factura['razon_social'],
-                    "vvventa" => $factura['valor_venta'],
-                    "valor_venta" => $factura['valor_venta'],
+                    "vvventa" => $subtotal,
+                    "valor_venta" => $subtotal,
                     "igv" => $factura['igv'],
+                    "icbper" => $factura['icbper'],
                     "total" => $factura['monto'],
                     "tipo_cambio" => $tipo_cambio
                 );
@@ -1268,7 +1272,8 @@ class Contribuyentes extends BaseController
                         'num_clie' => $fila['ruc'],
                         'nombre_clien' => $fila['razon_social'],
                         'subtotal' => $fila['valor_venta'],
-                        'total_igv' => $fila['igv']
+                        'total_igv' => $fila['igv'],
+                        'total_icbper' => $fila['icbper']
                     ];
 
                     continue;
@@ -1283,6 +1288,7 @@ class Contribuyentes extends BaseController
                     $grupoActual['monto'] += $fila['monto'];
                     $grupoActual['subtotal'] += $fila['valor_venta'];
                     $grupoActual['total_igv'] += $fila['igv'];
+                    $grupoActual['total_icbper'] += $fila['icbper'];
                     $grupoActual['nums'][] = $fila['numero'];
                 } else {
                     // No se puede agregar, cerrar grupo actual y empezar nuevo
@@ -1296,7 +1302,8 @@ class Contribuyentes extends BaseController
                         'num_clie' => $fila['ruc'],
                         'nombre_clien' => $fila['razon_social'],
                         'subtotal' => $fila['valor_venta'],
-                        'total_igv' => $fila['igv']
+                        'total_igv' => $fila['igv'],
+                        'total_icbper' => $fila['icbper']
                     ];
                 }
             }
@@ -1323,8 +1330,9 @@ class Contribuyentes extends BaseController
             $sheet->setCellValue('H' . $row, $value['vvventa']);
             $sheet->setCellValue('I' . $row, $value['valor_venta']);
             $sheet->setCellValue('J' . $row, $value['igv']);
-            $sheet->setCellValue('K' . $row, $value['total']);
-            $sheet->setCellValue('L' . $row, $value['tipo_cambio']);
+            $sheet->setCellValue('K' . $row, $value['icbper']);
+            $sheet->setCellValue('L' . $row, $value['total']);
+            $sheet->setCellValue('M' . $row, $value['tipo_cambio']);
             $row++;
         }
 
@@ -1352,6 +1360,7 @@ class Contribuyentes extends BaseController
             "vvventa" => $grupo['subtotal'],
             "valor_venta" => $grupo['subtotal'],
             "igv" => $grupo['total_igv'],
+            "icbper" => $grupo['total_icbper'],
             "total" => $grupo['monto'],
             "tipo_cambio" => 1
         );
@@ -1388,6 +1397,7 @@ class Contribuyentes extends BaseController
             "vvventa" => $fila['valor_venta'],
             "valor_venta" => $fila['valor_venta'],
             "igv" => $fila['igv'],
+            "icbper" => $fila['icbper'],
             "total" => $fila['monto'],
             "tipo_cambio" => 1
         );
@@ -1399,7 +1409,6 @@ class Contribuyentes extends BaseController
     {
         $migracion = new MigracionModel();
         $migrar = new MigrarModel();
-        $rucTable = new RucModel();
 
         $fecha = strtoupper(trim($data['fecha']));
         $serie = strtoupper(trim($data['serie']));
@@ -1410,6 +1419,7 @@ class Contribuyentes extends BaseController
         $razon_social = strtoupper(trim($data['razon_social']));
         $igv = $data['igv'];
         $numero_ruc = $data['numero_ruc'];
+        $icbper = $data['icbper'];
 
         $fileExcel = $file;
 
@@ -1458,6 +1468,7 @@ class Contribuyentes extends BaseController
             $rucMigrar = $hoja->getCell($ruc . $index)->getValue();
             $tipoMigrar = $hoja->getCell($tipo . $index)->getValue();
             $razon_socialMigrar = $hoja->getCell($razon_social . $index)->getValue();
+            $icbperMigrar = $hoja->getCell($icbper . $index)->getValue();
 
             if ($numero_ruc == 1 || $numero_ruc == '00000001' || $numero_ruc == "" || $numero_ruc == "-") {
                 $ruc_dni = "00000001";
@@ -1500,10 +1511,10 @@ class Contribuyentes extends BaseController
             }
 
             if ($igv == 1) {
-                $subtotal = $montoMigrar / 1.18;
+                $subtotal = $montoMigrar / 1.18 - $icbperMigrar;
                 $total_igv = $montoMigrar - $subtotal;
             } else {
-                $subtotal = $montoMigrar;
+                $subtotal = $montoMigrar - $icbperMigrar;
                 $total_igv = 0;
             }
 
@@ -1514,6 +1525,7 @@ class Contribuyentes extends BaseController
                 "numero" => $numeroMigrar,
                 "valor_venta" => $subtotal,
                 "igv" => $total_igv,
+                "icbper" => $icbperMigrar,
                 "monto" => $montoMigrar,
                 "ruc" => $rucMigrar,
                 "tipo" => $tipoMigrar,
@@ -1551,9 +1563,9 @@ class Contribuyentes extends BaseController
             // Generar Excel
             $filename = $this->generateExcel($id_migracion);
 
-            $migrar->where('id_migracion', $id_migracion)->delete();
+            //$migrar->where('id_migracion', $id_migracion)->delete();
 
-            $migracion->delete($id_migracion);
+            //$migracion->delete($id_migracion);
 
             return $this->response->setJSON([
                 'success' => true,
