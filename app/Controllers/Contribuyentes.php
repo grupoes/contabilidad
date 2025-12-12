@@ -1563,9 +1563,9 @@ class Contribuyentes extends BaseController
             // Generar Excel
             $filename = $this->generateExcel($id_migracion);
 
-            //$migrar->where('id_migracion', $id_migracion)->delete();
+            $migrar->where('id_migracion', $id_migracion)->delete();
 
-            //$migracion->delete($id_migracion);
+            $migracion->delete($id_migracion);
 
             return $this->response->setJSON([
                 'success' => true,
