@@ -42,6 +42,21 @@
             right: 15px;
             z-index: 10;
         }
+
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 60px;
+            /* solo una franja */
+            height: 100%;
+            top: 0;
+            bottom: 0;
+        }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            pointer-events: none;
+            /* solo el botón captura */
+        }
     </style>
 </head>
 
