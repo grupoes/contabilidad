@@ -83,8 +83,7 @@
                         <iframe
                             src="<?= base_url('archivos/pdt/' . $value['nameFile']); ?>"
                             data-name="<?= $value['nameFile']; ?>"
-                            data-id="<?= $value['id']; ?>"
-                            sandbox="allow-same-origin allow-scripts allow-downloads">
+                            data-id="<?= $value['id']; ?>">
 
                         </iframe>
                     </div>
