@@ -65,7 +65,15 @@ function viewBancos(data) {
 
   tableBody.innerHTML = html;
 
-  const newcs = $($table).DataTable(optionsTableDefault);
+  const newcs = $($table).DataTable({
+    language: language,
+    responsive: true,
+    autoWidth: false,
+    scrollX: false,
+    columnDefs: [
+      { targets: "_all", className: "text-wrap" },
+    ],
+  });
 
   new $.fn.dataTable.Responsive(newcs);
 }

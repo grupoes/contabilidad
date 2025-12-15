@@ -421,11 +421,11 @@ function viewListContribuyentes(data, eliminar, editar) {
 
   const newcs = $($table).DataTable({
     language: language,
-    responsive: true, // Hace que la tabla sea responsiva
-    autoWidth: false, // Desactiva el ajuste automático de ancho
-    scrollX: false, // Evita el scroll horizontal
+    responsive: true,
+    autoWidth: false,
+    scrollX: false,
     columnDefs: [
-      { targets: "_all", className: "text-wrap" }, // Permite el ajuste de texto en las columnas
+      { targets: "_all", className: "text-wrap" },
     ],
   });
 

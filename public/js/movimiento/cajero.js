@@ -262,12 +262,15 @@ function tableMovimientos(data) {
 
   const newcs = $($table).DataTable({
     language: language,
-    responsive: true, // Hace que la tabla sea responsiva
-    autoWidth: false, // Desactiva el ajuste automático de ancho
-    scrollX: false, // Evita el scroll horizontal
-    ordering: false, // Desactiva la ordenación de las columnas
+    responsive: true,
+    autoWidth: false,
+    scrollX: false,
+    ordering: true,
+    order: [],
     columnDefs: [
-      { targets: "_all", className: "text-wrap" }, // Permite el ajuste de texto en las columnas
+      { targets: 0, orderable: false },
+      { targets: -1, orderable: false },
+      { targets: "_all", className: "text-wrap" },
     ],
     dom:
       "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
