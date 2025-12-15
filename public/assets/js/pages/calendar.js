@@ -40,6 +40,11 @@
     editable: true,
     dayMaxEvents: true,
     handleWindowResize: true,
+    selectAllow: function (selectInfo) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return selectInfo.start >= today;
+    },
     select: function (info) {
 
       document.getElementById('agenda_id').value = 0;
