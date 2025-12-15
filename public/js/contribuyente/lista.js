@@ -419,7 +419,15 @@ function viewListContribuyentes(data, eliminar, editar) {
 
   tableBody.innerHTML = html;
 
-  const newcs = $($table).DataTable(optionsTableDefault);
+  const newcs = $($table).DataTable({
+    language: language,
+    responsive: true, // Hace que la tabla sea responsiva
+    autoWidth: false, // Desactiva el ajuste automático de ancho
+    scrollX: false, // Evita el scroll horizontal
+    columnDefs: [
+      { targets: "_all", className: "text-wrap" }, // Permite el ajuste de texto en las columnas
+    ],
+  });
 
   new $.fn.dataTable.Responsive(newcs);
 }
