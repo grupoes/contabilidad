@@ -483,7 +483,7 @@ morososServidor();
 function morososServidor() {
   const tipo = "TODOS";
   const estado = 1;
-  fetch(base_url + `render-contribuyentes`)
+  fetch(base_url + `render-contribuyentes/${tipo}/${estado}`)
     .then((res) => res.json())
     .then((data) => {
       const servidor = document.getElementById("analytics-tab-3");
