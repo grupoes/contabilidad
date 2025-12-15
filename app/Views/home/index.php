@@ -77,7 +77,7 @@
                 <div class="card social-widget-card alerta-card" onclick="viewCertificadosVencer()">
                     <div class="card-body">
                         <h3 class="text-black m-0"><?= $notificacionCertificadosVencer ?></h3>
-                        <span class="m-t-10 text-black">CERTIFADOS POR VENCER</span>
+                        <span class="m-t-10 text-black">CERTIFICADOS POR VENCER</span>
                         <i class="fas fa-book fa-2x mt-2 text-danger"></i>
                     </div>
                 </div>
