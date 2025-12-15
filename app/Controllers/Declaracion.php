@@ -31,7 +31,7 @@ class Declaracion extends BaseController
     public function listaDeclaracion($id)
     {
         $pdt = new PdtModel();
-        $lista = $pdt->where('id_declaracion', $id)->findAll();
+        $lista = $pdt->where('id_declaracion', $id)->where('pdt_estado', 1)->findAll();
 
         return $this->response->setJSON($lista);
     }
