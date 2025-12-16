@@ -539,7 +539,57 @@ function viewMorososServidor(deuda) {
 }
 
 function excluirPeriodoSire(id, id_mes, id_anio) {
-  console.log(id, id_mes, id_anio);
+  $("#modalSire").modal("hide");
+  swalWithBootstrapButtons
+    .fire({
+      title: "¿Estás seguro de excluir este periodo?",
+      text: "¡No podrá revertir después!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Si, excluir!",
+      cancelButtonText: "No, cancelar!",
+      reverseButtons: true,
+      allowOutsideClick: false,
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        const params = {
+          id: id,
+          id_mes: id_mes,
+          id_anio: id_anio,
+        };
+
+        fetch(base_url + "excluir-periodo-sire", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              swalWithBootstrapButtons
+                .fire({
+                  title: "Excluido!",
+                  text: data.message,
+                  icon: "success",
+                  confirmButtonText: "Entendido",
+                  allowOutsideClick: false,
+                })
+                .then((result) => {
+                  if (result.isConfirmed) {
+                    location.reload();
+                  }
+                });
+            } else {
+              swalWithBootstrapButtons.fire("Error", data.msg, "error");
+            }
+          });
+      } else {
+        $("#modalSire").modal("show");
+      }
+    });
 }
 
 var e = {
