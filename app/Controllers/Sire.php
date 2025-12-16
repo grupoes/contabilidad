@@ -112,6 +112,7 @@ class Sire extends BaseController
 
             $datos_pdt = array(
                 "contribuyente_id" => $idCont,
+                "excluido" => "NO",
                 "periodo" => $periodo,
                 "anio" => $anio,
                 "user_add" => session()->id,
@@ -450,5 +451,30 @@ class Sire extends BaseController
         $data = $this->notificacionSire();
 
         return $this->response->setJSON($data);
+    }
+
+    public function excluirPeriodo()
+    {
+        $sire = new SireModel();
+
+        $id = $this->request->getVar('id');
+        $id_mes = $this->request->getVar('id_mes');
+        $id_anio = $this->request->getVar('id_anio');
+
+        $data = [
+            "contribuyente_id" => $id,
+            "excluido" => "SI",
+            "periodo" => $id_mes,
+            "anio" => $id_anio,
+            "estado" => 1,
+            "user_add" => session()->id,
+        ];
+
+        $sire->insert($data);
+
+        return $this->response->setJSON([
+            "status" => "success",
+            "message" => "Se excluyo correctamente"
+        ]);
     }
 }

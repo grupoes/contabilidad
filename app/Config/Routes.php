@@ -303,6 +303,7 @@ $routes->post('/consulta-sire-rango', 'Sire::consultaSireRango');
 $routes->get('/sire/files/(:num)', 'Sire::files/$1');
 $routes->get('/sire/delete-file/(:num)', 'Sire::deleteFile/$1');
 $routes->get('/notificar-sire', 'Sire::notificacionSireAll');
+$routes->post('/excluir-periodo-sire', 'Sire::excluirPeriodo');
 
 $routes->get('/customer-mypes', 'Pdt0621::mypes');
 $routes->post('/customer-mypes-list', 'Pdt0621::listEmpresasMypes');

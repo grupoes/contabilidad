@@ -462,6 +462,7 @@
                             <tr>
                                 <th>RAZON SOCIAL</th>
                                 <th>PERIODO</th>
+                                <th>ACCIÓN</th>
                             </tr>
                         </thead>
                         <tbody id="tbodySire">

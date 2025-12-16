@@ -304,10 +304,22 @@ function viewSire() {
       const tbodySire = document.getElementById("tbodySire");
 
       data.forEach((info) => {
+
+        let button = "";
+
+        if (info.excluir === 'SI') {
+          button = `<button type="button" class="btn btn-info btn-sm" onclick="excluirPeriodoSire('${info.contribuyente_id}', ${info.id_mes}, ${info.id_anio})">
+          <i class="fas fa-minus"></i>
+        </button>`;
+        }
+
         html += `
         <tr>
           <td>${info.contribuyente}</td>
           <td>${info.mes} ${info.anio}</td>
+          <td>
+            ${button}
+          </td>
         </tr>
         `;
       });
@@ -524,6 +536,10 @@ function viewMorososServidor(deuda) {
   });
 
   morosos_servidor.innerHTML = html;
+}
+
+function excluirPeriodoSire(id, id_mes, id_anio) {
+  console.log(id, id_mes, id_anio);
 }
 
 var e = {

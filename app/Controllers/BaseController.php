@@ -668,6 +668,18 @@ abstract class BaseController extends Controller
         return $consulta_certificado_por_vencer;
     }
 
+    public function diferencia_periodos($periodo1, $periodo2)
+    {
+        $fecha1 = DateTime::createFromFormat('Y-m', $periodo1);
+        $fecha2 = DateTime::createFromFormat('Y-m', $periodo2);
+
+        $diff = $fecha1->diff($fecha2);
+
+        $meses = ($diff->y * 12) + $diff->m;
+
+        return $meses;
+    }
+
     public function notificacionSire()
     {
         $sire = new SireModel();
@@ -684,10 +696,22 @@ abstract class BaseController extends Controller
         foreach ($declaracion as $key => $value) {
             $digito = $value['id_numero'] - 1;
 
-            $listaContrib = $contrib->query("SELECT id, razon_social, ruc FROM contribuyentes WHERE estado = 1 AND tipoServicio = 'CONTABLE' AND RIGHT(ruc, 1) = $digito")->getResultArray();
+            $listaContrib = $contrib->query("SELECT id, razon_social, ruc, created_at FROM contribuyentes WHERE estado = 1 AND tipoServicio = 'CONTABLE' AND RIGHT(ruc, 1) = $digito")->getResultArray();
 
             foreach ($listaContrib as $keys => $values) {
                 $id = $values['id'];
+
+                $mes_anio = date('Y-m', strtotime($values['created_at']));
+
+                $mes_anio_actual = date('Y-m');
+
+                $diferencia = $this->diferencia_periodos($mes_anio, $mes_anio_actual);
+
+                $excluir = 'NO';
+
+                if ($diferencia == 1) {
+                    $excluir = 'SI';
+                }
 
                 $querySire = $sire->where('contribuyente_id', $id)->where('periodo', $value['id_mes'])->where('anio', $value['id_anio'])->where('estado', 1)->first();
 
@@ -696,7 +720,10 @@ abstract class BaseController extends Controller
                         "contribuyente_id" => $id,
                         "contribuyente" => $values['razon_social'],
                         "anio" => $value['anio_descripcion'],
-                        "mes" => $value['mes_descripcion']
+                        "mes" => $value['mes_descripcion'],
+                        "id_mes" => $value['id_mes'],
+                        "id_anio" => $value['id_anio'],
+                        "excluir" => $excluir
                     ];
 
                     array_push($data_declarar, $insert);

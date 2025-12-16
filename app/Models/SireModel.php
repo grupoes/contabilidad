@@ -13,7 +13,7 @@ class SireModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'contribuyente_id', 'periodo', 'anio', 'estado', 'user_add', 'user_edit', 'user_delete', 'deleted_at'];
+    protected $allowedFields = ['id', 'contribuyente_id', 'excluido', 'periodo', 'anio', 'estado', 'user_add', 'user_edit', 'user_delete', 'deleted_at'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
