@@ -26,20 +26,22 @@ class Home extends BaseController
         $notificacionDeudoresAnuales = count($this->renderDeudoresAnuales());
         $notificacionCertificadosVencer = count($this->certificados_por_vencer());
 
+        $notificacionRenta = $this->notificationPdtRenta();
+
         switch (session()->perfil_id) {
             case '3':
-                return view('home/cajero', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer'));
+                return view('home/cajero', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer', 'notificacionRenta'));
                 break;
 
             case '2':
-                return view('home/index', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer'));
+                return view('home/index', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer', 'notificacionRenta'));
                 break;
             case '1':
-                return view('home/index', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer'));
+                return view('home/index', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer', 'notificacionRenta'));
                 break;
 
             default:
-                return view('home/cajero', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer'));
+                return view('home/cajero', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer', 'notificacionRenta'));
                 break;
         }
     }
