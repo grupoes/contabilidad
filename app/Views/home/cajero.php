@@ -98,11 +98,11 @@
             </div>
         <?php endif; ?>
 
-        <?php if ($notificacionDeudoresServidor > 0) : ?>
+        <?php if ($notificacionDeudoresServidor['count'] > 0) : ?>
             <div class="col-md-6 col-xl-3">
                 <div class="card social-widget-card alerta-card" onclick="viewContribuyentesServidores()">
                     <div class="card-body">
-                        <h3 class="text-black m-0"><?= $notificacionDeudoresServidor ?></h3>
+                        <h3 class="text-black m-0"><?= $notificacionDeudoresServidor['count'] ?></h3>
                         <span class="m-t-10 text-black">SERVIDOR</span>
                         <i class="fas fa-book fa-2x mt-2 text-danger"></i>
                     </div>

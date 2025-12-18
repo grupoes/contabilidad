@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-
   const newcs = $($table).DataTable(optionsTableDefault);
 
   new $.fn.dataTable.Responsive(newcs);
@@ -184,12 +183,14 @@ function viewContribuyentesServidores() {
 
       const listServidores = document.getElementById("listServidores");
 
-      data.forEach((server) => {
+      const clientes = data.clientes;
+
+      clientes.forEach((server) => {
         html += `
         <tr>
           <td>${server.ruc} <br> ${server.razon_social}</td>
-          <td>${server.fechas_vencidas}</td>
-          <td>${server.total_deuda}</td>
+          <td>${server.fecha_inicio} Al ${server.fecha_fin}</td>
+          <td>${server.pagos}</td>
         </tr>
         `;
       });
@@ -304,10 +305,9 @@ function viewSire() {
       const tbodySire = document.getElementById("tbodySire");
 
       data.forEach((info) => {
-
         let button = "";
 
-        if (info.excluir === 'SI') {
+        if (info.excluir === "SI") {
           button = `<button type="button" class="btn btn-info btn-sm" onclick="excluirPeriodoSire('${info.contribuyente_id}', ${info.id_mes}, ${info.id_anio})">
           <i class="fas fa-minus"></i>
         </button>`;

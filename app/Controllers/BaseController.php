@@ -27,7 +27,9 @@ use App\Models\PagoAnualModel;
 use App\Models\PdtAnualModel;
 use App\Models\PdtPlameModel;
 use App\Models\PdtRentaModel;
+use App\Models\ServidorModel;
 use App\Models\SireModel;
+use App\Models\SistemaModel;
 use DateTime;
 
 /**
@@ -895,35 +897,133 @@ abstract class BaseController extends Controller
         return $array;
     }
 
-    public function renderContribuyentesDeuda()
+    public function renderContribuyentesDeuda($servicio, $estado)
     {
         $contribuyente = new ContribuyenteModel();
+        $sistema = new SistemaModel();
+        $pagoServidor = new PagoServidorModel();
+        $servidor = new ServidorModel();
+
+        $cobrar = $this->getPermisosAcciones(13, session()->perfil_id, 'cobrar servidor');
+
+        $sqlServicio = "";
+
+        if ($servicio != 'TODOS') {
+            $sqlServicio = "AND c.tipoServicio = '" . $servicio . "'";
+        }
 
         $contribuyentes = $contribuyente->query("SELECT 
             c.id,
             c.ruc,
-            c.razon_social,
-            c.telefono,
-            COUNT(ps.id) as periodos_deuda,
-            GROUP_CONCAT(DISTINCT ps.fecha_inicio ORDER BY ps.fecha_inicio DESC) as fechas_vencidas,
-            MIN(ps.fecha_inicio) as primera_fecha_vencida,
-            MAX(ps.fecha_inicio) as ultima_fecha_vencida,
-            SUM(ps.monto_pendiente) as total_deuda
+            c.razon_social
         FROM contribuyentes c
         INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id
         INNER JOIN sistemas s ON sc.system_id = s.id
-        LEFT JOIN pago_servidor ps ON c.id = ps.contribuyente_id 
+        LEFT JOIN pago_servidor ps ON (
+            c.id = ps.contribuyente_id 
             AND ps.estado = 'pendiente' 
             AND ps.fecha_inicio < CURDATE()
+        )
         WHERE s.status = 1
             AND c.tipoServicio = 'CONTABLE'
             AND c.tipoSuscripcion = 'NO GRATUITO'
-        GROUP BY c.id, c.ruc, c.razon_social, c.telefono
-        HAVING COUNT(ps.id) > 0
-            AND SUM(ps.monto_pendiente) > 0
-        ORDER BY SUM(ps.monto_pendiente) DESC;")->getResultArray();
+            AND c.estado = $estado
+            $sqlServicio
+        GROUP BY c.id, c.ruc, c.razon_social;")->getResultArray();
+
+        foreach ($contribuyentes as $key => $value) {
+            $sistemas = $sistema->query("SELECT s.id, s.nameSystem FROM sistemas s INNER JOIN sistemas_contribuyente sc ON s.id = sc.system_id WHERE sc.contribuyente_id = " . $value['id'])->getResultArray();
+            $contribuyentes[$key]['sistemas'] = $sistemas;
+
+            $monto = $servidor->where('contribuyente_id', $value['id'])->where('estado', 1)->first();
+
+            if ($monto) {
+                $contribuyentes[$key]['monto'] = $monto['monto'];
+            } else {
+                $contribuyentes[$key]['monto'] = "";
+            }
+
+            $verificarRegistros = $pagoServidor
+                ->select("DATE_FORMAT(fecha_inicio, '%d-%m-%Y') as fecha_inicio, DATE_FORMAT(fecha_fin, '%d-%m-%Y') as fecha_fin, fecha_inicio as fecha_inicio_raw, fecha_fin as fecha_fin_raw, estado")
+                ->where('contribuyente_id', $value['id'])
+                ->where('estado !=', 'eliminado')
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if (!$verificarRegistros) {
+                $contribuyentes[$key]['pagos'] = "NO TIENE REGISTROS";
+                $contribuyentes[$key]['fecha_inicio'] = "";
+                $contribuyentes[$key]['fecha_fin'] = "";
+
+                $contribuyentes[$key]['periodos'] = "0";
+            } else {
+                $contribuyentes[$key]['fecha_inicio'] = $verificarRegistros['fecha_inicio'];
+                $contribuyentes[$key]['fecha_fin'] = $verificarRegistros['fecha_fin'];
+
+                $fechaActual = new \DateTime(); // hoy
+                $fechaInicio = new \DateTime($verificarRegistros['fecha_inicio_raw']);
+                $fechaFin    = new \DateTime($verificarRegistros['fecha_fin_raw']);
+
+                $periodos = 0;
+
+                if ($fechaActual >= $fechaInicio && $fechaActual <= $fechaFin) {
+                    if ($verificarRegistros['estado'] == 'pendiente') {
+                        $periodos += 1;
+                    }
+                }
+
+                if ($fechaActual > $fechaFin) {
+                    $periodosVencidos = 0;
+                    $fechaTemp = clone $fechaFin;
+
+                    // mientras la fecha actual supere el fin del periodo
+                    while ($fechaActual > $fechaTemp) {
+                        $periodosVencidos++;
+                        $fechaTemp->modify('+1 year');
+                    }
+
+                    $periodos += $periodosVencidos;
+                }
+
+                if ($periodos == 0) {
+                    $contribuyentes[$key]['pagos'] = "NO DEBE";
+                } else if ($periodos == 1) {
+                    $contribuyentes[$key]['pagos'] = "1 PERIODO";
+                } else {
+                    $contribuyentes[$key]['pagos'] = $periodos . " PERIODOS";
+                }
+
+                $contribuyentes[$key]['periodos'] = $periodos;
+            }
+
+            $cobrarSer = "";
+
+            if ($cobrar) {
+                $cobrarSer = "<a href='" . base_url() . "cobrar-servidor/" . $value['id'] . "' class='btn btn-success'>COBRAR</a>";
+            }
+
+            $contribuyentes[$key]['cobrar'] = $cobrarSer;
+        }
 
         return $contribuyentes;
+    }
+
+    public function countAllServidorDeuda()
+    {
+        $todos = $this->renderContribuyentesDeuda('TODOS', 1);
+
+        $deudores = [];
+
+        foreach ($todos as $key => $value) {
+            if ($value['periodos'] > 0) {
+                $deudores[] = $value;
+            }
+        }
+
+        $count = count($deudores);
+        $clientes = $deudores;
+
+        return ['count' => $count, 'clientes' => $clientes];
     }
 
     public function renderDeudoresAnuales()

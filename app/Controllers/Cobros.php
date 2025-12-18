@@ -28,105 +28,11 @@ class Cobros extends BaseController
 
     public function renderContribuyentes($servicio, $estado)
     {
-        $contribuyente = new ContribuyenteModel();
-        $sistema = new SistemaModel();
-        $pagoServidor = new PagoServidorModel();
-        $servidor = new ServidorModel();
-
-        $cobrar = $this->getPermisosAcciones(13, session()->perfil_id, 'cobrar servidor');
-
-        $sqlServicio = "";
-
-        if ($servicio != 'TODOS') {
-            $sqlServicio = "AND c.tipoServicio = '" . $servicio . "'";
-        }
-
-        $contribuyentes = $contribuyente->query("SELECT 
-            c.id,
-            c.ruc,
-            c.razon_social,
-            COUNT(DISTINCT ps.fecha_inicio) as periodos_deuda,
-            DATE_FORMAT(MAX(ps.fecha_inicio), '%d-%m-%Y') as ultima_fecha_vencida,
-            DATE_FORMAT(MAX(ps.fecha_fin), '%d-%m-%Y') as ultima_fecha_fin,
-            COALESCE((
-                SELECT ps2.monto_total 
-                FROM pago_servidor ps2 
-                WHERE ps2.contribuyente_id = c.id 
-                AND ps2.estado = 'pendiente' 
-                AND ps2.fecha_inicio < CURDATE()
-                ORDER BY ps2.fecha_inicio DESC 
-                LIMIT 1
-            ), 0) as total_deuda,
-            CASE 
-                WHEN COUNT(DISTINCT ps.fecha_inicio) = 0 AND EXISTS (
-                    SELECT 1 FROM pago_servidor WHERE contribuyente_id = c.id
-                ) THEN 'Al día'
-                WHEN COUNT(DISTINCT ps.fecha_inicio) = 0 THEN 'Sin registros de pago'
-                ELSE 'Con deuda'
-            END as estado
-        FROM contribuyentes c
-        INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id
-        INNER JOIN sistemas s ON sc.system_id = s.id
-        LEFT JOIN pago_servidor ps ON (
-            c.id = ps.contribuyente_id 
-            AND ps.estado = 'pendiente' 
-            AND ps.fecha_inicio < CURDATE()
-        )
-        WHERE s.status = 1
-            AND c.tipoServicio = 'CONTABLE'
-            AND c.tipoSuscripcion = 'NO GRATUITO'
-            AND c.estado = $estado
-            $sqlServicio
-        GROUP BY c.id, c.ruc, c.razon_social
-        ORDER BY total_deuda DESC, c.razon_social ASC;")->getResultArray();
-
-        foreach ($contribuyentes as $key => $value) {
-            $sistemas = $sistema->query("SELECT s.id, s.nameSystem FROM sistemas s INNER JOIN sistemas_contribuyente sc ON s.id = sc.system_id WHERE sc.contribuyente_id = " . $value['id'])->getResultArray();
-            $contribuyentes[$key]['sistemas'] = $sistemas;
-
-            $monto = $servidor->where('contribuyente_id', $value['id'])->where('estado', 1)->first();
-
-            if ($monto) {
-                $contribuyentes[$key]['monto'] = $monto['monto'];
-            } else {
-                $contribuyentes[$key]['monto'] = "";
-            }
-
-            $verificarRegistros = $pagoServidor
-                ->select("DATE_FORMAT(fecha_inicio, '%d-%m-%Y') as fecha_inicio, DATE_FORMAT(fecha_fin, '%d-%m-%Y') as fecha_fin")
-                ->where('contribuyente_id', $value['id'])
-                ->where('estado !=', 'eliminado')
-                ->orderBy('id', 'desc')
-                ->first();
-
-            if (!$verificarRegistros) {
-                $contribuyentes[$key]['pagos'] = "NO TIENE REGISTROS";
-                $contribuyentes[$key]['fecha_inicio'] = "";
-                $contribuyentes[$key]['fecha_fin'] = "";
-            } else {
-                $contribuyentes[$key]['fecha_inicio'] = $verificarRegistros['fecha_inicio'];
-                $contribuyentes[$key]['fecha_fin'] = $verificarRegistros['fecha_fin'];
-
-                if ($value['periodos_deuda'] == 1) {
-                    $contribuyentes[$key]['pagos'] = $value['periodos_deuda'] . " PERIODO";
-                } else if ($value['periodos_deuda'] == 0) {
-                    $contribuyentes[$key]['pagos'] = "NO DEBE";
-                } else {
-                    $contribuyentes[$key]['pagos'] = $value['periodos_deuda'] . " PERIODOS";
-                }
-            }
-
-            $cobrarSer = "";
-
-            if ($cobrar) {
-                $cobrarSer = "<a href='" . base_url() . "cobrar-servidor/" . $value['id'] . "' class='btn btn-success'>COBRAR</a>";
-            }
-
-            $contribuyentes[$key]['cobrar'] = $cobrarSer;
-        }
+        $contribuyentes = $this->renderContribuyentesDeuda($servicio, $estado);
 
         return $this->response->setJSON($contribuyentes);
     }
+
 
     public function cobrarView($id)
     {
@@ -261,8 +167,7 @@ class Cobros extends BaseController
 
     public function renderContribuyentesDeudaAll()
     {
-
-        $data = $this->renderContribuyentesDeuda();
+        $data = $this->countAllServidorDeuda();
         return $this->response->setJSON($data);
     }
 
