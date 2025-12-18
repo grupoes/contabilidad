@@ -954,6 +954,8 @@ abstract class BaseController extends Controller
                 $contribuyentes[$key]['pagos'] = "NO TIENE REGISTROS";
                 $contribuyentes[$key]['fecha_inicio'] = "";
                 $contribuyentes[$key]['fecha_fin'] = "";
+                $contribuyentes[$key]['fecha_inicio_raw'] = "";
+                $contribuyentes[$key]['fecha_fin_raw'] = "";
 
                 $contribuyentes[$key]['periodos'] = "0";
             } else {
@@ -992,6 +994,9 @@ abstract class BaseController extends Controller
                 } else {
                     $contribuyentes[$key]['pagos'] = $periodos . " PERIODOS";
                 }
+
+                $contribuyentes[$key]['fecha_inicio_raw'] = $verificarRegistros['fecha_inicio_raw'];
+                $contribuyentes[$key]['fecha_fin_raw'] = $verificarRegistros['fecha_fin_raw'];
 
                 $contribuyentes[$key]['periodos'] = $periodos;
             }

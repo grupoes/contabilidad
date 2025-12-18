@@ -80,17 +80,20 @@ function viewListContribuyentes(data) {
                 <td>
                     <div class="row">
                         <div class="col">
-                            <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${emp.id
-      }">${emp.ruc}</a></h6>
-                            <p class="text-muted f-14 mb-0"> ${emp.razon_social
-      } </p>
+                            <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${
+                              emp.id
+                            }">${emp.ruc}</a></h6>
+                            <p class="text-muted f-14 mb-0"> ${
+                              emp.razon_social
+                            } </p>
                         </div>
                     </div>
                 </td>
                 <td>${emp.diaCobro} cada mes</td>
                 <td>${emp.tipoPago}</td>
-                <td><a href="#" class="tipoServicio" data-id="${emp.id}">${emp.tipoServicio
-      }</a></td>
+                <td><a href="#" class="tipoServicio" data-id="${emp.id}">${
+      emp.tipoServicio
+    }</a></td>
                 <td>${deuda}</td>
                 <td>
                     ${emp.cobrar}
@@ -108,9 +111,7 @@ function viewListContribuyentes(data) {
     responsive: true,
     autoWidth: false,
     scrollX: false,
-    columnDefs: [
-      { targets: "_all", className: "text-wrap" },
-    ],
+    columnDefs: [{ targets: "_all", className: "text-wrap" }],
   });
 
   new $.fn.dataTable.Responsive(newcs);
@@ -132,13 +133,19 @@ const newcsServidor = $("#tableDataServidor").DataTable(optionsTableDefault);
 new $.fn.dataTable.Responsive(newcsServidor);
 
 const tipoServicio = document.getElementById("selectOpcionesServidor");
-const estado = document.getElementById('estadosServidor');
+const estado = document.getElementById("estadosServidor");
 
 listaContribuyentesServidor();
 
 function listaContribuyentesServidor() {
-
-  fetch(base_url + "render-contribuyentes" + "/" + tipoServicio.value + "/" + estado.value)
+  fetch(
+    base_url +
+      "render-contribuyentes" +
+      "/" +
+      tipoServicio.value +
+      "/" +
+      estado.value
+  )
     .then((res) => res.json())
     .then((data) => {
       viewListContribuyentesServidor(data);
@@ -175,17 +182,21 @@ function viewListContribuyentesServidor(data) {
                 <td>
                     <div class="row">
                         <div class="col">
-                            <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${emp.id
-      }">${emp.ruc}</a></h6>
-                            <p class="text-muted f-14 mb-0"> ${emp.razon_social
-      } </p>
+                            <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${
+                              emp.id
+                            }">${emp.ruc}</a></h6>
+                            <p class="text-muted f-14 mb-0"> ${
+                              emp.razon_social
+                            } </p>
                         </div>
                     </div>
                 </td>
                 <td>${htmlSystem}</td>
                 <td>${emp.monto}</td>
-                <td>${emp.fecha_inicio}</td>
-                <td>${emp.fecha_fin}</td>
+                <td data-order="${emp.fecha_inicio_raw}">${
+      emp.fecha_inicio
+    }</td>
+                <td data-order="${emp.fecha_fin_raw}">${emp.fecha_fin}</td>
                 <td>${emp.pagos}</td>
                 <td>
                     ${emp.cobrar}
@@ -233,10 +244,10 @@ loadDeudasAnuales();
 function loadDeudasAnuales() {
   fetch(
     base_url +
-    "deudas-anuales/" +
-    selectOpcionesAnual.value +
-    "/" +
-    estado_anual.value
+      "deudas-anuales/" +
+      selectOpcionesAnual.value +
+      "/" +
+      estado_anual.value
   )
     .then((res) => res.json())
     .then((data) => {
@@ -254,8 +265,9 @@ function viewDeudasAnuales(data) {
       <td>
         <div class="row">
             <div class="col">
-                <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${emp.id
-      }">${emp.ruc}</a></h6>
+                <h6 class="mb-1"><a href="javascript:void(0);" class="num-doc" data-id="${
+                  emp.id
+                }">${emp.ruc}</a></h6>
                 <p class="text-muted f-14 mb-0"> ${emp.razon_social} </p>
             </div>
         </div>
