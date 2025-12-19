@@ -324,3 +324,4 @@ $routes->group('feriados', function ($routes) {
 $routes->get('/agenda', 'Agenda::index');
 $routes->get('/agenda/getAgenda', 'Agenda::getAgenda');
 $routes->post('/agenda/save', 'Agenda::save');
+$routes->get('/agenda/actividades-hoy', 'Agenda::actividadesHoy');

@@ -164,8 +164,6 @@ function viewListContribuyentesServidor(data) {
   let html = "";
 
   data.forEach((emp, index) => {
-    let sistemas = "";
-
     const systems = emp.sistemas;
 
     let htmlSystem = "<ul>";

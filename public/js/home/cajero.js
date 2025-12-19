@@ -589,3 +589,13 @@ function excluirPeriodoSire(id, id_mes, id_anio) {
       }
     });
 }
+
+goToAgenda();
+
+function goToAgenda() {
+  fetch(base_url + "agenda/actividades-hoy")
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+    });
+}

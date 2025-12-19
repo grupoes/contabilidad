@@ -40,7 +40,9 @@ class Agenda extends BaseController
 
         try {
 
-            $start = $this->request->getPost('date') . " " . $this->request->getPost('time');
+            $date = $this->request->getPost('date');
+            $time = $this->request->getPost('time');
+            $start = $date . " " . $time;
             $opcion = $this->request->getPost('opcion');
             $notify_time = $this->request->getPost('notify_time');
             $id = $this->request->getPost('agenda_id');
@@ -48,6 +50,13 @@ class Agenda extends BaseController
             if ($opcion == 1) {
                 $dias_notificar = $notify_time;
                 $horas_notificar = "00:00";
+
+                $fecha = new \DateTime($date);
+
+                // Restar 5 días
+                $fecha->sub(new \DateInterval('P' . $notify_time . 'D'));
+
+                $fecha_notificar = $fecha->format('Y-m-d') . " " . $time;
             } else {
                 $dias_notificar = 0;
                 $horas_notificar = $notify_time;
@@ -58,6 +67,24 @@ class Agenda extends BaseController
                         'message' => 'La hora debe estar en formato HH:MM (00:00 a 23:59)'
                     ]);
                 }
+
+                list($horas, $minutos) = explode(':', $notify_time);
+
+                // Crear intervalo dinámico
+                $intervalo = 'PT';
+
+                if ((int)$horas > 0) {
+                    $intervalo .= (int)$horas . 'H';
+                }
+
+                if ((int)$minutos > 0) {
+                    $intervalo .= (int)$minutos . 'M';
+                }
+
+                $fecha = new \DateTime($start);
+                $fecha->sub(new \DateInterval($intervalo));
+
+                $fecha_notificar = $fecha->format('Y-m-d H:i:s');
             }
 
             $data = [
@@ -67,6 +94,7 @@ class Agenda extends BaseController
                 'allDay' => 0,
                 'dias_notificar' => $dias_notificar,
                 'horas_notificar' => $horas_notificar,
+                'fecha_notificar' => $fecha_notificar,
                 'estado' => 'pendiente',
                 'user_add' => session()->id,
             ];
@@ -87,6 +115,14 @@ class Agenda extends BaseController
     {
         $agenda = new AgendaModel();
         $agendaAll = $agenda->select("id, title, DATE_FORMAT(start, '%Y-%m-%dT%H:%i:%s') AS start, description, allDay, dias_notificar, horas_notificar")->where('DATE(start) = CURDATE()')->findAll();
+
+        return $this->response->setJSON($agendaAll);
+    }
+
+    public function actividadesHoy()
+    {
+        $agenda = new AgendaModel();
+        $agendaAll = $agenda->where('DATE(fecha_notificar) >= CURDATE()')->findAll();
 
         return $this->response->setJSON($agendaAll);
     }
