@@ -325,3 +325,5 @@ $routes->get('/agenda', 'Agenda::index');
 $routes->get('/agenda/getAgenda', 'Agenda::getAgenda');
 $routes->post('/agenda/save', 'Agenda::save');
 $routes->get('/agenda/actividades-hoy', 'Agenda::actividadesHoy');
+$routes->get('/agenda/atendido-actividad-sin-evidencia/(:num)', 'Agenda::atendidoActividadSinEvidencia/$1');
+$routes->post('/agenda/atendido-actividad-con-evidencia', 'Agenda::atendidoActividadConEvidencia');

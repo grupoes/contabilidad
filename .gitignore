@@ -134,6 +134,7 @@ nb-configuration.xml
 /public/servidor/*
 /public/documents/*
 /public/pagoAnual/*
+/public/evidencias/*
 
 /writable/keys.json
 /writable/temp/*

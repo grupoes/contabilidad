@@ -13,7 +13,7 @@ class AgendaModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'title', 'description', 'start', 'estado', 'dias_notificar', 'horas_notificar', 'fecha_notificar', 'allDay', 'evidencia', 'file_evidencia', 'user_add', 'user_edit', 'user_delete', 'deleted_at'];
+    protected $allowedFields = ['id', 'title', 'description', 'start', 'estado', 'dias_notificar', 'horas_notificar', 'fecha_notificar', 'allDay', 'evidencia', 'file_evidencia', 'user_add', 'user_asignado', 'user_edit', 'user_delete', 'deleted_at'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

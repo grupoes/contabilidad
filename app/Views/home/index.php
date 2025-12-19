@@ -150,16 +150,7 @@
                 <div class="card-body">
                     <h5>Detalle de Caja Por Sede del Día</h5>
                     <div class="row">
-                        <div class="tab-content" id="myTabContent">
-                            <div
-                                class="tab-pane fade show active"
-                                id="analytics-tab-1-caja"
-                                role="tabpanel"
-                                aria-labelledby="analytics"
-                                tabindex="0">
-                                <div id="overview-chart-1"></div>
-                            </div>
-                        </div>
+
 
                     </div>
                 </div>

@@ -155,53 +155,8 @@
                         <h5 class="mb-0">Mis Actividades</h5>
 
                     </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item px-0">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="avtar avtar-s">19:30 am</div>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <div class="row g-1">
-                                        <div class="col-8">
-                                            <h6 class="mb-0">Llamar a cliente de san martin</h6>
-                                            <p class="text-muted mb-0">
-                                                <small>Para coordinar sobre el sistema para capacitación</small>
-                                            </p>
-                                        </div>
-                                        <div class="col-4 text-end">
-                                            <h6 class="mb-1"> <button type="button" class="btn btn-primary btn-sm">Ok</button> </h6>
-                                            <p class="text-danger mb-0">
-                                                <button type="button" class="btn btn-success btn-sm">Atendido</button>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="list-group-item px-0">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="avtar avtar-s">19:30 am</div>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <div class="row g-1">
-                                        <div class="col-8">
-                                            <h6 class="mb-0">Llamar a cliente de san martin</h6>
-                                            <p class="text-muted mb-0">
-                                                <small>Para coordinar sobre el sistema para capacitación</small>
-                                            </p>
-                                        </div>
-                                        <div class="col-4 text-end">
-                                            <h6 class="mb-1"> <button type="button" class="btn btn-primary btn-sm">Ok</button> </h6>
-                                            <p class="text-danger mb-0">
-                                                <button type="button" class="btn btn-success btn-sm">Atendido</button>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
+                    <ul class="list-group list-group-flush" id="actividadesHoy">
+
                     </ul>
                 </div>
             </div>
@@ -515,6 +470,35 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalActividad" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4" id="titleModal">Subir Evidencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="formEvidencia" enctype="multipart/form-data">
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label for="formFile" class="form-label">Seleccionar archivo</label>
+                        <input class="form-control" type="file" id="formFile" name="evidencia" accept="image/*,.pdf" required />
+                    </div>
+
+                    <input type="hidden" id="actividad_id" name="actividad_id" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="atendidoSinEvidencia()">Atendido Sin Evidencia</button>
+                    <button type="submit" class="btn btn-success">Subir Evidencia</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

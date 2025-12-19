@@ -590,12 +590,148 @@ function excluirPeriodoSire(id, id_mes, id_anio) {
     });
 }
 
+const actividadesHoy = document.getElementById("actividadesHoy");
+
 goToAgenda();
 
 function goToAgenda() {
   fetch(base_url + "agenda/actividades-hoy")
     .then((res) => res.json())
     .then((data) => {
-      console.log(data);
+      if (data.length === 0) {
+        actividadesHoy.innerHTML = `<li class="list-group-item px-0">
+          <div class="d-flex align-items-center">
+              <div class="flex-grow-1 ms-3">
+                  <div class="row g-1">
+                      <div class="col-12">
+                          <h6 class="mb-0">No hay actividades para hoy.</h6>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </li>`;
+        return;
+      }
+
+      viewAgendaHoy(data);
     });
 }
+
+function viewAgendaHoy(data) {
+  let html = "";
+  data.forEach((item) => {
+    html += `
+      <li class="list-group-item px-0">
+        <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+                <div class="avtar avtar-s">${item.hora}</div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <div class="row g-1">
+                    <div class="col-8">
+                        <h6 class="mb-0">${item.title}</h6>
+                        <p class="text-muted mb-0">
+                            <small>${item.description}</small>
+                        </p>
+                    </div>
+                    <div class="col-4 text-end">
+                        
+                        <p class="text-danger mb-0">
+                            <button type="button" class="btn btn-success btn-sm" onclick="atendidoActividad(${item.id})">Atendido</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </li>
+    `;
+  });
+
+  actividadesHoy.innerHTML = html;
+}
+
+function atendidoActividad(id) {
+  $("#modalActividad").modal("show");
+  $("#actividad_id").val(id);
+}
+
+function atendidoSinEvidencia() {
+  const id = document.getElementById("actividad_id").value;
+  $("#modalActividad").modal("hide");
+
+  swalWithBootstrapButtons
+    .fire({
+      title: "¿Estás seguro de atender esta actividad sin evidencia?",
+      text: "¡No podrá revertir después!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Si, atendido!",
+      cancelButtonText: "No, cancelar!",
+      reverseButtons: true,
+      allowOutsideClick: false,
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        fetch(base_url + `agenda/atendido-actividad-sin-evidencia/${id}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.status === "success") {
+              swalWithBootstrapButtons
+                .fire({
+                  title: "¡Atendido!",
+                  text: data.message,
+                  icon: "success",
+                  confirmButtonText: "Entendido",
+                  allowOutsideClick: false,
+                })
+                .then((result) => {
+                  if (result.isConfirmed) {
+                    goToAgenda();
+                    $("#modalActividad").modal("hide");
+                  }
+                });
+            } else {
+              swalWithBootstrapButtons.fire("Error", data.msg, "error");
+            }
+          });
+      } else {
+        $("#modalActividad").modal("show");
+      }
+    });
+}
+
+const formEvidencia = document.getElementById("formEvidencia");
+
+formEvidencia.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  $("#modalActividad").modal("hide");
+
+  const formData = new FormData(formEvidencia);
+
+  fetch(base_url + "agenda/atendido-actividad-con-evidencia", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        swalWithBootstrapButtons
+          .fire({
+            title: "¡Atendido!",
+            text: data.message,
+            icon: "success",
+            confirmButtonText: "Entendido",
+            allowOutsideClick: false,
+          })
+          .then((result) => {
+            if (result.isConfirmed) {
+              goToAgenda();
+              $("#modalActividad").modal("hide");
+            }
+          });
+      } else {
+        $("#modalActividad").modal("show");
+      }
+    });
+});

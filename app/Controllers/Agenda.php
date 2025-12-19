@@ -96,6 +96,7 @@ class Agenda extends BaseController
                 'horas_notificar' => $horas_notificar,
                 'fecha_notificar' => $fecha_notificar,
                 'estado' => 'pendiente',
+                'user_asignado' => session()->id,
                 'user_add' => session()->id,
             ];
 
@@ -111,19 +112,56 @@ class Agenda extends BaseController
         }
     }
 
-    public function getAgendaHoy()
+    public function actividadesHoy()
     {
         $agenda = new AgendaModel();
-        $agendaAll = $agenda->select("id, title, DATE_FORMAT(start, '%Y-%m-%dT%H:%i:%s') AS start, description, allDay, dias_notificar, horas_notificar")->where('DATE(start) = CURDATE()')->findAll();
+        $agendaAll = $agenda->select("id, title, description, estado, DATE_FORMAT(start, '%h:%i %p') AS hora")->where('DATE(fecha_notificar) <= CURDATE()')->where('estado', 'pendiente')->where('user_asignado', session()->id)->findAll();
 
         return $this->response->setJSON($agendaAll);
     }
 
-    public function actividadesHoy()
+    public function atendidoActividadSinEvidencia($id)
     {
         $agenda = new AgendaModel();
-        $agendaAll = $agenda->where('DATE(fecha_notificar) >= CURDATE()')->findAll();
 
-        return $this->response->setJSON($agendaAll);
+        try {
+            $data = [
+                'estado' => 'atendido_sin_evidencia',
+            ];
+
+            $agenda->update($id, $data);
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Actividad marcada como atendida sin evidencia']);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => "No se pudo actualizar la actividad. " . $e->getMessage()]);
+        }
+    }
+
+    public function atendidoActividadConEvidencia()
+    {
+        $agenda = new AgendaModel();
+
+        try {
+            $id = $this->request->getPost('actividad_id');
+            $evidencia = $this->request->getFile('evidencia');
+
+            if ($evidencia && $evidencia->isValid() && !$evidencia->hasMoved()) {
+                $nuevoNombre = $evidencia->getRandomName();
+                $evidencia->move(FCPATH . 'evidencias/', $nuevoNombre);
+
+                $data = [
+                    'evidencia' => "SI",
+                    'file_evidencia' => $nuevoNombre,
+                    'estado' => 'atendido_con_evidencia',
+                ];
+
+                $agenda->update($id, $data);
+
+                return $this->response->setJSON(['status' => 'success', 'message' => 'Actividad marcada como atendida con evidencia']);
+            } else {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'No se pudo subir el archivo de evidencia.']);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => "No se pudo actualizar la actividad. " . $e->getMessage()]);
+        }
     }
 }
