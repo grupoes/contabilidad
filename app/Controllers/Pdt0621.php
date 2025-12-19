@@ -146,7 +146,7 @@ class Pdt0621 extends BaseController
                 if ($datos_constancia_file['periodo'] != $ani . $data_periodo['mes_fecha'] || $datos_constancia_file['ruc'] != $ruc) {
                     //unlink($rutaPdt);
                     //unlink($rutaConstancia);
-                    return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto, periodo o RUC no coinciden.", 'datos' => $datos_constancia_file]);
+                    //return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto, periodo o RUC no coinciden.", 'datos' => $datos_constancia_file]);
                 }
             }
 
