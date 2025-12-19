@@ -29,6 +29,19 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body position-relative">
+                    <?php if (session()->perfil_id == 1 || session()->perfil_id == 2) : ?>
+                        <div class="row">
+                            <div class="col-md-4 mx-auto mb-3">
+                                <select class="form-control" name="trabajadorId" id="trabajadorId">
+                                    <?php foreach ($trabajadores as $trabajador): ?>
+                                        <option value="<?= $trabajador['id'] ?>"><?= $trabajador['nombres'] ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <input type="hidden" name="trabajadorId" id="trabajadorId" value="<?= session()->id ?>">
+                    <?php endif; ?>
                     <div id="calendar" class="calendar"></div>
                 </div>
             </div>
@@ -110,27 +123,42 @@
         <form id="pc-form-event">
             <input type="hidden" name="agenda_id" id="agenda_id" value="0">
             <div class="row">
+                <?php if (session()->perfil_id == 1 || session()->perfil_id == 2): ?>
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label for="trabajador_id" class="form-label">Trabajador</label>
+                            <select name="trabajador_id" id="trabajador_id" class="form-control">
+                                <option value="">Selecciona un trabajador</option>
+                                <?php foreach ($trabajadores as $trabajador): ?>
+                                    <option value="<?= $trabajador['id'] ?>"><?= $trabajador['nombres'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <input type="hidden" name="trabajador_id" id="trabajador_id" value="<?= session()->id ?>">
+                <?php endif; ?>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label">Fecha</label>
-                        <input type="date" class="form-control" name="date" id="pc-e-date" readonly>
+                        <label for="pc-e-date" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" name="date" id="pc-e-date">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label">Hora</label>
+                        <label for="pc-e-time" class="form-label">Hora</label>
                         <input type="time" class="form-control" name="time" id="pc-e-time" required>
                     </div>
                 </div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Título</label>
+                <label for="pc-e-title" class="form-label">Título</label>
                 <input type="text" class="form-control" name="title" id="pc-e-title" placeholder="Escribe un título a la actividad" autofocus required>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Descripción</label>
+                <label for="pc-e-description" class="form-label">Descripción</label>
                 <textarea class="form-control" placeholder="Escribe una descripción de la actividad" rows="3" name="description" id="pc-e-description" required></textarea>
             </div>
             <div class="row">

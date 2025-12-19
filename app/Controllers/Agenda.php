@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\AgendaModel;
+use App\Models\UserModel;
 
 class Agenda extends BaseController
 {
@@ -14,18 +15,26 @@ class Agenda extends BaseController
 
         $menu = $this->permisos_menu();
 
-        return view('agenda/index', compact('menu'));
+        $usuario = new UserModel();
+
+        $trabajadores = $usuario->select('id, nombres')->where('estado', 1)->where('perfil_id !=', 1)->findAll();
+
+        return view('agenda/index', compact('menu', 'trabajadores'));
     }
 
     public function getAgenda()
     {
         $agenda = new AgendaModel();
-        $agendaAll = $agenda->select("id, title, DATE_FORMAT(start, '%Y-%m-%dT%H:%i:%s') AS start, description, allDay, dias_notificar, horas_notificar")->findAll();
+
+        $trabajadorId = $_GET['trabajador_id'];
+
+        $agendaAll = $agenda->select("id, title, DATE_FORMAT(start, '%Y-%m-%dT%H:%i:%s') AS start, description, allDay, dias_notificar, horas_notificar")->where('user_asignado', $trabajadorId)->findAll();
 
         foreach ($agendaAll as $key => $value) {
 
             $agendaAll[$key]['allDay'] = (bool) $value['allDay'];
         }
+
         return $this->response->setJSON($agendaAll);
     }
 
@@ -46,6 +55,14 @@ class Agenda extends BaseController
             $opcion = $this->request->getPost('opcion');
             $notify_time = $this->request->getPost('notify_time');
             $id = $this->request->getPost('agenda_id');
+            $trabajador_id = $this->request->getPost('trabajador_id');
+
+            if ($date < date('Y-m-d')) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'La fecha no puede ser anterior a la fecha actual.'
+                ]);
+            }
 
             if ($opcion == 1) {
                 $dias_notificar = $notify_time;
@@ -96,7 +113,7 @@ class Agenda extends BaseController
                 'horas_notificar' => $horas_notificar,
                 'fecha_notificar' => $fecha_notificar,
                 'estado' => 'pendiente',
-                'user_asignado' => session()->id,
+                'user_asignado' => $trabajador_id,
                 'user_add' => session()->id,
             ];
 
