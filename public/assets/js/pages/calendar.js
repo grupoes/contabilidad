@@ -68,8 +68,6 @@
         calendar.unselect();
       },
       eventClick: function (info) {
-        console.log(info.event);
-
         calendevent = info.event;
         var clickedevent = info.event;
         var e_title =

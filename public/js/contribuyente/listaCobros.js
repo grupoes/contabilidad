@@ -18,6 +18,9 @@ document.addEventListener("DOMContentLoaded", function () {
       case "servidor":
         targetTab = "analytics-tab-3";
         break;
+      case "servicios":
+        targetTab = "analytics-tab-4";
+        break;
     }
 
     // Activar la pestaña correspondiente

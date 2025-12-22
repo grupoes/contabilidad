@@ -75,6 +75,19 @@
                                 Servidor
                             </button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button
+                                class="nav-link"
+                                id="analytics-tab-4"
+                                data-bs-toggle="tab"
+                                data-bs-target="#analytics-tab-4-pane"
+                                type="button"
+                                role="tab"
+                                aria-controls="analytics-tab-4-pane"
+                                aria-selected="false">
+                                Servicios
+                            </button>
+                        </li>
                     </ul>
                 </div>
                 <div class="tab-content" id="myTabContent">
@@ -217,6 +230,47 @@
                             </div>
                         </div>
                     </div>
+
+                    <div
+                        class="tab-pane fade"
+                        id="analytics-tab-4-pane"
+                        role="tabpanel"
+                        aria-labelledby="analytics-tab-4"
+                        tabindex="0">
+                        <div class="card">
+                            <div class="card-body pt-2">
+                                <div class="d-flex justify-content-between align-items-center p-2 pb-sm-2">
+                                    <!-- Contenedor para los botones -->
+                                    <div class="d-flex align-items-center gap-2 ms-auto">
+                                        <a href="<?= base_url('crear/servicio') ?>" class="btn btn-success d-inline-flex align-items-center gap-2">
+                                            <i class="ti ti-plus f-18"></i> Nuevo Servicio
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table align-middle datatable dt-responsive table-hover table-check display" style="border-collapse: collapse; border-spacing: 0 8px; width: 100%;" id="tableDataServicios">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha</th>
+                                                <th>Empresa</th>
+                                                <th>Descripción</th>
+                                                <th>Monto</th>
+                                                <th>Comprobante</th>
+                                                <th>Estado</th>
+                                                <th class="text-center">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tableBody">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>

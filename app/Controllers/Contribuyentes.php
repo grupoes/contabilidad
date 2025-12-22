@@ -1219,7 +1219,7 @@ class Contribuyentes extends BaseController
             $facturas = $migrar->where('id_migracion', $idMigracion)->where('tipo', '01')->where('serie', $serie_factura['serie'])->orderBy('fecha', 'asc')->orderBy('numero', 'asc')->findAll();
 
             foreach ($facturas as $factura) {
-                $subtotal = $factura['monto'] - $factura['icbper'];
+                $subtotal = $factura['valor_venta'];
 
                 $add = array(
                     "fecha" => $factura['fecha'],

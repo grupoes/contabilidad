@@ -70,7 +70,7 @@ class Agenda extends BaseController
 
                 $fecha = new \DateTime($date);
 
-                // Restar 5 días
+                // Restar n días
                 $fecha->sub(new \DateInterval('P' . $notify_time . 'D'));
 
                 $fecha_notificar = $fecha->format('Y-m-d') . " " . $time;
