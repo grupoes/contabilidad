@@ -698,7 +698,7 @@ abstract class BaseController extends Controller
         foreach ($declaracion as $key => $value) {
             $digito = $value['id_numero'] - 1;
 
-            $listaContrib = $contrib->query("SELECT id, razon_social, ruc, created_at FROM contribuyentes WHERE estado = 1 AND tipoServicio = 'CONTABLE' AND RIGHT(ruc, 1) = $digito")->getResultArray();
+            $listaContrib = $contrib->query("SELECT id, razon_social, ruc, created_at FROM contribuyentes WHERE estado = 1 AND tipoServicio = 'CONTABLE' AND ruc != '10463333748' AND RIGHT(ruc, 1) = $digito")->getResultArray();
 
             foreach ($listaContrib as $keys => $values) {
                 $id = $values['id'];
