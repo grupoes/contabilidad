@@ -261,7 +261,7 @@
                                                 <th class="text-center">Acciones</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="tableBody">
+                                        <tbody id="tableBodyServicios">
 
                                         </tbody>
                                     </table>
