@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\AmorPagosServiciosModel;
 use App\Models\ContribuyenteModel;
 use App\Models\SistemaModel;
 use App\Models\MetodoPagoModel;
@@ -12,6 +13,7 @@ use App\Models\PagoAnualModel;
 use App\Models\PagoAmoAnualModel;
 use App\Models\AmortizacionPagoAnualModel;
 use App\Models\ServicioModel;
+use App\Models\ServicioPagosModel;
 
 class Cobros extends BaseController
 {
@@ -652,12 +654,55 @@ class Cobros extends BaseController
     public function saveService()
     {
         $service = new ServicioModel();
+        $pagos = new ServicioPagosModel();
+        $amorPago = new AmorPagosServiciosModel();
+
         try {
             $data = $this->request->getPost();
+            $estado = $data['estado'];
+            $monto = $data['monto'];
+            $montos = $data['montos'];
+
+            if ($estado === 'pendiente') {
+                $comprobante = 3;
+
+                $total = array_sum($montos);
+                if ($total != $monto) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => 'El monto total de la programación no coincide con el monto del servicio']);
+                }
+
+                $hoy = new \DateTime('today');
+
+                $hayAnteriores = false;
+                $fechas = $data['fecha_programacion'];
+
+                foreach ($fechas as $fecha) {
+                    $f = new \DateTime($fecha);
+
+                    if ($f < $hoy) {
+                        $hayAnteriores = true;
+                        break;
+                    }
+                }
+
+                if ($hayAnteriores) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => 'No se pueden agregar fechas de programación anteriores a la fecha actual si el estado es pendiente']);
+                }
+            } else {
+                $comprobante = $data['comprobante'];
+                $metodos = $data['metodo_pago'];
+                $total = array_sum($montos);
+                if ($total != $monto) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => 'El monto total de los métodos de pago no coincide con el monto del servicio']);
+                }
+
+                if (count($metodos) !== count(array_unique($metodos))) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => 'No se pueden repetir metodos de pago si el estado es pagado']);
+                }
+            }
 
             $datos = [
-                "metodo_id" => $data['metodo_pago'],
-                "comprobante_id" => $data['comprobante'],
+                "comprobante_id" => $comprobante,
                 "ruc" => $data['numeroDocumento'],
                 "razon_social" => $data['razon_social'],
                 "monto" => $data['monto'],
@@ -669,6 +714,58 @@ class Cobros extends BaseController
             ];
 
             $service->insert($datos);
+
+            $serviceId = $service->getInsertID();
+
+            if ($estado === 'pendiente') {
+                $fechas = $data['fecha_programacion'];
+
+                for ($i = 0; $i < count($montos); $i++) {
+                    $datosPago = [
+                        "servicio_id" => $serviceId,
+                        "monto" => $montos[$i],
+                        "fecha_programacion" => $fechas[$i],
+                        "monto_pagado" => "0.00",
+                        "monto_pendiente" => $montos[$i],
+                        "estado" => 'pendiente',
+                        "user_add" => session()->id
+                    ];
+
+                    $pagos->insert($datosPago);
+                }
+            } else {
+                $metodos = $data['metodo_pago'];
+
+                $datosPago = [
+                    "servicio_id" => $serviceId,
+                    "monto" => $monto,
+                    "fecha_pago" => date('Y-m-d H:i:s'),
+                    "fecha_proceso" => date('Y-m-d'),
+                    "fecha_programacion" => date('Y-m-d'),
+                    "monto_pagado" => $monto,
+                    "monto_pendiente" => "0.00",
+                    "estado" => 'pagado',
+                    "user_add" => session()->id
+                ];
+
+                $pagos->insert($datosPago);
+
+                for ($i = 0; $i < count($montos); $i++) {
+                    $datosAmor = [
+                        "servicio_id" => $serviceId,
+                        "movimientoId" => $metodos[$i],
+                        "registro" => $montos[$i],
+                        "fecha_pago" => date('Y-m-d H:i:s'),
+                        "metodo_pago_id" => $metodos[$i],
+                        "monto" => $montos[$i],
+                        "vaucher" => "",
+                        "estado" => 1,
+                        "user_add" => session()->id
+                    ];
+
+                    $amorPago->insert($datosAmor);
+                }
+            }
 
             return $this->response->setJSON(['status' => 'success', 'message' => 'Se guardo correctamente']);
         } catch (\Exception $e) {

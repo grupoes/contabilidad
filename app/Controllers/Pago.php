@@ -385,7 +385,7 @@ class Pago extends BaseController
                 $iduser = $dataSede['idUser'];
             } else {
                 $sesionId = $dataSede['idSesionVirtual'];
-                +$iduser = session()->id;
+                $iduser = session()->id;
             }
 
             $descripcion = "Pago de Servidor de " . $dataContrib['razon_social'];

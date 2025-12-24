@@ -25,7 +25,7 @@ formService.addEventListener("submit", (e) => {
         });
 
         setTimeout(() => {
-          window.location.href = base_url + "servicio";
+          window.location.href = `${base_url}cobros?tab=servicios`;
         }, 1600);
       } else {
         Swal.fire({
@@ -123,7 +123,7 @@ function viewSelectPendiente() {
                           <input type="date" name="fecha_programacion[]" class="form-control" required>
                       </td>
                       <td>
-                          <input type="number" name="monto_programacion[]" class="form-control" placeholder="Monto" value="${montoServicio}" required>
+                          <input type="number" name="montos[]" class="form-control" placeholder="Monto" value="${montoServicio}" onkeyup="sumarMontos()" required>
                       </td>
                       <td class="text-center">
                           <a href="#" class="avtar avtar-s btn-link-danger btn-pc-default" onclick="deleteRow(event)"><i class="ti ti-trash f-20"></i></a>
@@ -133,7 +133,7 @@ function viewSelectPendiente() {
               <tfoot>
                   <tr>
                       <th colspan="2" class="text-end" id="totalServicio">Total:</th>
-                      <th>${montoServicio}</th>
+                      <th id="montoTotalServicio">${montoServicio}</th>
                       <th></th>
                   </tr>
               </tfoot>
@@ -158,7 +158,7 @@ function addProgramacion() {
           <input type="date" name="fecha_programacion[]" class="form-control" required>
       </td>
       <td>
-          <input type="number" name="monto_programacion[]" class="form-control" placeholder="Monto" value="0.00" required>
+          <input type="number" name="montos[]" class="form-control" placeholder="Monto" value="0.00" onkeyup="sumarMontos()" required>
       </td>
       <td class="text-center">
           <a href="#" class="avtar avtar-s btn-link-danger btn-pc-default" onclick="deleteRow(event)"><i class="ti ti-trash f-20"></i></a>
@@ -204,7 +204,7 @@ function viewSelectPagado() {
                           EFECTIVO
                       </td>
                       <td>
-                          <input type="number" name="monto_metodo[]" class="form-control" placeholder="Monto" value="${montoServicio}" required>
+                          <input type="number" name="montos[]" class="form-control" placeholder="Monto" value="${montoServicio}" onkeyup="sumarMontos()" required>
                       </td>
                       <td class="text-center">
                           <a href="#" class="avtar avtar-s btn-link-danger btn-pc-default" onclick="deleteRow(event)"><i class="ti ti-trash f-20"></i></a>
@@ -214,7 +214,7 @@ function viewSelectPagado() {
               <tfoot>
                   <tr>
                       <th colspan="2" class="text-end" id="totalServicio">Total:</th>
-                      <th>${montoServicio}</th>
+                      <th id="montoTotalServicio">${montoServicio}</th>
                       <th></th>
                   </tr>
               </tfoot>
@@ -247,7 +247,7 @@ function addPagos() {
         ${textSelectMetodo}
       </td>
       <td>
-          <input type="number" name="monto_metodo[]" class="form-control" placeholder="Monto" value="0.00" required>
+          <input type="number" name="montos[]" class="form-control" placeholder="Monto" value="0.00" onkeyup="sumarMontos()" required>
       </td>
       <td class="text-center">
           <a href="#" class="avtar avtar-s btn-link-danger btn-pc-default" onclick="deleteRow(event)"><i class="ti ti-trash f-20"></i></a>
@@ -256,4 +256,16 @@ function addPagos() {
   `;
 
   tableProgramacionBody.insertAdjacentHTML("beforeend", html);
+}
+
+function sumarMontos() {
+  let total = 0;
+
+  document.querySelectorAll('input[name="montos[]"]').forEach((input) => {
+    total += Number(input.value) || 0;
+  });
+
+  console.log(document.querySelectorAll('input[name="montos[]"]'));
+
+  document.getElementById("montoTotalServicio").textContent = total.toFixed(2);
 }

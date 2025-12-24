@@ -13,7 +13,7 @@ class ServicioModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'metodo_id', 'comprobante_id', 'ruc', 'razon_social', 'monto', 'descripcion', 'estado', 'created_at', 'updated_at', 'url_pdf', 'url_ticket', 'user_add', 'user_edit', 'user_delete'];
+    protected $allowedFields = ['id', 'comprobante_id', 'ruc', 'razon_social', 'monto', 'descripcion', 'estado', 'created_at', 'updated_at', 'url_pdf', 'url_ticket', 'user_add', 'user_edit', 'user_delete'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
