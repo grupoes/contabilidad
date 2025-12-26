@@ -888,7 +888,7 @@ class Pdt0621 extends BaseController
         $sheet->getStyle('C6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         // SEGÚN SIGA
-        $sheet->setCellValue('G6', 'SEGÚN SIGA');
+        $sheet->setCellValue('G6', 'SEGÚN SIRE');
         $sheet->getStyle('G6')->getFont()->setBold(true);
         $sheet->mergeCells('G6:J6');
         $sheet->getStyle('G6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -900,8 +900,8 @@ class Pdt0621 extends BaseController
         $sheet->getStyle('K6')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER)->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getColumnDimension('K')->setAutoSize(true);
 
-        //RENTA PAGADA SEGUN SIGA
-        $sheet->setCellValue('L6', 'RENTA PAGADA SEGÚN SIGA');
+        //RENTA PAGADA SEGUN SIRE
+        $sheet->setCellValue('L6', 'RENTA PAGADA SEGÚN SIRE');
         $sheet->getStyle('L6')->getFont()->setBold(true);
         $sheet->mergeCells('L6:L8');
         $sheet->getStyle('L6')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER)->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -948,15 +948,26 @@ class Pdt0621 extends BaseController
         $sheet->getStyle('J8')->getFont()->setBold(true);
 
         foreach ($data as $key => $value) {
+
+            $fila = $key + 9;
+
             $mes = substr($value['mes_descripcion'], 0, 3);
             $periodo = $mes . "-" . $value['anio_descripcion'];
 
             $sheet->setCellValue('B' . ($key + 9), $periodo);
-            $sheet->setCellValue('C' . ($key + 9), $value['ventas_gravadas_decimal']);
-            $sheet->setCellValue('D' . ($key + 9), $value['ventas_no_gravadas_decimal']);
-            $sheet->setCellValue('E' . ($key + 9), $value['compras_gravadas_decimal']);
-            $sheet->setCellValue('F' . ($key + 9), $value['compras_no_gravadas_decimal']);
-            $sheet->setCellValue('K' . ($key + 9), $value['renta_pdt_decimal']);
+            $sheet->setCellValue('C' . ($key + 9), (float)$value['ventas_gravadas_decimal']);
+            $sheet->setCellValue('D' . ($key + 9), (float)$value['ventas_no_gravadas_decimal']);
+            $sheet->setCellValue('E' . ($key + 9), (float)$value['compras_gravadas_decimal']);
+            $sheet->setCellValue('F' . ($key + 9), (float)$value['compras_no_gravadas_decimal']);
+            $sheet->setCellValue('K' . ($key + 9), (float)$value['renta_pdt_decimal']);
+
+            $sheet->getStyle("C{$fila}:F{$fila}")
+                ->getNumberFormat()
+                ->setFormatCode('"S/ "#,##0.00');
+
+            $sheet->getStyle("K{$fila}")
+                ->getNumberFormat()
+                ->setFormatCode('"S/ "#,##0.00');
         }
 
         $sheet->getStyle('B6:L' . ($key + 9))->applyFromArray([
