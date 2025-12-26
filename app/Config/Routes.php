@@ -245,6 +245,7 @@ $routes->get('listaHonorarioFacturas/(:num)', 'Api\Notificaciones::getFacturasHo
 $routes->post('sendNotaCredito', 'Api\Notificaciones::sendApiEnviarNotaCredito');
 
 $routes->get('api/insert-tipo-cambio', 'Api\Notificaciones::getCambios');
+$routes->get('api/insert-tipo-cambio-facturador', 'Api\Notificaciones::getCambiosFacturador');
 $routes->get('api/consulta-tipo-cambio/(:any)', 'Api\Notificaciones::getConsultaTipoCambio/$1');
 $routes->get('api/get-contribuyentes-servidor', 'Api\Notificaciones::savePagoServidor');
 $routes->post('api/generar-nota-venta-servidor', 'Api\Notificaciones::sendNotaVenta');

@@ -20,11 +20,10 @@ use App\Models\MesModel;
 use App\Models\PdtRentaModel;
 use App\Models\PdtPlameModel;
 use App\Models\TipoCambioModel;
-use App\Models\SistemaModel;
 use App\Models\PagoServidorModel;
 use App\Models\ServidorModel;
 use App\Models\PdtAnualModel;
-
+use App\Models\TipoCambioFacturadorModel;
 use DateTime;
 
 class Notificaciones extends ResourceController
@@ -750,6 +749,37 @@ class Notificaciones extends ResourceController
         }
     }
 
+    public function getCambiosFacturador()
+    {
+        $cambio = new TipoCambioFacturadorModel();
+
+        try {
+            $fecha = date('Y-m-d');
+
+            $tipo = $this->apiTipoCambio($fecha);
+
+            $datos = [
+                'compra' => $tipo->compra,
+                'venta' => $tipo->venta,
+                'origen' => $tipo->origen,
+                'moneda' => $tipo->moneda,
+                'fecha' => $tipo->fecha
+            ];
+
+            $cambio->insert($datos);
+
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'Agregado correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
     function apiTipoCambio($fecha)
     {
         $token = 'apis-token-1.aTSI1U7KEuT-6bbbCguH-4Y8TI6KS73N';
@@ -802,7 +832,6 @@ class Notificaciones extends ResourceController
     public function savePagoServidor()
     {
         $contribuyente = new ContribuyenteModel();
-        $sistema = new SistemaModel();
         $pagoServidor = new PagoServidorModel();
         $servidor = new ServidorModel();
 
