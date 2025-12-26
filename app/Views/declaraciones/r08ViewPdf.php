@@ -43,13 +43,21 @@
             z-index: 10;
         }
 
-        .carousel-control-prev,
+        .carousel-control-prev {
+            width: 60px;
+            /* solo una franja */
+            height: 100%;
+            top: 0;
+            bottom: 0;
+        }
+
         .carousel-control-next {
             width: 60px;
             /* solo una franja */
             height: 100%;
             top: 0;
             bottom: 0;
+            right: 30px;
         }
 
         .carousel-control-prev-icon,
