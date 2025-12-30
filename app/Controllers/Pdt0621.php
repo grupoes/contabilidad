@@ -7,7 +7,7 @@ use App\Models\MesModel;
 use App\Models\PdtRentaModel;
 use App\Models\ArchivosPdt0621Model;
 use App\Models\ContribuyenteModel;
-
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
@@ -857,7 +857,7 @@ class Pdt0621 extends BaseController
 
         $pdt = new PdtRentaModel();
 
-        $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, FORMAT(pr.total_compras, 2, 'es_PE') as total_compras_decimal, FORMAT(pr.total_ventas, 2, 'es_PE') as total_ventas_decimal, FORMAT(pr.compras_gravadas, 2, 'es_PE') as compras_gravadas_decimal, FORMAT(pr.compras_no_gravadas, 2, 'es_PE') as compras_no_gravadas_decimal, FORMAT(pr.ventas_gravadas, 2, 'es_PE') as ventas_gravadas_decimal, FORMAT(pr.ventas_no_gravadas, 2, 'es_PE') as ventas_no_gravadas_decimal, pr.total_compras, pr.total_ventas, FORMAT(pr.renta_pdt, 2, 'es_PE') as renta_pdt_decimal, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
+        $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, pr.total_compras as total_compras_decimal, pr.total_ventas as total_ventas_decimal, pr.compras_gravadas as compras_gravadas_decimal, pr.compras_no_gravadas as compras_no_gravadas_decimal, pr.ventas_gravadas as ventas_gravadas_decimal, pr.ventas_no_gravadas as ventas_no_gravadas_decimal, pr.total_compras, pr.total_ventas, pr.renta_pdt as renta_pdt_decimal, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -955,11 +955,11 @@ class Pdt0621 extends BaseController
             $periodo = $mes . "-" . $value['anio_descripcion'];
 
             $sheet->setCellValue('B' . ($key + 9), $periodo);
-            $sheet->setCellValue('C' . ($key + 9), (float)$value['ventas_gravadas_decimal']);
-            $sheet->setCellValue('D' . ($key + 9), (float)$value['ventas_no_gravadas_decimal']);
-            $sheet->setCellValue('E' . ($key + 9), (float)$value['compras_gravadas_decimal']);
-            $sheet->setCellValue('F' . ($key + 9), (float)$value['compras_no_gravadas_decimal']);
-            $sheet->setCellValue('K' . ($key + 9), (float)$value['renta_pdt_decimal']);
+            $sheet->setCellValueExplicit('C' . ($key + 9), (float)$value['ventas_gravadas_decimal'], DataType::TYPE_NUMERIC);
+            $sheet->setCellValueExplicit('D' . ($key + 9), (float)$value['ventas_no_gravadas_decimal'], DataType::TYPE_NUMERIC);
+            $sheet->setCellValueExplicit('E' . ($key + 9), (float)$value['compras_gravadas_decimal'], DataType::TYPE_NUMERIC);
+            $sheet->setCellValueExplicit('F' . ($key + 9), (float)$value['compras_no_gravadas_decimal'], DataType::TYPE_NUMERIC);
+            $sheet->setCellValueExplicit('K' . ($key + 9), (float)$value['renta_pdt_decimal'], DataType::TYPE_NUMERIC);
 
             $sheet->getStyle("C{$fila}:F{$fila}")
                 ->getNumberFormat()
