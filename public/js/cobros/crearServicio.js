@@ -181,7 +181,7 @@ function viewSelectPagado() {
   let html = `
   <div class="col-md-3">
       <button type="button" class="btn btn-light-primary d-flex align-items-center gap-2" onclick="addPagos()">
-          <i class="ti ti-plus"></i> Agregar Método de Pago
+          <i class="ti ti-plus"></i> Agregar
       </button>
   </div>
 
@@ -193,6 +193,7 @@ function viewSelectPagado() {
                       <th>#</th>
                       <th>Método de Pago</th>
                       <th>Monto</th>
+                      <th>Vaucher</th>
                       <th class="text-center">Acción</th>
                   </tr>
               </thead>
@@ -206,6 +207,7 @@ function viewSelectPagado() {
                       <td>
                           <input type="number" name="montos[]" class="form-control" placeholder="Monto" value="${montoServicio}" onkeyup="sumarMontos()" required>
                       </td>
+                      <td></td>
                       <td class="text-center">
                           <a href="#" class="avtar avtar-s btn-link-danger btn-pc-default" onclick="deleteRow(event)"><i class="ti ti-trash f-20"></i></a>
                       </td>
@@ -234,6 +236,12 @@ function addPagos() {
     return;
   }
 
+  let method = "";
+
+  if (metodo_pago.value != "1") {
+    method = `<input type="file" name="vaucher[]" accept="image/*" class="form-control" required>`;
+  }
+
   const tableProgramacionBody = document.getElementById(
     "tableProgramacionBody"
   );
@@ -248,6 +256,9 @@ function addPagos() {
       </td>
       <td>
           <input type="number" name="montos[]" class="form-control" placeholder="Monto" value="0.00" onkeyup="sumarMontos()" required>
+      </td>
+      <td>
+        ${method}
       </td>
       <td class="text-center">
           <a href="#" class="avtar avtar-s btn-link-danger btn-pc-default" onclick="deleteRow(event)"><i class="ti ti-trash f-20"></i></a>

@@ -750,15 +750,38 @@ class Cobros extends BaseController
 
                 $pagos->insert($datosPago);
 
+                $vaucher = $this->request->getFile('vaucher');
+
                 for ($i = 0; $i < count($montos); $i++) {
+
+                    $dataSede = $this->Aperturar($metodos[$i], session()->sede_id);
+
+                    if ($metodos[$i] == 1) {
+                        $sesionId = $dataSede['idSesionFisica'];
+                        $nameFile = "";
+                    } else {
+                        $sesionId = $dataSede['idSesionVirtual'];
+
+                        if ($vaucher[$i]->isValid() && !$vaucher[$i]->hasMoved()) {
+                            $newName = $vaucher[$i]->getRandomName();
+                            $vaucher[$i]->move(FCPATH . 'servicios', $newName);
+
+                            $nameFile = $newName;
+                        } else {
+                            $nameFile = "";
+                        }
+                    }
+
+                    $idMovimiento = $this->generarMovimiento($sesionId, 1, 1, $metodos[$i], $monto, $data['description_service'], 5, 'TICKET - 0001', 1, date('Y-m-d'), $nameFile, session()->id);
+
                     $datosAmor = [
                         "servicio_id" => $serviceId,
-                        "movimientoId" => $metodos[$i],
+                        "movimientoId" => $idMovimiento,
                         "registro" => $montos[$i],
                         "fecha_pago" => date('Y-m-d H:i:s'),
                         "metodo_pago_id" => $metodos[$i],
                         "monto" => $montos[$i],
-                        "vaucher" => "",
+                        "vaucher" => $nameFile,
                         "estado" => 1,
                         "user_add" => session()->id
                     ];
