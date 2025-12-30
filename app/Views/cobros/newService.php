@@ -31,7 +31,7 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <form id="formService">
+                    <form id="formService" enctype="multipart/form-data">
                         <div class="row">
 
                             <div class="col-md-4 mb-3">

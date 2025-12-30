@@ -750,7 +750,7 @@ class Cobros extends BaseController
 
                 $pagos->insert($datosPago);
 
-                $vaucher = $this->request->getFile('vaucher');
+                $vaucher = $this->request->getFileMultiple('vaucher');
 
                 for ($i = 0; $i < count($montos); $i++) {
 
