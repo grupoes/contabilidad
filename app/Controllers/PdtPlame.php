@@ -625,6 +625,7 @@ class PdtPlame extends BaseController
             $data = $this->api_read_boleta_pago($file);
 
             print_r($data);
+            exit;
         }
     }
 }
