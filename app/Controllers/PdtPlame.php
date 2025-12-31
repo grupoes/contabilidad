@@ -622,6 +622,11 @@ class PdtPlame extends BaseController
         foreach ($consulta as $key => $value) {
             $file = $value['nameFile'];
 
+            $dockerPath = FCPATH; // /var/www/html/public/
+            $realPath = str_replace('/var/www/html', '/var/www/html/contabilidad', $dockerPath);
+
+            $rutaPdt = $realPath . 'archivos/pdt/' . $file;
+
             $data = $this->api_read_boleta_pago($file);
 
             print_r($data);
