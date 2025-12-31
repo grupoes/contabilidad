@@ -181,6 +181,7 @@ $routes->get('eliminar-pdt-plame/(:num)/(:num)', 'PdtPlame::eliminar/$1/$2');
 $routes->post('eliminar-pdt-plame/r08/all', 'PdtPlame::eliminarAll');
 $routes->get('notificacion-pdt-plame', 'PdtPlame::notificacionPdtPlame');
 $routes->get('pdf-view-r08', 'PdtPlame::pdfViewR08');
+$routes->get('lista-boletas-pagos', 'PdtPlame::leerBoletaPago');
 
 $routes->get('declaraciones/pdt-anual', 'PdtAnual::index');
 $routes->get('pdtAnual/verificar/(:num)', 'PdtAnual::verificar/$1');

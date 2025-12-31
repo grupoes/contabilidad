@@ -612,4 +612,24 @@ class PdtPlame extends BaseController
 
         return view('declaraciones/r08ViewPdf', compact('data', 'name'));
     }
+
+    public function leerBoletaPago()
+    {
+        $r08 = new R08PlameModel();
+
+        $consulta = $r08->query("SELECT * FROM r08_plame inner join pdt_plame on r08_plame.plameId = pdt_plame.id_pdt_plame where ruc_empresa = '20542322412' and estado = 1 and periodo >= 8 and anio = 11 ")->getResultArray();
+
+        echo "<pre>";
+        print_r($consulta);
+        echo "</pre>";
+        exit;
+
+        foreach ($consulta as $key => $value) {
+            $file = $value['nameFile'];
+
+            $data = $this->api_read_boleta_pago($file);
+
+            print_r($data);
+        }
+    }
 }
