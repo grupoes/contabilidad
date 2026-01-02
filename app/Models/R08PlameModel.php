@@ -13,7 +13,7 @@ class R08PlameModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'plameId', 'nameFile', 'status', 'user_id', 'user_edit', 'user_delete', 'fecha_ingreso', 'numero_documento', 'tipo_documento', 'nombres', 'situacion', 'ruc'];
+    protected $allowedFields = ['id', 'plameId', 'nameFile', 'status', 'user_id', 'user_edit', 'user_delete', 'fecha_ingreso', 'numero_documento', 'tipo_documento', 'nombres', 'situacion', 'ruc', 'read_boleta'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
