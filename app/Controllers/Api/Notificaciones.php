@@ -1296,7 +1296,8 @@ class Notificaciones extends ResourceController
                     'numero_documento' => $numero_documento,
                     'tipo_documento' => $tipo_documento,
                     'nombres' => $nombres,
-                    'estado' => 1
+                    'estado' => 1,
+                    'password' => $numero_documento
                 ];
 
                 $job->insert($data_job);
