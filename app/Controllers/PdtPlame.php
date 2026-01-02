@@ -627,10 +627,8 @@ class PdtPlame extends BaseController
 
             $rutaPdt = $realPath . 'archivos/pdt/' . $file;
 
-            //$data = $this->api_read_boleta_pago($file);
-
-            print_r($rutaPdt);
-            exit;
+            $data = $this->api_read_boleta_pago($rutaPdt);
+            print_r($data);
         }
     }
 }
