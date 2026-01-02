@@ -23,7 +23,9 @@ use App\Models\TipoCambioModel;
 use App\Models\PagoServidorModel;
 use App\Models\ServidorModel;
 use App\Models\PdtAnualModel;
+use App\Models\R08PlameModel;
 use App\Models\TipoCambioFacturadorModel;
+use App\Models\TrabajadoresContriModel;
 use DateTime;
 
 class Notificaciones extends ResourceController
@@ -1253,6 +1255,67 @@ class Notificaciones extends ResourceController
         // >=6 significa sábado(6) o domingo(7)
 
         return date('Y-m-d', $timestamp);
+    }
+
+    public function readBoletasPago()
+    {
+        $r08 = new R08PlameModel();
+
+        $consulta = $r08->query("SELECT * FROM r08_plame inner join pdt_plame on r08_plame.plameId = pdt_plame.id_pdt_plame where ruc_empresa = '20542322412' and estado = 1 and periodo >= 8 and anio = 11 ")->getResultArray();
+
+        return $this->respond($consulta);
+    }
+
+    public function saveDataBoletasPago()
+    {
+        $r08 = new R08PlameModel();
+        $job = new TrabajadoresContriModel();
+
+        try {
+            $datos = $this->request->getJSON();
+
+            $id = $datos->id;
+            $fecha_ingreso = $datos->fecha_ingreso;
+            $numero_documento = $datos->numero_documento;
+            $tipo_documento = $datos->tipo_documento;
+            $nombres = $datos->nombres;
+            $situacion = $datos->situacion;
+            $ruc = $datos->ruc;
+
+            $consulta_job = $job->where('numero_documento', $numero_documento)->first();
+
+            if (!$consulta_job) {
+                $data_job = [
+                    'numero_documento' => $numero_documento,
+                    'tipo_documento' => $tipo_documento,
+                    'nombres' => $nombres,
+                    'estado' => 1
+                ];
+
+                $job->insert($data_job);
+            }
+
+            $data = [
+                'fecha_ingreso' => $fecha_ingreso,
+                'numero_documento' => $numero_documento,
+                'tipo_documento' => $tipo_documento,
+                'nombres' => $nombres,
+                'situacion' => $situacion,
+                'ruc' => $ruc
+            ];
+
+            $r08->update($id, $data);
+
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'Boleta de pago guardada correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'Error al guardar la boleta de pago: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

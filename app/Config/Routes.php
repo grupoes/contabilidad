@@ -253,6 +253,8 @@ $routes->post('api/generar-nota-venta-servidor', 'Api\Notificaciones::sendNotaVe
 
 $routes->get('api/pagos-anuales-pendientes', 'Api\Notificaciones::renderPdtAnualesFacturas');
 $routes->post('api/update-pagos-anuales', 'Api\Notificaciones::updatePagoAnual');
+$routes->get('api/read-boletas-pago', 'Api\Notificaciones::readBoletasPago');
+$routes->post('api/save-boleta-pago', 'Api\Notificaciones::saveDataBoletasPago');
 
 $routes->get('mensajes-masivos', 'Mensajes::index');
 $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');

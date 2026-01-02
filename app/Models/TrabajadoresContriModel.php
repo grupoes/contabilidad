@@ -4,16 +4,16 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class R08PlameModel extends Model
+class TrabajadoresContriModel extends Model
 {
-    protected $table      = 'r08_plame';
+    protected $table      = 'trabajadores_contribuyentes';
     protected $primaryKey = 'id';
 
     protected $useAutoIncrement = true;
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'plameId', 'nameFile', 'status', 'user_id', 'user_edit', 'user_delete', 'fecha_ingreso', 'numero_documento', 'tipo_documento', 'nombres', 'situacion', 'ruc'];
+    protected $allowedFields = ['id', 'numero_documento', 'tipo_documento', 'nombres', 'estado'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
