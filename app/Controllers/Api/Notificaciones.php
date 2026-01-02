@@ -1261,7 +1261,7 @@ class Notificaciones extends ResourceController
     {
         $r08 = new R08PlameModel();
 
-        $consulta = $r08->query("SELECT * FROM r08_plame inner join pdt_plame on r08_plame.plameId = pdt_plame.id_pdt_plame where ruc_empresa = '20542322412' and estado = 1 and periodo >= 8 and anio = 11 and read_boleta = 0")->getResultArray();
+        $consulta = $r08->query("SELECT * FROM r08_plame inner join pdt_plame on r08_plame.plameId = pdt_plame.id_pdt_plame where ruc_empresa = '20542322412' and estado = 1 and periodo >= 8 and anio = 11 and read_boleta = 1")->getResultArray();
 
         return $this->respond($consulta);
     }
@@ -1281,6 +1281,13 @@ class Notificaciones extends ResourceController
             $nombres = $datos->nombres;
             $situacion = $datos->situacion;
             $ruc = $datos->ruc;
+
+            //formatear fecha ingreso
+
+            $fechaFormateada = DateTime::createFromFormat('d/m/Y', $fecha_ingreso)
+                ->format('Y-m-d');
+
+            $fecha_ingreso = $fechaFormateada;
 
             $consulta_job = $job->where('numero_documento', $numero_documento)->first();
 
