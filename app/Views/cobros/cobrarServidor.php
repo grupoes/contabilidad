@@ -161,6 +161,7 @@
                                                     <th>TOTAL</th>
                                                     <th>M. PAGADO</th>
                                                     <th>M. PENDIENTE</th>
+                                                    <th>Nota</th>
                                                     <th>ESTADO</th>
                                                 </tr>
                                             </thead>

@@ -66,6 +66,9 @@ function viewPagos(data) {
             })" style="cursor: pointer">${pago.monto_total}</span></td>
             <td>${pago.monto_pagado}</td>
             <td>${pago.monto_pendiente}</td>
+            <td> <a href="${pago.url_pdf_nota}" target="_blank">Nota ${
+      pago.numero_notas
+    }</a> </td>
             <td>${estado}</td>
         </tr>
         `;
