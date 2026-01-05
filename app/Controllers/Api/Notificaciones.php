@@ -884,11 +884,133 @@ class Notificaciones extends ResourceController
                     $contribuyentes[$key]['fecha_fin'] = $new_fecha_fin;
                     $contribuyentes[$key]['monto'] = $monto_server;
                     $contribuyentes[$key]['descripcion'] = $descripcion;
+                    $contribuyentes[$key]['contribuyente_id'] = $value['id'];
+                    $contribuyentes[$key]['ruc'] = $value['ruc'];
+                    $contribuyentes[$key]['razon_social'] = $value['razon_social'];
                 }
             }
         }
 
         return $this->respond($contribuyentes);
+    }
+
+    public function savePagoServidorAhora()
+    {
+        $contribuyente = new ContribuyenteModel();
+        $pagoServidor = new PagoServidorModel();
+        $servidor = new ServidorModel();
+
+        $fecha = date('Y-m-d');
+
+        $contribuyentes = $contribuyente->query("SELECT DISTINCT c.id, c.ruc, c.razon_social, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes c INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id INNER JOIN sistemas s ON sc.system_id = s.id WHERE s.`status` = 1 and c.estado = 1 and sc.system_id != 3 and c.tipoServicio = 'CONTABLE' and c.tipoSuscripcion = 'NO GRATUITO' order by c.id desc;")->getResultArray();
+
+        $datos = array();
+
+        foreach ($contribuyentes as $key => $value) {
+            $pagos = $pagoServidor->where('contribuyente_id', $value['id'])->where('estado', 'pendiente')->orderBy('id', 'desc')->findAll();
+
+            if ($pagos) {
+                $fecha_fin = $pagos[0]['fecha_fin'];
+                $fecha_inicio = $pagos[0]['fecha_inicio'];
+                $estado_nota = $pagos[0]['estado_nota'];
+                $idpago = $pagos[0]['id'];
+
+                $fecha_ = new \DateTime($fecha_fin);
+                $fecha_->modify('-15 days');
+                $fecha_noti = $fecha_->format('Y-m-d');
+
+                if ($estado_nota == 'no') {
+                    if ($fecha_noti <= $fecha || $fecha_fin >= $fecha) {
+
+                        $monto_server = $servidor->where('contribuyente_id', $value['id'])->first();
+
+                        $monto_server = $monto_server['monto'];
+
+                        $new_fecha_inicio = $this->sumFechaAnio($fecha_inicio);
+
+                        $new_fecha_fin = $this->sumFechaAnioServidor($new_fecha_inicio);
+
+                        $data_pago = array(
+                            "contribuyente_id" => $value['id'],
+                            "fecha_pago" => null,
+                            "fecha_proceso" => null,
+                            "monto_total" => $monto_server,
+                            "fecha_inicio" => $new_fecha_inicio,
+                            "fecha_fin" => $new_fecha_fin,
+                            "monto_pendiente" => $monto_server,
+                            "monto_pagado" => 0,
+                            "usuario_id_cobra" => 1,
+                            "estado" => 'pendiente',
+                        );
+
+                        //$pagoServidor->insert($data_pago);
+
+                        $fi = new DateTime($fecha_inicio);
+                        $dateInit = $fi->format('d-m-Y');
+
+                        $ff = new DateTime($fecha_fin);
+                        $dateEnd = $ff->format('d-m-Y');
+
+                        $descripcion = "SERVICIO POR EL SERVIDOR DEL SISTEMA DE FACTURACION DEL PERIODO: " . $dateInit . " AL " . $dateEnd;
+
+                        /*$contribuyentes[$key]['pagos'] = "ok";
+                        $contribuyentes[$key]['fecha_inicio'] = $new_fecha_inicio;
+                        $contribuyentes[$key]['fecha_fin'] = $new_fecha_fin;
+                        $contribuyentes[$key]['monto'] = $monto_server;
+                        $contribuyentes[$key]['descripcion'] = $descripcion;*/
+
+                        $dataPago = array(
+                            "contribuyente_id" => $value['id'],
+                            "ruc" => $value['ruc'],
+                            "razon_social" => $value['razon_social'],
+                            "descripcion" => $descripcion,
+                            "monto" => $monto_server,
+                            "fecha_inicio" => $fecha_inicio,
+                            "fecha_fin" => $fecha_fin,
+                            "pagos" => "ok",
+                            "idpago" => $idpago
+                        );
+
+                        array_push($datos, $dataPago);
+                    }
+                }
+            }
+        }
+
+        return $this->respond([
+            'status' => 'success',
+            'fielCount' => count($datos),
+            'data' => $datos
+        ]);
+    }
+
+    public function updatePagoServidorNotaEnviada()
+    {
+        $pagoServidor = new PagoServidorModel();
+
+        try {
+            $datos = $this->request->getJSON();
+            $id = $datos->id;
+            $numero_nota = $datos->numero_nota;
+            $url_pdf = $datos->url_pdf;
+
+            $data_pago = array(
+                "numero_notas" => $numero_nota,
+                "url_pdf_nota" => $url_pdf,
+            );
+
+            $pagoServidor->update($id, $data_pago);
+
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'Actualizado correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     function sumFechaAnioServidor($fecha)

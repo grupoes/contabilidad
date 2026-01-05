@@ -250,6 +250,9 @@ $routes->get('api/insert-tipo-cambio-facturador', 'Api\Notificaciones::getCambio
 $routes->get('api/consulta-tipo-cambio/(:any)', 'Api\Notificaciones::getConsultaTipoCambio/$1');
 $routes->get('api/get-contribuyentes-servidor', 'Api\Notificaciones::savePagoServidor');
 $routes->post('api/generar-nota-venta-servidor', 'Api\Notificaciones::sendNotaVenta');
+$routes->get('api/get-contribuyentes-servidor-ahora', 'Api\Notificaciones::savePagoServidorAhora');
+
+$routes->post('api/update-nota-pago-servidor', 'Api\Notificaciones::updatePagoServidorNotaEnviada');
 
 $routes->get('api/pagos-anuales-pendientes', 'Api\Notificaciones::renderPdtAnualesFacturas');
 $routes->post('api/update-pagos-anuales', 'Api\Notificaciones::updatePagoAnual');
