@@ -847,6 +847,7 @@ class Notificaciones extends ResourceController
             if ($pagos) {
                 $fecha_fin = $pagos[0]['fecha_fin'];
                 $fecha_inicio = $pagos[0]['fecha_inicio'];
+                $idpago = $pagos[0]['id'];
 
                 $fecha_ = new \DateTime($fecha_fin);
                 $fecha_->modify('-15 days');
@@ -877,7 +878,13 @@ class Notificaciones extends ResourceController
 
                     $pagoServidor->insert($data_pago);
 
-                    $descripcion = "SERVICIO POR EL SERVIDOR DEL SISTEMA DE FACTURACION DEL PERIODO: " . $new_fecha_inicio . " AL " . $new_fecha_fin;
+                    $fi = new DateTime($fecha_inicio);
+                    $dateInit = $fi->format('d-m-Y');
+
+                    $ff = new DateTime($fecha_fin);
+                    $dateEnd = $ff->format('d-m-Y');
+
+                    $descripcion = "SERVICIO POR EL SERVIDOR DEL SISTEMA DE FACTURACION DEL PERIODO: " . $dateInit . " AL " . $dateEnd;
 
                     $contribuyentes[$key]['pagos'] = "ok";
                     $contribuyentes[$key]['fecha_inicio'] = $new_fecha_inicio;
@@ -887,6 +894,7 @@ class Notificaciones extends ResourceController
                     $contribuyentes[$key]['contribuyente_id'] = $value['id'];
                     $contribuyentes[$key]['ruc'] = $value['ruc'];
                     $contribuyentes[$key]['razon_social'] = $value['razon_social'];
+                    $contribuyentes[$key]['idpago'] = $idpago;
                 }
             }
         }
