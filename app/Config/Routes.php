@@ -334,3 +334,16 @@ $routes->post('/agenda/save', 'Agenda::save');
 $routes->get('/agenda/actividades-hoy', 'Agenda::actividadesHoy');
 $routes->get('/agenda/atendido-actividad-sin-evidencia/(:num)', 'Agenda::atendidoActividadSinEvidencia/$1');
 $routes->post('/agenda/atendido-actividad-con-evidencia', 'Agenda::atendidoActividadConEvidencia');
+
+$routes->group('api', function ($routes) {
+    // Login público
+    $routes->post('login', 'Api\Auth::login');
+});
+
+// Rutas protegidas con JWT
+$routes->group('api', ['filter' => 'jwt'], function ($routes) {
+    $routes->post('empresas', 'Api\AppUser::empresas');
+    $routes->get('getEmpresa/(:num)', 'Api\AppUser::getEmpresa/$1');
+    $routes->get('anios', 'Api\AppUser::getAnios');
+    $routes->post('lista_boletas', 'Api\AppUser::itemBoletas');
+});
