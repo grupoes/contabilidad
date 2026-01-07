@@ -11,11 +11,15 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     postgresql-client \
     zip \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Configurar e instalar extensiones de PHP
 RUN docker-php-ext-configure zip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
     intl \
     mbstring \
@@ -24,7 +28,8 @@ RUN docker-php-ext-configure zip \
     pdo_mysql \
     pdo_pgsql \
     pgsql \
-    zip
+    zip \
+    gd
 
 # Copia la configuración de Apache
 COPY apache-config/000-default.conf /etc/apache2/sites-available/000-default.conf
