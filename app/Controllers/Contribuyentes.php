@@ -1419,7 +1419,7 @@ class Contribuyentes extends BaseController
         $razon_social = strtoupper(trim($data['razon_social']));
         $igv = $data['igv'];
         $numero_ruc = $data['numero_ruc'];
-        $icbper = $data['icbper'];
+        $icbper = strtoupper($data['icbper']);
 
         $fileExcel = $file;
 
@@ -1470,6 +1470,19 @@ class Contribuyentes extends BaseController
             $razon_socialMigrar = $hoja->getCell($razon_social . $index)->getValue();
             $icbperMigrar = $hoja->getCell($icbper . $index)->getValue();
 
+            if (
+                empty($fechaExcel) &&
+                empty($serieMigrar) &&
+                empty($numeroMigrar) &&
+                empty($montoMigrar) &&
+                empty($rucMigrar) &&
+                empty($tipoMigrar) &&
+                empty($razon_socialMigrar) &&
+                empty($icbperMigrar)
+            ) {
+                continue;
+            }
+
             if ($numero_ruc == 1 || $numero_ruc == '00000001' || $numero_ruc == "" || $numero_ruc == "-") {
                 $ruc_dni = "00000001";
                 $razon_socialMigrar = "CLIENTES VARIOS";
@@ -1482,18 +1495,6 @@ class Contribuyentes extends BaseController
                     $ruc_dni = "00000001";
                     $razon_socialMigrar = "CLIENTES VARIOS";
                 }
-
-                /*if ($razon_socialMigrar == "") {
-                    $consulta_ruc = $rucTable->find($rucMigrar);
-
-                    if ($consulta_ruc) {
-                        $ruc_dni = $consulta_ruc['id_ruc'];
-                        $razon_socialMigrar = $consulta_ruc['ruc_razon_social'];
-                    } else {
-                        $ruc_dni = $rucMigrar;
-                        $razon_socialMigrar = $this->buscar_razon_social($rucMigrar);
-                    }
-                }*/
             }
 
             if ($tipoMigrar == "01") {
@@ -1509,6 +1510,13 @@ class Contribuyentes extends BaseController
             } else {
                 $comprobante_tipo = "OTRO DOCUMENTO";
             }
+
+            if ($icbperMigrar === null || $icbperMigrar === '') {
+                $icbperMigrar = 0;
+            }
+
+            $montoMigrar = (float) $montoMigrar;
+            $icbperMigrar = (float) $icbperMigrar;
 
             if ($igv == 1) {
                 $subtotal = $montoMigrar / 1.18 - $icbperMigrar;
