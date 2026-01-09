@@ -146,12 +146,6 @@ class AppUser extends ResourceController
             $file = $this->request->getFile('imagen');
             $ruc = $this->request->getPost('ruc');
 
-            return $this->respond([
-                'status' => true,
-                'message' => 'RUC recibido',
-                'ruc' => $ruc
-            ]);
-
             if (!$file || !$file->isValid()) {
                 return $this->respond([
                     'status' => false,
@@ -183,11 +177,10 @@ class AppUser extends ResourceController
             $file->move(FCPATH . 'archivos/sellos', $newName);
 
             $contri = new ContribuyenteModel();
-            $data_update = [
-                'file_sello_firma' => $newName
-            ];
 
-            $contri->updateWhere(['ruc' => $ruc], $data_update);
+            $contri->set('file_sello_firma', $newName);
+            $contri->where('ruc', $ruc);
+            $contri->update();
 
             return $this->respond([
                 'status' => true,
@@ -198,6 +191,33 @@ class AppUser extends ResourceController
             return $this->respond([
                 'status' => false,
                 'message' => 'Error al guardar la imagen: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getSelloFirma($ruc)
+    {
+        try {
+            $contri = new ContribuyenteModel();
+
+            $user = $contri->where('ruc', $ruc)->first();
+
+            if (!$user || empty($user['file_sello_firma'])) {
+                return $this->respond([
+                    'status' => false,
+                    'message' => 'Sello o firma no encontrado'
+                ], 404);
+            }
+
+            return $this->respond([
+                'status' => true,
+                'message' => 'Sello o firma encontrado',
+                'filename' => $user['file_sello_firma']
+            ]);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => false,
+                'message' => 'Error al obtener el sello o firma: ' . $e->getMessage()
             ], 500);
         }
     }
