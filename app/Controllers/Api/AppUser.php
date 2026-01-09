@@ -7,6 +7,7 @@ use CodeIgniter\RESTful\ResourceController;
 use App\Models\R08PlameModel;
 use App\Models\ContribuyenteModel;
 use App\Models\MesModel;
+use Exception;
 
 class AppUser extends ResourceController
 {
@@ -135,6 +136,68 @@ class AppUser extends ResourceController
             return $this->respond([
                 'status' => false,
                 'message' => 'Error al obtener la empresa: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function uploadSelloFirma()
+    {
+        try {
+            $file = $this->request->getFile('imagen');
+            $ruc = $this->request->getPost('ruc');
+
+            return $this->respond([
+                'status' => true,
+                'message' => 'RUC recibido',
+                'ruc' => $ruc
+            ]);
+
+            if (!$file || !$file->isValid()) {
+                return $this->respond([
+                    'status' => false,
+                    'message' => 'No se recibió ninguna imagen'
+                ], 400);
+            }
+
+            // Validar tipo y tamaño (solo PNG)
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'imagen' => [
+                    'label' => 'Imagen',
+                    'rules' => 'uploaded[imagen]|max_size[imagen,2048]|is_image[imagen]|mime_in[imagen,image/png]'
+                ]
+            ]);
+
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->respond([
+                    'status' => false,
+                    'errors' => implode(' | ', $validation->getErrors())
+                ], 400);
+            }
+
+            // Generar nombre aleatorio
+            $newName = $ruc . "_" . $file->getRandomName();
+
+            // Guardar en public/uploads
+            $file->move(FCPATH . 'archivos/sellos', $newName);
+
+            $contri = new ContribuyenteModel();
+            $data_update = [
+                'file_sello_firma' => $newName
+            ];
+
+            $contri->updateWhere(['ruc' => $ruc], $data_update);
+
+            return $this->respond([
+                'status' => true,
+                'message' => 'Imagen guardada correctamente',
+                'filename' => $newName
+            ]);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => false,
+                'message' => 'Error al guardar la imagen: ' . $e->getMessage()
             ], 500);
         }
     }

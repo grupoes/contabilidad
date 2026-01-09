@@ -1210,6 +1210,8 @@ class Contribuyentes extends BaseController
 
         $series_boleta = $migrar->select('serie')->where('id_migracion', $idMigracion)->where('tipo', '03')->groupBy('serie')->findAll();
 
+        $notas_credito = $migrar->select('serie')->where('id_migracion', $idMigracion)->where('tipo', '07')->groupBy('serie')->findAll();
+
         $maqueta = [];
 
         $tipo_moneda = 'S';
@@ -1311,6 +1313,32 @@ class Contribuyentes extends BaseController
             // Agregar el último grupo si existe
             if ($grupoActual !== null) {
                 $maqueta[] = $this->finalizarGrupo($grupoActual);
+            }
+        }
+
+        foreach ($notas_credito as $notaCredito) {
+            $notas = $migrar->where('id_migracion', $idMigracion)->where('tipo', '07')->where('serie', $notaCredito['serie'])->orderBy('fecha', 'asc')->orderBy('numero', 'asc')->findAll();
+
+            foreach ($notas as $nota) {
+                $subtotal = $nota['valor_venta'];
+
+                $add = array(
+                    "fecha" => $nota['fecha'],
+                    "tipo_moneda" => $tipo_moneda,
+                    "documento" => $nota['comprobante_tipo'],
+                    "numero_documento" => $nota['serie'] . "-" . $nota['numero'],
+                    "condicion" => 'A',
+                    "ruc" => $nota['ruc'],
+                    "razon_social" => $nota['razon_social'],
+                    "vvventa" => $subtotal,
+                    "valor_venta" => $subtotal,
+                    "igv" => $nota['igv'],
+                    "icbper" => $nota['icbper'],
+                    "total" => $nota['monto'],
+                    "tipo_cambio" => $tipo_cambio
+                );
+
+                array_push($maqueta, $add);
             }
         }
 
@@ -1483,7 +1511,7 @@ class Contribuyentes extends BaseController
                 continue;
             }
 
-            if ($numero_ruc == 1 || $numero_ruc == '00000001' || $numero_ruc == "" || $numero_ruc == "-") {
+            if ($numero_ruc == 1 || $numero_ruc == '00000001' || $numero_ruc == "" || $numero_ruc == "-" || $numero_ruc == '00000000000') {
                 $ruc_dni = "00000001";
                 $razon_socialMigrar = "CLIENTES VARIOS";
             } else {

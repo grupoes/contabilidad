@@ -346,4 +346,5 @@ $routes->group('api', ['filter' => 'jwt'], function ($routes) {
     $routes->get('getEmpresa/(:num)', 'Api\AppUser::getEmpresa/$1');
     $routes->get('anios', 'Api\AppUser::getAnios');
     $routes->post('lista_boletas', 'Api\AppUser::itemBoletas');
+    $routes->post('upload-sello-firma', 'Api\AppUser::uploadSelloFirma');
 });
