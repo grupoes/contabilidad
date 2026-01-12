@@ -261,7 +261,9 @@ class AppUser extends ResourceController
                 return $this->respond([
                     'status' => false,
                     'message' => 'Archivo no encontrado en el servidor',
-                    'path' => $boletaPath
+                    'path' => $boletaPath,
+                    'exists' => file_exists($boletaPath),
+                    'readable' => is_readable($boletaPath)
                 ], 404);
             }
 
