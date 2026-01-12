@@ -277,8 +277,8 @@ class AppUser extends ResourceController
                 if ($i === 1) {
                     $pdf->Image(
                         $sello,
-                        10, // X
-                        10, // Y
+                        4, // X
+                        6, // Y
                         40 // ancho
                     );
                 }
