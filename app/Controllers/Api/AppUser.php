@@ -9,6 +9,8 @@ use App\Models\ContribuyenteModel;
 use App\Models\MesModel;
 use Exception;
 
+use setasign\Fpdi\Fpdi;
+
 class AppUser extends ResourceController
 {
     protected $format = 'json';
@@ -96,7 +98,7 @@ class AppUser extends ResourceController
 
             foreach ($anios as $key => $value) {
                 $idanio = $value['id_anio'];
-                $boletas = $r08->query("SELECT r.nameFile, m.mes_descripcion FROM r08_plame r INNER JOIN pdt_plame p ON p.id_pdt_plame = r.plameId INNER JOIN mes m ON m.id_mes = p.periodo WHERE r.ruc = '$ruc' AND p.anio = $idanio $sqlMeses AND r.numero_documento = '$usuario' AND p.estado = 1 AND r.status = 1 ORDER BY p.periodo DESC")->getResultArray();
+                $boletas = $r08->query("SELECT r.id,r.nameFile, m.mes_descripcion, r.ruc FROM r08_plame r INNER JOIN pdt_plame p ON p.id_pdt_plame = r.plameId INNER JOIN mes m ON m.id_mes = p.periodo WHERE r.ruc = '$ruc' AND p.anio = $idanio $sqlMeses AND r.numero_documento = '$usuario' AND p.estado = 1 AND r.status = 1 ORDER BY p.periodo DESC")->getResultArray();
 
                 $anios[$key]['boletas'] = $boletas;
             }
@@ -218,6 +220,75 @@ class AppUser extends ResourceController
             return $this->respond([
                 'status' => false,
                 'message' => 'Error al obtener el sello o firma: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function descargarPdfSellado($id, $ruc)
+    {
+        try {
+            $r08 = new R08PlameModel();
+            $empresa = new ContribuyenteModel();
+    
+
+            $sello_data = $empresa->select('file_sello_firma')->where('ruc', $ruc)->first();
+
+            if ($sello_data['file_sello_firma'] == null || $sello_data['file_sello_firma'] == '') {
+                return $this->respond([
+                    'status' => false,
+                    'message' => 'La empresa no tiene un sello o firma cargada'
+                ], 404);
+            }
+
+            $boleta = $r08->where('id', $id)->first();
+
+            if (!$boleta || empty($boleta['nameFile'])) {
+                return $this->respond([
+                    'status' => false,
+                    'message' => 'Boleta no encontrada'
+                ], 404);
+            }
+
+            $boletaPath = FCPATH . 'archivos/pdt/' . $boleta['nameFile'];
+            $sello = FCPATH . 'archivos/sellos/' . $sello_data['file_sello_firma'];
+
+            if (!file_exists($boletaPath)) {
+                return $this->respond([
+                    'status' => false,
+                    'message' => 'Archivo no encontrado en el servidor'
+                ], 404);
+            }
+
+            $pdf = new FPDI();
+
+            $pageCount = $pdf->setSourceFile($boletaPath);
+
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $tpl = $pdf->importPage($i);
+                $size = $pdf->getTemplateSize($tpl);
+
+                $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                $pdf->useTemplate($tpl);
+
+                // Agregar sello SOLO en la primera página
+                if ($i === 1) {
+                    $pdf->Image(
+                        $sello,
+                        $size['width'] - 60, // X
+                        $size['height'] - 50, // Y
+                        40 // ancho
+                    );
+                }
+            }
+
+            return $this->response
+                ->setHeader('Content-Type', 'application/pdf')
+                ->setHeader('Content-Disposition', 'attachment; filename="documento_sellado.pdf"')
+                ->setBody($pdf->Output('S'));
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => false,
+                'message' => 'Error al descargar la boleta: ' . $e->getMessage()
             ], 500);
         }
     }

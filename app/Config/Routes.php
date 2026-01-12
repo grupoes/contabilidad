@@ -340,6 +340,8 @@ $routes->group('api', function ($routes) {
     $routes->post('login', 'Api\Auth::login');
 });
 
+$routes->get('api/descargar-boleta/(:num)/(:num)', 'Api\AppUser::descargarPdfSellado/$1/$2');
+
 // Rutas protegidas con JWT
 $routes->group('api', ['filter' => 'jwt'], function ($routes) {
     $routes->post('empresas', 'Api\AppUser::empresas');
