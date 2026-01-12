@@ -229,7 +229,7 @@ class AppUser extends ResourceController
         try {
             $r08 = new R08PlameModel();
             $empresa = new ContribuyenteModel();
-    
+
 
             $sello_data = $empresa->select('file_sello_firma')->where('ruc', $ruc)->first();
 
@@ -249,8 +249,13 @@ class AppUser extends ResourceController
                 ], 404);
             }
 
-            $boletaPath = FCPATH . 'archivos/pdt/' . $boleta['nameFile'];
+            //$boletaPath = FCPATH . 'archivos/pdt/' . $boleta['nameFile'];
             $sello = FCPATH . 'archivos/sellos/' . $sello_data['file_sello_firma'];
+
+            $dockerPath = FCPATH; // /var/www/html/public/
+            $realPath = str_replace('/var/www/html', '/var/www/html/contabilidad', $dockerPath);
+
+            $boletaPath = $realPath . 'archivos/pdt/' . $boleta['nameFile'];
 
             if (!file_exists($boletaPath)) {
                 return $this->respond([
