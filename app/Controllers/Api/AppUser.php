@@ -7,6 +7,7 @@ use CodeIgniter\RESTful\ResourceController;
 use App\Models\R08PlameModel;
 use App\Models\ContribuyenteModel;
 use App\Models\MesModel;
+use App\Models\PdtRentaModel;
 use Exception;
 
 use setasign\Fpdi\Fpdi;
@@ -399,6 +400,39 @@ class AppUser extends ResourceController
             return $this->respond([
                 'status' => false,
                 'message' => 'Error al descargar la boleta: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function consultaPdtRenta()
+    {
+        $pdtRenta = new PdtRentaModel();
+
+        try {
+            $datos = $this->request->getJSON(true);
+
+            $anio = $datos['anio'];
+            $mesInicial = $datos['mes_inicial'];
+            $mesFinal = $datos['mes_final'];
+            $ruc = $datos['ruc'];
+
+            if ($mesFinal < $mesInicial) {
+                return $this->respond([
+                    'status' => 'error',
+                    'message' => 'El mes final no puede ser menor que el mes inicial'
+                ]);
+            }
+
+            $consulta = $pdtRenta->query("SELECT ar.nombre_pdt, ar.nombre_constancia, a.anio_descripcion, m.mes_descripcion FROM pdt_renta pr INNER JOIN archivos_pdt0621 ar ON ar.id_pdt_renta = pr.id_pdt_renta INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN mes m ON m.id_mes = pr.periodo WHERE pr.anio = $anio AND (pr.periodo BETWEEN $mesInicial AND $mesFinal) AND pr.estado = 1 AND ar.estado = 1 AND pr.ruc_empresa = $ruc ORDER BY m.id_mes asc")->getResultArray();
+
+            return $this->respond([
+                'status' => 'ok',
+                'data' => $consulta
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'Error al consultar ' . $e->getMessage()
             ], 500);
         }
     }
