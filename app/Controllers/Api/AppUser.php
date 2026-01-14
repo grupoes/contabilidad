@@ -155,12 +155,12 @@ class AppUser extends ResourceController
                 ], 400);
             }
 
-            // Validar tipo y tamaño (solo PNG)
+            // Validar tipo y tamaño (solo PNG, JPG, JPEG)
             $validation = \Config\Services::validation();
             $validation->setRules([
                 'imagen' => [
                     'label' => 'Imagen',
-                    'rules' => 'uploaded[imagen]|max_size[imagen,2048]|is_image[imagen]|mime_in[imagen,image/png]'
+                    'rules' => 'uploaded[imagen]|max_size[imagen,2048]|is_image[imagen]|mime_in[imagen,image/png,image/jpg,image/jpeg]'
                 ]
             ]);
 
@@ -172,22 +172,36 @@ class AppUser extends ResourceController
                 ], 400);
             }
 
-            // Generar nombre aleatorio
-            $newName = $ruc . "_" . $file->getRandomName();
+            $mimeType = $file->getMimeType();
+            $rutaOriginal = $file->getTempName();
+            $tieneTransparencia = false;
 
-            // Guardar en public/uploads
-            $file->move(FCPATH . 'archivos/sellos', $newName);
+            $codigo = str_pad(random_int(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+
+            $nombreSalida = $ruc . "_" . $codigo . '.png';
+            $rutaSalida = FCPATH . 'archivos/sellos/' . $nombreSalida;
+
+            // Solo verificar transparencia si es PNG
+            if ($mimeType === 'image/png') {
+                $tieneTransparencia = $this->pngTieneTransparencia($rutaOriginal);
+            }
+
+            if ($tieneTransparencia == false) {
+                $this->quitarFondoSelloFirma($rutaOriginal, $rutaSalida);
+            } else {
+                $file->move(FCPATH . 'archivos/sellos', $nombreSalida);
+            }
 
             $contri = new ContribuyenteModel();
 
-            $contri->set('file_sello_firma', $newName);
+            $contri->set('file_sello_firma', $nombreSalida);
             $contri->where('ruc', $ruc);
             $contri->update();
 
             return $this->respond([
                 'status' => true,
                 'message' => 'Imagen guardada correctamente',
-                'filename' => $newName
+                'filename' => $nombreSalida
             ]);
         } catch (Exception $e) {
             return $this->respond([
@@ -195,6 +209,99 @@ class AppUser extends ResourceController
                 'message' => 'Error al guardar la imagen: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    private function quitarFondoSelloFirma($rutaOriginal, $rutaSalida)
+    {
+        // Cargar imagen (JPG o PNG)
+        $mime = mime_content_type($rutaOriginal);
+        if ($mime === 'image/jpeg' || $mime === 'image/jpg') {
+            $src = imagecreatefromjpeg($rutaOriginal);
+        } else {
+            $src = imagecreatefrompng($rutaOriginal);
+        }
+
+        if (!$src) {
+            throw new \Exception('No se pudo cargar la imagen');
+        }
+
+        $width  = imagesx($src);
+        $height = imagesy($src);
+
+        // Crear imagen destino con transparencia
+        $dest = imagecreatetruecolor($width, $height);
+        imagealphablending($dest, false);
+        imagesavealpha($dest, true);
+
+        // Fondo transparente
+        $transparente = imagecolorallocatealpha($dest, 0, 0, 0, 127);
+        imagefill($dest, 0, 0, $transparente);
+
+        // Umbral (ya vimos que ~140 te funciona)
+        $umbral = 140;
+
+        for ($x = 0; $x < $width; $x++) {
+            for ($y = 0; $y < $height; $y++) {
+
+                $rgb = imagecolorat($src, $x, $y);
+                $r = ($rgb >> 16) & 0xFF;
+                $g = ($rgb >> 8) & 0xFF;
+                $b = $rgb & 0xFF;
+
+                // Luminosidad promedio
+                $luminosidad = ($r + $g + $b) / 3;
+
+                // 1) Fondo claro → transparente
+                if ($luminosidad > $umbral) {
+                    imagesetpixel($dest, $x, $y, $transparente);
+                    continue;
+                }
+
+                // 2) Detectar azul (firma) → mantener color
+                // Condición de "azul dominante"
+                if ($b > $r + 20 && $b > $g + 20) {
+                    $colorAzul = imagecolorallocatealpha($dest, $r, $g, $b, 0);
+                    imagesetpixel($dest, $x, $y, $colorAzul);
+                } else {
+                    // 3) Todo lo demás oscuro → negro (sello/texto)
+                    $negro = imagecolorallocatealpha($dest, 0, 0, 0, 0);
+                    imagesetpixel($dest, $x, $y, $negro);
+                }
+            }
+        }
+
+        // Suavizar bordes ligeramente
+        imagefilter($dest, IMG_FILTER_SMOOTH, 4);
+
+        // Guardar PNG con transparencia
+        imagepng($dest, $rutaSalida);
+
+        imagedestroy($src);
+        imagedestroy($dest);
+    }
+
+    public function pngTieneTransparencia($ruta)
+    {
+        $img = imagecreatefrompng($ruta);
+        if (!$img) return false;
+
+        $width  = imagesx($img);
+        $height = imagesy($img);
+
+        for ($x = 0; $x < $width; $x += 10) {
+            for ($y = 0; $y < $height; $y += 10) {
+                $rgba = imagecolorat($img, $x, $y);
+                $alpha = ($rgba & 0x7F000000) >> 24;
+
+                if ($alpha > 0) {
+                    imagedestroy($img);
+                    return true;
+                }
+            }
+        }
+
+        imagedestroy($img);
+        return false;
     }
 
     public function getSelloFirma($ruc)
