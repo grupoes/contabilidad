@@ -657,6 +657,8 @@ class Cobros extends BaseController
         $pagos = new ServicioPagosModel();
         $amorPago = new AmorPagosServiciosModel();
 
+        $service->db->transStart();
+
         try {
             $data = $this->request->getPost();
             $estado = $data['estado'];
@@ -764,7 +766,7 @@ class Cobros extends BaseController
 
                         if ($vaucher[$i]->isValid() && !$vaucher[$i]->hasMoved()) {
                             $newName = $vaucher[$i]->getRandomName();
-                            $vaucher[$i]->move(FCPATH . 'servicios', $newName);
+                            $vaucher[$i]->move(FCPATH . 'vouchers', $newName);
 
                             $nameFile = $newName;
                         } else {
@@ -790,8 +792,15 @@ class Cobros extends BaseController
                 }
             }
 
+            $service->db->transComplete();
+
+            if ($service->db->transStatus() === false) {
+                throw new \Exception("Error al realizar la operación.");
+            }
+
             return $this->response->setJSON(['status' => 'success', 'message' => 'Se guardo correctamente']);
         } catch (\Exception $e) {
+            $service->db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
