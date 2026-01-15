@@ -686,7 +686,7 @@ class Movimiento extends BaseController
                 $sumaIngresoAll = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, $banco['id'], 1, 2);
                 $sumaEgresosAll = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, $banco['id'], 2, 2);
                 //$saldoFinal = $sumaIngresoAll->saldo - $sumaEgresosAll->saldo + $saldoInicialBanks[$key];
-                $saldoFinal = $sumaIngresoAll->saldo - $sumaEgresosAll->saldo;
+                $saldoFinal = $sumaIngresoAll->saldo - $sumaEgresosAll->saldo + $saldoInicialBanks[$key];
                 array_push($saldoInicialBanksAll, number_format($saldoFinal, 2, '.', ''));
             } else {
                 array_push($saldoInicialBanksAll, number_format(0, 2, '.', ''));

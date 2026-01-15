@@ -7,6 +7,7 @@ use CodeIgniter\RESTful\ResourceController;
 use App\Models\R08PlameModel;
 use App\Models\ContribuyenteModel;
 use App\Models\MesModel;
+use App\Models\PdtPlameModel;
 use App\Models\PdtRentaModel;
 use Exception;
 
@@ -427,6 +428,53 @@ class AppUser extends ResourceController
 
             return $this->respond([
                 'status' => 'ok',
+                'data' => $consulta
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'Error al consultar ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function consultaPdtPlame()
+    {
+        $pdtPlame = new PdtPlameModel();
+
+        try {
+            $datos = $this->request->getJSON(true);
+
+            $mes = $datos['mes'];
+            $anio = $datos['anio'];
+            $ruc = $datos['ruc'];
+
+            $consulta = $pdtPlame->query("SELECT
+            pdt_plame.periodo,pdt_plame.anio,archivos_pdtplame.id_archivos_pdtplame,archivos_pdtplame.archivo_planilla,archivos_pdtplame.archivo_honorarios,archivos_pdtplame.archivo_constancia,archivos_pdtplame.estado,archivos_pdtplame.id_pdtplame,anio.anio_descripcion,mes.mes_descripcion, pdt_plame.id_pdt_plame
+            FROM pdt_plame
+            INNER JOIN archivos_pdtplame ON archivos_pdtplame.id_pdtplame = pdt_plame.id_pdt_plame
+            INNER JOIN anio ON pdt_plame.anio = anio.id_anio
+            INNER JOIN mes ON mes.id_mes = pdt_plame.periodo
+            WHERE pdt_plame.ruc_empresa = $ruc AND pdt_plame.anio = $anio AND pdt_plame.periodo = $mes AND archivos_pdtplame.estado = 1")->getRow();
+
+            if ($consulta) {
+                $idpdt = $consulta->id_pdt_plame;
+
+                $r08 = new R08PlameModel();
+
+                $consultaR08 = $r08->where('plameId', $idpdt)->where('status', 1)->findAll();
+
+                if ($consultaR08) {
+                    $consulta->r08 = "1";
+                    $consulta->r08_data = $consultaR08;
+                } else {
+                    $consulta->r08 = "0";
+                }
+            }
+
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'Se obtenió correctamente la consulta',
                 'data' => $consulta
             ]);
         } catch (\Exception $e) {

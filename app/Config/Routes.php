@@ -351,4 +351,5 @@ $routes->group('api', ['filter' => 'jwt'], function ($routes) {
     $routes->post('upload-sello-firma', 'Api\AppUser::uploadSelloFirma');
     $routes->get('get-sello-firma/(:num)', 'Api\AppUser::getSelloFirma/$1');
     $routes->post('consulta-pdt-renta', 'Api\AppUser::consultaPdtRenta');
+    $routes->post('consulta-pdt-plame', 'Api\AppUser::consultaPdtPlame');
 });
