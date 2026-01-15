@@ -675,17 +675,18 @@ class Movimiento extends BaseController
     {
         $sumaEfectivoAll = $sumaEfectivo;
         if ($filtro === 'todos' || $filtro === 'efectivo') {
-            $sumaEfectivoAllIngresos = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, 1, 1);
-            $sumaEfectivoAllEgresos = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, 1, 2);
-            $sumaEfectivoAll += $sumaEfectivoAllIngresos->saldo - $sumaEfectivoAllEgresos->saldo;
+            $sumaEfectivoAllIngresos = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, 1, 1, 1);
+            $sumaEfectivoAllEgresos = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, 1, 2, 1);
+            $sumaEfectivoAll = $sumaEfectivoAllIngresos->saldo - $sumaEfectivoAllEgresos->saldo;
         }
 
         $saldoInicialBanksAll = [];
         foreach ($bancos as $key => $banco) {
             if ($filtro === 'todos' || $filtro == $banco['id']) {
-                $sumaIngresoAll = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, $banco['id'], 1);
-                $sumaEgresosAll = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, $banco['id'], 2);
-                $saldoFinal = $sumaIngresoAll->saldo - $sumaEgresosAll->saldo + $saldoInicialBanks[$key];
+                $sumaIngresoAll = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, $banco['id'], 1, 2);
+                $sumaEgresosAll = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, $banco['id'], 2, 2);
+                //$saldoFinal = $sumaIngresoAll->saldo - $sumaEgresosAll->saldo + $saldoInicialBanks[$key];
+                $saldoFinal = $sumaIngresoAll->saldo - $sumaEgresosAll->saldo;
                 array_push($saldoInicialBanksAll, number_format($saldoFinal, 2, '.', ''));
             } else {
                 array_push($saldoInicialBanksAll, number_format(0, 2, '.', ''));
@@ -704,9 +705,9 @@ class Movimiento extends BaseController
         ];
     }
 
-    private function calcularMovimientosPeriodo($mov, $startDate, $endDate, $idMetodo, $tipoMovimiento)
+    private function calcularMovimientosPeriodo($mov, $startDate, $endDate, $idMetodo, $tipoMovimiento, $typeChange)
     {
-        if ($idMetodo == 1) {
+        if ($typeChange == 1) {
             $sql = " AND mp.id = 1";
         } else {
             $sql = " AND mp.id_banco = $idMetodo";
