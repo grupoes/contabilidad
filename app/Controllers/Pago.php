@@ -365,7 +365,7 @@ class Pago extends BaseController
 
                 if ($voucher->isValid() && !$voucher->hasMoved()) {
                     $newName = $voucher->getRandomName();
-                    $voucher->move(FCPATH . 'servidor', $newName);
+                    $voucher->move(FCPATH . 'vouchers', $newName);
 
                     $nameFile = $newName;
                 }
@@ -1024,7 +1024,7 @@ class Pago extends BaseController
 
             if ($voucher->isValid() && !$voucher->hasMoved()) {
                 $newName = $voucher->getRandomName();
-                $voucher->move(FCPATH . 'servidor', $newName);
+                $voucher->move(FCPATH . 'vouchers', $newName);
 
                 $nameFile = $newName;
             }
