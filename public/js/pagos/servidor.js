@@ -67,8 +67,8 @@ function viewPagos(data) {
             <td>${pago.monto_pagado}</td>
             <td>${pago.monto_pendiente}</td>
             <td> <a href="${pago.url_pdf_nota}" target="_blank">Nota ${
-      pago.numero_notas
-    }</a> </td>
+              pago.numero_notas
+            }</a> </td>
             <td>${estado}</td>
         </tr>
         `;
@@ -121,7 +121,7 @@ function viewPagosHonorarios(data) {
             <td>${pago.metodo}</td>
             <td>${pago.monto}</td>
             <td> 
-                <a href="#" data-lightbox="${base_url}servidor/${pago.vaucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
+                <a href="#" data-lightbox="${base_url}vouchers/${pago.vaucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
             </td>
             <td>
                 ${botonDelete}
