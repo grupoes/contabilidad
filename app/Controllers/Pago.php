@@ -433,160 +433,119 @@ class Pago extends BaseController
         $detallePagos = new DetallePagosServidorModel();
         $servidor = new ServidorModel();
 
-        $consulta_pendientes = $pagoServidor->where('contribuyente_id', $idContribuyente)->where('estado', 'pendiente')->orderBy('id', 'asc')->findAll();
+        $contador = 0;
 
-        foreach ($consulta_pendientes as $key => $value) {
+        $montoDisponible = $monto;
 
-            $monto_total = $value['monto_total'];
+        while ($montoDisponible > 0) {
 
-            if ($monto == 0) {
-                break;
-            }
+            $lastUtimo = $pagoServidor->query("SELECT * FROM pago_servidor WHERE contribuyente_id = $idContribuyente and estado != 'eliminado' ORDER BY id DESC LIMIT 1")->getRow();
 
-            if ($monto >= $monto_total) {
-                $estado = "pagado";
-                $newMonto = $monto_total;
-                $pendientePago = 0;
+            if ($lastUtimo->estado == "pendiente") {
+                $montoPendiente = $lastUtimo->monto_pendiente;
+                $montoPagado = $lastUtimo->monto_pagado;
+                $montoTotal = $lastUtimo->monto_total;
 
-                $dataUpdate = array(
-                    "fecha_pago" => date('Y-m-d H:i:s'),
-                    "fecha_proceso" => $fecha_proceso,
-                    "monto_pagado" => $newMonto,
-                    "monto_pendiente" => $pendientePago,
-                    "usuario_id_cobra" => session()->id,
-                    "estado" => $estado,
-                );
+                if ($montoDisponible >= $montoPendiente) {
+                    $datos = array(
+                        "monto_pagado" => $montoTotal,
+                        "monto_pendiente" => 0,
+                        "estado" => "pagado"
+                    );
 
-                $pagoServidor->update($value['id'], $dataUpdate);
+                    $pagoServidor->update($lastUtimo->id, $datos);
 
-                $datosPagos = array(
-                    "pago_servidor_id" => $value['id'],
-                    "pago_amortizacion_id" => $idPagoAmor,
-                    "monto" => $newMonto,
-                );
+                    $datosPagos = array(
+                        "pago_servidor_id" => $lastUtimo->id,
+                        "pago_amortizacion_id" => $idPagoAmor,
+                        "monto" => $montoPendiente,
+                    );
 
-                $detallePagos->insert($datosPagos);
+                    $detallePagos->insert($datosPagos);
 
-                $monto = $monto - $monto_total;
+                    $montoDisponible = $montoDisponible - $montoPendiente;
+
+                    $contador++;
+                } else {
+                    $datos = array(
+                        "monto_pagado" => $montoPagado + $montoDisponible,
+                        "monto_pendiente" => $montoPendiente - $montoDisponible,
+                        "estado" => "pendiente"
+                    );
+
+                    $pagoServidor->update($lastUtimo->id, $datos);
+
+                    $datosPagos = array(
+                        "pago_servidor_id" => $lastUtimo->id,
+                        "pago_amortizacion_id" => $idPagoAmor,
+                        "monto" => $montoDisponible,
+                    );
+
+                    $detallePagos->insert($datosPagos);
+
+                    $montoDisponible = 0;
+                }
             } else {
 
-                if ($monto >= $value['monto_pendiente']) {
-                    $estado = "pagado";
-                    $newMonto = $value['monto_total'];
-                    $pendientePago = 0;
+                $fecha_init = $lastUtimo->fecha_inicio;
 
-                    $monto = $monto - $value['monto_pendiente'];
-                } else {
-                    $estado = "pendiente";
-                    $newMonto = $value['monto_pagado'] + $monto;
-                    $pendientePago = $value['monto_pendiente'] - $monto;
-
-                    $monto = 0;
-                }
-
-                $dataUpdate = array(
-                    "fecha_pago" => date('Y-m-d H:i:s'),
-                    "fecha_proceso" => $fecha_proceso,
-                    "monto_pagado" => $newMonto,
-                    "monto_pendiente" => $pendientePago,
-                    "usuario_id_cobra" => session()->id,
-                    "estado" => $estado,
-                );
-
-                $pagoServidor->update($value['id'], $dataUpdate);
-
-                $datosPagos = array(
-                    "pago_servidor_id" => $value['id'],
-                    "pago_amortizacion_id" => $idPagoAmor,
-                    "monto" => $newMonto,
-                );
-
-                $detallePagos->insert($datosPagos);
-            }
-        }
-
-        $monto_servidor = $servidor->where('contribuyente_id', $idContribuyente)->where('estado', 1)->first();
-        $monto_server = $monto_servidor['monto'];
-
-        $monto_restante = $monto;
-
-        $ultimo_registro = $pagoServidor->where('contribuyente_id', $idContribuyente)->where('estado !=', 'eliminado')->orderBy('id', 'desc')->first();
-
-        $fecha_inicio = $ultimo_registro['fecha_inicio'];
-
-        while ($monto_restante > 0) {
-
-            if ($ultimo_registro['estado'] == 'pendiente') {
-                $monto_pendiente = $ultimo_registro['monto_pendiente'];
-
-                if ($monto_restante >= $monto_pendiente) {
-                    $estado_pago = "pagado";
-                    $newMonto_pago = $ultimo_registro['monto_total'];
-                    $pendiente_pago = 0;
-
-                    $monto_restante = $monto_restante - $monto_pendiente;
-                } else {
-                    $estado_pago = "pendiente";
-                    $newMonto_pago = $monto_restante + $monto_pendiente;
-                    $pendiente_pago = $monto_pendiente - $monto_restante;
-
-                    $monto_restante = 0;
-                }
-
-                $dataUpdate = array(
-                    "fecha_pago" => date('Y-m-d H:i:s'),
-                    "fecha_proceso" => $fecha_proceso,
-                    "monto_pagado" => $newMonto_pago,
-                    "monto_pendiente" => $pendiente_pago,
-                    "usuario_id_cobra" => session()->id,
-                    "estado" => $estado_pago,
-                );
-
-                $pagoServidor->update($ultimo_registro['id'], $dataUpdate);
-            } else {
-                if ($monto_restante >= $monto_server) {
-                    $estado_pago = "pagado";
-                    $newMonto_pago = $monto_server;
-                    $pendiente_pago = 0;
-
-                    $monto_restante = $monto_restante - $monto_server;
-                } else {
-                    $estado_pago = "pendiente";
-                    $newMonto_pago = $monto_restante;
-                    $pendiente_pago = $monto_server - $monto_restante;
-
-                    $monto_restante = 0;
-                }
-
-                $fecha_init = $fecha_inicio;
-
+                $monto_servidor = $lastUtimo->monto_total;
                 $newFechaInicio = $this->sumFechaAnio($fecha_init);
                 $newFechaFin = $this->sumFechaAnioServidor($newFechaInicio);
 
-                $fecha_inicio = $newFechaInicio;
+                if ($montoDisponible >= $monto_servidor) {
+                    $datos = array(
+                        "contribuyente_id" => $idContribuyente,
+                        "fecha_inicio" => $newFechaInicio,
+                        'fecha_fin' => $newFechaFin,
+                        "monto_total" => $monto_servidor,
+                        "fecha_pago" => date('Y-m-d H:i:s'),
+                        "fecha_proceso" => $fecha_proceso,
+                        "monto_pagado" => $monto_servidor,
+                        "monto_pendiente" => 0,
+                        "estado" => "pagado",
+                        "usuario_id_cobra" => session()->id
+                    );
 
-                $data_pago = array(
-                    "contribuyente_id" => $idContribuyente,
-                    "fecha_pago" => date('Y-m-d H:i:s'),
-                    "fecha_proceso" => $fecha_proceso,
-                    "monto_total" => $monto_server,
-                    "fecha_inicio" => $fecha_inicio,
-                    "fecha_fin" => $newFechaFin,
-                    "monto_pendiente" => $pendiente_pago,
-                    "monto_pagado" => $newMonto_pago,
-                    "usuario_id_cobra" => session()->id,
-                    "estado" => $estado_pago,
-                );
+                    $pagoServidor->insert($datos);
 
-                $pagoServidor->insert($data_pago);
+                    $montoDisponible = $montoDisponible - $monto_servidor;
 
-                $datosPagos = array(
-                    "pago_servidor_id" => $pagoServidor->getInsertID(),
-                    "pago_amortizacion_id" => $idPagoAmor,
-                    "monto" => $newMonto_pago,
-                );
+                    $datosPagos = array(
+                        "pago_servidor_id" => $pagoServidor->getInsertID(),
+                        "pago_amortizacion_id" => $idPagoAmor,
+                        "monto" => $monto_servidor,
+                    );
 
-                $detallePagos->insert($datosPagos);
+                    $detallePagos->insert($datosPagos);
+
+                    $contador++;
+                } else {
+                    $datos = array(
+                        "contribuyente_id" => $idContribuyente,
+                        "fecha_inicio" => $newFechaInicio,
+                        "fecha_fin" => $newFechaFin,
+                        "fecha_pago" => date('Y-m-d H:i:s'),
+                        "fecha_proceso" => $fecha_proceso,
+                        "monto_total" => $monto_servidor,
+                        "monto_pagado" => $montoDisponible,
+                        "monto_pendiente" => $monto_servidor - $montoDisponible,
+                        "estado" => "pendiente",
+                        "usuario_id_cobra" => session()->id
+                    );
+
+                    $pagoServidor->insert($datos);
+
+                    $datosPagos = array(
+                        "pago_servidor_id" => $pagoServidor->getInsertID(),
+                        "pago_amortizacion_id" => $idPagoAmor,
+                        "monto" => $montoDisponible,
+                    );
+
+                    $detallePagos->insert($datosPagos);
+
+                    $montoDisponible = 0;
+                }
             }
         }
     }
