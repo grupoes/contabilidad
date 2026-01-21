@@ -9,6 +9,8 @@ use App\Models\ContribuyenteModel;
 use App\Models\MesModel;
 use App\Models\PdtPlameModel;
 use App\Models\PdtRentaModel;
+use App\Models\TrabajadoresContriModel;
+use App\Models\UserModel;
 use Exception;
 
 use setasign\Fpdi\Fpdi;
@@ -481,6 +483,78 @@ class AppUser extends ResourceController
             return $this->respond([
                 'status' => 'error',
                 'message' => 'Error al consultar ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function changePassword()
+    {
+        $datos = $this->request->getJSON(true);
+
+        $currentPassword = $datos['currentPassword'];
+        $newPassword = $datos['newPassword'];
+        $confirmPassword = $datos['confirmPassword'];
+        $usuario = $datos['usuario'];
+
+        $contrib = new ContribuyenteModel();
+        $job = new TrabajadoresContriModel();
+
+        try {
+
+            if (strlen($usuario) == 11) {
+                $query = $contrib->where('ruc', $usuario)->where('acceso', $currentPassword)->first();
+
+                if (!$query) {
+                    return $this->respond([
+                        'status' => 'error',
+                        'message' => 'La contraseña actual no coincide'
+                    ]);
+                }
+
+                if ($newPassword !== $confirmPassword) {
+                    return $this->respond([
+                        'status' => 'error',
+                        'message' => 'No coinciden las contraseñas'
+                    ]);
+                }
+
+                $update = array(
+                    "acceso" => $newPassword
+                );
+
+                $contrib->update($query['id'], $update);
+            } else {
+                $query = $job->where('numero_documento', $usuario)->where('password', $currentPassword)->first();
+
+                if (!$query) {
+                    return $this->respond([
+                        'status' => 'error',
+                        'message' => 'La contraseña actual no coincide'
+                    ]);
+                }
+
+                if ($newPassword !== $confirmPassword) {
+                    return $this->respond([
+                        'status' => 'error',
+                        'message' => 'No coinciden las contraseñas'
+                    ]);
+                }
+
+                $update = array(
+                    "password" => $newPassword
+                );
+
+                $job->update($query['id'], $update);
+            }
+
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'Se cambio la contraseña correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'Error al cambiar contraseña ' . $e->getMessage()
             ], 500);
         }
     }
