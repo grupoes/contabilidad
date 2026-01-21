@@ -7,9 +7,11 @@ use CodeIgniter\RESTful\ResourceController;
 use App\Models\R08PlameModel;
 use App\Models\ContribuyenteModel;
 use App\Models\MesModel;
+use App\Models\PdtAnualModel;
 use App\Models\PdtPlameModel;
 use App\Models\PdtRentaModel;
 use App\Models\TrabajadoresContriModel;
+use App\Models\TributoModel;
 use App\Models\UserModel;
 use Exception;
 
@@ -57,7 +59,7 @@ class AppUser extends ResourceController
         try {
             $anio = new AnioModel();
             $anioActual = date('Y');
-            $anios = $anio->where('anio_descripcion >=', 2025)->where('anio_descripcion <=', $anioActual)->orderBy('anio_descripcion', 'DESC')->findAll();
+            $anios = $anio->where('anio_descripcion >=', 2024)->where('anio_descripcion <=', $anioActual)->orderBy('anio_descripcion', 'DESC')->findAll();
 
             return $this->respond([
                 'status' => true,
@@ -555,6 +557,67 @@ class AppUser extends ResourceController
             return $this->respond([
                 'status' => 'error',
                 'message' => 'Error al cambiar contraseña ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function verifyPdt($ruc)
+    {
+        $tributo = new TributoModel();
+
+        try {
+            $consulta = $tributo->query("SELECT tributo.tri_descripcion,pdt.pdt_descripcion,configuracion_notificacion.ruc_empresa_numero,configuracion_notificacion.id_tributo,tributo.id_pdt
+            FROM tributo
+            INNER JOIN configuracion_notificacion ON configuracion_notificacion.id_tributo = tributo.id_tributo
+            INNER JOIN pdt ON tributo.id_pdt = pdt.id_pdt
+            WHERE configuracion_notificacion.ruc_empresa_numero = $ruc and (tributo.id_pdt = 3 or tributo.id_pdt = 4 or tributo.id_pdt = 5 or tributo.id_pdt = 6)")->getResult();
+
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'verificación exitosa',
+                'data' => $consulta
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'No se pudo verificar ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function consultaPdtAnual()
+    {
+        $pdtAnual = new PdtAnualModel();
+
+        try {
+            $datos = $this->request->getJSON(true);
+
+            $anio = $datos['anio'];
+            $ruc = $datos['ruc'];
+            $tipoPdt = $datos['tipoPdt'];
+
+            $sql = "AND pdt_anual.periodo = $anio";
+
+            if ($tipoPdt != "0") {
+                $sql = "AND pdt_anual.periodo = $anio AND pdt_anual.id_pdt_tipo = $tipoPdt";
+            }
+
+            $consulta = $pdtAnual->query("SELECT pdt.pdt_descripcion,pdt_anual.ruc_empresa,pdt_anual.periodo,pdt_anual.id_pdt_tipo,archivos_pdtanual.id_pdt_anual,archivos_pdtanual.id_archivo_anual,archivos_pdtanual.pdt,archivos_pdtanual.constancia,anio.anio_descripcion
+            FROM pdt_anual
+            INNER JOIN pdt ON pdt_anual.id_pdt_tipo = pdt.id_pdt
+            INNER JOIN archivos_pdtanual ON pdt_anual.id_pdt_anual = archivos_pdtanual.id_pdt_anual
+            INNER JOIN anio ON pdt_anual.periodo = anio.id_anio
+            WHERE pdt_anual.ruc_empresa = $ruc AND archivos_pdtanual.estado = 1 $sql")->getResult();
+
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'Se realizo la consulta correctamente',
+                'data' => $consulta
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'error al realizar la consulta ' . $e->getMessage()
             ], 500);
         }
     }

@@ -353,4 +353,6 @@ $routes->group('api', ['filter' => 'jwt'], function ($routes) {
     $routes->post('consulta-pdt-renta', 'Api\AppUser::consultaPdtRenta');
     $routes->post('consulta-pdt-plame', 'Api\AppUser::consultaPdtPlame');
     $routes->post('change-password', 'Api\AppUser::changePassword');
+    $routes->get('verificar-pdt-anual/(:num)', 'Api\AppUser::verifyPdt/$1');
+    $routes->post('consulta-pdt-anual', 'Api\AppUser::consultaPdtAnual');
 });
