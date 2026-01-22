@@ -369,7 +369,7 @@ class AppUser extends ResourceController
 
             // 📌 Verificar si existe sello
             $selloPath = null;
-            if (!empty($sello_data['file_sello_firma'])) {
+            if ($sello_data && !empty($sello_data['file_sello_firma'])) {
                 $temp = FCPATH . 'archivos/sellos/' . $sello_data['file_sello_firma'];
                 if (file_exists($temp)) {
                     $selloPath = $temp;
