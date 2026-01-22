@@ -346,13 +346,6 @@ class AppUser extends ResourceController
 
             $sello_data = $empresa->select('file_sello_firma')->where('ruc', $ruc)->first();
 
-            if ($sello_data['file_sello_firma'] == null || $sello_data['file_sello_firma'] == '') {
-                return $this->respond([
-                    'status' => false,
-                    'message' => 'La empresa no tiene un sello o firma cargada'
-                ], 404);
-            }
-
             $boleta = $r08->where('id', $id)->first();
 
             if (!$boleta || empty($boleta['nameFile'])) {
@@ -363,7 +356,6 @@ class AppUser extends ResourceController
             }
 
             $boletaPath = FCPATH . 'archivos/pdt/' . $boleta['nameFile'];
-            $sello  = FCPATH . 'archivos/sellos/' . $sello_data['file_sello_firma'];
 
             if (!file_exists($boletaPath)) {
                 return $this->respond([
@@ -373,6 +365,15 @@ class AppUser extends ResourceController
                     'exists' => file_exists($boletaPath),
                     'readable' => is_readable($boletaPath)
                 ], 404);
+            }
+
+            // 📌 Verificar si existe sello
+            $selloPath = null;
+            if (!empty($sello_data['file_sello_firma'])) {
+                $temp = FCPATH . 'archivos/sellos/' . $sello_data['file_sello_firma'];
+                if (file_exists($temp)) {
+                    $selloPath = $temp;
+                }
             }
 
             $pdf = new FPDI();
@@ -389,7 +390,7 @@ class AppUser extends ResourceController
                 // Agregar sello SOLO en la primera página
                 if ($i === 1) {
                     $pdf->Image(
-                        $sello,
+                        $selloPath,
                         25, // X
                         $size['height'] - 60, // Y
                         40 // ancho
