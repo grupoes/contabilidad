@@ -69,7 +69,7 @@ class AppUser extends ResourceController
         } catch (\Exception $e) {
             return $this->respond([
                 'status' => false,
-                'message' => 'Error al obtener los años: ' . $e->getMessage()
+                'message' => 'Error al obtener los años backend: ' . $e->getMessage()
             ], 500);
         }
     }
