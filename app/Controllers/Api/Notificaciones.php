@@ -1394,7 +1394,7 @@ class Notificaciones extends ResourceController
     {
         $r08 = new R08PlameModel();
 
-        $consulta = $r08->query("SELECT * FROM r08_plame inner join pdt_plame on r08_plame.plameId = pdt_plame.id_pdt_plame where ruc_empresa = '20542322412' and estado = 1 and periodo >= 8 and anio = 11 and read_boleta = 1")->getResultArray();
+        $consulta = $r08->query("SELECT * FROM r08_plame inner join pdt_plame on r08_plame.plameId = pdt_plame.id_pdt_plame where pdt_plame.ruc_empresa = '20603670249' and pdt_plame.estado = 1 and pdt_plame.periodo >= 1 and pdt_plame.anio = 11 and r08_plame.read_boleta = 1")->getResultArray();
 
         return $this->respond($consulta);
     }
