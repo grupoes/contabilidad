@@ -388,7 +388,7 @@ class AppUser extends ResourceController
                 $pdf->useTemplate($tpl);
 
                 // Agregar sello SOLO en la primera página
-                if ($i === 1) {
+                if ($i === 1 && $selloPath) {
                     $pdf->Image(
                         $selloPath,
                         25, // X
