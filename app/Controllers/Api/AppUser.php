@@ -400,7 +400,7 @@ class AppUser extends ResourceController
 
             return $this->response
                 ->setHeader('Content-Type', 'application/pdf')
-                ->setHeader('Content-Disposition', 'attachment; filename="documento_sellado.pdf"')
+                ->setHeader('Content-Disposition', 'attachment; filename="boleta_de_pago.pdf"')
                 ->setBody($pdf->Output('S'));
         } catch (Exception $e) {
             return $this->respond([
