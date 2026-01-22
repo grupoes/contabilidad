@@ -16,11 +16,6 @@ class Auth extends ResourceController
         try {
             $data = $this->request->getJSON(true);
 
-            return $this->respond([
-                'status' => true,
-                'message' => $data
-            ]);
-
             if (!isset($data['username']) || !isset($data['password'])) {
                 return $this->respond([
                     'status' => false,
