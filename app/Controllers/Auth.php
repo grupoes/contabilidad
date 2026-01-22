@@ -134,6 +134,7 @@ class Auth extends BaseController
         }
 
         $model = new UserModel();
+        $usuario_c = new UsuarioModel();
 
         if ($staCorreo == 0) {
             if ($model->getUserByEmail($correo)) {
@@ -187,6 +188,26 @@ class Auth extends BaseController
             "estado" => 1,
             "path" => $newPath
         );
+
+        $usuario_conta = array(
+            'usu_usuario ' => $username,
+            'usu_clave' => $password,
+            'usu_fechareg' => date('Y-m-d'),
+            'usu_perfil' => $perfil,
+            'usu_estado' => 1,
+            'usu_sede' => $sede,
+            'dni' => $numeroDocumento,
+            'nombres' => $nombres,
+            'apellidos' => $apellidos
+        );
+
+        $consulta_c = $usuario_c->where('usu_usuario', $username)->first();
+
+        if ($consulta_c) {
+            $usuario_c->update($consulta_c['usu_id'], $usuario_conta);
+        } else {
+            $usuario_c->insert($usuario_conta);
+        }
 
         if ($iduser == 0) {
             $model->insert($datos);
