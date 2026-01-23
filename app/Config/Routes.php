@@ -59,6 +59,7 @@ $routes->get('contribuyente/contratos/(:num)', 'Contribuyentes::showContratos/$1
 $routes->post('contribuyente/agregar-contrato', 'Contribuyentes::agregarContrato');
 
 $routes->get('contribuyentes/migracion', 'Contribuyentes::migrarContribuyentes');
+$routes->post('contribuyente/actualizar-igv', 'Contribuyentes::updateIgvContribuyentes');
 
 $routes->get('cobros', 'Contribuyentes::allCobros');
 $routes->get('listaCobros/(:any)/(:num)', 'Contribuyentes::listaHonorariosCobros/$1/$2');

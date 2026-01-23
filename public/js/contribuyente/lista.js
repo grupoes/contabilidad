@@ -58,6 +58,13 @@ let listaUbigeo = new Choices("#ubigeo", {
   itemSelectText: "",
 });
 
+let contribuyentes_igv = new Choices("#contribuyentes_igv", {
+  removeItemButton: true,
+  searchPlaceholderValue: "Buscar aqui al contribuyente",
+  allowHTML: true,
+  itemSelectText: "",
+});
+
 let prefijo = new Choices("#selectPais", {
   removeItemButton: true,
   searchPlaceholderValue: "Buscar el país",
@@ -118,7 +125,7 @@ async function cargarUbigeo() {
       })),
       "value",
       "label",
-      true
+      true,
     );
   } catch (error) {
     console.error("Error al cargar ubigeo:", error);
@@ -245,10 +252,10 @@ listaContribuyentes();
 function listaContribuyentes() {
   fetch(
     base_url +
-    "contribuyente/all/" +
-    selectOpciones.value +
-    "/" +
-    selectEstado.value
+      "contribuyente/all/" +
+      selectOpciones.value +
+      "/" +
+      selectEstado.value,
   )
     .then((res) => res.json())
     .then((data) => {
@@ -283,8 +290,6 @@ function optionsTable(id, ruc, eliminar, tipoServicio) {
         <a class="dropdown-item" href="#" onclick="loadModalContratos(event, ${id})"><i class="ti ti-file-symlink"></i>Contratos</a>
     `;
   }
-
-
 }
 
 function viewListContribuyentes(data, eliminar, editar) {
@@ -374,15 +379,18 @@ function viewListContribuyentes(data, eliminar, editar) {
                 <td>
                     <div class="row">
                         <div class="col">
-                            <h6 class="mb-1" title="${per}"><a href="javascript:void(0);" class="${edit}" data-id="${emp.id
-      }">${emp.ruc}</a></h6>
-                            <p class="text-muted f-14 mb-0"> ${emp.razon_social
-      } </p>
+                            <h6 class="mb-1" title="${per}"><a href="javascript:void(0);" class="${edit}" data-id="${
+                              emp.id
+                            }">${emp.ruc}</a></h6>
+                            <p class="text-muted f-14 mb-0"> ${
+                              emp.razon_social
+                            } </p>
                         </div>
                     </div>
                 </td>
-                <td><a href="#" class="tipoServicio" data-id="${emp.id}">${emp.tipoServicio
-      }</a></td>
+                <td><a href="#" class="tipoServicio" data-id="${emp.id}">${
+                  emp.tipoServicio
+                }</a></td>
                 <td>
                     ${monto}
                 </td>
@@ -392,9 +400,11 @@ function viewListContribuyentes(data, eliminar, editar) {
                 </td>
                 <td> 
                     <div class="form-check form-switch custom-switch-v1 mb-2">
-                        <input type="checkbox" class="form-check-input input-success" name="estado" id="estado${emp.id
-      }" ${estado} onchange="toggleSwitchStatus(this, ${emp.id
-      })">
+                        <input type="checkbox" class="form-check-input input-success" name="estado" id="estado${
+                          emp.id
+                        }" ${estado} onchange="toggleSwitchStatus(this, ${
+                          emp.id
+                        })">
                     </div>
 
                 </td>
@@ -424,9 +434,7 @@ function viewListContribuyentes(data, eliminar, editar) {
     responsive: true,
     autoWidth: false,
     scrollX: false,
-    columnDefs: [
-      { targets: "_all", className: "text-wrap" },
-    ],
+    columnDefs: [{ targets: "_all", className: "text-wrap" }],
   });
 
   new $.fn.dataTable.Responsive(newcs);
@@ -681,7 +689,7 @@ function descargarCertificadoDigital(e, fileName) {
   e.preventDefault();
 
   const url = `${base_url}/descargar-certificado/${encodeURIComponent(
-    fileName
+    fileName,
   )}`;
   const link = document.createElement("a");
   link.href = url;
@@ -812,7 +820,7 @@ async function cargarPaises() {
       })),
       "value",
       "label",
-      true
+      true,
     );
   } catch (error) {
     console.error("Error al cargar ubigeo:", error);
@@ -1037,7 +1045,7 @@ function configurarDeclaraciones(e, id) {
       ruc_empresa.value = data.contribuyente.ruc;
 
       const titleModalConfigurar = document.getElementById(
-        "titleModalConfigurar"
+        "titleModalConfigurar",
       );
       titleModalConfigurar.textContent = `Configurar Declaraciones de ${data.contribuyente.razon_social}`;
       viewDeclaraciones(data.configuraciones);
@@ -1554,9 +1562,8 @@ function loadContratos(id) {
 
       const razon_social = datos[0].razon_social;
 
-      document.getElementById(
-        "titleModalContratos"
-      ).textContent = `Contratos de ${razon_social}`;
+      document.getElementById("titleModalContratos").textContent =
+        `Contratos de ${razon_social}`;
 
       datos.forEach((contrato, key) => {
         let contra = "NO EXISTE";
@@ -1633,25 +1640,60 @@ multipleSystem.passedElement.element.addEventListener("change", (e) => {
         fechaInicioServidor.innerHTML = "";
       } else {
         viewServidor.innerHTML = `
-        <label class="form-label" for="choices-system">Monto del servidor</label>
+        <label class="form-label" for="monto_servidor">Monto del servidor</label>
         <input type="number" class="form-control" name="monto_servidor" id="monto_servidor" required="" />
       `;
 
         fechaInicioServidor.innerHTML = `
-        <label class="form-label" for="choices-system">Fecha de inicio del servidor</label>
+        <label class="form-label" for="fecha_inicio_servidor">Fecha de inicio del servidor</label>
         <input type="date" class="form-control" name="fecha_inicio_servidor" id="fecha_inicio_servidor" required="" />
       `;
       }
     } else {
       viewServidor.innerHTML = `
-      <label class="form-label" for="choices-system">Monto del servidor</label>
+      <label class="form-label" for="monto_servidor">Monto del servidor</label>
       <input type="number" class="form-control" name="monto_servidor" id="monto_servidor" required="" />
     `;
 
       fechaInicioServidor.innerHTML = `
-        <label class="form-label" for="choices-system">Fecha de inicio del servidor</label>
+        <label class="form-label" for="fecha_inicio_servidor">Fecha de inicio del servidor</label>
         <input type="date" class="form-control" name="fecha_inicio_servidor" id="fecha_inicio_servidor" required="" />
       `;
     }
   }
+});
+
+const btnShowigv = document.getElementById("btnShowigv");
+
+btnShowigv.addEventListener("click", () => {
+  $("#modalIgv").modal("show");
+});
+
+const formIgv = document.getElementById("formIgv");
+const message_error_igv = document.getElementById("message_error_igv");
+
+formIgv.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const formData = new FormData(formIgv);
+
+  fetch(base_url + "contribuyente/actualizar-igv", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        message_error_igv.innerHTML = `
+          <div class="alert alert-success" role="alert">
+            ${data.message}
+          </div>
+        `;
+        return false;
+      }
+      message_error_igv.innerHTML = `
+        <div class="alert alert-danger" role="alert">
+          ${data.message}
+        </div>
+      `;
+    });
 });

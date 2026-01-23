@@ -54,11 +54,14 @@ class Contribuyentes extends BaseController
         $numeros = new NumeroWhatsappModel();
         $numeros_whatsapp = $numeros->where('estado', 1)->findAll();
 
+        $contri = new ContribuyenteModel();
+        $companys = $contri->select('id, razon_social, igv')->where('estado', 1)->findAll();
+
         $menu = $this->permisos_menu();
 
         $crear = $this->getPermisosAcciones(27, session()->perfil_id, 'crear');
 
-        return view('contribuyente/lista', compact('sistemas', 'consulta_certificado_por_vencer', 'menu', 'numeros_whatsapp', 'crear'));
+        return view('contribuyente/lista', compact('sistemas', 'consulta_certificado_por_vencer', 'menu', 'numeros_whatsapp', 'crear', 'companys'));
     }
 
     public function getIdContribuyente($id)
@@ -1884,6 +1887,41 @@ class Contribuyentes extends BaseController
             return "";
         } else {
             return $response['razon_social'];
+        }
+    }
+
+    public function updateIgvContribuyentes()
+    {
+        try {
+            $contri = $this->request->getPost('contribuyentes_igv');
+            $db = \Config\Database::connect();
+            $contribuyente = new ContribuyenteModel();
+
+            // 1️⃣ Resetear IGV a todos
+            $db->table('contribuyentes')->update(['igv' => 0]);
+
+            // 2️⃣ Si NO viene nada seleccionado
+            if (empty($contri) || !is_array($contri)) {
+                return $this->response->setJSON([
+                    'status' => 'success',
+                    'message' => 'IGV actualizado (ningún contribuyente seleccionado)'
+                ]);
+            }
+
+            for ($i = 0; $i < count($contri); $i++) {
+                $data = array("igv" => 1);
+                $contribuyente->update($contri[$i], $data);
+            }
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Agregados correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
         }
     }
 }
