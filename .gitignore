@@ -138,3 +138,5 @@ nb-configuration.xml
 
 /writable/keys.json
 /writable/temp/*
+
+/app/Config/google/*.json

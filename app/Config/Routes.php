@@ -358,3 +358,5 @@ $routes->group('api', ['filter' => 'jwt'], function ($routes) {
     $routes->post('consulta-pdt-anual', 'Api\AppUser::consultaPdtAnual');
     $routes->post('consulta-analisis', 'Api\AppUser::consultaAnalisisMovimientos');
 });
+
+$routes->get('folder-google-drive', 'Api\GoogleDriveApi::getFolder');
