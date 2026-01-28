@@ -362,4 +362,7 @@ $routes->group('api', ['filter' => 'jwt'], function ($routes) {
     $routes->post('folder-google-drive', 'Api\GoogleDriveApi::getFolder');
     $routes->get('folder-months/(:any)', 'Api\GoogleDriveApi::folderMonts/$1');
     $routes->get('load-folder-months/(:any)', 'Api\GoogleDriveApi::loadFolderMonths/$1');
+
+    $routes->post('create-folder', 'Api\GoogleDriveApi::apiCreateFolder');
+    $routes->get('get-folder-files/(:any)', 'Api\GoogleDriveApi::listFilesInFolder/$1');
 });

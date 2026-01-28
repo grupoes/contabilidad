@@ -132,16 +132,27 @@ class GoogleDriveApi extends ResourceController
 
     public function listFilesInFolder($folderId)
     {
-        $drive = GoogleDrive::client();
+        try {
+            $drive = GoogleDrive::client();
 
-        $results = $drive->files->listFiles([
-            'q' => "'{$folderId}' in parents and trashed=false",
-            'fields' => 'files(id, name, mimeType)',
-        ]);
+            $results = $drive->files->listFiles([
+                'q' => "'{$folderId}' in parents and trashed=false",
+                'fields' => 'files(id, name, mimeType, webViewLink)',
+            ]);
 
-        $files = $results->getFiles();
+            $files = $results->getFiles();
 
-        return $this->respond($files);
+            return $this->respond([
+                'status' => 'success',
+                'foldersFiles' => $files,
+                'message' => 'Archivos recuperados exitosamente',
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'Error retrieving files: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function apiVerifyFolderExists()
@@ -259,6 +270,40 @@ class GoogleDriveApi extends ResourceController
             return $this->respond([
                 'status' => 'error',
                 'message' => 'Error al verificar o crear la carpeta del mes: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function apiCreateFolder()
+    {
+        try {
+            $datos = $this->request->getJSON(true);
+
+            $nombreCarpeta = $datos['folderName'];
+            $parentFolderId = $datos['parentFolderId'];
+
+            $drive = GoogleDrive::client();
+
+            $fileMetadata = new \Google_Service_Drive_DriveFile([
+                'name' => $nombreCarpeta,
+                'mimeType' => 'application/vnd.google-apps.folder',
+                'parents' => [$parentFolderId],
+            ]);
+
+            $folder = $drive->files->create($fileMetadata, [
+                'fields' => 'id',
+            ]);
+
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'Carpeta creada exitosamente',
+                'folderId' => $folder->id,
+                'nameFolder' => $nombreCarpeta
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'Error al crear la carpeta: ' . $e->getMessage(),
             ]);
         }
     }
