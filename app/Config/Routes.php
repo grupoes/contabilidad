@@ -365,4 +365,5 @@ $routes->group('api', ['filter' => 'jwt'], function ($routes) {
 
     $routes->post('create-folder', 'Api\GoogleDriveApi::apiCreateFolder');
     $routes->get('get-folder-files/(:any)', 'Api\GoogleDriveApi::listFilesInFolder/$1');
+    $routes->post('upload-file-multiples', 'Api\GoogleDriveApi::uploadMultipleFiles');
 });

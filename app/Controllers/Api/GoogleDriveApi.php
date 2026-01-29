@@ -81,10 +81,15 @@ class GoogleDriveApi extends ResourceController
             'mimeType' => mime_content_type($filePath),
             'uploadType' => 'multipart',
             'fields' => 'id',
+            'supportsAllDrives' => true
         ]);
 
-        return $this->respond(['fileId' => $file->id, 'fileName' => $fileName]);
+        return [
+            'fileId' => $file->id,
+            'fileName' => $fileName
+        ];
     }
+
 
     public function deleteFile($fileId)
     {
@@ -306,5 +311,47 @@ class GoogleDriveApi extends ResourceController
                 'message' => 'Error al crear la carpeta: ' . $e->getMessage(),
             ]);
         }
+    }
+
+    public function uploadMultipleFiles()
+    {
+        if (!isset($_FILES['files'])) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'No se enviaron archivos'
+            ], 400);
+        }
+
+        $folderId = $this->request->getPost('folderParentId');
+        $files = $_FILES['files'];
+
+        $uploaded = [];
+        $errors = [];
+
+        foreach ($files['name'] as $i => $name) {
+
+            if ($files['error'][$i] !== UPLOAD_ERR_OK) {
+                $errors[] = "Error al subir $name";
+                continue;
+            }
+
+            try {
+                $result = $this->uploadFile(
+                    $folderId,
+                    $files['tmp_name'][$i],
+                    $name
+                );
+
+                $uploaded[] = $result;
+            } catch (\Throwable $e) {
+                $errors[] = "Error en $name: " . $e->getMessage();
+            }
+        }
+
+        return $this->respond([
+            'status'   => empty($uploaded) ? 'error' : 'success',
+            'uploaded' => $uploaded,
+            'errors'   => $errors
+        ]);
     }
 }
