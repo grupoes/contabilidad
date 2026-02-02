@@ -918,6 +918,8 @@ class Notificaciones extends ResourceController
             foreach ($contribuyentes as $key => $value) {
                 $pagos = $pagoServidor->where('contribuyente_id', $value['id'])->where('estado', 'pendiente')->orderBy('id', 'desc')->findAll();
 
+                $pagos = $pagoServidor->query("SELECT * FROM pagos_servidor WHERE contribuyente_id = " . $value['id'] . " AND (estado = 'pendiente' OR estado_nota = 'no') ORDER BY id DESC")->getResultArray();
+
                 if ($pagos) {
                     $fecha_fin = $pagos[0]['fecha_fin'];
                     $fecha_inicio = $pagos[0]['fecha_inicio'];
