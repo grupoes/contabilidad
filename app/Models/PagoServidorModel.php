@@ -13,7 +13,7 @@ class PagoServidorModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'contribuyente_id', 'fecha_pago', 'monto_total', 'fecha_inicio', 'fecha_fin', 'monto_pagado', 'monto_pendiente', 'usuario_id_cobra', 'estado', 'fecha_proceso', 'numero_notas', 'url_pdf_nota'];
+    protected $allowedFields = ['id', 'contribuyente_id', 'fecha_pago', 'monto_total', 'fecha_inicio', 'fecha_fin', 'monto_pagado', 'monto_pendiente', 'usuario_id_cobra', 'estado', 'fecha_proceso', 'numero_notas', 'url_pdf_nota', 'estado_nota'];
 
     protected $useTimestamps = false;
     protected $createdField  = 'created_at';

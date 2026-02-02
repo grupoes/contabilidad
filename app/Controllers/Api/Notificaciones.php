@@ -1012,6 +1012,7 @@ class Notificaciones extends ResourceController
             $url_pdf = $datos->url_pdf;
 
             $data_pago = array(
+                "estado_nota" => 'si',
                 "numero_notas" => $numero_nota,
                 "url_pdf_nota" => $url_pdf,
             );
