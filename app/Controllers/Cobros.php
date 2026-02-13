@@ -273,7 +273,7 @@ class Cobros extends BaseController
 
                 if ($voucher->isValid() && !$voucher->hasMoved()) {
                     $newName = $voucher->getRandomName();
-                    $voucher->move(FCPATH . 'pagoAnual', $newName);
+                    $voucher->move(FCPATH . 'vouchers', $newName);
 
                     $nameFile = $newName;
                 }

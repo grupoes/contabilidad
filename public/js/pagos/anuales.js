@@ -61,13 +61,11 @@ function viewPagos(data) {
             <td>${pago.fecha_proceso !== null ? pago.fecha_proceso : ""}</td>
             <td>${pago.fecha_pago !== null ? pago.fecha_pago : ""}</td>
             <td>
-              <a href="${
-                pago.link_pdf
-              }" target="_blank"><i class="fas fa-file-pdf fs-4 text-danger"></i></a>
+              <a href="${pago.link_pdf
+      }" target="_blank"><i class="fas fa-file-pdf fs-4 text-danger"></i></a>
             </td>
-            <td><span class="badge bg-light-success f-14" onclick="verNotaVenta(${
-              pago.id
-            })" style="cursor: pointer">${pago.monto_total}</span></td>
+            <td><span class="badge bg-light-success f-14" onclick="verNotaVenta(${pago.id
+      })" style="cursor: pointer">${pago.monto_total}</span></td>
             <td>${pago.monto_pagado}</td>
             <td>${pago.monto_pendiente}</td>
             <td>${estado}</td>
@@ -122,7 +120,7 @@ function viewPagosHonorarios(data) {
             <td>${pago.metodo}</td>
             <td>${pago.monto}</td>
             <td> 
-                <a href="#" data-lightbox="${base_url}pagoAnual/${pago.vaucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
+                <a href="#" data-lightbox="${base_url}vouchers/${pago.vaucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
             </td>
             <td>
                 ${botonDelete}

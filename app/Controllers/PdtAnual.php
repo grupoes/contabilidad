@@ -248,7 +248,7 @@ class PdtAnual extends BaseController
                 if ($monto == 0) {
                     $monto_total = 0;
                     $monto_pendiente = 0;
-                    $estado = "Pagado";
+                    $estado = "pagado";
                 } else {
                     $monto_total = $monto;
                     $monto_pendiente = $monto;
