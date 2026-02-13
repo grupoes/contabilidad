@@ -181,7 +181,7 @@ class PdtAnual extends BaseController
 
             // Procesar cargo
             $isCargo = 0;
-            $monto = $data_contribuyente['costoAnual'];
+            $monto = 0;
             $descripcion = "";
             $estado_envio = "";
             $respuestaFactura = null;
@@ -245,15 +245,24 @@ class PdtAnual extends BaseController
             $archivosPdtAnual->insert($data_archivos_pdt_anual);
 
             if ($typePdt == 3) {
+                if ($monto == 0) {
+                    $monto_total = 0;
+                    $monto_pendiente = 0;
+                    $estado = "Pagado";
+                } else {
+                    $monto_total = $monto;
+                    $monto_pendiente = $monto;
+                    $estado = "Pendiente";
+                }
                 $data_pago_anual = [
                     "pdt_anual_id" => $id,
                     "contribuyente_id" => $data_contribuyente['id'],
-                    "monto_total" => $monto,
+                    "monto_total" => $monto_total,
                     "anio_correspondiente" => $anio_descripcion,
                     "monto_pagado" => 0.00,
-                    "monto_pendiente" => $monto,
+                    "monto_pendiente" => $monto_pendiente,
                     "usuario_id_cobra" => session()->id,
-                    "estado" => "Pendiente"
+                    "estado" => $estado
                 ];
 
                 $pagoAnual->insert($data_pago_anual);
