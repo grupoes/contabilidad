@@ -140,3 +140,4 @@ nb-configuration.xml
 /writable/temp/*
 
 /app/Config/google/*.json
+writable/credentials/

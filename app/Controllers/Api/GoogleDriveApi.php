@@ -69,10 +69,9 @@ class GoogleDriveApi extends ResourceController
     {
         $drive = GoogleDrive::client();
 
-        $fileMetadata = new \Google_Service_Drive_DriveFile([
-            'name' => $fileName,
-            'parents' => [$folderId],
-        ]);
+        $fileMetadata = new \Google_Service_Drive_DriveFile();
+        $fileMetadata->setName($fileName);
+        $fileMetadata->setParents([$folderId]);
 
         $content = file_get_contents($filePath);
 
@@ -80,7 +79,7 @@ class GoogleDriveApi extends ResourceController
             'data' => $content,
             'mimeType' => mime_content_type($filePath),
             'uploadType' => 'multipart',
-            'fields' => 'id',
+            'fields' => 'id, name, parents',
             'supportsAllDrives' => true
         ]);
 
@@ -322,7 +321,8 @@ class GoogleDriveApi extends ResourceController
             ], 400);
         }
 
-        $folderId = $this->request->getPost('folderParentId');
+        $folderId = trim($this->request->getPost('folderParentId'));
+
         $files = $_FILES['files'];
 
         $uploaded = [];
