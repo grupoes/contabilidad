@@ -181,15 +181,15 @@ class PdtAnual extends BaseController
 
             // Procesar cargo
             $isCargo = 0;
-            $monto = 0;
+            $monto = $data_contribuyente['costoAnual'];
             $descripcion = "";
             $estado_envio = "";
             $respuestaFactura = null;
 
             if ($this->request->getPost('cargo') !== null) {
                 $isCargo = 1;
-                $monto = $this->request->getVar('monto') ?? 0;
-                $descripcion = $this->request->getVar('descripcion') ?? "";
+                $monto = $this->request->getVar('monto');
+                $descripcion = $this->request->getVar('descripcion');
 
                 if ($monto <= 0) {
                     return $this->response->setJSON([

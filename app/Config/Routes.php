@@ -367,3 +367,16 @@ $routes->group('api', ['filter' => 'jwt'], function ($routes) {
     $routes->get('get-folder-files/(:any)', 'Api\GoogleDriveApi::listFilesInFolder/$1');
     $routes->post('upload-file-multiples', 'Api\GoogleDriveApi::uploadMultipleFiles');
 });
+
+$routes->group('drive', function ($routes) {
+    $routes->get('/', 'DriveController::index');
+    $routes->post('upload', 'DriveController::upload');
+    $routes->get('list', 'DriveController::listFiles');
+    $routes->get('status', 'DriveController::checkStatus');
+    $routes->post('api-upload', 'DriveController::apiUpload');
+    $routes->get('success', function () {
+        return view('upload_success');
+    });
+});
+
+$routes->get('/testDrive', 'TestDrive::index');
