@@ -138,14 +138,14 @@ class Pdt0621 extends BaseController
 
             if ($datos_constancia_file['texto'] !== "") {
                 if ($datos_constancia_file['success'] == 0 || $datos_constancia_file['texto_encontrado'] === false) {
-                    unlink($rutaPdt);
-                    unlink($rutaConstancia);
+                    unlink(FCPATH . '/archivos/pdt/' . $archivo_pdt);
+                    unlink(FCPATH . '/archivos/pdt/' . $archivo_constancia);
                     return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto.", 'datos' => $datos_constancia_file]);
                 }
 
                 if ($datos_constancia_file['periodo'] != $ani . $data_periodo['mes_fecha'] || $datos_constancia_file['ruc'] != $ruc) {
-                    unlink($rutaPdt);
-                    unlink($rutaConstancia);
+                    unlink(FCPATH . '/archivos/pdt/' . $archivo_pdt);
+                    unlink(FCPATH . '/archivos/pdt/' . $archivo_constancia);
                     return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de constancia no es correcto, periodo o RUC no coinciden.", 'datos' => $datos_constancia_file]);
                 }
             }
