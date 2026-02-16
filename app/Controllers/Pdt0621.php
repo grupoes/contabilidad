@@ -116,20 +116,20 @@ class Pdt0621 extends BaseController
 
             if ($datos_pdt_file['texto'] !== "") {
                 if ($datos_pdt_file['success'] == false || $datos_pdt_file['texto_encontrado'] === false) {
-                    unlink($rutaPdt);
-                    unlink($rutaConstancia);
+                    unlink(FCPATH . '/archivos/pdt/' . $archivo_pdt);
+                    unlink(FCPATH . '/archivos/pdt/' . $archivo_constancia);
                     return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto.", 'datos' => $datos_pdt_file]);
                 }
 
                 if ($datos_pdt_file['ruc'] != $ruc) {
-                    unlink($rutaPdt);
-                    unlink($rutaConstancia);
+                    unlink(FCPATH . '/archivos/pdt/' . $archivo_pdt);
+                    unlink(FCPATH . '/archivos/pdt/' . $archivo_constancia);
                     return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto, RUC no coincide.", 'datos' => $datos_pdt_file]);
                 }
 
                 if ($datos_pdt_file['periodo'] != $ani . $data_periodo['mes_fecha']) {
-                    unlink($rutaPdt);
-                    unlink($rutaConstancia);
+                    unlink(FCPATH . '/archivos/pdt/' . $archivo_pdt);
+                    unlink(FCPATH . '/archivos/pdt/' . $archivo_constancia);
                     return $this->response->setJSON(['status' => 'error', 'message' => "El archivo de renta no es correcto, periodo no coincide.", 'datos' => $datos_pdt_file]);
                 }
             }
