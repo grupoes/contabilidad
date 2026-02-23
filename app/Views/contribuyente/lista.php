@@ -22,6 +22,57 @@
         /* Reduce el padding derecho */
         width: 100%;
     }
+
+    /* Ajustes de adaptabilidad para móviles */
+    @media (max-width: 768px) {
+        .page-header-title {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 15px;
+        }
+
+        .page-header-title div {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .page-header-title div .btn {
+            flex: 1 1 auto;
+            text-align: center;
+        }
+
+        .card-body .d-flex.flex-wrap {
+            flex-direction: column !important;
+        }
+
+        .card-body .d-flex.flex-wrap .gap-2 {
+            width: 100%;
+            flex-direction: column !important;
+        }
+
+        .form-select.w-auto {
+            width: 100% !important;
+        }
+
+        #btnModal {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Ajustes para Choices.js en móviles */
+        .choices__inner {
+            min-height: 45px;
+            padding-bottom: 0;
+        }
+
+        .choices__list--multiple .choices__item {
+            margin-bottom: 5px;
+            font-size: 13px;
+            word-break: break-all;
+        }
+    }
 </style>
 
 <div class="pc-content">
@@ -34,6 +85,8 @@
                     <div class="page-header-title d-flex justify-content-between align-items-center">
                         <h3 class="mb-0" id="titleListaContribuyentes">Lista de Contribuyentes</h3>
                         <div>
+                            <a href="http://grupoesrestaurante.com" target="_blank" class="btn btn-primary btn-sm">Ir a Es Restaurante</a>
+                            <a href="https://esfacturador.com" target="_blank" class="btn btn-primary btn-sm">Ir a EsFacturador</a>
                             <button type="button" class="btn btn-success btn-sm" id="btnShowigv" title="Asignar Contribuyentes con IGV">
                                 <i class="fas fa-store-alt"></i>
                             </button>
@@ -69,11 +122,6 @@
                                 <i class="ti ti-file f-18"></i> Folio
                             </a>
 
-                            <?php if (count($consulta_certificado_por_vencer) > 0) { ?>
-                                <button class="btn btn-danger d-inline-flex gap-2" id="btnCertificadoVencer">
-                                    <i class="ti ti-file f-18"></i> Certificados Digitales por vencer (<?= count($consulta_certificado_por_vencer) ?>)
-                                </button>
-                            <?php } ?>
                         </div>
 
                         <?php if ($crear) { ?>
@@ -432,50 +480,6 @@
 
                     </tbody>
                 </table>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="modalCertificado" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title h4" id="titleModal">Certificados Digitales por vencer</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>FECHA VENCIMIENTO</th>
-                                <th>FECHA INICIO</th>
-                                <th>RUC</th>
-                                <th>RAZON SOCIAL</th>
-                                <th>TIPO CERTIFICADO</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            <?php foreach ($consulta_certificado_por_vencer as $key => $value) { ?>
-                                <tr>
-                                    <td><?= $value->fecha_vencimiento ?></td>
-                                    <td><?= $value->fecha_inicio ?></td>
-                                    <td><?= $value->ruc ?></td>
-                                    <td><?= $value->razon_social ?></td>
-                                    <td><?= $value->tipo_certificado ?></td>
-                                </tr>
-                            <?php } ?>
-
-                        </tbody>
-                    </table>
-                </div>
 
             </div>
             <div class="modal-footer">
@@ -898,6 +902,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/contribuyente/lista.js?v=9"></script>
+<script src="<?= base_url() ?>js/contribuyente/lista.js?v=10"></script>
 
 <?= $this->endSection() ?>

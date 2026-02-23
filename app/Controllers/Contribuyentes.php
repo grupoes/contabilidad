@@ -49,8 +49,6 @@ class Contribuyentes extends BaseController
         $sistema = new SistemaModel();
         $sistemas = $sistema->where('status', 1)->findAll();
 
-        $consulta_certificado_por_vencer = $this->certificados_por_vencer();
-
         $numeros = new NumeroWhatsappModel();
         $numeros_whatsapp = $numeros->where('estado', 1)->findAll();
 
@@ -61,7 +59,7 @@ class Contribuyentes extends BaseController
 
         $crear = $this->getPermisosAcciones(27, session()->perfil_id, 'crear');
 
-        return view('contribuyente/lista', compact('sistemas', 'consulta_certificado_por_vencer', 'menu', 'numeros_whatsapp', 'crear', 'companys'));
+        return view('contribuyente/lista', compact('sistemas', 'menu', 'numeros_whatsapp', 'crear', 'companys'));
     }
 
     public function getIdContribuyente($id)

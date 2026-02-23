@@ -252,10 +252,10 @@ listaContribuyentes();
 function listaContribuyentes() {
   fetch(
     base_url +
-      "contribuyente/all/" +
-      selectOpciones.value +
-      "/" +
-      selectEstado.value,
+    "contribuyente/all/" +
+    selectOpciones.value +
+    "/" +
+    selectEstado.value,
   )
     .then((res) => res.json())
     .then((data) => {
@@ -379,18 +379,15 @@ function viewListContribuyentes(data, eliminar, editar) {
                 <td>
                     <div class="row">
                         <div class="col">
-                            <h6 class="mb-1" title="${per}"><a href="javascript:void(0);" class="${edit}" data-id="${
-                              emp.id
-                            }">${emp.ruc}</a></h6>
-                            <p class="text-muted f-14 mb-0"> ${
-                              emp.razon_social
-                            } </p>
+                            <h6 class="mb-1" title="${per}"><a href="javascript:void(0);" class="${edit}" data-id="${emp.id
+      }">${emp.ruc}</a></h6>
+                            <p class="text-muted f-14 mb-0"> ${emp.razon_social
+      } </p>
                         </div>
                     </div>
                 </td>
-                <td><a href="#" class="tipoServicio" data-id="${emp.id}">${
-                  emp.tipoServicio
-                }</a></td>
+                <td><a href="#" class="tipoServicio" data-id="${emp.id}">${emp.tipoServicio
+      }</a></td>
                 <td>
                     ${monto}
                 </td>
@@ -400,11 +397,9 @@ function viewListContribuyentes(data, eliminar, editar) {
                 </td>
                 <td> 
                     <div class="form-check form-switch custom-switch-v1 mb-2">
-                        <input type="checkbox" class="form-check-input input-success" name="estado" id="estado${
-                          emp.id
-                        }" ${estado} onchange="toggleSwitchStatus(this, ${
-                          emp.id
-                        })">
+                        <input type="checkbox" class="form-check-input input-success" name="estado" id="estado${emp.id
+      }" ${estado} onchange="toggleSwitchStatus(this, ${emp.id
+      })">
                     </div>
 
                 </td>
@@ -710,14 +705,6 @@ function deleteCertificadoDigital(e, id) {
         }
       });
   }
-}
-
-if (document.getElementById("btnCertificadoVencer")) {
-  const btnCertificadoVencer = document.getElementById("btnCertificadoVencer");
-
-  btnCertificadoVencer.addEventListener("click", (e) => {
-    $("#modalCertificado").modal("show");
-  });
 }
 
 const tipo_certificado = document.getElementById("tipo_certificado");
