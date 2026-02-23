@@ -54,7 +54,51 @@
     </div>
 
     <div class="row" id="detalleCajaDiaAll">
-        <div class="col-md-8 mx-auto">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-2">Caja Grupo ESconsultores - Efectivo</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <span style="font-size: 18px">Estado de la caja física Grupo ESconsultores</span>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div>Saldo Inicial Caja Fisica</div>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">S/ <?= number_format($saldoAnteriorTotal, 2) ?></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div>Ingresos Caja Fisica</div>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">S/ <?= number_format($ingresosFisicosTotales, 2) ?></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div>Egresos Caja Fisica</div>
+                                    </div>
+                                    <span class="badge bg-danger rounded-pill">S/ <?= number_format($egresosFisicosTotales, 2) ?></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">Utilidad Caja Fisica</div>
+                                    </div>
+                                    <span class="badge bg-success rounded-pill">S/ <?= number_format($utilidadFisicaTotal, 2) ?></span>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-2">Caja Grupo ESconsultores - Bancos</h5>

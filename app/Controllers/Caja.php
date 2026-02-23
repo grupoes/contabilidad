@@ -44,6 +44,11 @@ class Caja extends BaseController
 
         $utilidadVirtual = floatval(str_replace(',', '', $saldos['total'])) + floatval(str_replace(',', '', $ingresosBancos['total'])) - floatval(str_replace(',', '', $egresosBancos['total']));
 
+        $ingresosFisicosTotales = 0;
+        $egresosFisicosTotales = 0;
+        $utilidadFisicaTotal = 0;
+        $saldoAnteriorTotal = 0;
+
         $sedes = $sede->where("estado", 1)->findAll();
 
         foreach ($sedes as $key => $value) {
@@ -71,9 +76,14 @@ class Caja extends BaseController
             $sedes[$key]['egresosFisicos'] = $egresosFisicos;
             $sedes[$key]['utilidadFisica'] = $utilidadFisica;
             $sedes[$key]['saldoAnterior'] = $saldoAnterior;
+
+            $ingresosFisicosTotales += $ingresosFisicos;
+            $egresosFisicosTotales += $egresosFisicos;
+            $utilidadFisicaTotal += $utilidadFisica;
+            $saldoAnteriorTotal += $saldoAnterior;
         }
 
-        return view('caja/index', compact('menu', 'saldos', 'ingresosBancos', 'egresosBancos', 'utilidadVirtual', 'ingresosFisicos', 'egresosFisicos', 'utilidadFisica', 'sedes'));
+        return view('caja/index', compact('menu', 'saldos', 'ingresosBancos', 'egresosBancos', 'utilidadVirtual', 'ingresosFisicos', 'egresosFisicos', 'utilidadFisica', 'sedes', 'ingresosFisicosTotales', 'egresosFisicosTotales', 'utilidadFisicaTotal', 'saldoAnteriorTotal'));
     }
 
     public function cierreCaja()
