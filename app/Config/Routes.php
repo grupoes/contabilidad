@@ -357,6 +357,8 @@ $routes->group('api', ['filter' => 'jwt'], function ($routes) {
     $routes->get('verificar-pdt-anual/(:num)', 'Api\AppUser::verifyPdt/$1');
     $routes->post('consulta-pdt-anual', 'Api\AppUser::consultaPdtAnual');
     $routes->post('consulta-analisis', 'Api\AppUser::consultaAnalisisMovimientos');
+    $routes->post('save-correo', 'Api\AppUser::updateCorreo');
+    $routes->get('verify-correo/(:num)', 'Api\AppUser::verifyEmail/$1');
 
     $routes->post('api-verify-name-ruc', 'Api\GoogleDriveApi::apiVerifyFolderExists');
     $routes->post('folder-google-drive', 'Api\GoogleDriveApi::getFolder');

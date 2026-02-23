@@ -85,8 +85,10 @@
                     <div class="page-header-title d-flex justify-content-between align-items-center">
                         <h3 class="mb-0" id="titleListaContribuyentes">Lista de Contribuyentes</h3>
                         <div>
+                            <a href="https://lyanverificador.grupoesconsultores.com/#/" target="_blank" class="btn btn-primary btn-sm">Ir a Es Lyan Verificador</a>
                             <a href="http://grupoesrestaurante.com" target="_blank" class="btn btn-primary btn-sm">Ir a Es Restaurante</a>
                             <a href="https://esfacturador.com" target="_blank" class="btn btn-primary btn-sm">Ir a EsFacturador</a>
+                            <a href="https://app.grupoesconsultores.com/" target="_blank" class="btn btn-primary btn-sm">Ir a Cliente Sys</a>
                             <button type="button" class="btn btn-success btn-sm" id="btnShowigv" title="Asignar Contribuyentes con IGV">
                                 <i class="fas fa-store-alt"></i>
                             </button>

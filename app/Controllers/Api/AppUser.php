@@ -3,6 +3,7 @@
 namespace App\Controllers\Api;
 
 use App\Models\AnioModel;
+use App\Models\ContratosModel;
 use CodeIgniter\RESTful\ResourceController;
 use App\Models\R08PlameModel;
 use App\Models\ContribuyenteModel;
@@ -646,6 +647,52 @@ class AppUser extends ResourceController
                 'status' => 'error',
                 'message' => 'error en la consulta ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function updateCorreo()
+    {
+        try {
+            $contribuyente = new ContribuyenteModel();
+
+            $datos = $this->request->getJSON(true);
+
+            $id = $datos['id'];
+            $correo = $datos['email'];
+
+            $update = ["correo" => $correo];
+
+            $contribuyente->update($id, $update);
+
+            return $this->respond([
+                "status" => "success",
+                "message" => "Se actualizo correctamente el correo"
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError("Error interno en el servidor");
+        }
+    }
+
+    public function verifyEmail($id)
+    {
+        try {
+            $contribuyente = new ContribuyenteModel();
+
+            $consulta = $contribuyente->find($id);
+
+            if ($consulta['correo'] == '') {
+                return $this->respond([
+                    "status" => "warning",
+                    "message" => "No tiene un correo configurado"
+                ]);
+            }
+
+            return $this->respond([
+                "status" => "success",
+                "message" => "Tiene un correo configurado"
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError("Error interno en el servidor: " . $e->getMessage());
         }
     }
 }
