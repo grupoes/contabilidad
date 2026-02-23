@@ -268,6 +268,7 @@
                             <tr>
                                 <th>Contribuyente</th>
                                 <th>Periodo</th>
+                                <th>Fecha Vencimiento</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
@@ -299,6 +300,7 @@
                             <tr>
                                 <th>Contribuyente</th>
                                 <th>Periodo</th>
+                                <th>Fecha Vencimiento</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
@@ -426,6 +428,7 @@
                             <tr>
                                 <th>RAZON SOCIAL</th>
                                 <th>PERIODO</th>
+                                <th>FECHA VENCIMIENTO</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyAfp">
@@ -457,6 +460,7 @@
                             <tr>
                                 <th>RAZON SOCIAL</th>
                                 <th>PERIODO</th>
+                                <th>FECHA VENC.</th>
                                 <th>ACCIÓN</th>
                             </tr>
                         </thead>
@@ -513,6 +517,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 
-<script src="<?= base_url() ?>js/home/cajero.js?v=8"></script>
+<script src="<?= base_url() ?>js/home/cajero.js?v=9"></script>
 
 <?= $this->endSection() ?>

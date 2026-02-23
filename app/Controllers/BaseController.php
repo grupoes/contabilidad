@@ -725,7 +725,8 @@ abstract class BaseController extends Controller
                         "mes" => $value['mes_descripcion'],
                         "id_mes" => $value['id_mes'],
                         "id_anio" => $value['id_anio'],
-                        "excluir" => $excluir
+                        "excluir" => $excluir,
+                        "fecha_exacta" => date('d-m-Y', strtotime($value['fecha_exacta']))
                     ];
 
                     array_push($data_declarar, $insert);
@@ -765,7 +766,8 @@ abstract class BaseController extends Controller
                         "contribuyente_id" => $id,
                         "contribuyente" => $values['razon_social'],
                         "mes" => $value['mes_descripcion'],
-                        "anio" => $value['anio_descripcion']
+                        "anio" => $value['anio_descripcion'],
+                        "fecha_exacta" => date('d-m-Y', strtotime($value['fecha_exacta']))
                     ];
 
                     array_push($data_notificacion, $insert);
@@ -821,7 +823,7 @@ abstract class BaseController extends Controller
                             'anio' => $value['anio_descripcion'],
                             'mes' => $value['mes_descripcion'],
                             'numero' => $id_numero - 1,
-                            'fecha_exacta' => $value['fecha_exacta'],
+                            'fecha_exacta' => date('d-m-Y', strtotime($value['fecha_exacta'])),
                             'fechaContrato' => $values['fechaContrato'],
                             'tipo_contrato' => $values['tipo_contrato'],
                             'id_anio' => $id_anio,
@@ -869,7 +871,7 @@ abstract class BaseController extends Controller
                             'anio' => $value['anio_descripcion'],
                             'mes' => $value['mes_descripcion'],
                             'numero' => $id_numero - 1,
-                            'fecha_exacta' => $value['fecha_exacta'],
+                            'fecha_exacta' => date('d-m-Y', strtotime($value['fecha_exacta'])),
                             'fechaContrato' => $values['fechaContrato'],
                             'tipo_contrato' => $values['tipo_contrato'],
                             'id_anio' => $id_anio,
@@ -884,7 +886,7 @@ abstract class BaseController extends Controller
                         'anio' => $value['anio_descripcion'],
                         'mes' => $value['mes_descripcion'],
                         'numero' => $id_numero - 1,
-                        'fecha_exacta' => $value['fecha_exacta'],
+                        'fecha_exacta' => date('d-m-Y', strtotime($value['fecha_exacta'])),
                         'fechaContrato' => $values['fechaContrato'],
                         'tipo_contrato' => $values['tipo_contrato'],
                         'id_anio' => $id_anio,
@@ -1133,5 +1135,4 @@ abstract class BaseController extends Controller
         curl_close($curl);
         return $response;
     }
-    
 }

@@ -61,6 +61,7 @@ function viewContribuyentesPdts() {
         <tr>
           <td>${pdt.razon_social}</td>
           <td>${pdt.mes} ${pdt.anio}</td>
+          <td>${pdt.fecha_exacta}</td>
           <td>
             ${button}
           </td>
@@ -157,6 +158,7 @@ function viewContribuyentesPdtsPlame() {
         <tr>
           <td>${pdt.razon_social}</td>
           <td>${pdt.mes} ${pdt.anio}</td>
+          <td>${pdt.fecha_exacta}</td>
           <td>
             ${button}
           </td>
@@ -281,6 +283,7 @@ function viewAfps() {
         <tr>
           <td>${info.contribuyente}</td>
           <td>${info.mes} ${info.anio}</td>
+          <td>${info.fecha_exacta}</td>
         </tr>
         `;
       });
@@ -317,6 +320,7 @@ function viewSire() {
         <tr>
           <td>${info.contribuyente}</td>
           <td>${info.mes} ${info.anio}</td>
+          <td>${info.fecha_exacta}</td>
           <td>
             ${button}
           </td>
