@@ -778,7 +778,7 @@ abstract class BaseController extends Controller
         return $data_notificacion;
     }
 
-    public function notificationPdtRentass()
+    public function notificationPdtRenta()
     {
         $fechaDeclaracion = new FechaDeclaracionModel();
         $cont = new ContribuyenteModel();
@@ -842,7 +842,7 @@ abstract class BaseController extends Controller
         return $array;
     }
 
-    public function notificationPdtRenta()
+    public function notificationPdtRentass()
     {
         $fechaDeclaracion = new FechaDeclaracionModel();
         $cont = new ContribuyenteModel();
