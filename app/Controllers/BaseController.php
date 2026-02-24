@@ -804,34 +804,34 @@ abstract class BaseController extends Controller
                 $mes = (int)date("m", strtotime($values['fechaContrato']));
                 $anio = (int)date("Y", strtotime($values['fechaContrato']));
 
-                if ($id_mes >= $mes && $anio_des >= $anio) {
-                    $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getResultArray();
+                //if ($id_mes >= $mes && $anio_des >= $anio) {
+                $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getResultArray();
 
-                    if (!$pdtRenta) {
-                        $renta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc'")->getResultArray();
+                if (!$pdtRenta) {
+                    $renta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc'")->getResultArray();
 
-                        $registro = 0;
+                    $registro = 0;
 
-                        if ($renta) {
-                            $registro = 1;
-                        }
-
-                        $array[] = [
-                            'contribuyente_id' => $values['id'],
-                            'ruc' => $ruc,
-                            'razon_social' => $values['razon_social'],
-                            'anio' => $value['anio_descripcion'],
-                            'mes' => $value['mes_descripcion'],
-                            'numero' => $id_numero - 1,
-                            'fecha_exacta' => date('d-m-Y', strtotime($value['fecha_exacta'])),
-                            'fechaContrato' => $values['fechaContrato'],
-                            'tipo_contrato' => $values['tipo_contrato'],
-                            'id_anio' => $id_anio,
-                            'id_mes' => $id_mes,
-                            'registro' => $registro
-                        ];
+                    if ($renta) {
+                        $registro = 1;
                     }
+
+                    $array[] = [
+                        'contribuyente_id' => $values['id'],
+                        'ruc' => $ruc,
+                        'razon_social' => $values['razon_social'],
+                        'anio' => $value['anio_descripcion'],
+                        'mes' => $value['mes_descripcion'],
+                        'numero' => $id_numero - 1,
+                        'fecha_exacta' => date('d-m-Y', strtotime($value['fecha_exacta'])),
+                        'fechaContrato' => $values['fechaContrato'],
+                        'tipo_contrato' => $values['tipo_contrato'],
+                        'id_anio' => $id_anio,
+                        'id_mes' => $id_mes,
+                        'registro' => $registro
+                    ];
                 }
+                //}
             }
         }
 
