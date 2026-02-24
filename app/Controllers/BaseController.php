@@ -848,7 +848,7 @@ abstract class BaseController extends Controller
         $cont = new ContribuyenteModel();
         $pdt = new PdtRentaModel();
 
-        $contribuyentes = $cont->where('estado', 1)->orderBy('RIGHT(ruc, 1)', 'asc', false)->findAll();
+        $contribuyentes = $cont->select('id, razon_social, ruc, fechaContrato, IF(MONTH(fechaContrato) = MONTH(CURDATE()) AND YEAR(fechaContrato) <= YEAR(CURDATE()), "actual", "antiguo") AS tipo_contrato')->where('estado', 1)->orderBy('RIGHT(ruc, 1)', 'asc', false)->findAll();
 
         foreach ($contribuyentes as $key => $value) {
             $ruc = $value['ruc'];
