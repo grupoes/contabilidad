@@ -786,13 +786,14 @@ abstract class BaseController extends Controller
 
         $array = [];
 
-        $vencimientos = $fechaDeclaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, DATE_SUB(fd.fecha_exacta, INTERVAL 2 DAY) AS nueva_fecha, m.mes_descripcion, a.anio_descripcion FROM fecha_declaracion fd INNER JOIN mes m ON m.id_mes = fd.id_mes INNER JOIN anio a ON a.id_anio = fd.id_anio where fd.id_tributo = 2 and fd.fecha_exacta BETWEEN '2025-07-01' and CURDATE() + INTERVAL 2 DAY")->getResultArray();
+        $vencimientos = $fechaDeclaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, DATE_SUB(fd.fecha_exacta, INTERVAL 2 DAY) AS nueva_fecha, m.mes_descripcion, a.anio_descripcion, m.mes_fecha FROM fecha_declaracion fd INNER JOIN mes m ON m.id_mes = fd.id_mes INNER JOIN anio a ON a.id_anio = fd.id_anio where fd.id_tributo = 2 and fd.fecha_exacta BETWEEN '2025-07-01' and CURDATE() + INTERVAL 2 DAY")->getResultArray();
 
         foreach ($vencimientos as $key => $value) {
             $id_anio = $value['id_anio'];
             $id_mes = $value['id_mes'];
             $id_numero = $value['id_numero'];
             $anio_des = (int) $value['anio_descripcion'];
+            $mes_des = $value['mes_fecha'];
 
             $digito = $id_numero - 1;
 
@@ -803,35 +804,38 @@ abstract class BaseController extends Controller
 
                 $mes = (int)date("m", strtotime($values['fechaContrato']));
                 $anio = (int)date("Y", strtotime($values['fechaContrato']));
+                $dia = date("d", strtotime($values['fechaContrato']));
 
-                //if ($id_mes >= $mes && $anio_des >= $anio) {
-                $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getResultArray();
+                $fecha_noti = $anio_des . "-" . $mes_des . "-" . $dia;
 
-                if (count($pdtRenta) == 0) {
-                    $renta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc'")->getResultArray();
+                if ($fecha_noti >= $values['fechaContrato']) {
+                    $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getResultArray();
 
-                    $registro = 0;
+                    if (count($pdtRenta) == 0) {
+                        $renta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc'")->getResultArray();
 
-                    if (count($renta) > 0) {
-                        $registro = 1;
+                        $registro = 0;
+
+                        if (count($renta) > 0) {
+                            $registro = 1;
+                        }
+
+                        $array[] = [
+                            'contribuyente_id' => $values['id'],
+                            'ruc' => $ruc,
+                            'razon_social' => $values['razon_social'],
+                            'anio' => $value['anio_descripcion'],
+                            'mes' => $value['mes_descripcion'],
+                            'numero' => $id_numero - 1,
+                            'fecha_exacta' => date('d-m-Y', strtotime($value['fecha_exacta'])),
+                            'fechaContrato' => $values['fechaContrato'],
+                            'tipo_contrato' => $values['tipo_contrato'],
+                            'id_anio' => $id_anio,
+                            'id_mes' => $id_mes,
+                            'registro' => $registro
+                        ];
                     }
-
-                    $array[] = [
-                        'contribuyente_id' => $values['id'],
-                        'ruc' => $ruc,
-                        'razon_social' => $values['razon_social'],
-                        'anio' => $value['anio_descripcion'],
-                        'mes' => $value['mes_descripcion'],
-                        'numero' => $id_numero - 1,
-                        'fecha_exacta' => date('d-m-Y', strtotime($value['fecha_exacta'])),
-                        'fechaContrato' => $values['fechaContrato'],
-                        'tipo_contrato' => $values['tipo_contrato'],
-                        'id_anio' => $id_anio,
-                        'id_mes' => $id_mes,
-                        'registro' => $registro
-                    ];
                 }
-                //}
             }
         }
 
