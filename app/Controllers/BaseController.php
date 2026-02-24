@@ -805,10 +805,10 @@ abstract class BaseController extends Controller
                 $anio = (int)date("Y", strtotime($values['fechaContrato']));
 
                 //if ($id_mes >= $mes && $anio_des >= $anio) {
-                $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getResultArray();
+                $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getRow();
 
                 if (!$pdtRenta) {
-                    $renta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc'")->getResultArray();
+                    $renta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc'")->getRow();
 
                     $registro = 0;
 
