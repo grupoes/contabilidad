@@ -28,6 +28,10 @@ class Home extends BaseController
 
         $notificacionRenta = $this->notificationPdtRenta();
 
+        echo "<pre>";
+        print_r($notificacionRenta);
+        exit;
+
         switch (session()->perfil_id) {
             case '3':
                 return view('home/cajero', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer', 'notificacionRenta'));
