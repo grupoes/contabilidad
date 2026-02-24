@@ -848,7 +848,7 @@ abstract class BaseController extends Controller
         $cont = new ContribuyenteModel();
         $pdt = new PdtRentaModel();
 
-        $contribuyentes = $cont->where('estado', 1)->orderBy('RIGHT(ruc, 1)', 'asc')->findAll();
+        $contribuyentes = $cont->where('estado', 1)->orderBy('RIGHT(ruc, 1)', 'asc', false)->findAll();
 
         foreach ($contribuyentes as $key => $value) {
             $ruc = $value['ruc'];
