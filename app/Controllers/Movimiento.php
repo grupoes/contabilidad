@@ -461,7 +461,7 @@ class Movimiento extends BaseController
                 "concepto" => "",
                 "descripcion" => "",
                 "metodo" => "",
-                "efectivo" => $sumaEfectivoAllIngresos->saldo,
+                "efectivo" => $sumaEfectivoAll,
                 "bancos" => $saldoInicialBanksAll
             ];
 
@@ -677,7 +677,7 @@ class Movimiento extends BaseController
         if ($filtro === 'todos' || $filtro === 'efectivo') {
             $sumaEfectivoAllIngresos = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, 1, 1, 1);
             $sumaEfectivoAllEgresos = $this->calcularMovimientosPeriodo($mov, $startDate, $endDate, 1, 2, 1);
-            $sumaEfectivoAll = $sumaEfectivoAllIngresos->saldo - $sumaEfectivoAllEgresos->saldo;
+            $sumaEfectivoAll += $sumaEfectivoAllIngresos->saldo - $sumaEfectivoAllEgresos->saldo;
         }
 
         $saldoInicialBanksAll = [];
