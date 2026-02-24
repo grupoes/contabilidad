@@ -808,7 +808,7 @@ abstract class BaseController extends Controller
                 $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getRow();
 
                 if (!$pdtRenta) {
-                    $renta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc'")->getRow();
+                    $renta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and estado = 1 and (excluido = 'NO' or excluido IS NULL) LIMIT 1")->getRow();
 
                     $registro = 0;
 
