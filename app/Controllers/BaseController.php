@@ -778,7 +778,7 @@ abstract class BaseController extends Controller
         return $data_notificacion;
     }
 
-    public function notificationPdtRenta()
+    public function notificationPdtRentass()
     {
         $fechaDeclaracion = new FechaDeclaracionModel();
         $cont = new ContribuyenteModel();
@@ -840,6 +840,55 @@ abstract class BaseController extends Controller
         }
 
         return $array;
+    }
+
+    public function notificationPdtRenta()
+    {
+        $fechaDeclaracion = new FechaDeclaracionModel();
+        $cont = new ContribuyenteModel();
+        $pdt = new PdtRentaModel();
+
+        $contribuyentes = $cont->where('estado', 1)->orderBy('RIGHT(ruc, 1)', 'asc')->findAll();
+
+        foreach ($contribuyentes as $key => $value) {
+            $ruc = $value['ruc'];
+            $fecha_contrato = $value['fechaContrato'];
+            $digito = substr($ruc, -1);
+            $idnumero = $digito + 1;
+
+            $vencimientos = $fechaDeclaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, DATE_SUB(fd.fecha_exacta, INTERVAL 2 DAY) AS nueva_fecha, m.mes_descripcion, a.anio_descripcion, m.mes_fecha FROM fecha_declaracion fd INNER JOIN mes m ON m.id_mes = fd.id_mes INNER JOIN anio a ON a.id_anio = fd.id_anio where fd.id_tributo = 2 and fd.fecha_exacta BETWEEN '$fecha_contrato' and CURDATE() + INTERVAL 2 DAY and fd.id_numero = $idnumero")->getResultArray();
+
+            foreach ($vencimientos as $keys => $values) {
+                $id_mes = $values['id_mes'];
+                $id_anio = $values['id_anio'];
+                $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getResultArray();
+
+                if (count($pdtRenta) == 0) {
+                    $renta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc'")->getResultArray();
+
+                    $registro = 0;
+
+                    if (count($renta) > 0) {
+                        $registro = 1;
+                    }
+
+                    $array[] = [
+                        'contribuyente_id' => $value['id'],
+                        'ruc' => $ruc,
+                        'razon_social' => $value['razon_social'],
+                        'anio' => $values['anio_descripcion'],
+                        'mes' => $values['mes_descripcion'],
+                        'numero' => $idnumero - 1,
+                        'fecha_exacta' => date('d-m-Y', strtotime($values['fecha_exacta'])),
+                        'fechaContrato' => $value['fechaContrato'],
+                        'tipo_contrato' => $value['tipo_contrato'],
+                        'id_anio' => $id_anio,
+                        'id_mes' => $id_mes,
+                        'registro' => $registro
+                    ];
+                }
+            }
+        }
     }
 
     public function notificationPdtPlame()
