@@ -429,7 +429,7 @@ class Movimiento extends BaseController
             inner join tipo_movimiento tm on tm.id_tipo_movimiento = c2.id_tipo_movimiento
             where m.mov_estado = 1 and mp.id = 1 and m.mov_fecha between '$startDate' and '$endDate' and tm.id_tipo_movimiento = 2")->getRow();
 
-            $sumaEfectivoAll = $sumaEfectivoAllIngresos->saldo - $sumaEfectivoAllEgresos->saldo + $sumaEfectivo;
+            $sumaEfectivoAll = ($sumaEfectivoAllIngresos->saldo - $sumaEfectivoAllEgresos->saldo) + $sumaEfectivo;
 
             $saldoInicialBanksAll = [];
 
