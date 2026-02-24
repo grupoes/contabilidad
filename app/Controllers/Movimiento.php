@@ -461,7 +461,7 @@ class Movimiento extends BaseController
                 "concepto" => "",
                 "descripcion" => "",
                 "metodo" => "",
-                "efectivo" => $sumaEfectivoAll,
+                "efectivo" => $sumaEfectivoAllIngresos->saldo,
                 "bancos" => $saldoInicialBanksAll
             ];
 
