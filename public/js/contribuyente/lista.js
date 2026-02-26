@@ -1275,7 +1275,7 @@ formClave.addEventListener("submit", (e) => {
     });
 });
 
-getPdtsSubir();
+//getPdtsSubir();
 
 async function getPdtsSubir() {
   try {

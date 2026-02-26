@@ -148,10 +148,20 @@
             <div class="card">
 
                 <div class="card-body">
-                    <h5>Detalle de Caja Por Sede del Día</h5>
+                    <h5>LINKS DE SISTEMAS</h5>
                     <div class="row">
-
-
+                        <div class="col-md-6 mb-2">
+                            <a href="http://grupoesrestaurante.com" target="_blank" class="btn btn-primary w-100">ES RESTAURANTE</a>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <a href="http://esfacturador.com" target="_blank" class="btn btn-info w-100">ES FACTURADOR</a>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <a href="https://lyanverificador.grupoesconsultores.com/#/" target="_blank" class="btn btn-success w-100">LYAN VERIFICADOR</a>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <a href="https://app.grupoesconsultores.com/" target="_blank" class="btn btn-warning w-100">CONTRIBUYENTE</a>
+                        </div>
                     </div>
                 </div>
             </div>

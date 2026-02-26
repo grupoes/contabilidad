@@ -18,6 +18,8 @@ class Home extends BaseController
         $contribuyentes = $cont->where('estado', 1)->findAll();
         $countCont = count($contribuyentes);
 
+        $rentas = $this->notificationPdtRentaOptimizado();
+
         $notificacionSire = count($this->notificacionSire());
         $notificacionAfp = count($this->notificar_afp());
         $notificacionPdtRenta = count($this->notificationPdtRenta());

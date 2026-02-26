@@ -842,7 +842,7 @@ abstract class BaseController extends Controller
         return $array;
     }
 
-    public function notificationPdtRentass()
+    public function notificationPdtRentaOptimizado()
     {
         $fechaDeclaracion = new FechaDeclaracionModel();
         $cont = new ContribuyenteModel();
@@ -858,9 +858,14 @@ abstract class BaseController extends Controller
             $digito = substr($ruc, -1);
             $idnumero = $digito + 1;
 
+            $contribuyentes[$key]['digito'] = $digito;
+            $contribuyentes[$key]['numero'] = $idnumero;
+
             $vencimientos = $fechaDeclaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, DATE_SUB(fd.fecha_exacta, INTERVAL 2 DAY) AS nueva_fecha, m.mes_descripcion, a.anio_descripcion, m.mes_fecha FROM fecha_declaracion fd INNER JOIN mes m ON m.id_mes = fd.id_mes INNER JOIN anio a ON a.id_anio = fd.id_anio where fd.id_tributo = 2 and fd.fecha_exacta BETWEEN '$fecha_contrato' and CURDATE() + INTERVAL 2 DAY and fd.id_numero = $idnumero")->getResultArray();
 
-            foreach ($vencimientos as $keys => $values) {
+            $contribuyentes[$key]['vencimientos'] = $vencimientos;
+
+            /*foreach ($vencimientos as $keys => $values) {
                 $id_mes = $values['id_mes'];
                 $id_anio = $values['id_anio'];
                 $pdtRenta = $pdt->query("SELECT id_pdt_renta FROM pdt_renta where ruc_empresa = '$ruc' and periodo = $id_mes and anio = $id_anio and estado = 1")->getResultArray();
@@ -889,10 +894,10 @@ abstract class BaseController extends Controller
                         'registro' => $registro
                     ];
                 }
-            }
+            }*/
         }
 
-        return $array;
+        return $contribuyentes;
     }
 
     public function notificationPdtPlame()
