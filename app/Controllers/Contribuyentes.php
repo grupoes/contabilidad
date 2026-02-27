@@ -789,119 +789,125 @@ class Contribuyentes extends BaseController
     public function listaHonorariosCobros($select, $estado)
     {
         $model = new ContribuyenteModel();
-        $pago = new PagosModel();
+        $pagoModel = new PagosModel();
+        $afiliacionModel = new AfiliacionesModel();
+        $tarifaModel = new HistorialTarifaModel();
 
         $cobrar = $this->getPermisosAcciones(13, session()->perfil_id, 'cobrar honorario');
 
         $sql = "";
-
         if ($select !== 'TODOS') {
             $sql = "AND c.tipoServicio = '$select'";
         }
 
-        $datos = $model->query("SELECT c.id, c.razon_social, c.ruc, c.tipoPago, c.diaCobro, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes as c WHERE tipoSuscripcion = 'NO GRATUITO' AND c.estado = $estado $sql ORDER BY c.id desc")->getResult();
+        $status_condition = ($estado == 0) ? "c.estado > 0" : "c.estado = $estado";
+
+        $datos = $model->query("SELECT c.id, c.razon_social, c.ruc, c.tipoPago, c.diaCobro, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes as c WHERE tipoSuscripcion = 'NO GRATUITO' AND $status_condition $sql ORDER BY c.id desc")->getResult();
+
+        $hoy = new DateTime();
+        $mesActual = $hoy->format('Y-m');
+        $mesAnterior = (clone $hoy)->modify('last month')->format('Y-m');
 
         foreach ($datos as $key => $value) {
             $id = $value->id;
 
-            //si tiene pagos
-            $pagos = $pago->where('contribuyente_id', $id)->findAll();
-            $amortizo = 0;
+            // 1. Encontrar el último mes pagado
+            $ultimoPago = $pagoModel->where('contribuyente_id', $id)
+                ->where('estado', 'pagado')
+                ->orderBy('mesCorrespondiente', 'DESC')
+                ->first();
 
-            if (!$pagos) {
-                $debe = "No tiene pagos";
+            $startMonthStr = null;
+            if ($ultimoPago) {
+                $dt = new DateTime($ultimoPago['mesCorrespondiente']);
+                $dt->modify('first day of next month');
+                $startMonthStr = $dt->format('Y-m');
             } else {
-                if ($value->tipoPago == 'ATRASADO') {
-                    $maxPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado' ")->getRow();
-
-                    $max = $pago->query("SELECT MAX(estado) as estado FROM pagos WHERE contribuyente_id = $id ")->getRow();
-
-                    if ($max->estado === 'pendiente') {
-                        $amortizo = 1;
-                    }
-
-                    $ultimo = $maxPago->ultimoMes;
-                    //$ultimo = "2025-04-28";
-
-                    $ultimoPagoFecha = date('Y-m', strtotime($ultimo));
-                    $fechaActual = date('Y-m');
-
-                    list($ultimoAnio, $ultimoMes) = explode('-', $ultimoPagoFecha);
-                    list($actualAnio, $actualMes) = explode('-', $fechaActual);
-
-                    $ultimoAnio = (int) $ultimoAnio;
-                    $ultimoMes = (int) $ultimoMes;
-                    $actualAnio = (int) $actualAnio;
-                    $actualMes = (int) $actualMes;
-
-                    // Calcular la diferencia en meses
-                    $mesesTranscurridos = ($actualAnio - $ultimoAnio) * 12 + ($actualMes - $ultimoMes);
-
-                    // Restar 1 porque el mes actual no cuenta (aún no ha terminado)
-                    $meses = max(0, $mesesTranscurridos - 1);
-
-                    if ($meses > 1) {
-                        $debe = $meses . " meses";
-                    } elseif ($meses == 1) {
-                        $debe = $meses . " mes";
-                    } else {
-                        $debe = "No debe";
-                    }
-                } else {
-                    $ultimoPago = $pago->query("SELECT MAX(mesCorrespondiente) as ultimoMes FROM pagos WHERE contribuyente_id = $id AND estado = 'pagado' ")->getRow();
-
-                    $max = $pago->query("SELECT MAX(estado) as estado FROM pagos WHERE contribuyente_id = $id ")->getRow();
-
-                    if ($max->estado === 'pendiente') {
-                        $amortizo = 1;
-                    }
-
-                    if ($ultimoPago && !empty($ultimoPago->ultimoMes)) {
-                        // Convertimos a objeto DateTime
-                        $fechaUltimoPago = DateTime::createFromFormat('Y-m-d', $ultimoPago->ultimoMes);
-                        $fechaActual = new DateTime();
-
-                        if ($fechaUltimoPago) {
-                            // Normaliza ambos al primer día del mes
-                            $inicioUltimoMes = DateTime::createFromFormat('Y-m-d', $fechaUltimoPago->format('Y-m-01'));
-                            $inicioMesActual = DateTime::createFromFormat('Y-m-d', $fechaActual->format('Y-m-01'));
-
-                            if ($inicioUltimoMes && $inicioMesActual) {
-                                $diferencia = (($inicioMesActual->format('Y') - $inicioUltimoMes->format('Y')) * 12) +
-                                    ($inicioMesActual->format('m') - $inicioUltimoMes->format('m'));
-
-                                if ($diferencia > 1) {
-                                    $debe = $diferencia . " meses";
-                                } elseif ($diferencia == 1) {
-                                    $debe = $diferencia . " mes";
-                                } else {
-                                    $debe = "No debe";
-                                }
-                            } else {
-                                $debe = "Error al normalizar las fechas.";
-                            }
-                        } else {
-                            $debe = "Fecha inválida en último pago.";
-                        }
-
-                        //echo "Meses de deuda: " . $diferencia;
-                    } else {
-                        // No tiene pagos registrados, asumes que debe desde el inicio o todos
-                        //echo "No tiene pagos registrados. Se asume que debe todos los meses.";
-                        $debe = "No debe";
-                    }
+                $primeraAf = $afiliacionModel->where('contribuyente_id', $id)->orderBy('fecha_inicio', 'ASC')->first();
+                if ($primeraAf) {
+                    $startMonthStr = date('Y-m', strtotime($primeraAf['fecha_inicio']));
                 }
             }
 
-            $cobrarHono = "";
-
-            if ($cobrar) {
-                $cobrarHono = '<a href="' . base_url() . 'pago-honorario/' . $value->id . '" class="btn btn-success">COBRAR</a>';
+            if (!$startMonthStr) {
+                $value->debe = "No tiene pagos";
+                $value->amortizo = 0;
+                $value->cobrar = $cobrar ? '<a href="' . base_url() . 'pago-honorario/' . $value->id . '" class="btn btn-success">COBRAR</a>' : "";
+                continue;
             }
 
-            $value->debe = $debe;
+            // 2. Determinar el mes límite según tipo de pago y estado
+            $maxMonth = ($value->tipoPago == 'ATRASADO') ? $mesAnterior : $mesActual;
+
+            // 3. Obtener afiliaciones y tarifas para este cliente
+            $afiliaciones = $afiliacionModel->where('contribuyente_id', $id)->findAll();
+            $tarifas = $tarifaModel->query("SELECT ht.* FROM historial_tarifas ht INNER JOIN contratos c ON ht.contratoId = c.id WHERE c.contribuyenteId = $id AND c.estado = 1 AND ht.estado = 1 ORDER BY ht.fecha_inicio DESC")->getResultArray();
+            $pagosPendientes = $pagoModel->where('contribuyente_id', $id)->where('estado', 'pendiente')->findAll();
+
+            $curr = new DateTime($startMonthStr . "-01");
+            $limit = new DateTime($maxMonth . "-01");
+
+            $totalDebeSoles = 0;
+            $mesesOcupados = 0;
+            $amortizo = 0;
+
+            while ($curr <= $limit) {
+                $am = $curr->format('Y-m');
+
+                // Verificar si el mes es activo en alguna afiliación
+                $isActive = false;
+                foreach ($afiliaciones as $af) {
+                    $afStart = date('Y-m', strtotime($af['fecha_inicio']));
+                    $afEnd = (!empty($af['fecha_fin']) && $af['fecha_fin'] != '0000-00-00') ? date('Y-m', strtotime($af['fecha_fin'])) : '9999-12';
+
+                    if ($am >= $afStart && $am <= $afEnd) {
+                        $isActive = true;
+                        break;
+                    }
+                }
+
+                if ($isActive) {
+                    // Buscar si hay una amortización para este mes
+                    $pagoPend = null;
+                    foreach ($pagosPendientes as $pp) {
+                        if (date('Y-m', strtotime($pp['mesCorrespondiente'])) == $am) {
+                            $pagoPend = $pp;
+                            break;
+                        }
+                    }
+
+                    if ($pagoPend) {
+                        $totalDebeSoles += $pagoPend['montoPendiente'];
+                        $mesesOcupados++;
+                        $amortizo = 1;
+                    } else {
+                        // Mes totalmente adeudado
+                        $costoBuscado = $am . "-01";
+                        $costoMes = 0;
+                        foreach ($tarifas as $t) {
+                            if ($t['fecha_inicio'] <= $costoBuscado) {
+                                $costoMes = $t['monto_mensual'];
+                                break;
+                            }
+                        }
+                        if ($costoMes == 0 && count($tarifas) > 0) {
+                            $costoMes = $tarifas[count($tarifas) - 1]['monto_mensual'];
+                        }
+                        $totalDebeSoles += $costoMes;
+                        $mesesOcupados++;
+                    }
+                }
+                $curr->modify('+1 month');
+            }
+
+            if ($mesesOcupados > 0) {
+                $value->debe = $mesesOcupados . ($mesesOcupados == 1 ? " mes" : " meses");
+            } else {
+                $value->debe = "No debe";
+            }
+
             $value->amortizo = $amortizo;
-            $value->cobrar = $cobrarHono;
+            $value->cobrar = $cobrar ? '<a href="' . base_url() . 'pago-honorario/' . $value->id . '" class="btn btn-success">COBRAR</a>' : "";
         }
 
         return $this->response->setJSON($datos);
@@ -1013,22 +1019,104 @@ class Contribuyentes extends BaseController
         return $this->response->setJSON(['status' => 'success', 'message' => 'El elimino correctamente el certificado']);
     }
 
-    public function changeStatus($id, $status)
+    public function changeStatus()
     {
         $model = new ContribuyenteModel();
+        $afiliacion = new AfiliacionesModel();
+        $tarifa = new HistorialTarifaModel();
+        $contrato = new ContratosModel();
+        $servidor = new ServidorModel();
+        $pago_servidor = new PagoServidorModel();
 
-        if ($status !== 1) {
-            $data = array('estado' => $status, 'deleted_at' => date('Y-m-d H:i:s:s'));
-            $model->update($id, $data);
-        } else {
-            $data = array('estado' => $status);
-            $model->update($id, $data);
-        }
+        $dataPost = $this->request->getPost();
 
-        $message = "SE DESACTIVO EL CONTRIBUYENTE CORRECTAMENTE";
+        if ($dataPost['checked'] != 1) { // Desactivar
+            $data = array('estado' => $dataPost['checked'], 'deleted_at' => date('Y-m-d H:i:s'));
+            $model->update($dataPost['id'], $data);
 
-        if ($status == 1) {
-            $message  = "SE ACTIVO EL CONTRIBUYENTE CORRECTAMENTE";
+            // Actualizar fecha de fin de la afiliación
+            if (isset($dataPost['fecha_retiro'])) {
+                $ultimaAfiliacion = $afiliacion->where('contribuyente_id', $dataPost['id'])->orderBy('id', 'DESC')->first();
+                if ($ultimaAfiliacion) {
+                    $afiliacion->update($ultimaAfiliacion['id'], ['fecha_fin' => $dataPost['fecha_retiro']]);
+                }
+
+                $ultimoContrato = $contrato->where('contribuyenteId', $dataPost['id'])->where('estado', 1)->orderBy('id', 'DESC')->first();
+                if ($ultimoContrato) {
+                    $contrato->update($ultimoContrato['id'], ['fechaFin' => $dataPost['fecha_retiro']]);
+                }
+            }
+            $message = "SE DESACTIVO EL CONTRIBUYENTE CORRECTAMENTE";
+        } else { // Activar
+            $data = array('estado' => $dataPost['checked']);
+
+            if (isset($dataPost['fecha_inicio'])) {
+                $data['fechaContrato'] = $dataPost['fecha_inicio'];
+                $data['monto_servidor'] = $dataPost['monto_servidor'];
+                $data['costoMensual'] = $dataPost['monto_mensual'];
+                $data['costoAnual'] = $dataPost['monto_anual'];
+
+                $model->update($dataPost['id'], $data);
+
+                // Nueva Afiliación
+                $afiliacion->insert([
+                    'contribuyente_id' => $dataPost['id'],
+                    'fecha_inicio' => $dataPost['fecha_inicio'],
+                    'fecha_fin' => null
+                ]);
+                $idAfiliacion = $afiliacion->getInsertID();
+
+                // Historial de Tarifa
+                $dataContrato = $contrato->where('contribuyenteId', $dataPost['id'])->where('estado', 1)->orderBy('id', 'DESC')->first();
+                if ($dataContrato) {
+                    $idContrato = $dataContrato['id'];
+                    $contrato->update($idContrato, ['fechaFin' => '0000-00-00']);
+
+                    // Cerrar tarifa anterior si existe
+                    $last_tarifa = $tarifa->where('contratoId', $idContrato)->where('estado', 1)->orderBy('fecha_inicio', 'DESC')->first();
+                    if ($last_tarifa) {
+                        $tarifa->update($last_tarifa['id'], ['fecha_fin' => $dataPost['fecha_inicio']]);
+                    }
+
+                    $tarifa->insert([
+                        'contratoId' => $idContrato,
+                        'fecha_inicio' => $dataPost['fecha_inicio'],
+                        'monto_mensual' => $dataPost['monto_mensual'],
+                        'monto_anual' => $dataPost['monto_anual'],
+                        'estado' => 1
+                    ]);
+                }
+
+                // Servidor
+                if (!empty($dataPost['monto_servidor']) && $dataPost['monto_servidor'] > 0) {
+                    $servidor->insert([
+                        'contribuyente_id' => $dataPost['id'],
+                        'fecha_inicio' => $dataPost['fecha_inicio'],
+                        'fecha_fin' => '',
+                        'monto' => $dataPost['monto_servidor'],
+                        'estado' => 1
+                    ]);
+
+                    $fecha_fin = new DateTime($dataPost['fecha_inicio']);
+                    $fecha_fin->modify('+1 year');
+
+                    $pago_servidor->insert([
+                        'contribuyente_id' => $dataPost['id'],
+                        'monto_total' => $dataPost['monto_servidor'],
+                        'fecha_inicio' => $dataPost['fecha_inicio'],
+                        'fecha_fin' => $fecha_fin->format('Y-m-d'),
+                        'monto_pagado' => 0,
+                        'monto_pendiente' => $dataPost['monto_servidor'],
+                        'usuario_id_cobra' => session()->id,
+                        'estado' => 'pendiente',
+                        'afiliacion_id' => $idAfiliacion
+                    ]);
+                }
+            } else {
+                $model->update($dataPost['id'], $data);
+            }
+
+            $message = "SE ACTIVO EL CONTRIBUYENTE CORRECTAMENTE";
         }
 
         return $this->response->setJSON(['status' => 'success', 'message' => $message]);
@@ -1994,6 +2082,38 @@ class Contribuyentes extends BaseController
                 if ($data_afiliacion) {
                     $id_afiliacion = $data_afiliacion['id'];
                     $pago_renta->update($pago['id'], [
+                        'afiliacion_id' => $id_afiliacion
+                    ]);
+                }
+            }
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Afiliaciones actualizadas correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function updatePagoServidor()
+    {
+        try {
+            $pago_servidor = new PagoServidorModel();
+            $afiliacion = new AfiliacionesModel();
+
+            $pagos = $pago_servidor->findAll();
+
+            foreach ($pagos as $pago) {
+                $id_contribuyente = $pago['contribuyente_id'];
+                $data_afiliacion = $afiliacion->where('contribuyente_id', $id_contribuyente)->where('fecha_fin', null)->first();
+
+                if ($data_afiliacion) {
+                    $id_afiliacion = $data_afiliacion['id'];
+                    $pago_servidor->update($pago['id'], [
                         'afiliacion_id' => $id_afiliacion
                     ]);
                 }

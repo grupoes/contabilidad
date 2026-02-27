@@ -11,6 +11,7 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
+use App\Models\AfiliacionesModel;
 use App\Models\SesionCajaModel;
 use App\Models\HistorialTarifaModel;
 use App\Models\PagosModel;
@@ -976,10 +977,14 @@ abstract class BaseController extends Controller
             $sqlServicio = "AND c.tipoServicio = '" . $servicio . "'";
         }
 
+        // Mapeo de estado: si llega 2 (del select de la vista) se asume 0 (inactivo en DB)
+        $dbEstado = ($estado == 1) ? 1 : 0;
+
         $contribuyentes = $contribuyente->query("SELECT 
             c.id,
             c.ruc,
-            c.razon_social
+            c.razon_social,
+            c.estado as estado_contribuyente
         FROM contribuyentes c
         INNER JOIN sistemas_contribuyente sc ON c.id = sc.contribuyente_id
         INNER JOIN sistemas s ON sc.system_id = s.id
@@ -991,9 +996,9 @@ abstract class BaseController extends Controller
         WHERE s.status = 1
             AND c.tipoServicio = 'CONTABLE'
             AND c.tipoSuscripcion = 'NO GRATUITO'
-            AND c.estado = $estado
+            AND c.estado = $dbEstado
             $sqlServicio
-        GROUP BY c.id, c.ruc, c.razon_social;")->getResultArray();
+        GROUP BY c.id, c.ruc, c.razon_social, c.estado;")->getResultArray();
 
         foreach ($contribuyentes as $key => $value) {
             $sistemas = $sistema->query("SELECT s.id, s.nameSystem FROM sistemas s INNER JOIN sistemas_contribuyente sc ON s.id = sc.system_id WHERE sc.contribuyente_id = " . $value['id'])->getResultArray();
@@ -1001,7 +1006,7 @@ abstract class BaseController extends Controller
 
             $monto = $servidor->where('contribuyente_id', $value['id'])->where('estado', 1)->first();
 
-            if ($monto) {
+            if ($monto && $value['estado_contribuyente'] == 1) {
                 $contribuyentes[$key]['monto'] = $monto['monto'];
             } else {
                 $contribuyentes[$key]['monto'] = "";
@@ -1026,7 +1031,18 @@ abstract class BaseController extends Controller
                 $contribuyentes[$key]['fecha_inicio'] = $verificarRegistros['fecha_inicio'];
                 $contribuyentes[$key]['fecha_fin'] = $verificarRegistros['fecha_fin'];
 
-                $fechaActual = new \DateTime(); // hoy
+                $fechaToCompare = new \DateTime(); // hoy por defecto
+
+                // Si el contribuyente está inactivo, limitamos el cálculo a su fecha de retiro
+                if ($value['estado_contribuyente'] == 0) {
+                    $afModel = new AfiliacionesModel();
+                    $ultAf = $afModel->where('contribuyente_id', $value['id'])->orderBy('id', 'DESC')->first();
+                    if ($ultAf && !empty($ultAf['fecha_fin']) && $ultAf['fecha_fin'] != '0000-00-00') {
+                        $fechaToCompare = new \DateTime($ultAf['fecha_fin']);
+                    }
+                }
+
+                $fechaActual = $fechaToCompare;
                 $fechaInicio = new \DateTime($verificarRegistros['fecha_inicio_raw']);
                 $fechaFin    = new \DateTime($verificarRegistros['fecha_fin_raw']);
 
@@ -1042,7 +1058,7 @@ abstract class BaseController extends Controller
                     $periodosVencidos = 0;
                     $fechaTemp = clone $fechaFin;
 
-                    // mientras la fecha actual supere el fin del periodo
+                    // mientras la fecha limite supere el fin del periodo
                     while ($fechaActual > $fechaTemp) {
                         $periodosVencidos++;
                         $fechaTemp->modify('+1 year');

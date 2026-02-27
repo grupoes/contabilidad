@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\AfiliacionesModel;
 use App\Models\MetodoPagoModel;
 use App\Models\TipoComprobanteModel;
 use App\Models\ContribuyenteModel;
@@ -207,6 +208,8 @@ class Pago extends BaseController
 
         $detallePagos = new DetallePagosModel();
 
+        $afiliacion = new AfiliacionesModel();
+
         try {
             $pago->db->transBegin();
 
@@ -238,6 +241,10 @@ class Pago extends BaseController
             }
 
             $montoMensual = $dataContrib['costoMensual'];
+
+            $data_afiliacion = $afiliacion->where('contribuyente_id', $idContribuyente)->where('fecha_fin', null)->first();
+
+            $id_afiliacion = $data_afiliacion['id'];
 
             $idPagoHonorario = 0;
 
@@ -308,6 +315,7 @@ class Pago extends BaseController
                     "montoExcedente" => 0,
                     "usuario_id_cobra" => session()->id,
                     "estado" => $estado,
+                    "afiliacion_id" => $id_afiliacion,
                 );
 
                 $pago->insert($data);
@@ -323,7 +331,7 @@ class Pago extends BaseController
                 $monto = $monto - $montoMensual;
             }
 
-            $returnPagos = $this->addPagos($monto, $idContribuyente, $idPagoHonorario, $diaCobro, $fecha_proceso, $contador, $sistemas, $dataContrib['ruc']);
+            $returnPagos = $this->addPagos($monto, $idContribuyente, $idPagoHonorario, $diaCobro, $fecha_proceso, $contador, $sistemas, $dataContrib['ruc'], $id_afiliacion);
 
             if ($pago->db->transStatus() === false) {
                 $pago->db->transRollback();
@@ -433,6 +441,11 @@ class Pago extends BaseController
         $pagoServidor = new PagoServidorModel();
         $detallePagos = new DetallePagosServidorModel();
         $servidor = new ServidorModel();
+        $afiliacion = new AfiliacionesModel();
+
+        $data_afiliacion = $afiliacion->where('contribuyente_id', $idContribuyente)->where('fecha_fin', null)->first();
+
+        $id_afiliacion = $data_afiliacion['id'];
 
         $contador = 0;
 
@@ -505,7 +518,8 @@ class Pago extends BaseController
                         "monto_pagado" => $monto_servidor,
                         "monto_pendiente" => 0,
                         "estado" => "pagado",
-                        "usuario_id_cobra" => session()->id
+                        "usuario_id_cobra" => session()->id,
+                        "afiliacion_id" => $id_afiliacion,
                     );
 
                     $pagoServidor->insert($datos);
@@ -532,7 +546,8 @@ class Pago extends BaseController
                         "monto_pagado" => $montoDisponible,
                         "monto_pendiente" => $monto_servidor - $montoDisponible,
                         "estado" => "pendiente",
-                        "usuario_id_cobra" => session()->id
+                        "usuario_id_cobra" => session()->id,
+                        "afiliacion_id" => $id_afiliacion,
                     );
 
                     $pagoServidor->insert($datos);
@@ -572,7 +587,7 @@ class Pago extends BaseController
         }
     }
 
-    public function addPagos($monto, $idContribuyente, $idPagoHonorario, $diaCobro, $fecha_proceso, $contador, $sistemas = null, $ruc = null)
+    public function addPagos($monto, $idContribuyente, $idPagoHonorario, $diaCobro, $fecha_proceso, $contador, $sistemas = null, $ruc = null, $id_afiliacion)
     {
         $pago = new PagosModel();
         $detallePagos = new DetallePagosModel();
@@ -654,7 +669,8 @@ class Pago extends BaseController
                         "montoPendiente" => 0,
                         "montoExcedente" => 0,
                         "estado" => "pagado",
-                        "usuario_id_cobra" => session()->id
+                        "usuario_id_cobra" => session()->id,
+                        "afiliacion_id" => $id_afiliacion,
                     );
 
                     $pago->insert($datos);
@@ -685,7 +701,8 @@ class Pago extends BaseController
                         "montoPendiente" => $montoMensual - $montoDisponible,
                         "montoExcedente" => 0,
                         "estado" => "pendiente",
-                        "usuario_id_cobra" => session()->id
+                        "usuario_id_cobra" => session()->id,
+                        "afiliacion_id" => $id_afiliacion,
                     );
 
                     $pago->insert($datos);
@@ -1029,6 +1046,7 @@ class Pago extends BaseController
         $pago = new PagosModel();
         $contri = new ContribuyenteModel();
         $detalle = new DetallePagosModel();
+        $afiliacion = new AfiliacionesModel();
 
         try {
             $pagoHono->db->transBegin();
@@ -1051,6 +1069,10 @@ class Pago extends BaseController
             $ruc = $dataContrib['ruc'];
 
             $montoOriginal = $monto;
+
+            $data_afiliacion = $afiliacion->where('contribuyente_id', $contribId)->where('fecha_fin', null)->first();
+
+            $id_afiliacion = $data_afiliacion['id'];
 
             $detalle->where('honorario_id', $id)->delete();
 
@@ -1110,7 +1132,7 @@ class Pago extends BaseController
 
             $contador = 0;
 
-            $this->addPagos($monto, $contribId, $id, $diaCobro, $datePago, $contador, $sistemas, $dataContrib['ruc']);
+            $this->addPagos($monto, $contribId, $id, $diaCobro, $datePago, $contador, $sistemas, $dataContrib['ruc'], $id_afiliacion);
 
             $dataPagoHono = [
                 "monto" => $montoOriginal,

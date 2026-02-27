@@ -61,14 +61,12 @@ function viewPagos(data) {
             <td>${pago.fecha_fin}</td>
             <td>${pago.fecha_proceso !== null ? pago.fecha_proceso : ""}</td>
             <td>${pago.fecha_pago !== null ? pago.fecha_pago : ""}</td>
-            <td><span class="badge bg-light-success f-14" onclick="verNotaVenta(${
-              pago.id
-            })" style="cursor: pointer">${pago.monto_total}</span></td>
+            <td><span class="badge bg-light-success f-14" onclick="verNotaVenta(${pago.id
+      })" style="cursor: pointer">${pago.monto_total}</span></td>
             <td>${pago.monto_pagado}</td>
             <td>${pago.monto_pendiente}</td>
-            <td> <a href="${pago.url_pdf_nota}" target="_blank">Nota ${
-              pago.numero_notas
-            }</a> </td>
+            <td> <a href="${pago.url_pdf_nota}" target="_blank">Nota ${pago.numero_notas
+      }</a> </td>
             <td>${estado}</td>
         </tr>
         `;
@@ -113,6 +111,13 @@ function viewPagosHonorarios(data) {
               <a href="#" class="ms-2" onclick="editPago(event, ${pago.id}, ${index})" title="Editar Pago"> <i class="fas fa-edit text-info"></i> </a>
               `;
 
+    let vaucher = "";
+    if (pago.metodo != 'EFECTIVO') {
+      vaucher = `
+      <a href="#" data-lightbox="${base_url}vouchers/${pago.vaucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
+      `;
+    }
+
     html += `
         <tr>
             <td>${pago.registro}</td>
@@ -121,7 +126,7 @@ function viewPagosHonorarios(data) {
             <td>${pago.metodo}</td>
             <td>${pago.monto}</td>
             <td> 
-                <a href="#" data-lightbox="${base_url}vouchers/${pago.vaucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
+                ${vaucher}
             </td>
             <td>
                 ${botonDelete}

@@ -734,42 +734,106 @@ tipo_certificado.addEventListener("change", (e) => {
 
 function toggleSwitchStatus(switchElement, id) {
   let checked = switchElement.checked ? 1 : 2;
-  let messageStatus = "";
-  let buttonText = "";
 
-  if (checked == 1) {
-    messageStatus = "¿Estás seguro de activar este contribuyente?";
-    buttonText = "Si, activar";
-  } else {
-    messageStatus = "¿Estás seguro de desactivar este contribuyente?";
-    buttonText = "Si, desactivar";
-  }
-
-  swalWithBootstrapButtons
-    .fire({
-      title: messageStatus,
-      text: "¡No podrá revertir después!",
+  if (checked == 1) { // ACTIVAR
+    swalWithBootstrapButtons.fire({
+      title: '¿Estás seguro de activar este contribuyente?',
+      html: `
+        <div class="text-start">
+          <div class="mb-3">
+            <label class="form-label">Fecha del nuevo inicio</label>
+            <input type="date" id="fecha_inicio" class="form-control" value="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Monto de servidor</label>
+            <input type="number" id="monto_servidor" class="form-control" placeholder="0.00" value="0">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Monto mensual</label>
+            <input type="number" id="monto_mensual" class="form-control" placeholder="0.00" value="0">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Monto anual</label>
+            <input type="number" id="monto_anual" class="form-control" placeholder="0.00" value="0">
+          </div>
+        </div>
+      `,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: buttonText,
+      confirmButtonText: "Si, activar",
       cancelButtonText: "No, cancelar!",
       reverseButtons: true,
-    })
-    .then((result) => {
+      preConfirm: () => {
+        return {
+          fecha_inicio: document.getElementById('fecha_inicio').value,
+          monto_servidor: document.getElementById('monto_servidor').value,
+          monto_mensual: document.getElementById('monto_mensual').value,
+          monto_anual: document.getElementById('monto_anual').value
+        }
+      }
+    }).then((result) => {
       if (result.isConfirmed) {
-        fetch(base_url + "contribuyente/status/" + id + "/" + checked)
+        const formData = new FormData();
+        formData.append('fecha_inicio', result.value.fecha_inicio);
+        formData.append('monto_servidor', result.value.monto_servidor);
+        formData.append('monto_mensual', result.value.monto_mensual);
+        formData.append('monto_anual', result.value.monto_anual);
+        formData.append('id', id);
+        formData.append('checked', checked);
+
+        fetch(base_url + "contribuyente/status", {
+          method: 'POST',
+          body: formData
+        })
           .then((res) => res.json())
           .then((data) => {
             notifier.show("¡Bien hecho!", data.message, "success", "", 2000);
           });
       } else {
-        if (checked == 1) {
-          switchElement.checked = false;
-        } else {
-          switchElement.checked = true;
-        }
+        switchElement.checked = false;
       }
     });
+  } else { // DESACTIVAR
+    swalWithBootstrapButtons.fire({
+      title: '¿Estás seguro de desactivar este contribuyente?',
+      html: `
+        <div class="text-start">
+          <div class="mb-3">
+            <label class="form-label">Fecha de retiro</label>
+            <input type="date" id="fecha_retiro" class="form-control" value="${new Date().toISOString().split('T')[0]}">
+          </div>
+        </div>
+      `,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Si, desactivar",
+      cancelButtonText: "No, cancelar!",
+      reverseButtons: true,
+      preConfirm: () => {
+        return {
+          fecha_retiro: document.getElementById('fecha_retiro').value
+        }
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const formData = new FormData();
+        formData.append('fecha_retiro', result.value.fecha_retiro);
+        formData.append('id', id);
+        formData.append('checked', checked);
+
+        fetch(base_url + "contribuyente/status", {
+          method: 'POST',
+          body: formData
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            notifier.show("¡Bien hecho!", data.message, "success", "", 2000);
+          });
+      } else {
+        switchElement.checked = true;
+      }
+    });
+  }
 }
 
 const contribuyente_id = document.getElementById("contribuyente_id");

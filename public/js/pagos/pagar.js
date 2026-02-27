@@ -107,6 +107,13 @@ function viewPagosHonorarios(data) {
               <a href="#" class="ms-2" onclick="editPago(event, ${pago.id})" title="Editar Pago"> <i class="fas fa-edit text-info"></i> </a>
               `;
 
+    let vaucher = "";
+    if (pago.metodo != "EFECTIVO") {
+      vaucher = `
+      <a href="#" data-lightbox="${base_url}vouchers/${pago.voucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
+      `;
+    }
+
     html += `
         <tr>
             <td>${pago.registro}</td>
@@ -115,7 +122,7 @@ function viewPagosHonorarios(data) {
             <td>${pago.metodo}</td>
             <td>${pago.monto}</td>
             <td> 
-                <a href="#" data-lightbox="${base_url}vouchers/${pago.voucher}" onclick="verVaucher(event, ${pago.id})"> Ver vaucher </a>
+                ${vaucher}
             </td>
             <td>
                 ${botonDelete}

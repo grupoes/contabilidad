@@ -32,7 +32,7 @@ $routes->get('contribuyentes/renderContribuyentesContables', 'Contribuyentes::re
 $routes->post('contribuyente/add', 'Contribuyentes::guardar');
 $routes->post('contribuyente/add-tarifa', 'Contribuyentes::guardarTarifa');
 $routes->get('contribuyente/all/(:any)/(:num)', 'Contribuyentes::listaContribuyentes/$1/$2');
-$routes->get('contribuyente/status/(:num)/(:num)', 'Contribuyentes::changeStatus/$1/$2');
+$routes->post('contribuyente/status', 'Contribuyentes::changeStatus');
 $routes->get('contribuyente/get/(:num)', 'Contribuyentes::getContribuyente/$1');
 $routes->get('contribuyente/historial-tarifa/(:num)', 'Contribuyentes::getTarifaContribuyente/$1');
 $routes->get('contribuyente/delete-tarifa/(:num)', 'Contribuyentes::deleteTarifa/$1');
@@ -385,3 +385,5 @@ $routes->group('drive', function ($routes) {
 });
 
 $routes->get('/testDrive', 'TestDrive::index');
+
+$routes->get('/update-pago-servidor', 'Contribuyentes::updatePagoServidor');
