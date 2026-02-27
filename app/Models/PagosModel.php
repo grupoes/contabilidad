@@ -13,7 +13,7 @@ class PagosModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id', 'contribuyente_id', 'fecha_pago', 'monto_total', 'mesCorrespondiente', 'montoPagado', 'montoPendiente', 'montoExcedente', 'usuario_id_cobra', 'estado', 'fecha_proceso'];
+    protected $allowedFields = ['id', 'contribuyente_id', 'fecha_pago', 'monto_total', 'mesCorrespondiente', 'montoPagado', 'montoPendiente', 'montoExcedente', 'usuario_id_cobra', 'estado', 'fecha_proceso', 'afiliacion_id'];
 
     protected $useTimestamps = false;
     protected $createdField  = 'created_at';

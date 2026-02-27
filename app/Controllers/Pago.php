@@ -348,8 +348,9 @@ class Pago extends BaseController
         $contrib = new ContribuyenteModel();
         $paAmor = new PagoAmortizacionServidorModel();
 
+        $pagoServidor->db->transBegin();
+
         try {
-            $pagoServidor->db->transBegin();
 
             $idContribuyente = $this->request->getvar('idcontribuyente');
             $metodoPago = $this->request->getvar('metodoPago');

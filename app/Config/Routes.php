@@ -58,6 +58,9 @@ $routes->get('contribuyentes/contribuyentesActivos/(:any)', 'Contribuyentes::get
 $routes->get('contribuyente/contratos/(:num)', 'Contribuyentes::showContratos/$1');
 $routes->post('contribuyente/agregar-contrato', 'Contribuyentes::agregarContrato');
 
+$routes->get('save-afilaciones-antiguas', 'Contribuyentes::addAfiliacion');
+$routes->get('update-afiliaciones-antiguas', 'Contribuyentes::updatePagoRenta');
+
 $routes->get('contribuyentes/migracion', 'Contribuyentes::migrarContribuyentes');
 $routes->post('contribuyente/actualizar-igv', 'Contribuyentes::updateIgvContribuyentes');
 

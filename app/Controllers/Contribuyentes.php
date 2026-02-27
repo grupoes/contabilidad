@@ -8,7 +8,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 use App\Controllers\BaseController;
-
+use App\Models\AfiliacionesModel;
 use App\Models\UbigeoModel;
 use App\Models\ContribuyenteModel;
 use App\Models\SistemaContribuyenteModel;
@@ -31,6 +31,7 @@ use App\Models\ComprobanteModel;
 use App\Models\AyudaBoletaModel;
 use App\Models\NumeroWhatsappModel;
 use App\Models\ContratosModel;
+use App\Models\PagoServidorModel;
 use App\Models\ServidorModel;
 use App\Models\RucModel;
 
@@ -473,11 +474,20 @@ class Contribuyentes extends BaseController
                     'estado' => 1
                 ]);
 
+                $afiliacion = new AfiliacionesModel();
+                $afiliacion->insert([
+                    'contribuyente_id' => $contribuyente_id,
+                    'fecha_inicio' => $data['fechaContrato'],
+                    'fecha_fin' => null
+                ]);
+
+                $idAfiliacion = $afiliacion->insertID();
+
                 //agregar servidor monto
                 if (isset($data['monto_servidor'])) {
                     $data_servidor = [
                         'contribuyente_id' => $contribuyente_id,
-                        'fecha_inicio' => $data['fechaContrato'],
+                        'fecha_inicio' => $data['fecha_inicio_servidor'],
                         'fecha_fin' => '',
                         'monto' => $data['monto_servidor'],
                         'estado' => 1
@@ -485,6 +495,24 @@ class Contribuyentes extends BaseController
 
                     $servidor = new ServidorModel();
                     $servidor->insert($data_servidor);
+
+                    $fecha_fin = new DateTime($data['fecha_inicio_servidor']);
+                    $fecha_fin->modify('+1 year');
+
+                    $fecha_fin = $fecha_fin->format('Y-m-d');
+
+                    $pago_servidor = new PagoServidorModel();
+                    $pago_servidor->insert([
+                        'contribuyente_id' => $contribuyente_id,
+                        'monto_total' => $data['monto_servidor'],
+                        'fecha_inicio' => $data['fecha_inicio_servidor'],
+                        'fecha_fin' => $fecha_fin,
+                        'monto_pagado' => 0,
+                        'monto_pendiente' => $data['monto_servidor'],
+                        'usuario_id_cobra' => session()->id,
+                        'estado' => 'pendiente',
+                        'afiliacion_id' => $idAfiliacion
+                    ]);
                 }
 
                 $codificacion->insert([
@@ -1914,6 +1942,66 @@ class Contribuyentes extends BaseController
             return $this->response->setJSON([
                 'status' => 'success',
                 'message' => 'Agregados correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function addAfiliacion()
+    {
+        try {
+            $contribuyentes = new ContribuyenteModel();
+            $afiliaciones = new AfiliacionesModel();
+
+            $data_contribuyentes = $contribuyentes->where('estado', 1)->findAll();
+
+            foreach ($data_contribuyentes as $contribuyente) {
+                $afiliaciones->insert([
+                    'contribuyente_id' => $contribuyente['id'],
+                    'fecha_inicio' => $contribuyente['fechaContrato'],
+                    'fecha_fin' => null
+                ]);
+            }
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Afiliaciones agregadas correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function updatePagoRenta()
+    {
+        try {
+            $pago_renta = new PagosModel();
+            $afiliacion = new AfiliacionesModel();
+
+            $pagos = $pago_renta->findAll();
+
+            foreach ($pagos as $pago) {
+                $id_contribuyente = $pago['contribuyente_id'];
+                $data_afiliacion = $afiliacion->where('contribuyente_id', $id_contribuyente)->where('fecha_fin', null)->first();
+
+                if ($data_afiliacion) {
+                    $id_afiliacion = $data_afiliacion['id'];
+                    $pago_renta->update($pago['id'], [
+                        'afiliacion_id' => $id_afiliacion
+                    ]);
+                }
+            }
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Afiliaciones actualizadas correctamente'
             ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
