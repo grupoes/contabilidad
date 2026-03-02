@@ -739,22 +739,28 @@ function toggleSwitchStatus(switchElement, id) {
     swalWithBootstrapButtons.fire({
       title: '¿Estás seguro de activar este contribuyente?',
       html: `
-        <div class="text-start">
-          <div class="mb-3">
-            <label class="form-label">Fecha del nuevo inicio</label>
-            <input type="date" id="fecha_inicio" class="form-control" value="${new Date().toISOString().split('T')[0]}">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Monto de servidor</label>
-            <input type="number" id="monto_servidor" class="form-control" placeholder="0.00" value="0">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Monto mensual</label>
-            <input type="number" id="monto_mensual" class="form-control" placeholder="0.00" value="0">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Monto anual</label>
-            <input type="number" id="monto_anual" class="form-control" placeholder="0.00" value="0">
+        <div class="text-start overflow-hidden">
+          <div class="row g-2">
+            <div class="col-6 mb-2">
+              <label class="form-label mb-1">Fecha de inicio</label>
+              <input type="date" id="fecha_inicio" class="form-control form-control-sm" value="${new Date().toISOString().split('T')[0]}">
+            </div>
+            <div class="col-6 mb-2">
+              <label class="form-label mb-1">Monto de servidor</label>
+              <input type="number" id="monto_servidor" class="form-control form-control-sm" placeholder="0.00" value="0">
+            </div>
+            <div class="col-6 mb-2">
+              <label class="form-label mb-1">Monto mensual</label>
+              <input type="number" id="monto_mensual" class="form-control form-control-sm" placeholder="0.00" value="0">
+            </div>
+            <div class="col-6 mb-2">
+              <label class="form-label mb-1">Monto anual</label>
+              <input type="number" id="monto_anual" class="form-control form-control-sm" placeholder="0.00" value="0">
+            </div>
+            <div class="col-12">
+              <label class="form-label mb-1">Adjuntar Contrato (PDF)</label>
+              <input type="file" id="archivo_contrato" class="form-control form-control-sm" accept="application/pdf">
+            </div>
           </div>
         </div>
       `,
@@ -768,7 +774,8 @@ function toggleSwitchStatus(switchElement, id) {
           fecha_inicio: document.getElementById('fecha_inicio').value,
           monto_servidor: document.getElementById('monto_servidor').value,
           monto_mensual: document.getElementById('monto_mensual').value,
-          monto_anual: document.getElementById('monto_anual').value
+          monto_anual: document.getElementById('monto_anual').value,
+          archivo_contrato: document.getElementById('archivo_contrato').files[0]
         }
       }
     }).then((result) => {
@@ -778,6 +785,7 @@ function toggleSwitchStatus(switchElement, id) {
         formData.append('monto_servidor', result.value.monto_servidor);
         formData.append('monto_mensual', result.value.monto_mensual);
         formData.append('monto_anual', result.value.monto_anual);
+        formData.append('archivo_contrato', result.value.archivo_contrato);
         formData.append('id', id);
         formData.append('checked', checked);
 
@@ -788,6 +796,7 @@ function toggleSwitchStatus(switchElement, id) {
           .then((res) => res.json())
           .then((data) => {
             notifier.show("¡Bien hecho!", data.message, "success", "", 2000);
+            listaContribuyentes();
           });
       } else {
         switchElement.checked = false;

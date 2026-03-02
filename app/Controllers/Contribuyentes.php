@@ -1058,6 +1058,18 @@ class Contribuyentes extends BaseController
 
                 $model->update($dataPost['id'], $data);
 
+                // Manejo de archivo de contrato
+                $file = $this->request->getFile('archivo_contrato');
+                $archivo_contrato_name = null;
+                if ($file && $file->isValid() && !$file->hasMoved()) {
+                    $contri_data = $model->find($dataPost['id']);
+                    $ruc = $contri_data['ruc'];
+                    $ext = $file->getExtension();
+                    $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+                    $archivo_contrato_name = "CONTRATO_" . $ruc . "_" . $codigo . "." . $ext;
+                    $file->move(FCPATH . 'contratos', $archivo_contrato_name);
+                }
+
                 // Nueva Afiliación
                 $afiliacion->insert([
                     'contribuyente_id' => $dataPost['id'],
@@ -1070,7 +1082,14 @@ class Contribuyentes extends BaseController
                 $dataContrato = $contrato->where('contribuyenteId', $dataPost['id'])->where('estado', 1)->orderBy('id', 'DESC')->first();
                 if ($dataContrato) {
                     $idContrato = $dataContrato['id'];
-                    $contrato->update($idContrato, ['fechaFin' => '0000-00-00']);
+
+                    $updateContrato = ['fechaFin' => '0000-00-00'];
+                    if ($archivo_contrato_name) {
+                        $updateContrato['file'] = $archivo_contrato_name;
+                        $updateContrato['fechaInicio'] = $dataPost['fecha_inicio'];
+                    }
+
+                    $contrato->update($idContrato, $updateContrato);
 
                     // Cerrar tarifa anterior si existe
                     $last_tarifa = $tarifa->where('contratoId', $idContrato)->where('estado', 1)->orderBy('fecha_inicio', 'DESC')->first();
