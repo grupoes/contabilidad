@@ -358,7 +358,7 @@ class Contribuyentes extends BaseController
             $verificar = $model->where('ruc', $data['numeroDocumento'])->first();
 
             if ($data['tipoSuscripcion'] === 'GRATUITO') {
-                $diacobro = 0;
+                $diacobro = "01";
             } else {
                 $diacobro = $data['diaCobro'];
             }
