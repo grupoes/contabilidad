@@ -594,27 +594,29 @@ class Contribuyentes extends BaseController
                     }
                 }
 
-                $dataContrato = $contrato->where('contribuyenteId', $idTabla)->where('estado', 1)->first();
+                if ($data['tipoSuscripcion'] != 'GRATUITO') {
+                    $dataContrato = $contrato->where('contribuyenteId', $idTabla)->where('estado', 1)->first();
 
-                $idContrato = $dataContrato['id'];
+                    $idContrato = $dataContrato['id'];
 
-                $dataContratoUpdate = [
-                    'fechaInicio' => $data['fechaContrato'],
-                    'diaCobro' => $data['diaCobro']
-                ];
+                    $dataContratoUpdate = [
+                        'fechaInicio' => $data['fechaContrato'],
+                        'diaCobro' => $data['diaCobro']
+                    ];
 
-                $contrato->update($idContrato, $dataContratoUpdate);
+                    $contrato->update($idContrato, $dataContratoUpdate);
 
-                $tarifaData = $tarifa->where('contratoId', $idContrato)->orderBy('id', 'asc')->first();
+                    $tarifaData = $tarifa->where('contratoId', $idContrato)->orderBy('id', 'asc')->first();
 
-                $idTarifa = $tarifaData['id'];
+                    $idTarifa = $tarifaData['id'];
 
-                $dataTarifa = array(
-                    "monto_mensual" => $data['costoMensual'],
-                    "monto_anual" => $data['costoAnual']
-                );
+                    $dataTarifa = array(
+                        "monto_mensual" => $data['costoMensual'],
+                        "monto_anual" => $data['costoAnual']
+                    );
 
-                $tarifa->update($idTarifa, $dataTarifa);
+                    $tarifa->update($idTarifa, $dataTarifa);
+                }
 
                 $codificacion->where('contribuyente_id', $idTabla)->delete();
 
