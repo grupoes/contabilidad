@@ -34,19 +34,24 @@
                     <form id="formService" enctype="multipart/form-data">
                         <div class="row">
 
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label" for="numeroDocumento">N° R.U.C.</label>
+                            <div class="col-md-5 mb-3">
+                                <label class="form-label" id="labelDocumento" for="numeroDocumento">N° R.U.C.</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" name="numeroDocumento" id="numeroDocumento" placeholder="" aria-describedby="searchDocumento" required="">
-                                    <button class="btn btn-outline-primary" type="button" id="searchDocumento">
+                                    <select class="form-select border-primary" style="max-width: 100px; background-color: #f8f9fa;" id="tipoDocumento" name="tipoDocumento">
+                                        <option value="RUC" selected>RUC</option>
+                                        <option value="DNI">DNI</option>
+                                        <option value="OTROS">OTROS</option>
+                                    </select>
+                                    <input type="number" class="form-control" name="numeroDocumento" id="numeroDocumento" placeholder="Ingrese número" required="">
+                                    <button class="btn btn-primary" type="button" id="searchDocumento">
                                         <i class="fas fa-search"></i>
                                     </button>
                                 </div>
                             </div>
-                            <div class="col-md-8 mb-3">
+                            <div class="col-md-7 mb-3">
                                 <label class="form-label" for="razon_social">Razón Social</label>
                                 <input type="text" class="form-control" name="razon_social" id="razon_social" required="">
-                                <small id="razon_social" class="form-text text-success"></small>
+                                <small id="razon_social_msg" class="form-text text-success"></small>
                             </div>
 
                             <div class="col-md-2 mb-3">

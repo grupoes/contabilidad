@@ -72,6 +72,9 @@ $routes->get('servicio', 'Cobros::cobroPlanificador');
 $routes->get('crear/servicio', 'Cobros::createCobroServicio');
 $routes->post('save-service', 'Cobros::saveService');
 $routes->get('services/all', 'Cobros::allServices');
+$routes->get('detalle-servicio/(:num)', 'Cobros::serviceDetails/$1');
+$routes->post('save-amortization', 'Cobros::saveAmortization');
+$routes->get('service-data/(:num)', 'Cobros::getServiceData/$1');
 
 $routes->get('cobro-servidor', 'Cobros::index');
 $routes->get('render-contribuyentes/(:any)/(:num)', 'Cobros::renderContribuyentes/$1/$2');

@@ -40,22 +40,81 @@ formService.addEventListener("submit", (e) => {
 const searchDocumento = document.getElementById("searchDocumento");
 const numeroDocumento = document.getElementById("numeroDocumento");
 const razon_social = document.getElementById("razon_social");
+const tipoDocumento = document.getElementById("tipoDocumento");
+const labelDocumento = document.getElementById("labelDocumento");
+
+tipoDocumento.addEventListener("change", () => {
+    const value = tipoDocumento.value;
+    if (value === "RUC") {
+        labelDocumento.innerText = "N° R.U.C.";
+        numeroDocumento.placeholder = "Ingrese RUC";
+    } else if (value === "DNI") {
+        labelDocumento.innerText = "N° D.N.I.";
+        numeroDocumento.placeholder = "Ingrese DNI";
+    } else {
+        labelDocumento.innerText = "N° DOCUMENTO";
+        numeroDocumento.placeholder = "Ingrese número";
+    }
+});
 
 searchDocumento.addEventListener("click", () => {
-  const ruc = numeroDocumento.value;
+  const numDoc = numeroDocumento.value;
+  const tipo = tipoDocumento.value;
 
-  if (ruc.length == 11) {
-    fetch(base_url + "api/dni-ruc/ruc/" + ruc)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.respuesta === "ok") {
-          razon_social.value = data.data.razon_social;
-        } else {
-          alert(data.data_resp.mensaje);
-        }
-      });
+  const originalHtml = searchDocumento.innerHTML;
+
+  if (tipo === "RUC") {
+    if (numDoc.length == 11) {
+      searchDocumento.disabled = true;
+      searchDocumento.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+
+      fetch(base_url + "api/dni-ruc/ruc/" + numDoc)
+        .then((res) => res.json())
+        .then((data) => {
+          searchDocumento.disabled = false;
+          searchDocumento.innerHTML = originalHtml;
+          if (data.respuesta === "ok") {
+            razon_social.value = data.data.razon_social;
+          } else {
+            alert(data.data_resp.mensaje);
+          }
+        })
+        .catch(() => {
+          searchDocumento.disabled = false;
+          searchDocumento.innerHTML = originalHtml;
+        });
+    } else {
+      alert("El R.U.C. debe tener 11 dígitos");
+    }
+  } else if (tipo === "DNI") {
+    if (numDoc.length == 8) {
+      searchDocumento.disabled = true;
+      searchDocumento.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+
+      fetch(base_url + "api/dni-ruc/dni/" + numDoc)
+        .then((res) => res.json())
+        .then((data) => {
+          searchDocumento.disabled = false;
+          searchDocumento.innerHTML = originalHtml;
+          if (data.respuesta === "ok") {
+            razon_social.value = data.data.nombre_completo || data.data.nombre || "";
+          } else {
+            alert(data.data_resp.mensaje);
+          }
+        })
+        .catch(() => {
+          searchDocumento.disabled = false;
+          searchDocumento.innerHTML = originalHtml;
+        });
+    } else {
+      alert("El D.N.I. debe tener 8 dígitos");
+    }
   } else {
-    alert("Agregue un R.U.C. de 11 dígitos");
+    Swal.fire({
+      icon: 'info',
+      title: 'Nota',
+      text: 'La búsqueda automática solo está disponible para RUC y DNI. Ingrese los datos manualmente.'
+    });
   }
 });
 

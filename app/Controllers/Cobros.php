@@ -824,4 +824,185 @@ class Cobros extends BaseController
 
         return $this->response->setJSON($data);
     }
+
+    public function serviceDetails($id)
+    {
+        if (!session()->logged_in) {
+            return redirect()->to(base_url());
+        }
+
+        $serviceModel = new ServicioModel();
+        $pagosModel = new ServicioPagosModel();
+        $amorModel = new AmorPagosServiciosModel();
+        $metodoModel = new MetodoPagoModel();
+
+        $service = $serviceModel->find($id);
+
+        if (!$service) {
+            return redirect()->to(base_url('servicio'));
+        }
+
+        $pagos = $pagosModel->where('servicio_id', $id)->orderBy('fecha_programacion', 'ASC')->findAll();
+        $amortizaciones = $amorModel->select('amor_pagos_servicios.*, metodos_pagos.metodo as metodo_nombre')
+            ->join('metodos_pagos', 'metodos_pagos.id = amor_pagos_servicios.metodo_pago_id')
+            ->where('servicio_id', $id)
+            ->where('amor_pagos_servicios.estado', 1)
+            ->orderBy('amor_pagos_servicios.id', 'DESC')
+            ->findAll();
+
+        $sedeModel = new \App\Models\SedeModel();
+
+        $metodos = $metodoModel->where('estado', 1)->findAll();
+        $sedes = $sedeModel->where('estado', 1)->findAll();
+        $menu = $this->permisos_menu();
+
+        return view('cobros/detalle_servicio', compact('menu', 'metodos', 'sedes', 'service', 'pagos', 'amortizaciones'));
+    }
+
+    public function saveAmortization()
+    {
+        $service = new ServicioModel();
+        $amorPago = new AmorPagosServiciosModel();
+
+        $service->db->transStart();
+
+        try {
+            $data = $this->request->getPost();
+            $serviceId = $data['service_id'];
+            $metodoPago = $data['metodo_pago_id'];
+            $monto = $data['monto'];
+            $fecha_proceso = $data['fecha_pago'];
+
+            $serviceData = $service->find($serviceId);
+
+            if ($serviceData['estado'] === 'pagado') {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'El servicio ya se encuentra pagado']);
+            }
+
+            $nameFile = "";
+
+            if ($metodoPago != 1) {
+                $voucher = $this->request->getFile('vaucher');
+
+                if ($voucher && $voucher->isValid() && !$voucher->hasMoved()) {
+                    $newName = $voucher->getRandomName();
+                    $voucher->move(FCPATH . 'vouchers', $newName);
+                    $nameFile = $newName;
+                }
+            }
+
+            $sedeIdSelect = $data['sede_id'] ?? session()->sede_id;
+            $dataSede = $this->Aperturar($metodoPago, $sedeIdSelect);
+
+            if ($metodoPago == 1) {
+                $sesionId = $dataSede['idSesionFisica'];
+                $iduser = $dataSede['idUser'];
+            } else {
+                $sesionId = $dataSede['idSesionVirtual'];
+                $iduser = session()->id;
+            }
+
+            $descripcion = "Amortización de Servicio: " . $serviceData['razon_social'] . " - " . $serviceData['descripcion'];
+
+            $idMovimiento = $this->generarMovimiento($sesionId, 1, 1, $metodoPago, $monto, $descripcion, 5, 'TICKET - 0001', 1, $fecha_proceso, $nameFile, $iduser);
+
+            $datosAmor = [
+                "servicio_id" => $serviceId,
+                "movimientoId" => $idMovimiento,
+                "registro" => date('Y-m-d H:i:s'),
+                "fecha_pago" => $fecha_proceso,
+                "metodo_pago_id" => $metodoPago,
+                "monto" => $monto,
+                "vaucher" => $nameFile,
+                "estado" => 1,
+                "user_add" => session()->id
+            ];
+
+            $amorPago->insert($datosAmor);
+
+            $this->insertPagosServicios($monto, $serviceId, $fecha_proceso);
+
+            $service->db->transComplete();
+
+            if ($service->db->transStatus() === false) {
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Amortización guardada correctamente']);
+        } catch (\Exception $e) {
+            $service->db->transRollback();
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    private function insertPagosServicios($monto, $serviceId, $fecha_proceso)
+    {
+        $pagosModel = new ServicioPagosModel();
+        $serviceModel = new ServicioModel();
+
+        $pendientes = $pagosModel->where('servicio_id', $serviceId)
+            ->where('estado', 'pendiente')
+            ->orderBy('fecha_programacion', 'ASC')
+            ->findAll();
+
+        $montoRestante = $monto;
+
+        foreach ($pendientes as $pago) {
+            if ($montoRestante <= 0) break;
+
+            $montoPendienteActual = $pago['monto_pendiente'];
+            $montoPagadoActual = $pago['monto_pagado'];
+
+            if ($montoRestante >= $montoPendienteActual) {
+                $pagosModel->update($pago['id'], [
+                    'monto_pagado' => $montoPagadoActual + $montoPendienteActual,
+                    'monto_pendiente' => 0.00,
+                    'estado' => 'pagado',
+                    'fecha_pago' => date('Y-m-d H:i:s'),
+                    'fecha_proceso' => $fecha_proceso,
+                    'user_edit' => session()->id
+                ]);
+                $montoRestante -= $montoPendienteActual;
+            } else {
+                $pagosModel->update($pago['id'], [
+                    'monto_pagado' => $montoPagadoActual + $montoRestante,
+                    'monto_pendiente' => $montoPendienteActual - $montoRestante,
+                    'estado' => 'pendiente',
+                    'user_edit' => session()->id
+                ]);
+                $montoRestante = 0;
+            }
+        }
+
+        // Verificar si el servicio ya esta totalmente pagado
+        $totalPendiente = $pagosModel->where('servicio_id', $serviceId)
+            ->where('estado', 'pendiente')
+            ->countAllResults();
+
+        if ($totalPendiente == 0) {
+            $serviceModel->update($serviceId, ['estado' => 'pagado']);
+        }
+    }
+
+    public function getServiceData($id)
+    {
+        $serviceModel = new ServicioModel();
+        $pagosModel = new ServicioPagosModel();
+        $amorModel = new AmorPagosServiciosModel();
+
+        $service = $serviceModel->find($id);
+        $pagos = $pagosModel->where('servicio_id', $id)->orderBy('fecha_programacion', 'ASC')->findAll();
+        $amortizaciones = $amorModel->select('amor_pagos_servicios.*, metodos_pagos.metodo as metodo_nombre')
+            ->join('metodos_pagos', 'metodos_pagos.id = amor_pagos_servicios.metodo_pago_id')
+            ->where('servicio_id', $id)
+            ->where('amor_pagos_servicios.estado', 1)
+            ->orderBy('amor_pagos_servicios.id', 'DESC')
+            ->findAll();
+
+        return $this->response->setJSON([
+            'service' => $service,
+            'pagos' => $pagos,
+            'amortizaciones' => $amortizaciones
+        ]);
+    }
 }
