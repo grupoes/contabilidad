@@ -176,7 +176,7 @@ class PdtAnual extends BaseController
             }
 
             // Obtener datos del contribuyente
-            $data_contribuyente = $contr->where('ruc', $ruc)->first();
+            $data_contribuyente = $contr->where('ruc', $ruc)->where('estado', 1)->first();
             $razon_social = $data_contribuyente['razon_social'] ?? '';
 
             // Procesar cargo

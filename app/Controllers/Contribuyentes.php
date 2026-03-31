@@ -804,7 +804,7 @@ class Contribuyentes extends BaseController
 
         $status_condition = ($estado == 0) ? "c.estado > 0" : "c.estado = $estado";
 
-        $datos = $model->query("SELECT c.id, c.razon_social, c.ruc, c.tipoPago, c.diaCobro, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes as c WHERE tipoSuscripcion = 'NO GRATUITO' AND $status_condition $sql ORDER BY c.id desc")->getResult();
+        $datos = $model->query("SELECT c.id, c.razon_social, c.ruc, c.tipoPago, c.diaCobro, c.tipoServicio, c.tipoSuscripcion FROM contribuyentes as c WHERE tipoSuscripcion = 'NO GRATUITO' AND c.estado = 1 AND $status_condition $sql ORDER BY c.id desc")->getResult();
 
         $hoy = new DateTime();
         $mesActual = $hoy->format('Y-m');
