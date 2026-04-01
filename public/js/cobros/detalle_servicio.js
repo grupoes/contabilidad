@@ -20,24 +20,122 @@ document.addEventListener('DOMContentLoaded', function() {
         // Re-attach view voucher events as table body changes
         document.querySelectorAll('.btnViewVoucher').forEach(btn => {
             btn.onclick = function() {
+                const id = this.getAttribute('data-id');
                 const url = this.getAttribute('data-url');
-                const fileExtension = url.split('.').pop().toLowerCase();
+                const metodo = this.getAttribute('data-metodo');
+
+                document.getElementById('amorIdDetalle').value = id;
+                document.getElementById('edit_metodo_pago_id').value = metodo;
+                document.getElementById('editAmorContainer').style.display = 'none';
 
                 voucherImage.style.display = 'none';
                 voucherPdfCont.style.display = 'none';
-                btnDownloadVoucher.href = url;
+                
+                if (url) {
+                    const fileExtension = url.split('.').pop().toLowerCase();
+                    btnDownloadVoucher.style.display = 'inline-block';
+                    btnDownloadVoucher.href = url;
 
-                if (fileExtension === 'pdf') {
-                    voucherIframe.src = url;
-                    voucherPdfCont.style.display = 'block';
+                    if (fileExtension === 'pdf') {
+                        voucherIframe.src = url;
+                        voucherPdfCont.style.display = 'block';
+                    } else {
+                        voucherImage.src = url;
+                        voucherImage.style.display = 'inline-block';
+                    }
                 } else {
-                    voucherImage.src = url;
-                    voucherImage.style.display = 'inline-block';
+                    btnDownloadVoucher.style.display = 'none';
                 }
 
                 modalVoucher.show();
             };
         });
+
+        document.querySelectorAll('.btnDeleteAmortization').forEach(btn => {
+            btn.onclick = function() {
+                const id = this.getAttribute('data-id');
+                const monto = parseFloat(this.getAttribute('data-monto')).toFixed(2);
+
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: `Se eliminará esta amortización por S/. ${monto}. Se restaurarán las cuotas correspondientes al estado pendiente.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e74a3b',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        showLoader();
+                        fetch(`${base_url}delete-amortization-service/${id}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                hideLoader();
+                                if (data.status === 'success') {
+                                    Swal.fire('¡Eliminado!', data.message, 'success');
+                                    updateServiceView();
+                                } else {
+                                    Swal.fire('Error', data.message, 'error');
+                                }
+                            })
+                            .catch(err => {
+                                hideLoader();
+                                Swal.fire('Error', 'Ocurrió un error al procesar la solicitud', 'error');
+                            });
+                    }
+                });
+            };
+        });
+    }
+
+    // Static events (not dynamic)
+    document.getElementById('btnShowEditVoucher').onclick = function() {
+        const container = document.getElementById('editAmorContainer');
+        container.style.display = container.style.display === 'none' ? 'block' : 'none';
+    };
+
+    const formEditAmor = document.getElementById('formEditAmor');
+    if (formEditAmor) {
+        formEditAmor.onsubmit = function(e) {
+            e.preventDefault();
+            const idAmor = document.getElementById('amorIdDetalle').value;
+            
+            if (!idAmor) {
+                Swal.fire('Error', 'No se ha detectado el ID del registro a actualizar', 'error');
+                return;
+            }
+
+            const formData = new FormData(this);
+            
+            showLoader();
+            modalVoucher.hide(); 
+            
+            fetch(`${base_url}update-voucher-service`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideLoader();
+                if (data.status === 'success') {
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonColor: '#4e73df'
+                    });
+                    updateServiceView();
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(err => {
+                hideLoader();
+                Swal.fire('Error', 'No se pudo procesar la solicitud de actualización', 'error');
+            });
+        };
     }
 
     initViewEvents();
@@ -46,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btnOpenAmortizar.addEventListener('click', () => {
             modalAmortizar.show();
             labelTotalPendiente.innerHTML = `Pendiente Total: S/. ${globalTotalPendiente.toFixed(2)}`;
-            inputMonto.value = globalTotalPendiente.toFixed(2);
+            inputMonto.value = firstPendingAmount.toFixed(2);
             inputMonto.max = globalTotalPendiente;
         });
     }
@@ -111,6 +209,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             icon: 'success',
                             confirmButtonColor: '#4e73df'
                         });
+                        
+                        formAmortizar.reset();
+                        viewVoucher.style.display = 'none';
+                        document.getElementById('divSedeSelect').style.display = 'none';
+
                         updateServiceView();
                     } else {
                         modalAmortizar.show();
@@ -133,8 +236,11 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`${base_url}service-data/${serviceId}`)
             .then(res => res.json())
             .then(data => {
-                // Update Global Total
+                // Update Global Total and first pending
                 globalTotalPendiente = data.pagos.reduce((acc, curr) => acc + parseFloat(curr.monto_pendiente), 0);
+                
+                const firstPending = data.pagos.find(p => p.estado === 'pendiente');
+                firstPendingAmount = firstPending ? parseFloat(firstPending.monto_pendiente) : 0;
                 
                 // Update Header
                 const headerTotalPendiente = document.getElementById('headerTotalPendiente');
@@ -175,19 +281,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.amortizaciones.length === 0) {
                     amorHtml = '<tr><td colspan="5" class="text-center py-4 text-muted">No se registran amortizaciones.</td></tr>';
                 } else {
-                    data.amortizaciones.forEach(am => {
+                    data.amortizaciones.forEach((am, index) => {
                         amorHtml += `
                             <tr class="hover-row">
                                 <td>${formatDateTime(am.registro)}</td>
                                <td>${formatDate(am.fecha_pago)}</td>
                                 <td><span class="small badge bg-light text-dark fw-normal">${am.metodo_nombre}</span></td>
                                 <td class="fw-bold text-success">S/. ${formatNumber(am.monto)}</td>
-                                <td class="text-center">
-                                    ${am.vaucher ? `
-                                        <button type="button" class="btn btn-sm btn-icon btn-light-primary btnViewVoucher" data-url="${base_url}vouchers/${am.vaucher}">
-                                            <i class="fas fa-eye"></i>
+                                <td class="text-center d-flex justify-content-center gap-2">
+                                    <button type="button" class="btn btn-sm btn-icon btn-light-primary btnViewVoucher" data-id="${am.id}" data-url="${am.vaucher ? base_url + 'vouchers/' + am.vaucher : ''}" data-metodo="${am.metodo_pago_id}">
+                                        <i class="fas ${am.vaucher ? 'fa-eye' : 'fa-edit'}"></i>
+                                    </button>
+                                    ${index === 0 && am.registro.split(' ')[0] === new Date().toLocaleDateString('en-CA') ? `
+                                        <button type="button" class="btn btn-sm btn-icon btn-light-danger btnDeleteAmortization" data-id="${am.id}" data-monto="${am.monto}">
+                                            <i class="fas fa-trash"></i>
                                         </button>
-                                    ` : '<span class="text-muted small">Sin voucher</span>'}
+                                    ` : ''}
                                 </td>
                             </tr>
                         `;

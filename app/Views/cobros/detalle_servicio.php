@@ -214,19 +214,20 @@
                                                 <td colspan="5" class="text-center py-4 text-muted">No se registran amortizaciones.</td>
                                             </tr>
                                         <?php endif; ?>
-                                        <?php foreach ($amortizaciones as $am) : ?>
+                                        <?php foreach ($amortizaciones as $index => $am) : ?>
                                             <tr class="hover-row">
                                                 <td><?= date('d/m/Y H:i', strtotime($am['registro'])) ?></td>
                                                 <td><?= date('d/m/Y', strtotime($am['fecha_pago'])) ?></td>
                                                 <td><span class="small badge bg-light text-dark fw-normal"><?= $am['metodo_nombre'] ?></span></td>
                                                 <td class="fw-bold text-success">S/. <?= number_format($am['monto'], 2) ?></td>
-                                                <td class="text-center">
-                                                    <?php if ($am['vaucher']) : ?>
-                                                        <button type="button" class="btn btn-sm btn-icon btn-light-primary btnViewVoucher" data-url="<?= base_url() ?>vouchers/<?= $am['vaucher'] ?>">
-                                                            <i class="fas fa-eye"></i>
+                                                <td class="text-center d-flex justify-content-center gap-2">
+                                                    <button type="button" class="btn btn-sm btn-icon btn-light-primary btnViewVoucher" data-id="<?= $am['id'] ?>" data-url="<?= $am['vaucher'] ? base_url().'vouchers/'.$am['vaucher'] : '' ?>" data-metodo="<?= $am['metodo_pago_id'] ?>">
+                                                        <i class="fas <?= $am['vaucher'] ? 'fa-eye' : 'fa-edit' ?>"></i>
+                                                    </button>
+                                                    <?php if ($index === 0 && date('Y-m-d', strtotime($am['registro'])) === date('Y-m-d')) : ?>
+                                                        <button type="button" class="btn btn-sm btn-icon btn-light-danger btnDeleteAmortization" data-id="<?= $am['id'] ?>" data-monto="<?= $am['monto'] ?>">
+                                                            <i class="fas fa-trash"></i>
                                                         </button>
-                                                    <?php else : ?>
-                                                        <span class="text-muted small">Sin voucher</span>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>
@@ -309,16 +310,45 @@
             </div>
             <div class="modal-body p-4 text-center">
                 <h5 class="mb-3 font-weight-bold">Voucher / Comprobante de Pago</h5>
-                <img src="" id="voucherImage" class="img-fluid rounded shadow-sm" style="max-height: 500px;" alt="Voucher">
+                <img src="" id="voucherImage" class="img-fluid rounded shadow-sm" style="max-height: 350px; max-width: 80%;" alt="Voucher">
                 <div id="voucherPdf" style="display: none;">
                     <iframe src="" id="voucherIframe" width="100%" height="500px" style="border: none;"></iframe>
                 </div>
             </div>
-            <div class="modal-footer border-0 pt-0 justify-content-center">
+            <div class="modal-footer border-0 pt-0 d-flex justify-content-center gap-2">
                 <a href="" id="btnDownloadVoucher" download class="btn btn-outline-primary shadow-sm px-4">
                     <i class="fas fa-download me-2"></i>Descargar
                 </a>
+                <button type="button" class="btn btn-warning shadow-sm px-4" id="btnShowEditVoucher">
+                    <i class="fas fa-edit me-2"></i>Cambiar
+                </button>
                 <button type="button" class="btn btn-primary px-4 shadow" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+            <!-- Div oculto para editar amortización -->
+            <div id="editAmorContainer" style="display: none;" class="p-4 pt-0 border-top mt-3 text-start">
+                <hr>
+                <h6 class="mb-3 font-weight-bold text-center">Actualizar Amortización</h6>
+                <form id="formEditAmor" enctype="multipart/form-data">
+                    <input type="hidden" name="idAmor" id="amorIdDetalle">
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Método de Pago</label>
+                        <select class="form-select form-select-sm" name="metodo_pago_id" id="edit_metodo_pago_id" required>
+                            <?php foreach ($metodos as $m) : ?>
+                                <option value="<?= $m['id'] ?>"><?= $m['metodo'] ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Cambiar Comprobante (opcional)</label>
+                        <input type="file" class="form-control form-control-sm" name="vaucher_nuevo" id="vaucher_nuevo_edit">
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn btn-primary btn-sm px-4" type="submit">Guardar Cambios</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -333,6 +363,16 @@
     let globalTotalPendiente = <?= array_reduce($pagos, function($carry, $item) {
                                 return $carry + $item['monto_pendiente'];
                             }, 0) ?>;
+    <?php
+    $primeraCuotaPendiente = 0;
+    foreach ($pagos as $pago) {
+        if ($pago['estado'] == 'pendiente') {
+            $primeraCuotaPendiente = $pago['monto_pendiente'];
+            break;
+        }
+    }
+    ?>
+    let firstPendingAmount = <?= $primeraCuotaPendiente ?>;
     const serviceId = <?= $service['id'] ?>;
 </script>
 <script src="<?= base_url() ?>js/cobros/detalle_servicio.js?v=4"></script>

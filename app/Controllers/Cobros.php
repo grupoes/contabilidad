@@ -625,6 +625,176 @@ class Cobros extends BaseController
         }
     }
 
+    public function deleteAmortizationService($id)
+    {
+        $amorPago = new AmorPagosServiciosModel();
+        $serviceModel = new ServicioModel();
+        $movModel = new MovimientoModel();
+
+        $amorPago->db->transStart();
+
+        try {
+            $dataAmor = $amorPago->find($id);
+
+            if (!$dataAmor) {
+                throw new \Exception("No se encontró la amortización.");
+            }
+
+            // Validar que sea la última (consecutiva)
+            $ultima = $amorPago->where('servicio_id', $dataAmor['servicio_id'])
+                ->where('estado', 1)
+                ->orderBy('id', 'DESC')
+                ->first();
+
+            if (!$ultima || $ultima['id'] != $id) {
+                throw new \Exception("Solo se puede eliminar la última amortización realizada.");
+            }
+
+            $serviceId = $dataAmor['servicio_id'];
+            $monto = $dataAmor['monto'];
+            $movimientoId = $dataAmor['movimientoId'];
+
+            // Desactivar movimiento
+            $movModel->update($movimientoId, ['mov_estado' => 0]);
+
+            // Desactivar amortización
+            $amorPago->update($id, ['estado' => 0]);
+
+            // Restaurar cuotas
+            $this->restaurarCuotasServicio($serviceId, $monto);
+
+            // Si el servicio estaba pagado o pendiente, recalcular el estado total no está mal
+            $serviceModel->update($serviceId, ['estado' => 'pendiente']);
+
+            $amorPago->db->transComplete();
+
+            if ($amorPago->db->transStatus() === false) {
+                throw new \Exception("Error al realizar la operación.");
+            }
+
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Amortización eliminada correctamente.']);
+        } catch (\Exception $e) {
+            $amorPago->db->transRollback();
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    private function restaurarCuotasServicio($serviceId, $monto)
+    {
+        $pagosModel = new ServicioPagosModel();
+
+        // Buscar las cuotas que tienen monto pagado, empezando por la ÚLTIMA pagada
+        $pagadas = $pagosModel->where('servicio_id', $serviceId)
+            ->where('monto_pagado >', 0)
+            ->orderBy('fecha_programacion', 'DESC')
+            ->orderBy('id', 'DESC')
+            ->findAll();
+
+        $montoRestante = $monto;
+
+        foreach ($pagadas as $pago) {
+            if ($montoRestante <= 0) break;
+
+            $montoPagadoActual = $pago['monto_pagado'];
+            $montoOriginal = $pago['monto'];
+
+            if ($montoRestante >= $montoPagadoActual) {
+                // Se resta todo lo pagado en esta cuota
+                $pagosModel->update($pago['id'], [
+                    'monto_pagado' => 0.00,
+                    'monto_pendiente' => $montoOriginal,
+                    'estado' => 'pendiente',
+                    'fecha_pago' => null,
+                    'fecha_proceso' => null,
+                    'user_edit' => session()->id
+                ]);
+                $montoRestante -= $montoPagadoActual;
+            } else {
+                // Se resta solo una parte
+                $nuevoMontoPagado = $montoPagadoActual - $montoRestante;
+                $pagosModel->update($pago['id'], [
+                    'monto_pagado' => $nuevoMontoPagado,
+                    'monto_pendiente' => $montoOriginal - $nuevoMontoPagado,
+                    'estado' => 'pendiente',
+                    'user_edit' => session()->id
+                ]);
+                $montoRestante = 0;
+            }
+        }
+    }
+
+    public function updateVoucherService()
+    {
+        $pago = new AmorPagosServiciosModel();
+        $movModel = new MovimientoModel();
+
+        try {
+            $idAmor = $this->request->getVar('idAmor');
+            $metodo_id = $this->request->getVar('metodo_pago_id');
+            $voucher = $this->request->getFile('vaucher_nuevo');
+
+            if (!$idAmor) {
+                throw new \Exception("ID de amortización no especificado.");
+            }
+
+            $dataAmor = $pago->find($idAmor);
+
+            if (!$dataAmor) {
+                throw new \Exception("Amortización no encontrada.");
+            }
+
+            $updateDataAmor = [];
+            if ($metodo_id) {
+                $updateDataAmor['metodo_pago_id'] = $metodo_id;
+            }
+
+            $nameFileDelete = $dataAmor['vaucher'];
+            $nameFile = "";
+
+            if ($voucher && $voucher->isValid() && !$voucher->hasMoved()) {
+                $newName = $voucher->getRandomName();
+                $voucher->move(FCPATH . 'vouchers', $newName);
+                $nameFile = $newName;
+                $updateDataAmor['vaucher'] = $nameFile;
+            }
+
+            // Actualizar Amortización
+            if (!empty($updateDataAmor)) {
+                $pago->update($idAmor, $updateDataAmor);
+            }
+
+            // Actualizar Movimiento
+            if ($dataAmor['movimientoId']) {
+                $updateDataMov = [];
+                if ($metodo_id) {
+                    $updateDataMov['id_metodo_pago'] = $metodo_id;
+                }
+                if ($nameFile) {
+                    $updateDataMov['vaucher'] = $nameFile;
+                }
+
+                if (!empty($updateDataMov)) {
+                    $movModel->update($dataAmor['movimientoId'], $updateDataMov);
+                }
+            }
+
+            // Borrar anterior comprobante si se subió uno nuevo
+            if ($nameFile && $nameFileDelete) {
+                $filePath = FCPATH . 'vouchers/' . $nameFileDelete;
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
+
+            return $this->response->setJSON([
+                "status" => "success",
+                "message" => "Información actualizada correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
     public function cobroPlanificador()
     {
         if (!session()->logged_in) {
@@ -813,7 +983,7 @@ class Cobros extends BaseController
 
         $services = new ServicioModel();
 
-        $data = $services->where('estado !=', 'eliminado')->findAll();
+        $data = $services->where('estado !=', 'eliminado')->orderBy('id', 'desc')->findAll();
 
         return $this->response->setJSON($data);
     }

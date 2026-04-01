@@ -73,7 +73,9 @@ $routes->get('crear/servicio', 'Cobros::createCobroServicio');
 $routes->post('save-service', 'Cobros::saveService');
 $routes->get('services/all', 'Cobros::allServices');
 $routes->get('detalle-servicio/(:num)', 'Cobros::serviceDetails/$1');
+$routes->get('delete-amortization-service/(:num)', 'Cobros::deleteAmortizationService/$1');
 $routes->post('save-amortization', 'Cobros::saveAmortization');
+$routes->post('update-voucher-service', 'Cobros::updateVoucherService');
 $routes->get('service-data/(:num)', 'Cobros::getServiceData/$1');
 
 $routes->get('cobro-servidor', 'Cobros::index');
