@@ -813,7 +813,7 @@ class Cobros extends BaseController
 
         $services = new ServicioModel();
 
-        $data = $services->findAll();
+        $data = $services->where('estado !=', 'eliminado')->findAll();
 
         return $this->response->setJSON($data);
     }
