@@ -154,6 +154,31 @@ class ventas extends BaseController
         return $this->response->setJSON($ventas);
     }
 
+    public function getNotaCreditoBoleta($id_venta, $shema, $fecha_boleta)
+    {
+        $db = \Config\Database::connect('restaurant');
+
+        $query = $db->query("SELECT * FROM {$shema}.nota_credito_venta WHERE vent_id = $id_venta")->getRow();
+
+        if(!$query) {
+            return false;
+        }
+
+        $fecha_nota = $query->nocv_fecha;
+
+        // $fecha_boleta viene en formato d/m/Y desde el TO_CHAR
+        $fecha1 = \DateTime::createFromFormat('d/m/Y', $fecha_boleta);
+        $fecha2 = new \DateTime($fecha_nota);
+
+        if($fecha1->format('Y-m') !== $fecha2->format('Y-m')) {
+            return false;
+        }
+
+        return true;
+
+
+    }
+
     public function maquetaVentas()
     {
         $db = \Config\Database::connect('restaurant');
@@ -199,7 +224,7 @@ class ventas extends BaseController
 
             $facturas = $dataFacturas->getResultArray();
 
-            $dataBoletas = $db->query("SELECT v.vent_id as id, TO_CHAR(v.vent_fecha, 'DD/MM/YYYY') as fecha, 'S' as tipo_moneda, tc.tico_descripcion, CONCAT(v.vent_serie,'-',v.vent_numero) as numero_documento, v.vent_serie, v.vent_numero, c.clie_numero_documento, c.clie_nombre_razon_social, v.vent_total_exonerado as total_exonerado, v.vent_total_gravado as total_gravado, v.vent_total_inafecto as total_inafecto, v.vent_subtotal as subtotal, v.vent_total_igv as total_igv, v.vent_total_icbper as total_icbper, v.vent_total as total, v.vent_homologacion_estado as homologacion_estado, cs.sede_id, cs.tico_id, v.vent_estado as estado, '' as referencia, '' as fecha_referencia, 'venta' as origen
+            $dataBoletas = $db->query("SELECT v.vent_id as id, TO_CHAR(v.vent_fecha, 'DD/MM/YYYY') as fecha, 'S' as tipo_moneda, tc.tico_descripcion, CONCAT(v.vent_serie,'-',v.vent_numero) as numero_documento, v.vent_serie, v.vent_numero, c.clie_numero_documento, c.clie_nombre_razon_social, v.vent_total_exonerado as total_exonerado, v.vent_total_gravado as total_gravado, v.vent_total_inafecto as total_inafecto, v.vent_subtotal as subtotal, v.vent_total_igv as total_igv, v.vent_total_icbper as total_icbper, v.vent_total as total, v.vent_homologacion_estado as homologacion_estado, cs.sede_id, cs.tico_id, v.vent_estado as estado, '' as referencia, '' as fecha_referencia, 'venta' as origen, (SELECT nocv_fecha FROM {$shema}.nota_credito_venta WHERE vent_id = v.vent_id LIMIT 1) as nota_credito_fecha
             FROM {$shema}.venta v 
             INNER JOIN {$shema}.cliente c ON c.clie_id = v.clie_id 
             INNER JOIN {$shema}.comprobante_sede cs ON cs.cose_id = v.cose_id 
@@ -275,8 +300,17 @@ class ventas extends BaseController
             $grupoActual = null;
 
             foreach ($boletas as $fila) {
+                $tieneNotaCredito = false;
+                if (!empty($fila['nota_credito_fecha'])) {
+                    $fecha1 = \DateTime::createFromFormat('d/m/Y', $fila['fecha']);
+                    $fecha2 = new \DateTime($fila['nota_credito_fecha']);
+                    if ($fecha1 && $fecha2 && $fecha1->format('Y-m') === $fecha2->format('Y-m')) {
+                        $tieneNotaCredito = true;
+                    }
+                }
+                
                 // Si es condición 'I' o monto > 700, agregar directamente
-                if ($fila['estado'] === 'f' || $fila['total'] >= 700) {
+                if ($fila['estado'] === 'f' || $fila['total'] >= 700 || $tieneNotaCredito) {
                     // Si hay un grupo pendiente, agregarlo primero
                     if ($grupoActual !== null) {
                         $maqueta[] =  $this->finalizarGrupo($grupoActual);
@@ -429,7 +463,7 @@ class ventas extends BaseController
             $add = array(
                 "fecha" => $fila['fecha'],
                 "tipo_moneda" => "S",
-                "documento" => 'BOLETA DE VENTA',
+                "documento" => 'BOLETA DE VENTA ELECTRONICA',
                 "numero" => $fila['numero_documento'],
                 "condicion" => "A",
                 "ruc" => "00000000",
@@ -451,7 +485,7 @@ class ventas extends BaseController
             $add = array(
                 "fecha" => $fila['fecha'],
                 "tipo_moneda" => "S",
-                "documento" => 'BOLETA DE VENTA',
+                "documento" => 'BOLETA DE VENTA ELECTRONICA',
                 "numero" => $fila['numero_documento'],
                 "condicion" => "A",
                 "ruc" => $fila['clie_numero_documento'],
