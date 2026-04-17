@@ -102,6 +102,8 @@ if (btnModal) {
     costoAnual.value = "";
     diaCobro.value = "01";
     fechaContrato.value = "";
+    fechaContrato.setAttribute("required", true);
+    tipoPago.setAttribute("required", true);
     multipleSystem.removeActiveItems();
     clientesVarios.value = "00000001";
     boletaAnulado.value = "00000000";
@@ -209,9 +211,21 @@ tipoSuscripcion.addEventListener("change", (e) => {
   const costos = document.getElementsByClassName("costos");
 
   if (tipo === "GRATUITO") {
-    [...costos].forEach((costo) => costo.setAttribute("hidden", true));
+    [...costos].forEach((costo) => {
+      costo.setAttribute("hidden", true);
+      const inputs = costo.querySelectorAll("input, select");
+      inputs.forEach((input) => input.removeAttribute("required"));
+    });
   } else {
-    [...costos].forEach((costo) => costo.removeAttribute("hidden"));
+    [...costos].forEach((costo) => {
+      costo.removeAttribute("hidden");
+    });
+    // Re-add required to fields that need it
+    fechaContrato.setAttribute("required", true);
+    tipoPago.setAttribute("required", true);
+    if (idTable.value === "0") {
+      contrato.setAttribute("required", true);
+    }
   }
 });
 
@@ -473,9 +487,17 @@ tableBody.addEventListener("click", (e) => {
         const costos = document.getElementsByClassName("costos");
 
         if (empresa.tipoSuscripcion === "GRATUITO") {
-          [...costos].forEach((costo) => costo.setAttribute("hidden", true));
+          [...costos].forEach((costo) => {
+            costo.setAttribute("hidden", true);
+            const inputs = costo.querySelectorAll("input, select");
+            inputs.forEach((input) => input.removeAttribute("required"));
+          });
         } else {
-          [...costos].forEach((costo) => costo.removeAttribute("hidden"));
+          [...costos].forEach((costo) => {
+            costo.removeAttribute("hidden");
+          });
+          fechaContrato.setAttribute("required", true);
+          tipoPago.setAttribute("required", true);
         }
 
         numeroDocumento.value = empresa.ruc;

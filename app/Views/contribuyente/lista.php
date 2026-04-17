@@ -281,12 +281,12 @@
                             </select>
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-4 mb-3 costos">
                             <label class="form-label" for="fechaContrato">Fecha de Contrato</label>
                             <input type="date" class="form-control" name="fechaContrato" id="fechaContrato" required>
                         </div>
 
-                        <div class="col-md-8 mb-3" id="input_contrato">
+                        <div class="col-md-8 mb-3 costos" id="input_contrato">
                             <label class="form-label" for="contrato">Subir Contrato</label>
                             <input type="file" class="form-control" name="contrato" id="contrato" required>
                         </div>

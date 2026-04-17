@@ -377,7 +377,7 @@ class Contribuyentes extends BaseController
                 'costoAnual' => $data['costoAnual'],
                 'diaCobro' => $diacobro,
                 'diaSuscripcion' => $data['diaSuscripcion'],
-                'fechaContrato' => $data['fechaContrato'],
+                'fechaContrato' => ($data['tipoSuscripcion'] === 'GRATUITO') ? '0000-00-00' : $data['fechaContrato'],
                 'telefono' => "",
                 'correo' => "",
                 'usuario_secundario' => "",
@@ -395,29 +395,6 @@ class Contribuyentes extends BaseController
             $tarifa = new HistorialTarifaModel();
 
             if ($idTabla === "0") {
-
-                $file_contrato = $this->request->getFile('contrato');
-
-                if (!$file_contrato) {
-                    return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de contrato']);
-                }
-
-                if (!$file_contrato->isValid()) {
-                    return $this->response->setJSON(['status' => 'error', 'message' => 'No es un archivo válido']);
-                }
-
-                if ($file_contrato->getClientMimeType() !== 'application/pdf') {
-                    return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permite archivo PDF']);
-                }
-
-                $ext_contrato = $file_contrato->getExtension();
-                $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
-
-                $archivo_contrato = "CONTRATO_" . $data['numeroDocumento'] . "_" . $codigo . "." . $ext_contrato;
-
-                $file_contrato->move(FCPATH . 'contratos', $archivo_contrato);
-
-                $ruta_contrato = FCPATH . 'contratos/' . $archivo_contrato;
 
                 if ($verificar) {
                     return $this->response->setJSON(['status' => 'error', 'message' => "El RUC ya se encuentra registrado."]);
@@ -450,38 +427,64 @@ class Contribuyentes extends BaseController
                     }
                 }
 
-                $fechaInit = new DateTime($data['fechaContrato']);
-                $fechaInicio = $fechaInit->format('Y-m') . "-" . $data['diaCobro'];
+                $idAfiliacion = 0;
+                if ($data['tipoSuscripcion'] !== 'GRATUITO') {
+                    $file_contrato = $this->request->getFile('contrato');
 
-                $dataContrato = [
-                    'contribuyenteId' => $contribuyente_id,
-                    'fechaInicio' => $data['fechaContrato'],
-                    'fechaFin' => "0000-00-00",
-                    'diaCobro' => $data['diaCobro'],
-                    'file' => $archivo_contrato,
-                    'estado' => 1,
-                ];
+                    if (!$file_contrato) {
+                        return $this->response->setJSON(['status' => 'error', 'message' => 'No se recibió ningún archivo de contrato']);
+                    }
 
-                $contrato->insert($dataContrato);
+                    if (!$file_contrato->isValid()) {
+                        return $this->response->setJSON(['status' => 'error', 'message' => 'No es un archivo válido']);
+                    }
 
-                $idContrato = $contrato->insertID();
+                    if ($file_contrato->getClientMimeType() !== 'application/pdf') {
+                        return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se permite archivo PDF']);
+                    }
 
-                $tarifa->insert([
-                    'contratoId' => $idContrato,
-                    'fecha_inicio' => $fechaInicio,
-                    'monto_mensual' => $data['costoMensual'],
-                    'monto_anual' => $data['costoAnual'],
-                    'estado' => 1
-                ]);
+                    $ext_contrato = $file_contrato->getExtension();
+                    $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
 
-                $afiliacion = new AfiliacionesModel();
-                $afiliacion->insert([
-                    'contribuyente_id' => $contribuyente_id,
-                    'fecha_inicio' => $data['fechaContrato'],
-                    'fecha_fin' => null
-                ]);
+                    $archivo_contrato = "CONTRATO_" . $data['numeroDocumento'] . "_" . $codigo . "." . $ext_contrato;
 
-                $idAfiliacion = $afiliacion->insertID();
+                    $file_contrato->move(FCPATH . 'contratos', $archivo_contrato);
+
+                    $ruta_contrato = FCPATH . 'contratos/' . $archivo_contrato;
+
+                    $fechaInit = new DateTime($data['fechaContrato']);
+                    $fechaInicio = $fechaInit->format('Y-m') . "-" . $data['diaCobro'];
+
+                    $dataContrato = [
+                        'contribuyenteId' => $contribuyente_id,
+                        'fechaInicio' => $data['fechaContrato'],
+                        'fechaFin' => "0000-00-00",
+                        'diaCobro' => $data['diaCobro'],
+                        'file' => $archivo_contrato,
+                        'estado' => 1,
+                    ];
+
+                    $contrato->insert($dataContrato);
+
+                    $idContrato = $contrato->insertID();
+
+                    $tarifa->insert([
+                        'contratoId' => $idContrato,
+                        'fecha_inicio' => $fechaInicio,
+                        'monto_mensual' => $data['costoMensual'],
+                        'monto_anual' => $data['costoAnual'],
+                        'estado' => 1
+                    ]);
+
+                    $afiliacion = new AfiliacionesModel();
+                    $afiliacion->insert([
+                        'contribuyente_id' => $contribuyente_id,
+                        'fecha_inicio' => $data['fechaContrato'],
+                        'fecha_fin' => null
+                    ]);
+
+                    $idAfiliacion = $afiliacion->insertID();
+                }
 
                 //agregar servidor monto
                 if (isset($data['monto_servidor'])) {

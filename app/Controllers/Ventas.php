@@ -160,7 +160,7 @@ class ventas extends BaseController
 
         $query = $db->query("SELECT * FROM {$shema}.nota_credito_venta WHERE vent_id = $id_venta")->getRow();
 
-        if(!$query) {
+        if (!$query) {
             return false;
         }
 
@@ -170,13 +170,11 @@ class ventas extends BaseController
         $fecha1 = \DateTime::createFromFormat('d/m/Y', $fecha_boleta);
         $fecha2 = new \DateTime($fecha_nota);
 
-        if($fecha1->format('Y-m') !== $fecha2->format('Y-m')) {
+        if ($fecha1->format('Y-m') !== $fecha2->format('Y-m')) {
             return false;
         }
 
         return true;
-
-
     }
 
     public function maquetaVentas()
@@ -308,7 +306,7 @@ class ventas extends BaseController
                         $tieneNotaCredito = true;
                     }
                 }
-                
+
                 // Si es condición 'I' o monto > 700, agregar directamente
                 if ($fila['estado'] === 'f' || $fila['total'] >= 700 || $tieneNotaCredito) {
                     // Si hay un grupo pendiente, agregarlo primero
