@@ -303,12 +303,12 @@
 
                         <div class="col-md-12 mb-3">
                             <label for="rectAjustePosterior" class="form-label">Elige el ajuste posterior</label>
-                            <input type="file" name="rectAjustePosterior" id="rectAjustePosterior" class="form-control" accept=".pdf" required />
+                            <input type="file" name="rectAjustePosterior" id="rectAjustePosterior" class="form-control" accept=".pdf" />
                         </div>
 
                         <div class="col-md-12 mb-3">
                             <label for="rectArchivos" class="form-label">Archivos</label>
-                            <input type="file" name="rectArchivos[]" id="rectArchivos" class="form-control" accept=".txt, .zip" multiple required />
+                            <input type="file" name="rectArchivos[]" id="rectArchivos" class="form-control" accept=".txt, .zip" multiple />
                         </div>
 
                         <div class="col-md-12" id="viewAlert">
