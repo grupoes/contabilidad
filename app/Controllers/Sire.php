@@ -230,8 +230,18 @@ class Sire extends BaseController
             $file4 = $this->request->getFile('rectAjustePosterior');
             $rectArchivos = $this->request->getFileMultiple('rectArchivos');
 
+            $hasValidRectArchivos = false;
+            if ($rectArchivos) {
+                foreach ($rectArchivos as $rFile) {
+                    if ($rFile->isValid()) {
+                        $hasValidRectArchivos = true;
+                        break;
+                    }
+                }
+            }
+
             // Verificar que al menos uno de los archivos esté presente
-            if ((!$file1 || !$file1->isValid()) && (!$file2 || !$file2->isValid()) && (!$file3 || !$file3->isValid()) && (!$file4 || !$file4->isValid())) {
+            if ((!$file1 || !$file1->isValid()) && (!$file2 || !$file2->isValid()) && (!$file3 || !$file3->isValid()) && (!$file4 || !$file4->isValid()) && !$hasValidRectArchivos) {
                 return $this->response->setJSON([
                     "status" => "error",
                     "message" => "Debe seleccionar al menos un archivo"
@@ -257,36 +267,37 @@ class Sire extends BaseController
 
             $dataArchivo = $files->find($idarchivo);
 
-            if ($file1->isValid()) {
+            if ($file1 && $file1->isValid()) {
                 $ext_constancia_ventas = $file1->getExtension();
                 $archivo_constancia_ventas = "CONST_VENTAS" . $ruc . "_" . $per . $ani . "_RECT_" . $codigo . "." . $ext_constancia_ventas;
                 $file1->move(FCPATH . 'archivos/sire', $archivo_constancia_ventas);
             } else {
-                $archivo_constancia_ventas = $dataArchivo['constancia_ventas'];
+                $archivo_constancia_ventas = $dataArchivo['constancia_ventas'] ?? null;
             }
 
-            if ($file2->isValid()) {
+            if ($file2 && $file2->isValid()) {
                 $ext_constancia_compras = $file2->getExtension();
                 $archivo_constancia_compras = "CONST_COMPRAS" . $ruc . "_" . $per . $ani . "_RECT_" . $codigo . "." . $ext_constancia_compras;
                 $file2->move(FCPATH . 'archivos/sire', $archivo_constancia_compras);
             } else {
-                $archivo_constancia_compras = $dataArchivo['constancia_compras'];
+                $archivo_constancia_compras = $dataArchivo['constancia_compras'] ?? null;
             }
 
-            if ($file3->isValid()) {
+            if ($file3 && $file3->isValid()) {
                 $ext_detalle_preliminar = $file3->getExtension();
                 $archivo_detalle_preliminar = "DETALLE_PRELIMINAR" . $ruc . "_" . $per . $ani . "_RECT_" . $codigo . "." . $ext_detalle_preliminar;
                 $file3->move(FCPATH . 'archivos/sire', $archivo_detalle_preliminar);
             } else {
-                $archivo_detalle_preliminar = $dataArchivo['detalle_preliminar'];
+                $archivo_detalle_preliminar = $dataArchivo['detalle_preliminar'] ?? null;
             }
 
-            if ($file4->isValid()) {
+            if ($file4 && $file4->isValid()) {
                 $ext_ajuste_posterior = $file4->getExtension();
                 $archivo_ajuste_posterior = "AJUSTE_POSTERIOR" . $ruc . "_" . $per . $ani . "_RECT_" . $codigo . "." . $ext_ajuste_posterior;
                 $file4->move(FCPATH . 'archivos/sire', $archivo_ajuste_posterior);
             } else {
-                $archivo_ajuste_posterior = $dataArchivo['ajuste_posterior'];
+                // Se corrige el nombre de la columna para que coincida con la base de datos (ajustes_posteriores)
+                $archivo_ajuste_posterior = $dataArchivo['ajustes_posteriores'] ?? null;
             }
 
             $datos_files = array(
@@ -306,27 +317,30 @@ class Sire extends BaseController
                 "user_edit" => session()->id
             ));
 
-            $archivos->where('sire_id', $idsire)->set([
-                "estado" => 0,
-                "user_edit" => session()->id
-            ])->update();
+            if ($hasValidRectArchivos) {
+                $archivos->where('sire_id', $idsire)->set([
+                    "estado" => 0,
+                    "user_edit" => session()->id
+                ])->update();
 
-            $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+                $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
 
-            for ($i = 0; $i < count($rectArchivos); $i++) {
+                for ($i = 0; $i < count($rectArchivos); $i++) {
+                    if ($rectArchivos[$i]->isValid()) {
+                        $name_file = $codigo . "_" . $rectArchivos[$i]->getName();
 
-                $name_file = $codigo . "_" . $rectArchivos[$i]->getName();
+                        $rectArchivos[$i]->move(FCPATH . 'archivos/sire', $name_file);
 
-                $rectArchivos[$i]->move(FCPATH . 'archivos/sire', $name_file);
+                        $datos_files_txt_zip = array(
+                            "sire_id" => $idsire,
+                            "name_file" => $name_file,
+                            "estado" => 1,
+                            "user_add" => session()->id
+                        );
 
-                $datos_files_txt_zip = array(
-                    "sire_id" => $idsire,
-                    "name_file" => $name_file,
-                    "estado" => 1,
-                    "user_add" => session()->id
-                );
-
-                $archivos->insert($datos_files_txt_zip);
+                        $archivos->insert($datos_files_txt_zip);
+                    }
+                }
             }
 
             if ($files->db->transStatus() === false) {
