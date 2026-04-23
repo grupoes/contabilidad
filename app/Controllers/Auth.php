@@ -190,7 +190,7 @@ class Auth extends BaseController
         );
 
         $usuario_conta = array(
-            'usu_usuario ' => $username,
+            'usu_usuario' => $username,
             'usu_clave' => $password,
             'usu_fechareg' => date('Y-m-d'),
             'usu_perfil' => $perfil,
@@ -470,8 +470,14 @@ class Auth extends BaseController
     public function deleteUser($id)
     {
         $user = new UserModel();
+        $usuario = new UsuarioModel();
+
+        $u = $user->find($id);
+
+        $dni = $u['numero_documento'];
 
         $user->update($id, ['estado' => 0]);
+        $usuario->set('usu_estado', 0)->where('dni', $dni)->update();
 
         return $this->response->setJSON(['status' => 'success', 'message' => 'Usuario eliminado correctamente.']);
     }
