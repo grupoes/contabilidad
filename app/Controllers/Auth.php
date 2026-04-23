@@ -198,7 +198,12 @@ class Auth extends BaseController
             'usu_sede' => $sede,
             'dni' => $numeroDocumento,
             'nombres' => $nombres,
-            'apellidos' => $apellidos
+            'apellidos' => $apellidos,
+            'correo' => $correo,
+            'telefono' => $celular,
+            'direccion' => $direccion,
+            'fecha_nacimiento' => $fechaNacimiento,
+            'numero_bancario' => $numeroCuenta
         );
 
         $consulta_c = $usuario_c->where('usu_usuario', $username)->first();
