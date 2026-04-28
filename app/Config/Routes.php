@@ -348,6 +348,11 @@ $routes->post('/agenda/atendido-actividad-con-evidencia', 'Agenda::atendidoActiv
 $routes->group('api', function ($routes) {
     // Login público
     $routes->post('login', 'Api\Auth::login');
+
+    // ── Email API ────────────────────────────────────────────────────────────
+    $routes->post('email/send',          'Api\Email::send');          // Correo genérico
+    $routes->post('email/send-bulk',     'Api\Email::sendBulk');      // Envío masivo
+    $routes->post('email/send-template', 'Api\Email::sendTemplate');  // Plantilla corporativa
 });
 
 $routes->get('api/descargar-boleta/(:num)/(:num)', 'Api\AppUser::descargarPdfSellado/$1/$2');
