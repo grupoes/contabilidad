@@ -220,10 +220,22 @@ class Auth extends ResourceController
             $emailService->setMessage($mensaje);
             $emailService->setMailType('html');
 
+            // Masking email for privacy (e.g., ****.tarapoto@gmail.com)
+            $emailParts = explode('@', $email);
+            $userPart = $emailParts[0];
+            $domainPart = $emailParts[1];
+            $visibleLen = 8;
+            if (strlen($userPart) > $visibleLen) {
+                $maskedEmail = str_repeat('*', 4) . substr($userPart, -$visibleLen) . '@' . $domainPart;
+            } else {
+                $maskedEmail = str_repeat('*', 4) . '@' . $domainPart;
+            }
+
             if ($emailService->send()) {
                 return $this->respond([
                     'status' => true,
-                    'message' => 'Código de verificación enviado correctamente a ' . $email,
+                    'message' => 'Código de verificación enviado correctamente',
+                    'masked_email' => $maskedEmail,
                     'id_user' => $id_user,
                     'username' => $username
                 ]);
