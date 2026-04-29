@@ -901,7 +901,7 @@ abstract class BaseController extends Controller
         return $contribuyentes;
     }
 
-    public function notificationPdtPlame()
+    public function notificationPdtPlame1()
     {
         $fechaDeclaracion = new FechaDeclaracionModel();
         $cont = new ContribuyenteModel();
@@ -961,6 +961,75 @@ abstract class BaseController extends Controller
 
         return $array;
     }
+
+    public function notificationPdtPlame()
+    {
+        $db = \Config\Database::connect();
+
+        // Rango de fechas según tu lógica original
+        $hoyMasDos = date('Y-m-d', strtotime('+2 days'));
+
+        $sql = "
+        SELECT 
+            MAX(c.id) AS contribuyente_id,
+            c.ruc,
+            MAX(c.razon_social) AS razon_social,
+            a.anio_descripcion AS anio,
+            m.mes_descripcion AS mes,
+            (fd.id_numero - 1) AS numero,
+            DATE_FORMAT(fd.fecha_exacta, '%d-%m-%Y') AS fecha_exacta,
+            MAX(c.fechaContrato) AS fechaContrato,
+            IF(MONTH(MAX(c.fechaContrato)) <= MONTH(CURDATE()) AND YEAR(MAX(c.fechaContrato)) = YEAR(CURDATE()), 'actual', 'antiguo') AS tipo_contrato,
+            fd.id_anio,
+            fd.id_mes
+        FROM fecha_declaracion fd
+        INNER JOIN mes m ON m.id_mes = fd.id_mes
+        INNER JOIN anio a ON a.id_anio = fd.id_anio
+        -- Relacionamos contribuyentes cuyo último dígito del RUC coincide con el número de vencimiento
+        INNER JOIN contribuyentes c ON RIGHT(c.ruc, 1) = (fd.id_numero - 1)
+        INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc
+        INNER JOIN tributo t ON t.id_tributo = cn.id_tributo
+        -- Buscamos el registro del PDT y el último archivo subido
+        LEFT JOIN (
+            SELECT 
+                pp.ruc_empresa, 
+                pp.periodo, 
+                pp.anio, 
+                pp.excluido,
+                ap.archivo_constancia
+            FROM pdt_plame pp
+            LEFT JOIN (
+                -- Obtenemos solo el ID del archivo más reciente por cada PDT
+                SELECT id_pdtplame, MAX(id_archivos_pdtplame) as max_id
+                FROM archivos_pdtplame
+                GROUP BY id_pdtplame
+            ) last_file ON last_file.id_pdtplame = pp.id_pdt_plame
+            LEFT JOIN archivos_pdtplame ap ON ap.id_archivos_pdtplame = last_file.max_id
+            WHERE pp.estado = 1
+        ) latest_pdt ON latest_pdt.ruc_empresa = c.ruc 
+            AND latest_pdt.periodo = fd.id_mes 
+            AND latest_pdt.anio = fd.id_anio
+        WHERE 
+            (fd.id_tributo = 2 
+            OR fd.id_tributo = 22)
+            AND fd.fecha_exacta BETWEEN '2025-07-01' AND ?
+            AND c.estado = 1
+            AND c.tipoServicio = 'CONTABLE'
+            AND t.id_pdt = 2
+            AND (
+                latest_pdt.ruc_empresa IS NULL -- Caso: No tiene registro de PDT
+                OR (
+                    (latest_pdt.archivo_constancia IS NULL OR latest_pdt.archivo_constancia = '') 
+                    AND latest_pdt.excluido = 'NO' -- Caso: Tiene registro pero falta la constancia y no está excluido
+                )
+            )
+        GROUP BY c.ruc, fd.id_anio, fd.id_mes
+        ORDER BY fd.fecha_exacta ASC, razon_social ASC
+    ";
+
+        return $db->query($sql, [$hoyMasDos])->getResultArray();
+    }
+
 
     public function renderContribuyentesDeuda($servicio, $estado)
     {
