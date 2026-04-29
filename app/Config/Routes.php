@@ -20,6 +20,10 @@ $routes->post('save-asignar', 'Auth::saveAsignar');
 $routes->get('get-user/(:num)', 'Auth::getUser/$1');
 $routes->get('user/delete/(:num)', 'Auth::deleteUser/$1');
 
+$routes->post('api/auth/reset-password-link', 'Api\Auth::resetPasswordLink');
+$routes->post('api/auth/verify-code', 'Api\Auth::verifyCode');
+$routes->post('api/auth/update-password', 'Api\Auth::updatePassword');
+
 $routes->get('migration-users', 'Auth::migrationUsers');
 
 $routes->get('home', 'Home::index');

@@ -503,6 +503,22 @@ class AppUser extends ResourceController
         $contrib = new ContribuyenteModel();
         $job = new TrabajadoresContriModel();
 
+        // Validación: Mínimo 8 caracteres
+        if (strlen($newPassword) < 8) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'La nueva contraseña debe tener al menos 8 caracteres'
+            ]);
+        }
+
+        // Validación: Alfanumérico
+        if (!preg_match('/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$/', $newPassword)) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'La nueva contraseña debe ser alfanumérica (letras y números)'
+            ]);
+        }
+
         try {
 
             if (strlen($usuario) == 11) {
