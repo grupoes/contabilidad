@@ -1015,7 +1015,7 @@ abstract class BaseController extends Controller
             AND fd.fecha_exacta BETWEEN '2025-07-01' AND ?
             AND c.estado = 1
             AND c.tipoServicio = 'CONTABLE'
-            AND t.id_pdt = 2
+            AND (t.id_pdt = 2 OR t.id_pdt = 22)
             AND (
                 latest_pdt.ruc_empresa IS NULL -- Caso: No tiene registro de PDT
                 OR (
