@@ -974,10 +974,10 @@ abstract class BaseController extends Controller
             MAX(c.id) AS contribuyente_id,
             c.ruc,
             MAX(c.razon_social) AS razon_social,
-            a.anio_descripcion AS anio,
-            m.mes_descripcion AS mes,
-            (fd.id_numero - 1) AS numero,
-            DATE_FORMAT(fd.fecha_exacta, '%d-%m-%Y') AS fecha_exacta,
+            MAX(a.anio_descripcion) AS anio,
+            MAX(m.mes_descripcion) AS mes,
+            MAX(fd.id_numero - 1) AS numero,
+            MAX(DATE_FORMAT(fd.fecha_exacta, '%d-%m-%Y')) AS fecha_exacta,
             MAX(c.fechaContrato) AS fechaContrato,
             IF(MONTH(MAX(c.fechaContrato)) <= MONTH(CURDATE()) AND YEAR(MAX(c.fechaContrato)) = YEAR(CURDATE()), 'actual', 'antiguo') AS tipo_contrato,
             fd.id_anio,
@@ -1023,8 +1023,11 @@ abstract class BaseController extends Controller
                     AND latest_pdt.excluido = 'NO' -- Caso: Tiene registro pero falta la constancia y no está excluido
                 )
             )
-        GROUP BY c.ruc, fd.id_anio, fd.id_mes
-        ORDER BY fd.fecha_exacta ASC, razon_social ASC
+        GROUP BY 
+            c.ruc, 
+            fd.id_anio, 
+            fd.id_mes
+        ORDER BY MAX(fd.fecha_exacta) ASC, razon_social ASC
     ";
 
         return $db->query($sql, [$hoyMasDos])->getResultArray();
