@@ -1034,7 +1034,16 @@ abstract class BaseController extends Controller
                     OR ((plame.archivo_constancia IS NULL OR plame.archivo_constancia = '') AND plame.excluido = 'NO')
                 ))
             )
-        GROUP BY c.ruc, fd.id_anio, fd.id_mes
+        GROUP BY 
+            c.id, 
+            c.ruc, 
+            c.razon_social, 
+            a.anio_descripcion, 
+            m.mes_descripcion, 
+            fd.id_anio, 
+            fd.id_mes, 
+            fd.fecha_exacta, 
+            c.fechaContrato
         ORDER BY fd.fecha_exacta ASC, razon_social ASC
         ";
 
