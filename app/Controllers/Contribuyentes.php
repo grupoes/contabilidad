@@ -2216,7 +2216,8 @@ class Contribuyentes extends BaseController
                         'fecha_cambio'     => date('Y-m-d H:i:s'),
                         'usuario_id'       => session()->id,
                         'mes'              => 1,
-                        'anio'             => 12
+                        'anio'             => 12,
+                        'estado'            => 1
                     ];
 
                     $historial->insert($data);
