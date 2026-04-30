@@ -1042,6 +1042,7 @@ abstract class BaseController extends Controller
             m.mes_descripcion, 
             fd.id_anio, 
             fd.id_mes, 
+            fd.id_numero,
             fd.fecha_exacta, 
             c.fechaContrato
         ORDER BY fd.fecha_exacta ASC, razon_social ASC
