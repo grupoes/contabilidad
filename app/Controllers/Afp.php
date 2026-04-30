@@ -63,12 +63,7 @@ class Afp extends BaseController
                 }
             }
 
-            if (!$hayReportes) {
-                return $this->response->setJSON([
-                    "status" => "error",
-                    "message" => "Debe seleccionar al menos un archivo de reporte"
-                ]);
-            }
+
 
             $hayPlantilla = false;
 
@@ -81,12 +76,7 @@ class Afp extends BaseController
                 }
             }
 
-            if (!$hayPlantilla) {
-                return $this->response->setJSON([
-                    "status" => "error",
-                    "message" => "Debe seleccionar al menos un archivo de plantilla"
-                ]);
-            }
+
 
             $periodo = $data['periodo'];
             $anio = $data['anio'];

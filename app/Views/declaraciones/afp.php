@@ -96,12 +96,12 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_reporte">Subir Reporte</label>
-                            <input type="file" class="form-control" name="file_reporte[]" accept=".pdf" id="file_reporte" multiple required>
+                            <input type="file" class="form-control" name="file_reporte[]" accept=".pdf" id="file_reporte" multiple>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="file_plantilla">Subir Plantilla</label>
-                            <input type="file" class="form-control" name="file_plantilla[]" accept=".xlsx" id="file_plantilla" multiple required>
+                            <input type="file" class="form-control" name="file_plantilla[]" accept=".xlsx" id="file_plantilla" multiple>
                         </div>
                     </div>
                 </div>

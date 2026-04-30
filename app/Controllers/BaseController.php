@@ -901,7 +901,7 @@ abstract class BaseController extends Controller
         return $contribuyentes;
     }
 
-    public function notificationPdtPlame1()
+    public function notificationPdtPlame()
     {
         $fechaDeclaracion = new FechaDeclaracionModel();
         $cont = new ContribuyenteModel();
@@ -909,7 +909,7 @@ abstract class BaseController extends Controller
 
         $array = [];
 
-        $vencimientos = $fechaDeclaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, DATE_SUB(fd.fecha_exacta, INTERVAL 2 DAY) AS nueva_fecha, m.mes_descripcion, a.anio_descripcion FROM fecha_declaracion fd INNER JOIN mes m ON m.id_mes = fd.id_mes INNER JOIN anio a ON a.id_anio = fd.id_anio where fd.id_tributo = 2 and fd.fecha_exacta BETWEEN '2025-07-01' and CURDATE() + INTERVAL 2 DAY")->getResultArray();
+        $vencimientos = $fechaDeclaracion->query("SELECT fd.id_anio, fd.id_mes, fd.id_numero, fd.fecha_exacta, DATE_SUB(fd.fecha_exacta, INTERVAL 2 DAY) AS nueva_fecha, m.mes_descripcion, a.anio_descripcion FROM fecha_declaracion fd INNER JOIN mes m ON m.id_mes = fd.id_mes INNER JOIN anio a ON a.id_anio = fd.id_anio where fd.id_tributo = 2 and fd.fecha_exacta BETWEEN '2026-01-01' and CURDATE() + INTERVAL 2 DAY")->getResultArray();
 
         foreach ($vencimientos as $key => $value) {
             $id_anio = $value['id_anio'];
@@ -918,7 +918,7 @@ abstract class BaseController extends Controller
 
             $digito = $id_numero - 1;
 
-            $contribuyentes = $cont->query("SELECT c.ruc, MAX(c.id) AS id, MAX(c.razon_social) AS razon_social, MAX(c.fechaContrato) AS fechaContrato, IF(MONTH(MAX(c.fechaContrato)) <= MONTH(CURDATE()) AND YEAR(MAX(c.fechaContrato)) = YEAR(CURDATE()), 'actual', 'antiguo') AS tipo_contrato FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc INNER JOIN tributo t ON t.id_tributo = cn.id_tributo WHERE c.estado = 1 AND RIGHT(c.ruc, 1) = $digito AND c.tipoServicio = 'CONTABLE' AND t.id_pdt = 2 GROUP BY c.ruc")->getResultArray();
+            $contribuyentes = $cont->query("SELECT c.ruc, MAX(c.id) AS id, MAX(c.razon_social) AS razon_social, MAX(c.fechaContrato) AS fechaContrato, IF(MONTH(MAX(c.fechaContrato)) <= MONTH(CURDATE()) AND YEAR(MAX(c.fechaContrato)) = YEAR(CURDATE()), 'actual', 'antiguo') AS tipo_contrato FROM contribuyentes c INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc INNER JOIN tributo t ON t.id_tributo = cn.id_tributo WHERE c.estado = 1 AND RIGHT(c.ruc, 1) = $digito AND c.tipoServicio = 'CONTABLE' AND cn.id_tributo IN (2) GROUP BY c.ruc")->getResultArray();
 
             foreach ($contribuyentes as $keys => $values) {
                 $ruc = $values['ruc'];
@@ -962,11 +962,11 @@ abstract class BaseController extends Controller
         return $array;
     }
 
-    public function notificationPdtPlame()
+    public function notificationPdtPlame1()
     {
         $db = \Config\Database::connect();
 
-        // Rango de fechas según tu lógica original
+        // Rango de fechas: hasta 2 días a futuro
         $hoyMasDos = date('Y-m-d', strtotime('+2 days'));
 
         $sql = "
@@ -1010,12 +1010,12 @@ abstract class BaseController extends Controller
             AND latest_pdt.periodo = fd.id_mes 
             AND latest_pdt.anio = fd.id_anio
         WHERE 
-            (fd.id_tributo = 2 
-            OR fd.id_tributo = 22)
-            AND fd.fecha_exacta BETWEEN '2025-07-01' AND ?
+            fd.id_tributo = 2 -- Calendario Plame de referencia
             AND c.estado = 1
             AND c.tipoServicio = 'CONTABLE'
-            AND (t.id_pdt = 2 OR t.id_pdt = 22)
+            AND cn.id_tributo IN (2, 22) -- Filtro de tributos Plame (2) o AFP (22)
+            AND fd.fecha_exacta >= GREATEST('2025-07-01', c.fechaContrato) -- Desde el contrato en adelante (mínimo 2025-07-01)
+            AND fd.fecha_exacta <= ? -- Hasta hoy + 2 días
             AND (
                 latest_pdt.ruc_empresa IS NULL -- Caso: No tiene registro de PDT
                 OR (
