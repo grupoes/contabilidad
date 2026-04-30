@@ -683,8 +683,28 @@
             </div>
             <form id="formDeclaracion">
                 <input type="hidden" name="ruc_empresa" id="ruc_empresa">
-                <div class="modal-body" id="bodyDeclaracion">
-
+                <div class="modal-body">
+                    <div id="bodyDeclaracion"></div>
+                    <div class="row mt-3 border-top pt-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="mes_periodo">Mes</label>
+                            <select name="mes_periodo" id="mes_periodo" class="form-select" required>
+                                <option value="">Seleccione mes</option>
+                                <?php foreach ($meses as $mes) : ?>
+                                    <option value="<?= $mes['id_mes'] ?>"><?= $mes['mes_descripcion'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="anio_periodo">Año</label>
+                            <select name="anio_periodo" id="anio_periodo" class="form-select" required>
+                                <option value="">Seleccione año</option>
+                                <?php foreach ($anios as $anio) : ?>
+                                    <option value="<?= $anio->id_anio ?>"><?= $anio->anio_descripcion ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

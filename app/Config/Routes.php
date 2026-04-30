@@ -402,3 +402,6 @@ $routes->group('drive', function ($routes) {
 $routes->get('/testDrive', 'TestDrive::index');
 
 $routes->get('/update-pago-servidor', 'Contribuyentes::updatePagoServidor');
+
+
+$routes->get('contribuyente/generar-historial-notificaciones', 'Contribuyentes::agregarNotificacionHistorial');

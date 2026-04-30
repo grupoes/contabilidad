@@ -1119,6 +1119,7 @@ function configurarDeclaraciones(e, id) {
   e.preventDefault();
 
   $("#modalConfigurarDeclaracion").modal("show");
+  formDeclaracion.reset();
 
   fetch(base_url + "contribuyente/declaracion/" + id)
     .then((res) => res.json())

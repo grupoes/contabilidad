@@ -31,6 +31,7 @@ use App\Models\PdtRentaModel;
 use App\Models\ServidorModel;
 use App\Models\SireModel;
 use App\Models\SistemaModel;
+use App\Models\ConfiguracionNotificacionHistorialModel;
 use DateTime;
 
 /**
@@ -901,7 +902,7 @@ abstract class BaseController extends Controller
         return $contribuyentes;
     }
 
-    public function notificationPdtPlame()
+    public function notificationPdtPlame2()
     {
         $fechaDeclaracion = new FechaDeclaracionModel();
         $cont = new ContribuyenteModel();
@@ -962,34 +963,43 @@ abstract class BaseController extends Controller
         return $array;
     }
 
-    public function notificationPdtPlame1()
+    public function notificationPdtPlame()
     {
         $db = \Config\Database::connect();
 
-        // Rango de fechas: hasta 2 días a futuro
-        $hoyMasDos = date('Y-m-d', strtotime('+2 days'));
-
         $sql = "
         SELECT 
-            MAX(c.id) AS contribuyente_id,
+            c.id AS contribuyente_id,
             c.ruc,
-            MAX(c.razon_social) AS razon_social,
-            MAX(a.anio_descripcion) AS anio,
-            MAX(m.mes_descripcion) AS mes,
-            MAX(fd.id_numero - 1) AS numero,
-            MAX(DATE_FORMAT(fd.fecha_exacta, '%d-%m-%Y')) AS fecha_exacta,
-            MAX(c.fechaContrato) AS fechaContrato,
-            IF(MONTH(MAX(c.fechaContrato)) <= MONTH(CURDATE()) AND YEAR(MAX(c.fechaContrato)) = YEAR(CURDATE()), 'actual', 'antiguo') AS tipo_contrato,
+            c.razon_social,
+            a.anio_descripcion AS anio,
+            m.mes_descripcion AS mes,
+            (fd.id_numero - 1) AS numero,
+            DATE_FORMAT(fd.fecha_exacta, '%d-%m-%Y') AS fecha_exacta,
+            c.fechaContrato,
+            IF(MONTH(c.fechaContrato) = MONTH(CURDATE()) AND YEAR(c.fechaContrato) = YEAR(CURDATE()), 'actual', 'antiguo') AS tipo_contrato,
             fd.id_anio,
             fd.id_mes
         FROM fecha_declaracion fd
         INNER JOIN mes m ON m.id_mes = fd.id_mes
         INNER JOIN anio a ON a.id_anio = fd.id_anio
-        -- Relacionamos contribuyentes cuyo último dígito del RUC coincide con el número de vencimiento
         INNER JOIN contribuyentes c ON RIGHT(c.ruc, 1) = (fd.id_numero - 1)
-        INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc
-        INNER JOIN tributo t ON t.id_tributo = cn.id_tributo
-        -- Buscamos el registro del PDT y el último archivo subido
+        -- Filtro obligatorio: debe tener configurado el tributo 22 (AFP) en su historial
+        INNER JOIN configuracion_notificacion_historial h22 ON h22.contribuyente_id = c.id 
+            AND h22.tributo_id = 22 
+            AND h22.estado = 1 
+            AND (fd.id_anio * 100 + fd.id_mes) >= (h22.anio * 100 + h22.mes)
+        -- Historial opcional para PLAME (Tributo 2)
+        LEFT JOIN configuracion_notificacion_historial h2 ON h2.contribuyente_id = c.id 
+            AND h2.tributo_id = 2 
+            AND h2.estado = 1 
+            AND (fd.id_anio * 100 + fd.id_mes) >= (h2.anio * 100 + h2.mes)
+        -- Registro de AFP
+        LEFT JOIN afp af ON af.contribuyente_id = c.id 
+            AND af.anio = fd.id_anio 
+            AND af.periodo = fd.id_mes 
+            AND af.estado = 1
+        -- Registro de PLAME y su última constancia
         LEFT JOIN (
             SELECT 
                 pp.ruc_empresa, 
@@ -999,38 +1009,36 @@ abstract class BaseController extends Controller
                 ap.archivo_constancia
             FROM pdt_plame pp
             LEFT JOIN (
-                -- Obtenemos solo el ID del archivo más reciente por cada PDT
                 SELECT id_pdtplame, MAX(id_archivos_pdtplame) as max_id
                 FROM archivos_pdtplame
                 GROUP BY id_pdtplame
             ) last_file ON last_file.id_pdtplame = pp.id_pdt_plame
             LEFT JOIN archivos_pdtplame ap ON ap.id_archivos_pdtplame = last_file.max_id
             WHERE pp.estado = 1
-        ) latest_pdt ON latest_pdt.ruc_empresa = c.ruc 
-            AND latest_pdt.periodo = fd.id_mes 
-            AND latest_pdt.anio = fd.id_anio
-        WHERE 
-            fd.id_tributo = 2 -- Calendario Plame de referencia
+        ) plame ON plame.ruc_empresa = c.ruc 
+            AND plame.periodo = fd.id_mes 
+            AND plame.anio = fd.id_anio
+        WHERE fd.id_tributo = 22 -- Calendario de referencia (AFP)
             AND c.estado = 1
             AND c.tipoServicio = 'CONTABLE'
-            AND cn.id_tributo IN (2, 22) -- Filtro de tributos Plame (2) o AFP (22)
-            AND fd.fecha_exacta >= GREATEST('2025-07-01', c.fechaContrato) -- Desde el contrato en adelante (mínimo 2025-07-01)
-            AND fd.fecha_exacta <= ? -- Hasta hoy + 2 días
+            -- Ventana de notificación: 2 días hábiles antes del vencimiento
+            AND CURDATE() >= DATE_SUB(fd.fecha_exacta, INTERVAL (CASE WHEN DAYOFWEEK(fd.fecha_exacta) IN (2, 3) THEN 3 ELSE 2 END) DAY)
+            -- Condición de alerta:
             AND (
-                latest_pdt.ruc_empresa IS NULL -- Caso: No tiene registro de PDT
-                OR (
-                    (latest_pdt.archivo_constancia IS NULL OR latest_pdt.archivo_constancia = '') 
-                    AND latest_pdt.excluido = 'NO' -- Caso: Tiene registro pero falta la constancia y no está excluido
-                )
+                -- Caso AFP: Configurado pero no registrado
+                af.id IS NULL
+                OR 
+                -- Caso PLAME: Si está configurado, verificar que no falte registro o constancia
+                (h2.id IS NOT NULL AND (
+                    plame.ruc_empresa IS NULL 
+                    OR ((plame.archivo_constancia IS NULL OR plame.archivo_constancia = '') AND plame.excluido = 'NO')
+                ))
             )
-        GROUP BY 
-            c.ruc, 
-            fd.id_anio, 
-            fd.id_mes
-        ORDER BY MAX(fd.fecha_exacta) ASC, razon_social ASC
-    ";
+        GROUP BY c.ruc, fd.id_anio, fd.id_mes
+        ORDER BY fd.fecha_exacta ASC, razon_social ASC
+        ";
 
-        return $db->query($sql, [$hoyMasDos])->getResultArray();
+        return $db->query($sql)->getResultArray();
     }
 
 

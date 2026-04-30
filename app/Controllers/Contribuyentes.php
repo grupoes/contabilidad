@@ -34,6 +34,9 @@ use App\Models\ContratosModel;
 use App\Models\PagoServidorModel;
 use App\Models\ServidorModel;
 use App\Models\RucModel;
+use App\Models\ConfiguracionNotificacionHistorialModel;
+use App\Models\AnioModel;
+use App\Models\MesModel;
 
 //use App\Models\RucEmpresaModel;
 
@@ -56,11 +59,17 @@ class Contribuyentes extends BaseController
         $contri = new ContribuyenteModel();
         $companys = $contri->select('id, razon_social, igv')->where('estado', 1)->findAll();
 
+        $anio = new AnioModel();
+        $mes = new MesModel();
+
+        $anios = $anio->query("SELECT * FROM anio WHERE anio_estado = 1 AND anio_descripcion >= YEAR(CURDATE()) ORDER BY anio_descripcion ASC")->getResult();
+        $meses = $mes->where('mes_estado', 1)->findAll();
+
         $menu = $this->permisos_menu();
 
         $crear = $this->getPermisosAcciones(27, session()->perfil_id, 'crear');
 
-        return view('contribuyente/lista', compact('sistemas', 'menu', 'numeros_whatsapp', 'crear', 'companys'));
+        return view('contribuyente/lista', compact('sistemas', 'menu', 'numeros_whatsapp', 'crear', 'companys', 'anios', 'meses'));
     }
 
     public function getIdContribuyente($id)
@@ -1282,20 +1291,45 @@ class Contribuyentes extends BaseController
     public function configurarDeclaracion()
     {
         $configuracion = new ConfiguracionNotificacionModel();
+        $historial = new ConfiguracionNotificacionHistorialModel();
+        $contri = new ContribuyenteModel();
+        $tributoModel = new TributoModel();
 
         try {
             $declaracion = $this->request->getPost('declaracion');
             $ruc = $this->request->getPost('ruc_empresa');
+            $mes_periodo = $this->request->getPost('mes_periodo');
+            $anio_periodo = $this->request->getPost('anio_periodo');
+
+            $contribuyente = $contri->where('ruc', $ruc)->where('estado', 1)->first();
+            $contribuyente_id = $contribuyente['id'] ?? 0;
 
             $configuracion->where('ruc_empresa_numero', $ruc)->delete();
 
-            for ($i = 0; $i < count($declaracion); $i++) {
-                $data = array(
-                    "id_tributo" => $declaracion[$i],
-                    "ruc_empresa_numero" => $ruc
-                );
+            if (!empty($declaracion)) {
+                for ($i = 0; $i < count($declaracion); $i++) {
+                    $data = array(
+                        "id_tributo" => $declaracion[$i],
+                        "ruc_empresa_numero" => $ruc
+                    );
 
-                $configuracion->insert($data);
+                    $configuracion->insert($data);
+
+                    $tributo = $tributoModel->find($declaracion[$i]);
+                    $nombre_tributo = $tributo['tri_descripcion'] ?? 'SIN DESCRIPCION';
+
+                    $dataHistorial = [
+                        'contribuyente_id' => $contribuyente_id,
+                        'tributo_id'       => $declaracion[$i],
+                        'nombre_tributo'   => $nombre_tributo,
+                        'fecha_cambio'     => date('Y-m-d H:i:s'),
+                        'usuario_id'       => session()->id,
+                        'mes'              => $mes_periodo,
+                        'anio'             => $anio_periodo,
+                        'estado'           => 1
+                    ];
+                    $historial->insert($dataHistorial);
+                }
             }
 
             return $this->response->setJSON(['status' => 'success', 'message' => 'Configuración guardada correctamente.']);
@@ -2146,6 +2180,52 @@ class Contribuyentes extends BaseController
             return $this->response->setJSON([
                 'status' => 'success',
                 'message' => 'Afiliaciones actualizadas correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function agregarNotificacionHistorial()
+    {
+        $historial = new ConfiguracionNotificacionHistorialModel();
+        $tributoModel = new TributoModel();
+        $contModel = new ContribuyenteModel();
+        $configModel = new ConfiguracionNotificacionModel();
+
+        try {
+            // Obtenemos todos los contribuyentes activos con tipo de servicio CONTABLE
+            $contribuyentes = $contModel->where('estado', 1)
+                ->where('tipoServicio', 'CONTABLE')
+                ->findAll();
+
+            foreach ($contribuyentes as $cont) {
+                // Obtenemos los tributos configurados para cada contribuyente a través de su RUC
+                $configuraciones = $configModel->where('ruc_empresa_numero', $cont['ruc'])->findAll();
+
+                foreach ($configuraciones as $config) {
+                    $tributo = $tributoModel->find($config['id_tributo']);
+
+                    $data = [
+                        'contribuyente_id' => $cont['id'],
+                        'tributo_id'       => $config['id_tributo'],
+                        'nombre_tributo'   => $tributo['tri_descripcion'] ?? 'S/N',
+                        'fecha_cambio'     => date('Y-m-d H:i:s'),
+                        'usuario_id'       => session()->id,
+                        'mes'              => 1,
+                        'anio'             => 12
+                    ];
+
+                    $historial->insert($data);
+                }
+            }
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'Historial generado para todos los contribuyentes contables activos'
             ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
