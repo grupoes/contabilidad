@@ -902,7 +902,7 @@ abstract class BaseController extends Controller
         return $contribuyentes;
     }
 
-    public function notificationPdtPlame2()
+    public function notificationPdtPlame()
     {
         $fechaDeclaracion = new FechaDeclaracionModel();
         $cont = new ContribuyenteModel();
@@ -963,7 +963,7 @@ abstract class BaseController extends Controller
         return $array;
     }
 
-    public function notificationPdtPlame()
+    public function notificationPdtPlame8()
     {
         $db = \Config\Database::connect();
 
@@ -1050,6 +1050,8 @@ abstract class BaseController extends Controller
 
         return $db->query($sql)->getResultArray();
     }
+
+    public function notificationPdtPlame3() {}
 
 
     public function renderContribuyentesDeuda($servicio, $estado)
