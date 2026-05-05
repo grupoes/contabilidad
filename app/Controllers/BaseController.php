@@ -32,6 +32,7 @@ use App\Models\ServidorModel;
 use App\Models\SireModel;
 use App\Models\SistemaModel;
 use App\Models\ConfiguracionNotificacionHistorialModel;
+use App\Models\ArchivosPdtPlameModel;
 use DateTime;
 
 /**
@@ -902,7 +903,7 @@ abstract class BaseController extends Controller
         return $contribuyentes;
     }
 
-    public function notificationPdtPlame()
+    public function notificationPdtPlame2()
     {
         $fechaDeclaracion = new FechaDeclaracionModel();
         $cont = new ContribuyenteModel();
@@ -1051,7 +1052,97 @@ abstract class BaseController extends Controller
         return $db->query($sql)->getResultArray();
     }
 
-    public function notificationPdtPlame3() {}
+    public function notificationPdtPlame()
+    {
+        $contribuyente = new ContribuyenteModel();
+        $fecha_declaracion = new FechaDeclaracionModel();
+        $confNotifHisto = new ConfiguracionNotificacionHistorialModel();
+        $pdt_plame_model = new PdtPlameModel();
+        $archivos_model = new ArchivosPdtPlameModel();
+
+        //Traer todos los contribuyentes que tengan activo el tipo de suscripcion CONTABLE y que tengan activado el tributo_id = 22 en el modelo ConfiguracionNotificacionModel.php
+        $datos = $contribuyente->select('contribuyentes.id, contribuyentes.ruc, contribuyentes.razon_social')
+            ->join('configuracion_notificacion', 'configuracion_notificacion.ruc_empresa_numero = contribuyentes.ruc')
+            ->where('configuracion_notificacion.id_tributo', 22)
+            ->where('contribuyentes.tipoServicio', 'CONTABLE')
+            ->where('contribuyentes.estado', 1)
+            ->orderBy('RIGHT(contribuyentes.ruc, 1)', 'ASC', false)
+            ->findAll();
+
+        foreach ($datos as $key => $value) {
+            $digito = substr($value['ruc'], -1);
+            $id = $value['id'];
+
+            // Obtenemos el historial para el tributo 2 (PDT Plame) o 22 (AFP)
+            $dataHistorial = $confNotifHisto->where('contribuyente_id', $id)->whereIn('tributo_id', [2, 22])->where('estado', 1)->orderBy('tributo_id', 'ASC')->first();
+
+            if ($dataHistorial) {
+                $anio_histo = $dataHistorial['anio'];
+                $mes_histo = $dataHistorial['mes'];
+
+                // Consultamos las fechas de declaración con JOIN a mes y anio
+                $vencimientos = $fecha_declaracion->select('fecha_declaracion.*, a.anio_descripcion, m.mes_descripcion')
+                    ->join('anio a', 'a.id_anio = fecha_declaracion.id_anio')
+                    ->join('mes m', 'm.id_mes = fecha_declaracion.id_mes')
+                    ->where('id_numero', $digito + 1)
+                    ->where('id_tributo', 2)
+                    ->where("(fecha_declaracion.id_anio * 100 + fecha_declaracion.id_mes) >= ($anio_histo * 100 + $mes_histo)")
+                    ->where('CURDATE() >= DATE_SUB(fecha_exacta, INTERVAL 2 DAY)', null, false)
+                    ->findAll();
+
+                $data_vencidos = [];
+                foreach ($vencimientos as $v) {
+                    $periodo = $v['id_mes'];
+                    $anio = $v['id_anio'];
+                    $ruc = $value['ruc'];
+
+                    // 1. Buscamos si existe el registro en pdt_plame para ese periodo/año
+                    $pdt = $pdt_plame_model->where('ruc_empresa', $ruc)
+                        ->where('periodo', $periodo)
+                        ->where('anio', $anio)
+                        ->where('estado', 1)
+                        ->first();
+
+                    if (!$pdt) {
+                        // Si no existe el registro, es un vencimiento pendiente
+                        $data_vencidos[] = $v;
+                    } else if ($pdt['excluido'] === 'NO') {
+                        // 2. Si existe, verificamos si tiene la constancia subida
+                        $archivo = $archivos_model->where('id_pdtplame', $pdt['id_pdt_plame'])
+                            ->where('estado', 1)
+                            ->orderBy('id_archivos_pdtplame', 'DESC')
+                            ->first();
+
+                        if (!$archivo || empty($archivo['archivo_constancia'])) {
+                            // Si no hay archivo o la constancia está vacía, notificamos
+                            $data_vencidos[] = $v;
+                        }
+                    }
+                }
+
+                $datos[$key]['vencimientos'] = $data_vencidos;
+            } else {
+                $datos[$key]['vencimientos'] = [];
+            }
+        }
+
+        return $datos;
+    }
+
+    public function countNotificationPdtPlame()
+    {
+        $datos = $this->notificationPdtPlame();
+        $totalGlobal = 0;
+
+        foreach ($datos as $cliente) {
+            // Sumamos la cantidad de vencimientos que tiene cada cliente
+            $totalGlobal += count($cliente['vencimientos']);
+        }
+
+        return $totalGlobal;
+    }
+
+
 
 
     public function renderContribuyentesDeuda($servicio, $estado)
