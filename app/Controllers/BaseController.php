@@ -463,6 +463,36 @@ abstract class BaseController extends Controller
         return json_decode($response, true);
     }
 
+    public function apiLoadPdtFrases($rutaFile)
+    {
+        $curl = curl_init();
+
+        $postData = json_encode([
+            'pdf_path' => $rutaFile
+        ]);
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => getenv("API_VERIFICAR_FRASES_PDF"),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $postData,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($postData)
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        return json_decode($response, true);
+    }
+
     public function apiLoadContrato($rutaFile)
     {
         $curl = curl_init();

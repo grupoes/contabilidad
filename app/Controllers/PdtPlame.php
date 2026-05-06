@@ -89,6 +89,8 @@ class PdtPlame extends BaseController
             $desPeriodo = strtoupper($dataMes['mes_descripcion']);
             $desAnio = $dataAnio['anio_descripcion'];
 
+            $modo = getenv("MODO");
+
             //20329049982_201910_r01.pdf
 
             if ($file_r01 && $file_r01->isValid()) {
@@ -106,12 +108,33 @@ class PdtPlame extends BaseController
                 $file_r12->move(FCPATH . 'archivos/pdt', $name_r12);
             }
 
+            $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
+
             if ($file_constancia && $file_constancia->isValid()) {
                 //$name_r12 = $file_r12->getName();
                 $extension_constancia = $file_constancia->getExtension();
-                $name_constancia = $ruc . '_' . $desAnio . '_' . $desPeriodo . '_constancia.' . $extension_constancia;
+                $name_constancia = $codigo . '_' . $ruc . '_' . $desAnio . '_' . $desPeriodo . '_constancia.' . $extension_constancia;
 
                 $file_constancia->move(FCPATH . 'archivos/pdt', $name_constancia);
+            }
+
+            if ($modo == "PRODUCCION") {
+                $dockerPath = FCPATH; // /var/www/html/public/
+                $realPath = str_replace('/var/www/html', '/var/www/html/contabilidad', $dockerPath);
+
+                $rutaConstancia = $realPath . 'archivos/pdt/' . $name_constancia;
+            } else {
+                $rutaConstancia = FCPATH . '/archivos/pdt/' . $name_constancia;
+            }
+
+            $response = $this->apiLoadPdtFrases($rutaConstancia);
+
+            if (!$response['success']) {
+                return $this->response->setJSON(['status' => 'error', 'message' => "No es un archivo de constancia"]);
+            }
+
+            if (!$response['resultados']['Número de Trabajadores']) {
+                return $this->response->setJSON(['status' => 'error', 'message' => "El archivo no parece ser una constancia de PLAME válida."]);
             }
 
             $datos_pdt = array(
