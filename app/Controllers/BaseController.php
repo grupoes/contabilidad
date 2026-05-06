@@ -1061,7 +1061,7 @@ abstract class BaseController extends Controller
         $archivos_model = new ArchivosPdtPlameModel();
 
         //Traer todos los contribuyentes que tengan activo el tipo de suscripcion CONTABLE y que tengan activado el tributo_id = 22 en el modelo ConfiguracionNotificacionModel.php
-        $datos = $contribuyente->select('contribuyentes.id, contribuyentes.ruc, contribuyentes.razon_social')
+        $datos = $contribuyente->select('contribuyentes.id, contribuyentes.ruc, contribuyentes.razon_social, IF(MONTH(contribuyentes.fechaContrato) = MONTH(CURDATE()) AND YEAR(contribuyentes.fechaContrato) = YEAR(CURDATE()), "actual", "antiguo") AS tipo_contrato')
             ->join('configuracion_notificacion', 'configuracion_notificacion.ruc_empresa_numero = contribuyentes.ruc')
             ->where('configuracion_notificacion.id_tributo', 22)
             ->where('contribuyentes.tipoServicio', 'CONTABLE')
@@ -1081,13 +1081,13 @@ abstract class BaseController extends Controller
                 $mes_histo = $dataHistorial['mes'];
 
                 // Consultamos las fechas de declaración con JOIN a mes y anio
-                $vencimientos = $fecha_declaracion->select('fecha_declaracion.*, a.anio_descripcion, m.mes_descripcion')
+                $vencimientos = $fecha_declaracion->select('fecha_declaracion.*, a.anio_descripcion, m.mes_descripcion, DATE_FORMAT(fecha_declaracion.fecha_exacta, "%d-%m-%Y") as fecha_exacta')
                     ->join('anio a', 'a.id_anio = fecha_declaracion.id_anio')
                     ->join('mes m', 'm.id_mes = fecha_declaracion.id_mes')
                     ->where('id_numero', $digito + 1)
                     ->where('id_tributo', 2)
                     ->where("(fecha_declaracion.id_anio * 100 + fecha_declaracion.id_mes) >= ($anio_histo * 100 + $mes_histo)")
-                    ->where('CURDATE() >= DATE_SUB(fecha_exacta, INTERVAL 2 DAY)', null, false)
+                    ->where('CURDATE() >= DATE_SUB(fecha_declaracion.fecha_exacta, INTERVAL 2 DAY)', null, false)
                     ->findAll();
 
                 $data_vencidos = [];

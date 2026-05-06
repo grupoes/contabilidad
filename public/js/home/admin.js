@@ -144,26 +144,30 @@ function viewContribuyentesPdtsPlame() {
       let html = "";
 
       data.forEach((pdt) => {
-        let button = "";
+        if (pdt.vencimientos && pdt.vencimientos.length > 0) {
+          pdt.vencimientos.forEach((vencimiento) => {
+            let button = "";
 
-        if (pdt.tipo_contrato == "actual") {
-          button = `
-            <button type="button" class="btn btn-info btn-sm" onclick="excluirPeriodoPlame('${pdt.ruc}', ${pdt.id_mes}, ${pdt.id_anio})">
-              <i class="fas fa-minus"></i>
-            </button>
-          `;
+            if (pdt.tipo_contrato == "actual") {
+              button = `
+                <button type="button" class="btn btn-info btn-sm" onclick="excluirPeriodoPlame('${pdt.ruc}', ${vencimiento.id_mes}, ${vencimiento.id_anio})">
+                  <i class="fas fa-minus"></i>
+                </button>
+              `;
+            }
+
+            html += `
+            <tr>
+              <td>${pdt.razon_social}</td>
+              <td>${vencimiento.mes_descripcion} ${vencimiento.anio_descripcion}</td>
+              <td>${vencimiento.fecha_exacta}</td>
+              <td>
+                ${button}
+              </td>
+            </tr>
+            `;
+          });
         }
-
-        html += `
-        <tr>
-          <td>${pdt.razon_social}</td>
-          <td>${pdt.mes} ${pdt.anio}</td>
-          <td>${pdt.fecha_exacta}</td>
-          <td>
-            ${button}
-          </td>
-        </tr>
-        `;
       });
 
       $("#tablePlame").DataTable().destroy();
