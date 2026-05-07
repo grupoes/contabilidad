@@ -875,6 +875,90 @@ abstract class BaseController extends Controller
         return $array;
     }
 
+    public function notificacionRenta()
+    {
+        $db = \Config\Database::connect();
+
+        $sql = "
+            SELECT 
+                c.id AS contribuyente_id, 
+                c.ruc, 
+                c.razon_social, 
+                a.anio_descripcion AS anio, 
+                m.mes_descripcion AS mes, 
+                fd.id_numero - 1 AS numero, 
+                fd.fecha_exacta, 
+                c.fechaContrato, 
+                IF(MONTH(c.fechaContrato) = MONTH(CURDATE()) AND YEAR(c.fechaContrato) <= YEAR(CURDATE()), 'actual', 'antiguo') AS tipo_contrato,
+                fd.id_anio, 
+                fd.id_mes,
+                IF((SELECT COUNT(*) FROM pdt_renta pr2 WHERE pr2.ruc_empresa = c.ruc AND pr2.estado = 1 LIMIT 1) > 0, 1, 0) AS registro
+            FROM fecha_declaracion fd
+            INNER JOIN mes m ON m.id_mes = fd.id_mes
+            INNER JOIN anio a ON a.id_anio = fd.id_anio
+            JOIN contribuyentes c ON RIGHT(c.ruc, 1) = fd.id_numero - 1
+            INNER JOIN configuracion_notificacion_historial cnh ON cnh.contribuyente_id = c.id AND cnh.tributo_id = 2 AND cnh.estado = 1
+            WHERE fd.id_tributo = 2
+              AND fd.fecha_exacta BETWEEN '2025-07-01' AND DATE_ADD(CURDATE(), INTERVAL 2 DAY)
+              AND c.estado = 1
+              AND c.tipoServicio = 'CONTABLE'
+              AND (fd.id_anio * 100 + fd.id_mes) >= (cnh.anio * 100 + cnh.mes)
+              AND NOT EXISTS (
+                  SELECT 1 
+                  FROM pdt_renta pr 
+                  WHERE pr.ruc_empresa = c.ruc 
+                    AND pr.periodo = fd.id_mes 
+                    AND pr.anio = fd.id_anio 
+                    AND pr.estado = 1
+              )
+            ORDER BY fd.fecha_exacta ASC, c.razon_social ASC
+        ";
+
+        $results = $db->query($sql)->getResultArray();
+
+        foreach ($results as &$row) {
+            $row['fecha_exacta'] = date('d-m-Y', strtotime($row['fecha_exacta']));
+            $row['registro'] = (int)$row['registro'];
+            $row['numero'] = (int)$row['numero'];
+            $row['id_anio'] = (int)$row['id_anio'];
+            $row['id_mes'] = (int)$row['id_mes'];
+            $row['contribuyente_id'] = (int)$row['contribuyente_id'];
+        }
+
+        return $results;
+    }
+
+    public function countNotificacionRenta()
+    {
+        $db = \Config\Database::connect();
+
+        $sql = "
+            SELECT 
+                COUNT(*) as total
+            FROM fecha_declaracion fd
+            INNER JOIN mes m ON m.id_mes = fd.id_mes
+            INNER JOIN anio a ON a.id_anio = fd.id_anio
+            JOIN contribuyentes c ON RIGHT(c.ruc, 1) = fd.id_numero - 1
+            INNER JOIN configuracion_notificacion_historial cnh ON cnh.contribuyente_id = c.id AND cnh.tributo_id = 2 AND cnh.estado = 1
+            WHERE fd.id_tributo = 2
+              AND fd.fecha_exacta BETWEEN '2025-07-01' AND DATE_ADD(CURDATE(), INTERVAL 2 DAY)
+              AND c.estado = 1
+              AND c.tipoServicio = 'CONTABLE'
+              AND (fd.id_anio * 100 + fd.id_mes) >= (cnh.anio * 100 + cnh.mes)
+              AND NOT EXISTS (
+                  SELECT 1 
+                  FROM pdt_renta pr 
+                  WHERE pr.ruc_empresa = c.ruc 
+                    AND pr.periodo = fd.id_mes 
+                    AND pr.anio = fd.id_anio 
+                    AND pr.estado = 1
+              )
+        ";
+
+        $result = $db->query($sql)->getRowArray();
+        return (int) ($result['total'] ?? 0);
+    }
+
     public function notificationPdtRentaOptimizado()
     {
         $fechaDeclaracion = new FechaDeclaracionModel();

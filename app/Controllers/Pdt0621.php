@@ -1028,7 +1028,7 @@ class Pdt0621 extends BaseController
 
     public function notificacionPdtRenta()
     {
-        $data = $this->notificationPdtRenta();
+        $data = $this->notificacionRenta();
 
         return $this->response->setJSON($data);
     }
