@@ -21,7 +21,7 @@ class Home extends BaseController
         $rentas = $this->notificationPdtRentaOptimizado();
 
         $notificacionSire = count($this->notificacionSire());
-        $notificacionAfp = count($this->notificar_afp());
+        $notificacionAfp = $this->countNotificacionAfp();
         $notificacionPdtRenta = $this->countNotificacionRenta();
         $notificacionPdtPlame = $this->countNotificationPdtPlame();
         $notificacionDeudoresServidor = $this->countAllServidorDeuda();

@@ -402,7 +402,7 @@ class Afp extends BaseController
 
     public function notificar_afp_all()
     {
-        $data = $this->notificar_afp();
+        $data = $this->notificacionAfp();
 
         return $this->response->setJSON($data);
     }

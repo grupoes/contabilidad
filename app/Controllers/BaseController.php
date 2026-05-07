@@ -811,6 +811,78 @@ abstract class BaseController extends Controller
         return $data_notificacion;
     }
 
+    public function notificacionAfp()
+    {
+        $db = \Config\Database::connect();
+
+        $sql = "
+            SELECT 
+                c.id AS contribuyente_id, 
+                c.razon_social AS contribuyente, 
+                a.anio_descripcion AS anio, 
+                m.mes_descripcion AS mes, 
+                DATE_FORMAT(fd.fecha_exacta, '%d-%m-%Y') as fecha_exacta,
+                fd.id_anio,
+                fd.id_mes
+            FROM (
+                SELECT id_anio, id_mes, MAX(fecha_exacta) as fecha_exacta, MAX(fecha_notificar) as fecha_notificar
+                FROM fecha_declaracion
+                WHERE id_tributo = 22 AND id_anio >= 11 AND fecha_exacta IS NOT NULL
+                GROUP BY id_anio, id_mes
+            ) fd
+            INNER JOIN mes m ON m.id_mes = fd.id_mes
+            INNER JOIN anio a ON a.id_anio = fd.id_anio
+            JOIN contribuyentes c ON c.estado = 1 AND c.tipoServicio = 'CONTABLE'
+            INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc AND cn.id_tributo = 22
+            INNER JOIN configuracion_notificacion_historial cnh ON cnh.contribuyente_id = c.id AND cnh.tributo_id = 22 AND cnh.estado = 1
+            WHERE fd.fecha_notificar <= CURDATE()
+              AND (fd.id_anio * 100 + fd.id_mes) >= (cnh.anio * 100 + cnh.mes)
+              AND NOT EXISTS (
+                  SELECT 1 
+                  FROM afp af 
+                  WHERE af.contribuyente_id = c.id 
+                    AND af.periodo = fd.id_mes 
+                    AND af.anio = fd.id_anio 
+                    AND af.estado = 1
+              )
+            ORDER BY fd.fecha_exacta ASC, c.razon_social ASC
+        ";
+
+        return $db->query($sql)->getResultArray();
+    }
+
+    public function countNotificacionAfp()
+    {
+        $db = \Config\Database::connect();
+
+        $sql = "
+            SELECT 
+                COUNT(*) as total
+            FROM (
+                SELECT id_anio, id_mes, MAX(fecha_notificar) as fecha_notificar
+                FROM fecha_declaracion
+                WHERE id_tributo = 22 AND id_anio >= 11 AND fecha_exacta IS NOT NULL
+                GROUP BY id_anio, id_mes
+            ) fd
+            INNER JOIN contribuyentes c ON c.estado = 1 AND c.tipoServicio = 'CONTABLE'
+            INNER JOIN configuracion_notificacion cn ON cn.ruc_empresa_numero = c.ruc AND cn.id_tributo = 22
+            INNER JOIN configuracion_notificacion_historial cnh ON cnh.contribuyente_id = c.id AND cnh.tributo_id = 22 AND cnh.estado = 1
+            WHERE fd.fecha_notificar <= CURDATE()
+              AND (fd.id_anio * 100 + fd.id_mes) >= (cnh.anio * 100 + cnh.mes)
+              AND NOT EXISTS (
+                  SELECT 1 
+                  FROM afp af 
+                  WHERE af.contribuyente_id = c.id 
+                    AND af.periodo = fd.id_mes 
+                    AND af.anio = fd.id_anio 
+                    AND af.estado = 1
+              )
+        ";
+
+        $result = $db->query($sql)->getRowArray();
+        return (int) ($result['total'] ?? 0);
+    }
+
     public function notificationPdtRenta()
     {
         $fechaDeclaracion = new FechaDeclaracionModel();
