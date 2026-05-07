@@ -93,7 +93,7 @@ class Pdt0621 extends BaseController
             $codigo = str_pad(mt_rand(0, pow(10, 6) - 1), 6, '0', STR_PAD_LEFT);
 
             $archivo_pdt = "PDT0621_" . $ruc . "_" . $per . $ani . "_" . $codigo . "." . $ext_renta;
-            $archivo_constancia = "CONST_" . $ruc . "_" . $per . $ani . "." . $ext_constancia;
+            $archivo_constancia = "CONST_" . $ruc . "_" . $per . $ani . "_" . $codigo . "." . $ext_constancia;
 
             $file_renta->move(FCPATH . 'archivos/pdt', $archivo_pdt);
             $file_constancia->move(FCPATH . 'archivos/pdt', $archivo_constancia);
@@ -109,6 +109,18 @@ class Pdt0621 extends BaseController
             } else {
                 $rutaPdt = FCPATH . '/archivos/pdt/' . $archivo_pdt;
                 $rutaConstancia = FCPATH . '/archivos/pdt/' . $archivo_constancia;
+            }
+
+            if ($archivo_constancia !== "") {
+                $response = $this->apiLoadPdtFrases($rutaConstancia);
+
+                if (!$response || !isset($response['success']) || !$response['success']) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => "No es un archivo de constancia o la API no responde"]);
+                }
+
+                if (!isset($response['resultados']['0621']) || !$response['resultados']['0621']) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => "El archivo no parece ser una constancia de PDT 0621 válida."]);
+                }
             }
 
             //aqui verificar si coinciden los archivos correspondientes
