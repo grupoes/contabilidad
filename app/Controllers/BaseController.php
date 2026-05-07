@@ -430,7 +430,7 @@ abstract class BaseController extends Controller
         $response = curl_exec($curl);
 
         curl_close($curl);
-        return json_decode($response, true);
+        return json_decode($response, true) ?? [];
     }
 
     public function apiLoadPdtArchivos($rutaFile)
@@ -460,7 +460,7 @@ abstract class BaseController extends Controller
         $response = curl_exec($curl);
 
         curl_close($curl);
-        return json_decode($response, true);
+        return json_decode($response, true) ?? [];
     }
 
     public function apiLoadPdtFrases($rutaFile)
@@ -490,7 +490,7 @@ abstract class BaseController extends Controller
         $response = curl_exec($curl);
 
         curl_close($curl);
-        return json_decode($response, true);
+        return json_decode($response, true) ?? [];
     }
 
     public function apiLoadContrato($rutaFile)
@@ -518,7 +518,7 @@ abstract class BaseController extends Controller
 
         curl_close($curl);
 
-        return json_decode($response, true);
+        return json_decode($response, true) ?? [];
     }
 
     public function getSchemasRestaurantes($ruc)

@@ -86,6 +86,10 @@ class PdtPlame extends BaseController
             $dataAnio = $year->find($anio);
             $dataMes = $month->find($periodo);
 
+            if (!$dataAnio || !$dataMes) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Año o Mes no válido']);
+            }
+
             $desPeriodo = strtoupper($dataMes['mes_descripcion']);
             $desAnio = $dataAnio['anio_descripcion'];
 
@@ -127,14 +131,16 @@ class PdtPlame extends BaseController
                 $rutaConstancia = FCPATH . '/archivos/pdt/' . $name_constancia;
             }
 
-            $response = $this->apiLoadPdtFrases($rutaConstancia);
+            if ($file_constancia && $file_constancia->isValid()) {
+                $response = $this->apiLoadPdtFrases($rutaConstancia);
 
-            if (!$response['success']) {
-                return $this->response->setJSON(['status' => 'error', 'message' => "No es un archivo de constancia"]);
-            }
+                if (!$response || !isset($response['success']) || !$response['success']) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => "No es un archivo de constancia o la API no responde"]);
+                }
 
-            if (!$response['resultados']['Número de Trabajadores']) {
-                return $this->response->setJSON(['status' => 'error', 'message' => "El archivo no parece ser una constancia de PLAME válida."]);
+                if (!isset($response['resultados']['Número de Trabajadores']) || !$response['resultados']['Número de Trabajadores']) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => "El archivo no parece ser una constancia de PLAME válida."]);
+                }
             }
 
             $datos_pdt = array(
@@ -321,6 +327,10 @@ class PdtPlame extends BaseController
             $dataMes = $month->find($periodo);
             $dataFiles = $files->find($idPlameFiles);
 
+            if (!$dataAnio || !$dataMes || !$dataFiles) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Datos no encontrados para rectificar']);
+            }
+
             $name_r01 = "";
             $name_r12 = "";
             $name_constancia = "";
@@ -477,9 +487,17 @@ class PdtPlame extends BaseController
 
             $dataR08 = $r08->find($idr08);
 
+            if (!$dataR08) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Archivo R08 no encontrado']);
+            }
+
             $idplame = $dataR08['plameId'];
 
             $dataPlame = $plame->find($idplame);
+
+            if (!$dataPlame) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Datos de PLAME no encontrados']);
+            }
 
             $periodo = $dataPlame['periodo'];
             $anio = $dataPlame['anio'];
@@ -490,6 +508,10 @@ class PdtPlame extends BaseController
 
             $dataAnio = $year->find($anio);
             $dataMes = $month->find($periodo);
+
+            if (!$dataAnio || !$dataMes) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Año o Mes no válido']);
+            }
 
             $desPeriodo = strtoupper($dataMes['mes_descripcion']);
             $desAnio = $dataAnio['anio_descripcion'];
@@ -527,6 +549,10 @@ class PdtPlame extends BaseController
         $r08 = new R08PlameModel();
 
         $dataR08 = $r08->find($id);
+
+        if (!$dataR08) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Archivo R08 no encontrado']);
+        }
 
         $idplame = $dataR08['plameId'];
 
@@ -589,6 +615,10 @@ class PdtPlame extends BaseController
             $id = $ids[0];
 
             $dataR08 = $r08->find($id);
+
+            if (!$dataR08) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Archivo R08 no encontrado']);
+            }
 
             $idplame = $dataR08['plameId'];
 
