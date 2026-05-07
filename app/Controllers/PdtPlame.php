@@ -134,6 +134,8 @@ class PdtPlame extends BaseController
             if ($file_constancia && $file_constancia->isValid()) {
                 $response = $this->apiLoadPdtFrases($rutaConstancia);
 
+                return $this->response->setJSON(['status' => 'error', 'message' => $response]);
+
                 if (!$response || !isset($response['success']) || !$response['success']) {
                     return $this->response->setJSON(['status' => 'error', 'message' => "No es un archivo de constancia o la API no responde"]);
                 }
