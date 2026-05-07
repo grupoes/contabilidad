@@ -518,7 +518,7 @@ abstract class BaseController extends Controller
 
         curl_close($curl);
 
-        return json_decode($response, true) ?? [];
+        return json_decode($response, true);
     }
 
     public function getSchemasRestaurantes($ruc)
