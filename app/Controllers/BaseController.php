@@ -770,6 +770,79 @@ abstract class BaseController extends Controller
         return $data_declarar;
     }
 
+    public function notificationSire()
+    {
+        $db = \Config\Database::connect();
+
+        $sql = "
+            SELECT 
+                c.id AS contribuyente_id, 
+                c.razon_social AS contribuyente, 
+                a.anio_descripcion AS anio, 
+                m.mes_descripcion AS mes, 
+                fd.id_mes,
+                fd.id_anio,
+                IF(PERIOD_DIFF(DATE_FORMAT(CURDATE(), '%Y%m'), DATE_FORMAT(c.created_at, '%Y%m')) = 1, 'SI', 'NO') AS excluir,
+                DATE_FORMAT(fd.fecha_exacta, '%d-%m-%Y') AS fecha_exacta
+            FROM fecha_declaracion fd
+            INNER JOIN mes m ON m.id_mes = fd.id_mes
+            INNER JOIN anio a ON a.id_anio = fd.id_anio
+            JOIN contribuyentes c ON RIGHT(c.ruc, 1) = fd.id_numero - 1
+            INNER JOIN configuracion_notificacion_historial cnh ON cnh.contribuyente_id = c.id AND cnh.tributo_id = 27 AND cnh.estado = 1
+            WHERE fd.id_tributo = 27
+              AND fd.id_anio >= 11
+              AND fd.fecha_notificar >= '2025-12-01'
+              AND fd.fecha_notificar <= CURDATE()
+              AND c.estado = 1
+              AND c.tipoServicio = 'CONTABLE'
+              AND c.ruc != '10463333748'
+              AND (fd.id_anio * 100 + fd.id_mes) >= (cnh.anio * 100 + cnh.mes)
+              AND NOT EXISTS (
+                  SELECT 1 
+                  FROM sire s 
+                  WHERE s.contribuyente_id = c.id 
+                    AND s.periodo = fd.id_mes 
+                    AND s.anio = fd.id_anio 
+                    AND s.estado = 1
+              )
+            ORDER BY fd.fecha_exacta ASC, c.razon_social ASC
+        ";
+
+        return $db->query($sql)->getResultArray();
+    }
+
+    public function countNotificationSire()
+    {
+        $db = \Config\Database::connect();
+
+        $sql = "
+            SELECT 
+                COUNT(*) AS total
+            FROM fecha_declaracion fd
+            JOIN contribuyentes c ON RIGHT(c.ruc, 1) = fd.id_numero - 1
+            INNER JOIN configuracion_notificacion_historial cnh ON cnh.contribuyente_id = c.id AND cnh.tributo_id = 27 AND cnh.estado = 1
+            WHERE fd.id_tributo = 27
+              AND fd.id_anio >= 11
+              AND fd.fecha_notificar >= '2025-12-01'
+              AND fd.fecha_notificar <= CURDATE()
+              AND c.estado = 1
+              AND c.tipoServicio = 'CONTABLE'
+              AND c.ruc != '10463333748'
+              AND (fd.id_anio * 100 + fd.id_mes) >= (cnh.anio * 100 + cnh.mes)
+              AND NOT EXISTS (
+                  SELECT 1 
+                  FROM sire s 
+                  WHERE s.contribuyente_id = c.id 
+                    AND s.periodo = fd.id_mes 
+                    AND s.anio = fd.id_anio 
+                    AND s.estado = 1
+              )
+        ";
+
+        $result = $db->query($sql)->getRowArray();
+        return (int) ($result['total'] ?? 0);
+    }
+
     public function notificar_afp()
     {
         $afp = new AfpModel();

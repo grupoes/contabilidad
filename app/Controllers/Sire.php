@@ -462,7 +462,7 @@ class Sire extends BaseController
 
     public function notificacionSireAll()
     {
-        $data = $this->notificacionSire();
+        $data = $this->notificationSire();
 
         return $this->response->setJSON($data);
     }
