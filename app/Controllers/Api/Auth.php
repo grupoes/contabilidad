@@ -175,6 +175,28 @@ class Auth extends ResourceController
                 $userType = (strlen($username) == 11) ? 'contribuyente' : 'trabajador';
             }
 
+            // Validar si el correo ya está registrado por otro usuario del mismo tipo
+            if (isset($data['id_user'])) {
+                $emailTrim = trim($email);
+                
+                if ($userType === 'contribuyente') {
+                    $checkModel = new ContribuyenteModel();
+                } else {
+                    $checkModel = new TrabajadoresContriModel();
+                }
+
+                $existeOtro = $checkModel->where('correo', $emailTrim)
+                                         ->where('id !=', $id_user)
+                                         ->first();
+
+                if ($existeOtro) {
+                    return $this->respond([
+                        'status' => false,
+                        'message' => 'Este correo ya fue configurado con otro usuario.'
+                    ], 400);
+                }
+            }
+
             // Generar código OTP de 6 dígitos
             $codigo = random_int(100000, 999999);
 
