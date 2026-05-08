@@ -711,4 +711,94 @@ class AppUser extends ResourceController
             return $this->failServerError("Error interno en el servidor: " . $e->getMessage());
         }
     }
+
+    public function verificarUsuario($username)
+    {
+        try {
+            $longitud = strlen($username);
+            $user = null;
+
+            if ($longitud == 8) {
+                $model = new TrabajadoresContriModel();
+                $user = $model->where('numero_documento', $username)->first();
+            } elseif ($longitud == 11) {
+                $model = new ContribuyenteModel();
+                $user = $model->where('ruc', $username)->first();
+            } else {
+                return $this->respond([
+                    "status" => "error",
+                    "message" => "El usuario debe tener 8 u 11 dígitos"
+                ], 400);
+            }
+
+            if (!$user) {
+                return $this->respond([
+                    "status" => "error",
+                    "message" => "No se encontró el usuario"
+                ], 404);
+            }
+
+            if ($user['correo'] == '') {
+                return $this->respond([
+                    "status" => "warning",
+                    "message" => "No tiene un correo configurado"
+                ]);
+            }
+
+            return $this->respond([
+                "status" => "success",
+                "message" => "Usuario encontrado",
+                "email" => $user['correo'] ?? null
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError("Error interno en el servidor: " . $e->getMessage());
+        }
+    }
+
+    public function listaPersonal($ruc)
+    {
+        $db = \Config\Database::connect();
+
+        try {
+            $listaPersonal = $db->query("SELECT tc.id,r8.numero_documento, r8.nombres, tc.correo FROM r08_plame as r8 INNER JOIN trabajadores_contribuyentes as tc ON tc.numero_documento = r8.numero_documento where r8.ruc = '$ruc' GROUP BY r8.numero_documento, r8.nombres, tc.correo")->getResultArray();
+
+            return $this->respond([
+                "status" => "success",
+                "message" => "Lista de personal obtenida correctamente",
+                "data" => $listaPersonal
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError("Error interno en el servidor: " . $e->getMessage());
+        }
+    }
+
+    public function resetearUsuarioPersonal($id)
+    {
+        try {
+            $trabajadoresContri = new TrabajadoresContriModel();
+
+            $consulta = $trabajadoresContri->find($id);
+
+            if (!$consulta) {
+                return $this->respond([
+                    "status" => "error",
+                    "message" => "No se encontró el usuario"
+                ], 404);
+            }
+
+            $update = [
+                "password" => $consulta['numero_documento'],
+                "correo" => ""
+            ];
+
+            $trabajadoresContri->update($id, $update);
+
+            return $this->respond([
+                "status" => "success",
+                "message" => "Usuario reseteado correctamente"
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError("Error interno en el servidor: " . $e->getMessage());
+        }
+    }
 }

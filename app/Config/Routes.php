@@ -352,6 +352,7 @@ $routes->post('/agenda/atendido-actividad-con-evidencia', 'Agenda::atendidoActiv
 $routes->group('api', function ($routes) {
     // Login público
     $routes->post('login', 'Api\Auth::login');
+    $routes->get('verificar-usuario/(:any)', 'Api\AppUser::verificarUsuario/$1');
 
     // ── Email API ────────────────────────────────────────────────────────────
     $routes->post('email/send',          'Api\Email::send');          // Correo genérico
@@ -377,6 +378,9 @@ $routes->group('api', ['filter' => 'jwt'], function ($routes) {
     $routes->post('consulta-analisis', 'Api\AppUser::consultaAnalisisMovimientos');
     $routes->post('save-correo', 'Api\AppUser::updateCorreo');
     $routes->get('verify-correo/(:num)', 'Api\AppUser::verifyEmail/$1');
+
+    $routes->get('lista-personal/(:num)', 'Api\AppUser::listaPersonal/$1');
+    $routes->get('resetear-usuario/(:num)', 'Api\AppUser::resetearUsuarioPersonal/$1');
 
     $routes->post('api-verify-name-ruc', 'Api\GoogleDriveApi::apiVerifyFolderExists');
     $routes->post('folder-google-drive', 'Api\GoogleDriveApi::getFolder');
