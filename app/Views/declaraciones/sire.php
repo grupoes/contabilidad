@@ -288,12 +288,12 @@
                     <div class="row">
                         <div class="col-md-12 mb-3">
                             <label for="rectConstanciaVentas" class="form-label">Elige la nueva constancia de ventas</label>
-                            <input type="file" name="rectConstanciaVentas" id="rectConstanciaVentas" class="form-control" accept=".pdf" required />
+                            <input type="file" name="rectConstanciaVentas" id="rectConstanciaVentas" class="form-control" accept=".pdf" />
                         </div>
 
                         <div class="col-md-12 mb-3">
                             <label for="rectConstanciaCompras" class="form-label">Elige la nueva constancia de Compras</label>
-                            <input type="file" name="rectConstanciaCompras" id="rectConstanciaCompras" class="form-control" accept=".pdf" required />
+                            <input type="file" name="rectConstanciaCompras" id="rectConstanciaCompras" class="form-control" accept=".pdf" />
                         </div>
 
                         <div class="col-md-12 mb-3">
@@ -303,12 +303,12 @@
 
                         <div class="col-md-12 mb-3">
                             <label for="rectAjustePosterior" class="form-label">Elige el ajuste posterior</label>
-                            <input type="file" name="rectAjustePosterior" id="rectAjustePosterior" class="form-control" accept=".pdf" />
+                            <input type="file" name="rectAjustePosterior" id="rectAjustePosterior" class="form-control" accept=".pdf" required />
                         </div>
 
                         <div class="col-md-12 mb-3">
                             <label for="rectArchivos" class="form-label">Archivos</label>
-                            <input type="file" name="rectArchivos[]" id="rectArchivos" class="form-control" accept=".txt, .zip" multiple />
+                            <input type="file" name="rectArchivos[]" id="rectArchivos" class="form-control" accept=".txt, .zip" multiple required />
                         </div>
 
                         <div class="col-md-12" id="viewAlert">

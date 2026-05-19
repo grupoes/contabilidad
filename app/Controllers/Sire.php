@@ -240,11 +240,11 @@ class Sire extends BaseController
                 }
             }
 
-            // Verificar que al menos uno de los archivos esté presente
-            if ((!$file1 || !$file1->isValid()) && (!$file2 || !$file2->isValid()) && (!$file3 || !$file3->isValid()) && (!$file4 || !$file4->isValid()) && !$hasValidRectArchivos) {
+            // Verificar que el archivo de ajuste posterior esté presente (es obligatorio)
+            if (!$file4 || !$file4->isValid()) {
                 return $this->response->setJSON([
                     "status" => "error",
-                    "message" => "Debe seleccionar al menos un archivo"
+                    "message" => "El archivo de ajuste posterior es obligatorio"
                 ]);
             }
 
