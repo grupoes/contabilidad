@@ -111,7 +111,7 @@ class Pdt0621 extends BaseController
                 $rutaConstancia = FCPATH . '/archivos/pdt/' . $archivo_constancia;
             }
 
-            if ($ruc != '10413867806') {
+            if ($ruc != '10413867806' || $ruc != '10463333748') {
                 if ($archivo_constancia !== "") {
                     $response = $this->apiLoadPdtFrases($rutaConstancia);
 
