@@ -1050,9 +1050,21 @@ class Pdt0621 extends BaseController
 
     public function leerPdfRenta()
     {
-        $filePath = FCPATH . 'archivos/pdt/PDT0621_20603670249_ENERO2026_312156.pdf';
+        $modo = getenv("MODO");
 
-        $data = $this->apiLoadPdtArchivos($filePath);
+        $archivo_pdt = "PDT0621_20603670249_ENERO2026_312156.pdf";
+
+        if ($modo == "PRODUCCION") {
+            $dockerPath = FCPATH; // /var/www/html/public/
+            $realPath = str_replace('/var/www/html', '/var/www/html/contabilidad', $dockerPath);
+
+            $rutaPdt = $realPath . 'archivos/pdt/' . $archivo_pdt;
+        } else {
+            $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
+        }
+        //$filePath = FCPATH . 'archivos/pdt/PDT0621_20603670249_ENERO2026_312156.pdf';
+
+        $data = $this->apiLoadPdtArchivos($rutaPdt);
 
         return $this->response->setJSON($data);
     }
