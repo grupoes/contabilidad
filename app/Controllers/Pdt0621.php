@@ -1064,7 +1064,7 @@ class Pdt0621 extends BaseController
         }
         //$filePath = FCPATH . 'archivos/pdt/PDT0621_20603670249_ENERO2026_312156.pdf';
 
-        $data = $this->apiLoadPdtArchivos($rutaPdt);
+        $data = $this->apiLoadPdtFile($rutaPdt);
 
         return $this->response->setJSON($data);
     }
