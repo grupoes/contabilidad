@@ -1059,7 +1059,7 @@ class Pdt0621 extends BaseController
             $dockerPath = FCPATH; // /var/www/html/public/
             $realPath = str_replace('/var/www/html', '/var/www/html/contabilidad', $dockerPath);
 
-            $rutaPdt = $realPath . 'archivos/pdt/' . $archivo_pdt;
+            $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
         } else {
             $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
         }
