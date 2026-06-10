@@ -411,3 +411,4 @@ $routes->get('/update-pago-servidor', 'Contribuyentes::updatePagoServidor');
 $routes->get('contribuyente/generar-historial-notificaciones', 'Contribuyentes::agregarNotificacionHistorial');
 
 $routes->get('/update-pdt-renta', 'Pdt0621::leerPdfRenta');
+$routes->get('/test-debug', 'Pdt0621::test_path');

@@ -1050,6 +1050,7 @@ class Pdt0621 extends BaseController
 
     public function leerPdfRenta()
     {
+
         $modo = getenv("MODO");
 
         $archivo_pdt = "PDT0621_20603670249_ENERO2026_312156.pdf";
@@ -1067,5 +1068,27 @@ class Pdt0621 extends BaseController
         $data = $this->extraer_datos($rutaPdt);
 
         return $this->response->setJSON($data);
+    }
+
+    public function test_path()
+    {
+        $modo = getenv("MODO");
+        $archivo_pdt = "PDT0621_20603670249_ENERO2026_312156.pdf";
+
+        if ($modo == "PRODUCCION") {
+            $realPath = str_replace('/var/www/html', '/var/www/html/contabilidad', FCPATH);
+            $rutaPdt = $realPath . 'archivos/pdt/' . $archivo_pdt;
+        } else {
+            $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
+        }
+
+        return $this->response->setJSON([
+            'modo'             => $modo ?: '(no definido, usa rama ELSE)',
+            'FCPATH'           => FCPATH,
+            'ruta_calculada'   => $rutaPdt,
+            'archivo_existe'   => file_exists($rutaPdt),
+            'archivo_leible'   => is_readable($rutaPdt),
+            'sugerencia'       => 'C:/Users/User/Documents/projects/apis-python/' . $archivo_pdt,
+        ]);
     }
 }
