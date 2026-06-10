@@ -1050,10 +1050,101 @@ class Pdt0621 extends BaseController
 
     public function leerPdfRenta()
     {
+        $pdtRenta = new PdtRentaModel();
+
+        $data = $pdtRenta->query("
+            SELECT
+                pr.*,
+                ap.id_archivos_pdt,
+                ap.nombre_pdt,
+                ap.nombre_constancia,
+                ap.estado as estado_archivo,
+                a.anio_descripcion,
+                m.mes_descripcion
+            FROM pdt_renta pr
+            INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta
+            INNER JOIN anio a ON a.id_anio = pr.anio
+            INNER JOIN mes m ON m.id_mes = pr.periodo
+            WHERE pr.estado = 1
+              AND ap.estado = 1
+              AND pr.periodo >= 1
+              AND pr.anio >= 12
+            ORDER BY pr.anio, pr.periodo
+        ")->getResultArray();
+
+        foreach ($data as $key => $value) {
+            $archivo_pdt = $value['nombre_pdt'];
+
+            $modo = getenv("MODO");
+
+            if ($modo == "PRODUCCION") {
+                $dockerPath = FCPATH; // /var/www/html/public/
+                $realPath = str_replace('/var/www/html', '/var/www/html/contabilidad', $dockerPath);
+
+                $rutaPdt = $realPath . 'archivos/pdt/' . $archivo_pdt;
+            } else {
+                $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
+            }
+
+            $data = $this->extraer_datos($rutaPdt);
+
+            $base_107 = $data['datos']['igv_compras']['compras_gravadas_nacionales_base']['monto'] ?? 0;
+            $base_114 = $data['datos']['igv_compras']['compras_gravadas_importadas_base']['monto'] ?? 0;
+
+            $base_120 = $data['datos']['igv_compras']['compras_internas_no_gravadas']['monto'] ?? 0;
+
+            $base_100 = $data['datos']['igv_ventas']['ventas_netas_gravadas']['monto'] ?? 0;
+            $base_102 = $data['datos']['igv_ventas']['descuentos_devoluciones_base']['monto'] ?? 0;
+            $base_105 = $data['datos']['igv_ventas']['ventas_no_gravadas']['monto'] ?? 0;
+            $base_162 = $data['datos']['igv_ventas']['descuentos_devoluciones_ley27037']['monto'] ?? 0;
+
+            $base_110 = $data['datos']['igv_compras']['compras_gravadas_no_gravadas_base']['monto'] ?? 0;
+            $base_113 = $data['datos']['igv_compras']['compras_no_gravadas_base']['monto'] ?? 0;
+
+            $base_122 = $data['datos']['igv_compras']['compras_importadas_no_gravadas']['monto'] ?? 0;
+
+            if ($base_107 > 0) {
+                $compras_gravadas = $base_107 + $base_114;
+                $compras_no_gravadas = $base_120;
+                $total_compras = $compras_gravadas + $compras_no_gravadas;
+
+                $ventas_gravadas = $base_100 - $base_102;
+                $ventas_no_gravadas = $base_105 - $base_162;
+                $total_ventas = $ventas_gravadas + $ventas_no_gravadas;
+            } else {
+                $compras_gravadas = $base_110 + $base_113;
+                $compras_no_gravadas = $base_120 + $base_122;
+
+                $igv_compras = $base_113 * 0.18;
+
+                $total_compras = $compras_gravadas + $compras_no_gravadas + $igv_compras;
+
+                $ventas_gravadas = $base_100 - $base_102;
+                $ventas_no_gravadas = $base_105;
+
+                $total_ventas = $ventas_gravadas + $ventas_no_gravadas;
+            }
+
+            $data_update = array(
+                "total_ventas" => $total_ventas,
+                "total_compras" => $total_compras,
+                "compras_gravadas" => $compras_gravadas,
+                "compras_no_gravadas" => $compras_no_gravadas,
+                "ventas_gravadas" => $ventas_gravadas,
+                "ventas_no_gravadas" => $ventas_no_gravadas,
+            );
+
+            $pdtRenta->update($value['id_pdt_renta'], $data_update);
+        }
+
+        return $this->response->setJSON([
+            "status" => "success",
+            "message" => "Proceso completado"
+        ]);
+
+        /*$archivo_pdt = "PDT0621_20603670249_ENERO2026_312156.pdf";
 
         $modo = getenv("MODO");
-
-        $archivo_pdt = "PDT0621_20603670249_ENERO2026_312156.pdf";
 
         if ($modo == "PRODUCCION") {
             $dockerPath = FCPATH; // /var/www/html/public/
@@ -1067,7 +1158,7 @@ class Pdt0621 extends BaseController
 
         $data = $this->extraer_datos($rutaPdt);
 
-        return $this->response->setJSON($data);
+        return $this->response->setJSON($data);*/
     }
 
     public function test_path()
