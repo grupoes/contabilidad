@@ -716,10 +716,10 @@ class PdtPlame extends BaseController
                 continue;
             }
 
-            $ext = strtolower(pathinfo($archivo_pdt, PATHINFO_EXTENSION));
+            /*$ext = strtolower(pathinfo($archivo_pdt, PATHINFO_EXTENSION));
             if ($ext !== 'pdf') {
                 continue;
-            }
+            }*/
 
             $modo = getenv("MODO");
 
