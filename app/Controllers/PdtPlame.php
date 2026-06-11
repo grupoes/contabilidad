@@ -711,6 +711,16 @@ class PdtPlame extends BaseController
         foreach ($data as $key => $value) {
             $archivo_pdt = $value['archivo_planilla'];
 
+            // Validar que exista y que sea PDF; si no, continuar con la siguiente iteración
+            if (empty($archivo_pdt)) {
+                continue;
+            }
+
+            $ext = strtolower(pathinfo($archivo_pdt, PATHINFO_EXTENSION));
+            if ($ext !== 'pdf') {
+                continue;
+            }
+
             $modo = getenv("MODO");
 
             if ($modo == "PRODUCCION") {
@@ -738,7 +748,7 @@ class PdtPlame extends BaseController
             "message" => "Proceso completado"
         ]);
 
-        /*$archivo_pdt = "PDT0621_20603670249_ENERO2026_312156.pdf";
+        /*$archivo_pdt = "20542322412_2026_ENERO_r01.pdf";
 
         $modo = getenv("MODO");
 
@@ -752,7 +762,7 @@ class PdtPlame extends BaseController
         }
         //$filePath = FCPATH . 'archivos/pdt/PDT0621_20603670249_ENERO2026_312156.pdf';
 
-        $data = $this->extraer_datos($rutaPdt);
+        $data = $this->extraer_suma_r1($rutaPdt);
 
         return $this->response->setJSON($data);*/
     }
