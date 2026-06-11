@@ -687,7 +687,7 @@ class PdtPlame extends BaseController
 
     public function leerPdfR1()
     {
-        /*$pdtRenta = new PdtPlameModel();
+        $pdtRenta = new PdtPlameModel();
 
         $data = $pdtRenta->query("
             SELECT
@@ -747,9 +747,9 @@ class PdtPlame extends BaseController
         return $this->response->setJSON([
             "status" => "success",
             "message" => "Proceso completado"
-        ]);*/
+        ]);
 
-        $archivo_pdt = "20542322412_2026_ENERO_r01.pdf";
+        /*$archivo_pdt = "20542322412_2026_ENERO_r01.pdf";
 
         $modo = getenv("MODO");
 
@@ -765,6 +765,6 @@ class PdtPlame extends BaseController
 
         $data = $this->extraer_suma_r1($rutaPdt);
 
-        return $this->response->setJSON($data);
+        return $this->response->setJSON($data);*/
     }
 }
