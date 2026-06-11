@@ -60,7 +60,7 @@ class AppUser extends ResourceController
         try {
             $anio = new AnioModel();
             $anioActual = date('Y');
-            $anios = $anio->where('anio_descripcion >=', 2024)->where('anio_descripcion <=', $anioActual)->orderBy('anio_descripcion', 'DESC')->findAll();
+            $anios = $anio->where('anio_descripcion >=', 2022)->where('anio_descripcion <=', $anioActual)->orderBy('anio_descripcion', 'DESC')->findAll();
 
             return $this->respond([
                 'status' => true,
