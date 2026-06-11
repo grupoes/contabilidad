@@ -698,7 +698,7 @@ class PdtPlame extends BaseController
                 a.anio_descripcion,
                 m.mes_descripcion
             FROM pdt_plame pr
-            INNER JOIN archivos_pdtplame ap ON ap.id_pdt_plame = pr.id_pdt_plame
+            INNER JOIN archivos_pdtplame ap ON ap.id_pdtplame = pr.id_pdt_plame
             INNER JOIN anio a ON a.id_anio = pr.anio
             INNER JOIN mes m ON m.id_mes = pr.periodo
             WHERE pr.estado = 1
