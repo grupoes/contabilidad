@@ -705,23 +705,28 @@ class PdtPlame extends BaseController
               AND ap.estado = 1
               AND pr.periodo IN (1, 2, 3, 4)
               AND pr.anio = 12
+              AND pr.ruc_empresa = '20542322412'
             ORDER BY pr.anio, pr.periodo
         ")->getResultArray();
+
+        $names = [];
 
         foreach ($data as $key => $value) {
             $archivo_pdt = $value['archivo_planilla'];
 
+            $names[] = $archivo_pdt;
+
             // Validar que exista y que sea PDF; si no, continuar con la siguiente iteración
-            if (empty($archivo_pdt)) {
+            /*if (empty($archivo_pdt)) {
                 continue;
-            }
+            }*/
 
             /*$ext = strtolower(pathinfo($archivo_pdt, PATHINFO_EXTENSION));
             if ($ext !== 'pdf') {
                 continue;
             }*/
 
-            $modo = getenv("MODO");
+            /*$modo = getenv("MODO");
 
             if ($modo == "PRODUCCION") {
                 $dockerPath = FCPATH; // /var/www/html/public/
@@ -740,12 +745,13 @@ class PdtPlame extends BaseController
                 "total_r1" => $total_devengado,
             );
 
-            $pdtRenta->update($value['id_pdt_plame'], $data_update);
+            $pdtRenta->update($value['id_pdt_plame'], $data_update);*/
         }
 
         return $this->response->setJSON([
             "status" => "success",
-            "message" => "Proceso completado"
+            "message" => "Proceso completado",
+            "files" => $names
         ]);
 
         /*$archivo_pdt = "20542322412_2026_ENERO_r01.pdf";
