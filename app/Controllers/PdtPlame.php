@@ -684,4 +684,76 @@ class PdtPlame extends BaseController
             print_r($data);
         }
     }
+
+    public function leerPdfR1()
+    {
+        $pdtRenta = new PdtPlameModel();
+
+        $data = $pdtRenta->query("
+            SELECT
+                pr.*,
+                ap.id_archivos_pdtplame,
+                ap.archivo_planilla,
+                ap.estado as estado_archivo,
+                a.anio_descripcion,
+                m.mes_descripcion
+            FROM pdt_plame pr
+            INNER JOIN archivos_pdtplame ap ON ap.id_pdt_plame = pr.id_pdt_plame
+            INNER JOIN anio a ON a.id_anio = pr.anio
+            INNER JOIN mes m ON m.id_mes = pr.periodo
+            WHERE pr.estado = 1
+              AND ap.estado = 1
+              AND pr.periodo IN (1, 2, 3, 4)
+              AND pr.anio = 12
+            ORDER BY pr.anio, pr.periodo
+        ")->getResultArray();
+
+        foreach ($data as $key => $value) {
+            $archivo_pdt = $value['archivo_planilla'];
+
+            $modo = getenv("MODO");
+
+            if ($modo == "PRODUCCION") {
+                $dockerPath = FCPATH; // /var/www/html/public/
+                $realPath = str_replace('/var/www/html', '/var/www/html/contabilidad', $dockerPath);
+
+                $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
+            } else {
+                $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
+            }
+
+            $data = $this->extraer_suma_r1($rutaPdt);
+
+            $total_devengado = $data['total_devengado'] ?? 0;
+
+            $data_update = array(
+                "total_r1" => $total_devengado,
+            );
+
+            $pdtRenta->update($value['id_pdt_plame'], $data_update);
+        }
+
+        return $this->response->setJSON([
+            "status" => "success",
+            "message" => "Proceso completado"
+        ]);
+
+        /*$archivo_pdt = "PDT0621_20603670249_ENERO2026_312156.pdf";
+
+        $modo = getenv("MODO");
+
+        if ($modo == "PRODUCCION") {
+            $dockerPath = FCPATH; // /var/www/html/public/
+            $realPath = str_replace('/var/www/html', '/var/www/html/contabilidad', $dockerPath);
+
+            $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
+        } else {
+            $rutaPdt = FCPATH . 'archivos/pdt/' . $archivo_pdt;
+        }
+        //$filePath = FCPATH . 'archivos/pdt/PDT0621_20603670249_ENERO2026_312156.pdf';
+
+        $data = $this->extraer_datos($rutaPdt);
+
+        return $this->response->setJSON($data);*/
+    }
 }

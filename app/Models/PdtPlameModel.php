@@ -13,7 +13,7 @@ class PdtPlameModel extends Model
 
     protected $returnType     = 'array';
 
-    protected $allowedFields = ['id_pdt_plame', 'ruc_empresa', 'periodo', 'anio', 'excluido', 'user_id', 'user_edit', 'user_delete', 'estado'];
+    protected $allowedFields = ['id_pdt_plame', 'ruc_empresa', 'periodo', 'anio', 'excluido', 'user_id', 'user_edit', 'user_delete', 'estado', 'total_r1'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

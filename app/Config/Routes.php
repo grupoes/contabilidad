@@ -412,3 +412,5 @@ $routes->get('contribuyente/generar-historial-notificaciones', 'Contribuyentes::
 
 $routes->get('/update-pdt-renta', 'Pdt0621::leerPdfRenta');
 $routes->get('/test-debug', 'Pdt0621::test_path');
+
+$routes->get('/update-suma-r1', 'PdtPlame::leerPdfR1');

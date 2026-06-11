@@ -500,6 +500,72 @@ abstract class BaseController extends Controller
         return $data ?? ['success' => false, 'error' => "Respuesta vacía"];
     }
 
+    public function extraer_suma_r1($rutaFile)
+    {
+        if (!file_exists($rutaFile)) {
+            return ['success' => false, 'error' => "Archivo no existe: {$rutaFile}"];
+        }
+        if (!is_readable($rutaFile)) {
+            return ['success' => false, 'error' => "Archivo no leíble: {$rutaFile}"];
+        }
+
+        $bytes = file_get_contents($rutaFile);
+        if ($bytes === false || strlen($bytes) === 0) {
+            return ['success' => false, 'error' => "No se pudo leer el PDF (0 bytes o error I/O)"];
+        }
+
+        $filename = basename($rutaFile);
+        $payload  = json_encode(['filename' => $filename]);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return ['success' => false, 'error' => "Error armando JSON: " . json_last_error_msg()];
+        }
+
+        $url = getenv("EXTRAER_DATOS");
+        if (!$url) {
+            return ['success' => false, 'error' => "EXTRAER_DATOS no definido en .env"];
+        }
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($payload),
+            ],
+            CURLOPT_TIMEOUT        => 60,
+            CURLOPT_CONNECTTIMEOUT => 10,
+        ]);
+
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $err      = curl_error($curl);
+        $errno    = curl_errno($curl);
+        curl_close($curl);
+
+        if ($response === false) {
+            log_message('error', "extraer_datos: cURL #{$errno} {$err}");
+            return ['success' => false, 'error' => "Conexión falló: {$err}"];
+        }
+
+        $data = json_decode((string)$response, true);
+
+        if ($httpCode >= 400) {
+            $apiError = $data['error'] ?? 'desconocido';
+            log_message('error', "extraer_datos: HTTP {$httpCode} - {$apiError}");
+            return [
+                'success'   => false,
+                'error'     => "API HTTP {$httpCode}: {$apiError}",
+                'http_code' => $httpCode,
+            ];
+        }
+
+        return $data ?? ['success' => false, 'error' => "Respuesta vacía"];
+    }
+
     public function apiLoadPdtArchivos($rutaFile)
     {
         $curl = curl_init();
