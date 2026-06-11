@@ -515,15 +515,19 @@ abstract class BaseController extends Controller
         }
 
         $filename = basename($rutaFile);
-        $payload  = json_encode(['filename' => $filename]);
+        $b64 = base64_encode($bytes);
+        $payload = json_encode([
+            'content_base64' => $b64,
+            'filename'       => $filename
+        ]);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             return ['success' => false, 'error' => "Error armando JSON: " . json_last_error_msg()];
         }
 
-        $url = getenv("EXTRAER_DATOS");
+        $url = getenv("SUMAR_DEVENGADO");
         if (!$url) {
-            return ['success' => false, 'error' => "EXTRAER_DATOS no definido en .env"];
+            return ['success' => false, 'error' => "SUMAR_DEVENGADO no definido en .env"];
         }
 
         $curl = curl_init();
