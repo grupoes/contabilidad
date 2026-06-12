@@ -825,16 +825,13 @@ class AppUser extends ResourceController
         }
     }
 
-    public function descargarExcel()
+    public function descargarExcel($anio, $ruc)
     {
         $pdt = new PdtRentaModel();
         $pdt_plame = new PdtPlameModel();
         $config_notificacion = new ConfiguracionNotificacionModel();
 
         try {
-            $input = $this->request->getJSON(true);
-            $anio = $input['anio'];
-            $ruc  = $input['ruc'];
 
             $data = $pdt->query("
                 SELECT pr.periodo, pr.anio,
@@ -971,45 +968,6 @@ class AppUser extends ResourceController
             return $this->respond([
                 'status' => 'error',
                 'message' => 'Error al generar Excel: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function consultaAnalisisMovimientoss()
-    {
-        $pdt = new PdtRentaModel();
-        $pdt_plame = new PdtPlameModel();
-        $config_notificacion = new ConfiguracionNotificacionModel();
-
-        try {
-
-            $datos = $this->request->getJSON(true);
-
-            $anio = $datos['anio'];
-            $ruc = $datos['ruc'];
-
-            $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, FORMAT(pr.total_compras, 2, 'es_PE') as total_compras_decimal, FORMAT(pr.total_ventas, 2, 'es_PE') as total_ventas_decimal, FORMAT(pr.compras_gravadas, 2, 'es_PE') as compras_gravadas_decimal, FORMAT(pr.compras_no_gravadas, 2, 'es_PE') as compras_no_gravadas_decimal, FORMAT(pr.ventas_gravadas, 2, 'es_PE') as ventas_gravadas_decimal, FORMAT(pr.ventas_no_gravadas, 2, 'es_PE') as ventas_no_gravadas_decimal, pr.total_compras, pr.total_ventas, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt, pr.estado_datos, c.igv FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
-
-            $config = $config_notificacion->where('ruc_empresa_numero', $ruc)->where('id_tributo', 22)->first();
-
-            if ($config) {
-                foreach ($data as $key => $value) {
-                    $idPdtPlame = $pdt_plame->select('total_r1')->where('ruc_empresa', $ruc)->where('anio', $value['anio'])->where('periodo', $value['periodo'])->first();
-
-                    $data[$key]['total_r1'] = $idPdtPlame['total_r1'];
-                }
-            }
-
-            return $this->respond([
-                'status' => 'success',
-                'message' => 'Se hizo la consulta correctamente',
-                'afp' => $config ? 'si' : 'no',
-                'data' => $data
-            ]);
-        } catch (\Exception $e) {
-            return $this->respond([
-                'status' => 'error',
-                'message' => 'error en la consulta ' . $e->getMessage()
             ], 500);
         }
     }
