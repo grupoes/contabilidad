@@ -669,6 +669,7 @@ class AppUser extends ResourceController
             return $this->respond([
                 'status' => 'success',
                 'message' => 'Se hizo la consulta correctamente',
+                'afp' => $config ? 'si' : 'no',
                 'data' => $data
             ]);
         } catch (\Exception $e) {
