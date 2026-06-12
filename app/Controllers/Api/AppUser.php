@@ -687,9 +687,9 @@ class AppUser extends ResourceController
 
             foreach ($data as $key => $item) {
                 if (isset($item['estado_igv']) && $item['estado_igv'] == 0) {
-                    $factor = 1.18;
-                    $data[$key]['compras_gravadas_decimal'] = (float) $item['compras_gravadas_decimal'] * $factor;
-                    $data[$key]['total_compras'] = (float) $item['total_compras'] * $factor;
+                    $valor = (float) str_replace(',', '', $item['compras_gravadas_decimal']);
+                    $data[$key]['compras_gravadas_decimal'] = number_format($valor * 1.18, 2, '.', ',');
+                    $data[$key]['total_compras'] = (float) $item['total_compras'] * 1.18;
                 }
 
                 if ($config) {
