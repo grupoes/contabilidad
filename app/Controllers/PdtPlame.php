@@ -703,7 +703,7 @@ class PdtPlame extends BaseController
             INNER JOIN mes m ON m.id_mes = pr.periodo
             WHERE pr.estado = 1
               AND ap.estado = 1
-              AND pr.periodo IN (1, 2, 3, 4)
+              AND pr.periodo IN (5, 6)
               AND pr.anio = 12
               AND pr.ruc_empresa = '20542322412'
             ORDER BY pr.anio, pr.periodo
