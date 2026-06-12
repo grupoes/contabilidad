@@ -916,18 +916,19 @@ class AppUser extends ResourceController
                 );
             }
 
-            // ─── Datos auxiliares para el gráfico (ocultos) ─
-            $chartColMes   = 'K';
-            $chartColIng   = 'L';
-            $chartColEgr   = 'M';
+            // ─── Datos auxiliares para el gráfico (hoja oculta) ─
+            $auxSheet = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, '_datos');
+            $spreadsheet->addSheet($auxSheet);
+            $auxSheet->setSheetState(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet::SHEETSTATE_HIDDEN);
 
-            $sheet->setCellValue($chartColMes . '1', 'MES');
-            $sheet->setCellValue($chartColIng . '1', 'INGRESOS');
-            $sheet->setCellValue($chartColEgr . '1', 'EGRESOS');
+            $auxSheet->setCellValue('A1', 'MES');
+            $auxSheet->setCellValue('B1', 'INGRESOS');
+            $auxSheet->setCellValue('C1', 'EGRESOS');
 
+            $chartDataLastRow = 1;
             foreach ($data as $i => $item) {
                 $r = $i + 2;
-                $sheet->setCellValue($chartColMes . $r, $item['mes_descripcion']);
+                $auxSheet->setCellValue('A' . $r, $item['mes_descripcion']);
 
                 $ingresos = (float) ($item['ventas_gravadas'] ?? 0) + (float) ($item['ventas_no_gravadas'] ?? 0);
                 $egresos  = (float) ($item['compras_gravadas'] ?? 0) + (float) ($item['compras_no_gravadas'] ?? 0);
@@ -936,14 +937,10 @@ class AppUser extends ResourceController
                     $egresos += (float) ($item['total_r1'] ?? 0);
                 }
 
-                $sheet->setCellValueExplicit($chartColIng . $r, $ingresos, DataType::TYPE_NUMERIC);
-                $sheet->setCellValueExplicit($chartColEgr . $r, $egresos, DataType::TYPE_NUMERIC);
+                $auxSheet->setCellValueExplicit('B' . $r, $ingresos, DataType::TYPE_NUMERIC);
+                $auxSheet->setCellValueExplicit('C' . $r, $egresos, DataType::TYPE_NUMERIC);
+                $chartDataLastRow = $r;
             }
-
-            // Ocultar columnas auxiliares del gráfico
-            $sheet->getColumnDimension($chartColMes)->setVisible(false);
-            $sheet->getColumnDimension($chartColIng)->setVisible(false);
-            $sheet->getColumnDimension($chartColEgr)->setVisible(false);
 
             // ─── Estilos: negrita encabezado y totales ──────
             $styleBold = [
@@ -974,15 +971,15 @@ class AppUser extends ResourceController
             // ─── Gráfico de barras INGRESOS vs EGRESOS ──────
             $chartRowStart = $totalRow + 3;
             $dataSeriesLabels = [
-                new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$' . $chartColIng . '$1', null, 1),
-                new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$' . $chartColEgr . '$1', null, 1),
+                new DataSeriesValues('String', '\'_datos\'!$B$1', null, 1),
+                new DataSeriesValues('String', '\'_datos\'!$C$1', null, 1),
             ];
             $xAxisTickValues = [
-                new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$' . $chartColMes . '$2:$' . $chartColMes . '$' . $lastDataRow, null, $lastDataRow - 1),
+                new DataSeriesValues('String', '\'_datos\'!$A$2:$A$' . $chartDataLastRow, null, $chartDataLastRow - 1),
             ];
             $dataSeriesValues = [
-                new DataSeriesValues('Number', '\'' . $sheet->getTitle() . '\'!$' . $chartColIng . '$2:$' . $chartColIng . '$' . $lastDataRow, null, $lastDataRow - 1),
-                new DataSeriesValues('Number', '\'' . $sheet->getTitle() . '\'!$' . $chartColEgr . '$2:$' . $chartColEgr . '$' . $lastDataRow, null, $lastDataRow - 1),
+                new DataSeriesValues('Number', '\'_datos\'!$B$2:$B$' . $chartDataLastRow, null, $chartDataLastRow - 1),
+                new DataSeriesValues('Number', '\'_datos\'!$C$2:$C$' . $chartDataLastRow, null, $chartDataLastRow - 1),
             ];
 
             $series = new DataSeries(
@@ -1004,7 +1001,7 @@ class AppUser extends ResourceController
             );
 
             $chart->setTopLeftPosition('A' . $chartRowStart);
-            $chart->setBottomRightPosition($chartColEgr . ($chartRowStart + 15));
+            $chart->setBottomRightPosition('H' . ($chartRowStart + 15));
             $sheet->addChart($chart);
 
             // ─── Writer con soporte para gráficos ───────────────
