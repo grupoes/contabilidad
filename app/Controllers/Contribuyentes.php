@@ -395,6 +395,7 @@ class Contribuyentes extends BaseController
                 'estado' => 1,
                 'numeroWhatsappId' => $data['numeroNotificacion'],
                 'monto_servidor' => isset($data['monto_servidor']) ? $data['monto_servidor'] : 0,
+                'estado_igv' => isset($data['afectoIgv']) ? $data['afectoIgv'] : 0,
             ];
 
             $clientesVarios = $data['clientesVarios'];

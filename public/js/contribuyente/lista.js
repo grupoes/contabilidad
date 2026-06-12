@@ -232,6 +232,11 @@ tipoSuscripcion.addEventListener("change", (e) => {
 formDatos.addEventListener("submit", (e) => {
   e.preventDefault();
 
+  const btnForm = document.getElementById("btnForm");
+  const textoOriginal = btnForm.textContent;
+  btnForm.disabled = true;
+  btnForm.textContent = "Guardando...";
+
   const formData = new FormData(formDatos);
 
   fetch(base_url + "contribuyente/add", {
@@ -254,6 +259,13 @@ formDatos.addEventListener("submit", (e) => {
           $("#modalAddEdit").modal("show");
         }, 4000);
       }
+    })
+    .catch((err) => {
+      notifier.show("¡Error!", err.message, "danger", "", 4000);
+    })
+    .finally(() => {
+      btnForm.disabled = false;
+      btnForm.textContent = textoOriginal;
     });
 });
 
@@ -514,6 +526,7 @@ tableBody.addEventListener("click", (e) => {
         diaSuscripcion.value = empresa.diaSuscripcion;
         fechaContrato.value = empresa.fechaContrato;
         numeroNotificacion.value = empresa.numeroWhatsappId;
+        document.getElementById('afectoIgv').value = empresa.estado_igv;
 
         const sistemas = data.sistemas;
 

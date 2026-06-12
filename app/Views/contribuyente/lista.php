@@ -211,6 +211,14 @@
                             <label class="form-label" for="urbanizacion">Urbanización</label>
                             <input type="text" class="form-control" name="urbanizacion" id="urbanizacion">
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="afectoIgv">¿Es afecto a IGV?</label>
+                            <select class="form-select" name="afectoIgv" id="afectoIgv" required>
+                                <option value="">Seleccionar</option>
+                                <option value="1">SI</option>
+                                <option value="0">NO</option>
+                            </select>
+                        </div>
                     </div>
                     <h5>Servicio</h5>
                     <hr>
@@ -924,6 +932,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
-<script src="<?= base_url() ?>js/contribuyente/lista.js?v=10"></script>
+<script src="<?= base_url() ?>js/contribuyente/lista.js?v=11"></script>
 
 <?= $this->endSection() ?>
