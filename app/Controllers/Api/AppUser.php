@@ -19,6 +19,7 @@ use Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
@@ -832,7 +833,6 @@ class AppUser extends ResourceController
         $config_notificacion = new ConfiguracionNotificacionModel();
 
         try {
-
             $data = $pdt->query("
                 SELECT pr.periodo, pr.anio,
                        pr.total_compras, pr.total_ventas,
@@ -880,10 +880,11 @@ class AppUser extends ResourceController
 
             $colIngresos    = $config ? 'G' : 'F';
             $colEgresosHdr  = $config ? 'H' : 'G';
+            $ultimaCol      = $colEgresosHdr;
+
             $sheet->setCellValue($colIngresos . '1', 'INGRESOS');
             $sheet->setCellValue($colEgresosHdr . '1', 'EGRESOS');
 
-            $lastDataRow = 0;
             $row = 2;
             foreach ($data as $item) {
                 $sheet->setCellValue('A' . $row, $item['mes_descripcion']);
@@ -901,13 +902,46 @@ class AppUser extends ResourceController
                 }
 
                 $sheet->setCellValueExplicit($colIngresos . $row, $ingresos, DataType::TYPE_NUMERIC);
-                $sheet->setCellValueExplicit($colEgresosHdr . $row, $egresos, DataType::TYPE_NUMERIC);
+                $sheet->setCellValueExplicit($ultimaCol . $row, $egresos, DataType::TYPE_NUMERIC);
 
-                $lastDataRow = $row;
                 $row++;
             }
 
-            // ─── Gráfico de barras INGRESOS vs EGRESOS ──────────
+            $lastDataRow = $row - 1;
+            $totalRow    = $row;
+
+            // ─── Fila de totales ────────────────────────────
+            $sheet->setCellValue('A' . $totalRow, 'TOTAL');
+            $letras = ['B', 'C', 'D', 'E'];
+            if ($config) $letras[] = 'F';
+            $letras[] = $colIngresos;
+            $letras[] = $ultimaCol;
+
+            foreach ($letras as $letra) {
+                $sheet->setCellValueExplicit(
+                    $letra . $totalRow,
+                    '=SUM(' . $letra . '2:' . $letra . $lastDataRow . ')',
+                    DataType::TYPE_FORMULA
+                );
+            }
+
+            // ─── Estilos: negrita encabezado y totales ──────
+            $styleBold = [
+                'font' => ['bold' => true],
+            ];
+            $sheet->getStyle('A1:' . $ultimaCol . '1')->applyFromArray($styleBold);
+            $sheet->getStyle('A' . $totalRow . ':' . $ultimaCol . $totalRow)->applyFromArray($styleBold);
+
+            // ─── Bordes a toda la tabla ─────────────────────
+            $styleBorders = [
+                'borders' => [
+                    'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']],
+                ],
+            ];
+            $sheet->getStyle('A1:' . $ultimaCol . $totalRow)->applyFromArray($styleBorders);
+
+            // ─── Gráfico de barras INGRESOS vs EGRESOS ──────
+            $chartRowStart = $totalRow + 3;
             $dataSeriesLabels = [
                 new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$' . $colIngresos . '$1', null, 1),
                 new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$' . $colEgresosHdr . '$1', null, 1),
@@ -938,8 +972,8 @@ class AppUser extends ResourceController
                 $plotArea
             );
 
-            $chart->setTopLeftPosition('A' . ($lastDataRow + 3));
-            $chart->setBottomRightPosition($colEgresosHdr . ($lastDataRow + 18));
+            $chart->setTopLeftPosition('A' . $chartRowStart);
+            $chart->setBottomRightPosition($ultimaCol . ($chartRowStart + 15));
             $sheet->addChart($chart);
 
             // ─── Writer con soporte para gráficos ───────────────
