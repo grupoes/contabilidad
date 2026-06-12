@@ -883,12 +883,7 @@ class AppUser extends ResourceController
                 $sheet->setCellValue('F1', 'PLANILLA (TOTAL R1)');
             }
 
-            $colIngresos    = $config ? 'G' : 'F';
-            $colEgresosHdr  = $config ? 'H' : 'G';
-            $ultimaCol      = $colEgresosHdr;
-
-            $sheet->setCellValue($colIngresos . '1', 'INGRESOS');
-            $sheet->setCellValue($colEgresosHdr . '1', 'EGRESOS');
+            $ultimaCol = $config ? 'F' : 'E';
 
             $row = 2;
             foreach ($data as $item) {
@@ -898,16 +893,9 @@ class AppUser extends ResourceController
                 $sheet->setCellValueExplicit('D' . $row, (float) ($item['compras_gravadas'] ?? 0), DataType::TYPE_NUMERIC);
                 $sheet->setCellValueExplicit('E' . $row, (float) ($item['compras_no_gravadas'] ?? 0), DataType::TYPE_NUMERIC);
 
-                $ingresos = (float) ($item['ventas_gravadas'] ?? 0) + (float) ($item['ventas_no_gravadas'] ?? 0);
-                $egresos  = (float) ($item['compras_gravadas'] ?? 0) + (float) ($item['compras_no_gravadas'] ?? 0);
-
                 if ($config) {
                     $sheet->setCellValueExplicit('F' . $row, (float) ($item['total_r1'] ?? 0), DataType::TYPE_NUMERIC);
-                    $egresos += (float) ($item['total_r1'] ?? 0);
                 }
-
-                $sheet->setCellValueExplicit($colIngresos . $row, $ingresos, DataType::TYPE_NUMERIC);
-                $sheet->setCellValueExplicit($ultimaCol . $row, $egresos, DataType::TYPE_NUMERIC);
 
                 $row++;
             }
@@ -919,8 +907,6 @@ class AppUser extends ResourceController
             $sheet->setCellValue('A' . $totalRow, 'TOTAL');
             $letras = ['B', 'C', 'D', 'E'];
             if ($config) $letras[] = 'F';
-            $letras[] = $colIngresos;
-            $letras[] = $ultimaCol;
 
             foreach ($letras as $letra) {
                 $sheet->setCellValueExplicit(
@@ -929,6 +915,35 @@ class AppUser extends ResourceController
                     DataType::TYPE_FORMULA
                 );
             }
+
+            // ─── Datos auxiliares para el gráfico (ocultos) ─
+            $chartColMes   = 'K';
+            $chartColIng   = 'L';
+            $chartColEgr   = 'M';
+
+            $sheet->setCellValue($chartColMes . '1', 'MES');
+            $sheet->setCellValue($chartColIng . '1', 'INGRESOS');
+            $sheet->setCellValue($chartColEgr . '1', 'EGRESOS');
+
+            foreach ($data as $i => $item) {
+                $r = $i + 2;
+                $sheet->setCellValue($chartColMes . $r, $item['mes_descripcion']);
+
+                $ingresos = (float) ($item['ventas_gravadas'] ?? 0) + (float) ($item['ventas_no_gravadas'] ?? 0);
+                $egresos  = (float) ($item['compras_gravadas'] ?? 0) + (float) ($item['compras_no_gravadas'] ?? 0);
+
+                if ($config) {
+                    $egresos += (float) ($item['total_r1'] ?? 0);
+                }
+
+                $sheet->setCellValueExplicit($chartColIng . $r, $ingresos, DataType::TYPE_NUMERIC);
+                $sheet->setCellValueExplicit($chartColEgr . $r, $egresos, DataType::TYPE_NUMERIC);
+            }
+
+            // Ocultar columnas auxiliares del gráfico
+            $sheet->getColumnDimension($chartColMes)->setVisible(false);
+            $sheet->getColumnDimension($chartColIng)->setVisible(false);
+            $sheet->getColumnDimension($chartColEgr)->setVisible(false);
 
             // ─── Estilos: negrita encabezado y totales ──────
             $styleBold = [
@@ -950,18 +965,24 @@ class AppUser extends ResourceController
                 ->getNumberFormat()
                 ->setFormatCode('#,##0.00');
 
+            // ─── Auto-ajuste ancho de columnas ────────────
+            $colRango = range('A', $ultimaCol);
+            foreach ($colRango as $col) {
+                $sheet->getColumnDimension($col)->setAutoSize(true);
+            }
+
             // ─── Gráfico de barras INGRESOS vs EGRESOS ──────
             $chartRowStart = $totalRow + 3;
             $dataSeriesLabels = [
-                new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$' . $colIngresos . '$1', null, 1),
-                new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$' . $colEgresosHdr . '$1', null, 1),
+                new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$' . $chartColIng . '$1', null, 1),
+                new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$' . $chartColEgr . '$1', null, 1),
             ];
             $xAxisTickValues = [
-                new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$A$2:$A$' . $lastDataRow, null, $lastDataRow - 1),
+                new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$' . $chartColMes . '$2:$' . $chartColMes . '$' . $lastDataRow, null, $lastDataRow - 1),
             ];
             $dataSeriesValues = [
-                new DataSeriesValues('Number', '\'' . $sheet->getTitle() . '\'!$' . $colIngresos . '$2:$' . $colIngresos . '$' . $lastDataRow, null, $lastDataRow - 1),
-                new DataSeriesValues('Number', '\'' . $sheet->getTitle() . '\'!$' . $colEgresosHdr . '$2:$' . $colEgresosHdr . '$' . $lastDataRow, null, $lastDataRow - 1),
+                new DataSeriesValues('Number', '\'' . $sheet->getTitle() . '\'!$' . $chartColIng . '$2:$' . $chartColIng . '$' . $lastDataRow, null, $lastDataRow - 1),
+                new DataSeriesValues('Number', '\'' . $sheet->getTitle() . '\'!$' . $chartColEgr . '$2:$' . $chartColEgr . '$' . $lastDataRow, null, $lastDataRow - 1),
             ];
 
             $series = new DataSeries(
@@ -983,14 +1004,14 @@ class AppUser extends ResourceController
             );
 
             $chart->setTopLeftPosition('A' . $chartRowStart);
-            $chart->setBottomRightPosition($ultimaCol . ($chartRowStart + 15));
+            $chart->setBottomRightPosition($chartColEgr . ($chartRowStart + 15));
             $sheet->addChart($chart);
 
             // ─── Writer con soporte para gráficos ───────────────
             $writer = new Xlsx($spreadsheet);
             $writer->setIncludeCharts(true);
 
-            $filename = 'reporte_' . $ruc . '_' . $anio . '_' . date('Ymd_His') . '.xlsx';
+            $filename = 'analisis_de_movimientos_' . $anioDesc . '_' . $ruc . '.xlsx';
             $filePath = WRITEPATH . 'temp/' . $filename;
             if (!is_dir(WRITEPATH . 'temp')) {
                 mkdir(WRITEPATH . 'temp', 0755, true);
