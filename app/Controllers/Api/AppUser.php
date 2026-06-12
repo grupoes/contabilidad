@@ -662,7 +662,7 @@ class AppUser extends ResourceController
                 foreach ($data as $key => $value) {
                     $idPdtPlame = $pdt_plame->select('total_r1')->where('ruc_empresa', $ruc)->where('anio', $value['anio'])->where('periodo', $value['periodo'])->first();
 
-                    $data[$key]['tiene_plame'] = $idPdtPlame['total_r1'];
+                    $data[$key]['total_r1'] = $idPdtPlame['total_r1'];
                 }
             }
 
