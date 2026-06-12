@@ -1030,11 +1030,10 @@ class AppUser extends ResourceController
                 $dataSeriesValues
             );
 
-            $plotArea = new PlotArea(null, [$series]);
-
             $layout = new Layout();
             $layout->setShowVal(true);
-            $plotArea->setLayout($layout);
+
+            $plotArea = new PlotArea($layout, [$series]);
             $legend = new Legend();
             $chart = new Chart(
                 'ingresos_egresos',
