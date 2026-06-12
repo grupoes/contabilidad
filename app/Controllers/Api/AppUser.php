@@ -26,6 +26,7 @@ use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
 use PhpOffice\PhpSpreadsheet\Chart\Legend;
 use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
+use PhpOffice\PhpSpreadsheet\Chart\Layout;
 
 use setasign\Fpdi\Fpdi;
 
@@ -1030,6 +1031,10 @@ class AppUser extends ResourceController
             );
 
             $plotArea = new PlotArea(null, [$series]);
+
+            $layout = new Layout();
+            $layout->setShowVal(true);
+            $plotArea->setLayout($layout);
             $legend = new Legend();
             $chart = new Chart(
                 'ingresos_egresos',
