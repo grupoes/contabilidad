@@ -26,6 +26,7 @@ use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
 use PhpOffice\PhpSpreadsheet\Chart\Legend;
 use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
+use PhpOffice\PhpSpreadsheet\Chart\DataLabel;
 
 use setasign\Fpdi\Fpdi;
 
@@ -1028,6 +1029,10 @@ class AppUser extends ResourceController
                 $xAxisTickValues,
                 $dataSeriesValues
             );
+
+            $dataLabel = new DataLabel();
+            $dataLabel->setShowVal(true);
+            $series->setDataLabel($dataLabel);
 
             $plotArea = new PlotArea(null, [$series]);
             $legend = new Legend();
