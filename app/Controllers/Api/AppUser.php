@@ -831,8 +831,12 @@ class AppUser extends ResourceController
         $pdt = new PdtRentaModel();
         $pdt_plame = new PdtPlameModel();
         $config_notificacion = new ConfiguracionNotificacionModel();
+        $anioModel = new AnioModel();
 
         try {
+            $anioData = $anioModel->find($anio);
+            $anioDesc = $anioData ? $anioData['anio_descripcion'] : $anio;
+
             $data = $pdt->query("
                 SELECT pr.periodo, pr.anio,
                        pr.total_compras, pr.total_ventas,
@@ -867,6 +871,7 @@ class AppUser extends ResourceController
 
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Análisis ' . $anioDesc);
 
             $sheet->setCellValue('A1', 'PERIODO');
             $sheet->setCellValue('B1', 'VENTAS GRAVADAS');
@@ -940,6 +945,11 @@ class AppUser extends ResourceController
             ];
             $sheet->getStyle('A1:' . $ultimaCol . $totalRow)->applyFromArray($styleBorders);
 
+            // ─── Formato 2 decimales a columnas numéricas ──
+            $sheet->getStyle('B2:' . $ultimaCol . $totalRow)
+                ->getNumberFormat()
+                ->setFormatCode('#,##0.00');
+
             // ─── Gráfico de barras INGRESOS vs EGRESOS ──────
             $chartRowStart = $totalRow + 3;
             $dataSeriesLabels = [
@@ -967,7 +977,7 @@ class AppUser extends ResourceController
             $legend = new Legend();
             $chart = new Chart(
                 'ingresos_egresos',
-                new Title('Ingresos vs Egresos - ' . $anio),
+                new Title('Análisis de Movimientos ' . $anioDesc),
                 $legend,
                 $plotArea
             );
