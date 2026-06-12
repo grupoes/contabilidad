@@ -664,14 +664,41 @@ class AppUser extends ResourceController
             $anio = $datos['anio'];
             $ruc = $datos['ruc'];
 
-            $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, FORMAT(pr.total_compras, 2, 'es_PE') as total_compras_decimal, FORMAT(pr.total_ventas, 2, 'es_PE') as total_ventas_decimal, FORMAT(pr.compras_gravadas, 2, 'es_PE') as compras_gravadas_decimal, FORMAT(pr.compras_no_gravadas, 2, 'es_PE') as compras_no_gravadas_decimal, FORMAT(pr.ventas_gravadas, 2, 'es_PE') as ventas_gravadas_decimal, FORMAT(pr.ventas_no_gravadas, 2, 'es_PE') as ventas_no_gravadas_decimal, pr.total_compras, pr.total_ventas, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt, pr.estado_datos, c.igv FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
+            $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio,
+                FORMAT(pr.total_compras, 2, 'es_PE') as total_compras_decimal,
+                FORMAT(pr.total_ventas, 2, 'es_PE') as total_ventas_decimal,
+                FORMAT(pr.compras_gravadas, 2, 'es_PE') as compras_gravadas_decimal,
+                FORMAT(pr.compras_no_gravadas, 2, 'es_PE') as compras_no_gravadas_decimal,
+                FORMAT(pr.ventas_gravadas, 2, 'es_PE') as ventas_gravadas_decimal,
+                FORMAT(pr.ventas_no_gravadas, 2, 'es_PE') as ventas_no_gravadas_decimal,
+                pr.total_compras, pr.total_ventas,
+                c.razon_social, c.estado_igv, pr.ruc_empresa,
+                m.mes_descripcion, a.anio_descripcion,
+                ap.nombre_pdt, pr.estado_datos
+                FROM pdt_renta pr
+                INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa
+                INNER JOIN mes m ON m.id_mes = pr.periodo
+                INNER JOIN anio a ON a.id_anio = pr.anio
+                INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta
+                WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1
+                ORDER BY pr.periodo ASC")->getResultArray();
 
             $config = $config_notificacion->where('ruc_empresa_numero', $ruc)->where('id_tributo', 22)->first();
 
-            if ($config) {
-                foreach ($data as $key => $value) {
-                    $idPdtPlame = $pdt_plame->select('total_r1')->where('ruc_empresa', $ruc)->where('anio', $value['anio'])->where('periodo', $value['periodo'])->first();
+            foreach ($data as $key => $item) {
+                if (isset($item['estado_igv']) && $item['estado_igv'] == 0) {
+                    $factor = 1.18;
+                    $data[$key]['compras_gravadas_decimal'] = (float) $item['compras_gravadas_decimal'] * $factor;
+                    $data[$key]['total_compras'] = (float) $item['total_compras'] * $factor;
+                }
 
+                if ($config) {
+                    $idPdtPlame = $pdt_plame
+                        ->select('total_r1')
+                        ->where('ruc_empresa', $ruc)
+                        ->where('anio', $item['anio'])
+                        ->where('periodo', $item['periodo'])
+                        ->first();
                     $data[$key]['total_r1'] = $idPdtPlame['total_r1'] ?? 0;
                 }
             }
@@ -842,9 +869,9 @@ class AppUser extends ResourceController
                        pr.total_compras, pr.total_ventas,
                        pr.compras_gravadas, pr.compras_no_gravadas,
                        pr.ventas_gravadas, pr.ventas_no_gravadas,
-                       c.razon_social, pr.ruc_empresa,
+                       c.razon_social, c.estado_igv, pr.ruc_empresa,
                        m.mes_descripcion, a.anio_descripcion,
-                       ap.nombre_pdt, pr.estado_datos, c.igv
+                       ap.nombre_pdt, pr.estado_datos
                 FROM pdt_renta pr
                 INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa
                 INNER JOIN mes m ON m.id_mes = pr.periodo
@@ -888,10 +915,15 @@ class AppUser extends ResourceController
 
             $row = 2;
             foreach ($data as $item) {
+                $comprasGravadas = (float) ($item['compras_gravadas'] ?? 0);
+                if (isset($item['estado_igv']) && $item['estado_igv'] == 0) {
+                    $comprasGravadas *= 1.18;
+                }
+
                 $sheet->setCellValue('A' . $row, $item['mes_descripcion']);
                 $sheet->setCellValueExplicit('B' . $row, (float) ($item['ventas_gravadas'] ?? 0), DataType::TYPE_NUMERIC);
                 $sheet->setCellValueExplicit('C' . $row, (float) ($item['ventas_no_gravadas'] ?? 0), DataType::TYPE_NUMERIC);
-                $sheet->setCellValueExplicit('D' . $row, (float) ($item['compras_gravadas'] ?? 0), DataType::TYPE_NUMERIC);
+                $sheet->setCellValueExplicit('D' . $row, $comprasGravadas, DataType::TYPE_NUMERIC);
                 $sheet->setCellValueExplicit('E' . $row, (float) ($item['compras_no_gravadas'] ?? 0), DataType::TYPE_NUMERIC);
 
                 if ($mostrarPlanilla) {
@@ -932,7 +964,12 @@ class AppUser extends ResourceController
                 $auxSheet->setCellValue('A' . $r, $item['mes_descripcion']);
 
                 $ingresos = (float) ($item['ventas_gravadas'] ?? 0) + (float) ($item['ventas_no_gravadas'] ?? 0);
-                $egresos  = (float) ($item['compras_gravadas'] ?? 0) + (float) ($item['compras_no_gravadas'] ?? 0);
+
+                $comprasGravadas = (float) ($item['compras_gravadas'] ?? 0);
+                if (isset($item['estado_igv']) && $item['estado_igv'] == 0) {
+                    $comprasGravadas *= 1.18;
+                }
+                $egresos = $comprasGravadas + (float) ($item['compras_no_gravadas'] ?? 0);
 
                 if ($mostrarPlanilla) {
                     $egresos += (float) ($item['total_r1'] ?? 0);
