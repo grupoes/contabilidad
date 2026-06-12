@@ -16,6 +16,15 @@ use App\Models\TrabajadoresContriModel;
 use App\Models\TributoModel;
 use App\Models\UserModel;
 use Exception;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Chart\Chart;
+use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
+use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
+use PhpOffice\PhpSpreadsheet\Chart\Legend;
+use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
+use PhpOffice\PhpSpreadsheet\Chart\Title;
 
 use setasign\Fpdi\Fpdi;
 
@@ -813,6 +822,195 @@ class AppUser extends ResourceController
             ]);
         } catch (\Exception $e) {
             return $this->failServerError("Error interno en el servidor: " . $e->getMessage());
+        }
+    }
+
+    public function descargarExcel()
+    {
+        $pdt = new PdtRentaModel();
+        $pdt_plame = new PdtPlameModel();
+        $config_notificacion = new ConfiguracionNotificacionModel();
+
+        try {
+            $input = $this->request->getJSON(true);
+            $anio = $input['anio'];
+            $ruc  = $input['ruc'];
+
+            $data = $pdt->query("
+                SELECT pr.periodo, pr.anio,
+                       pr.total_compras, pr.total_ventas,
+                       pr.compras_gravadas, pr.compras_no_gravadas,
+                       pr.ventas_gravadas, pr.ventas_no_gravadas,
+                       c.razon_social, pr.ruc_empresa,
+                       m.mes_descripcion, a.anio_descripcion,
+                       ap.nombre_pdt, pr.estado_datos, c.igv
+                FROM pdt_renta pr
+                INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa
+                INNER JOIN mes m ON m.id_mes = pr.periodo
+                INNER JOIN anio a ON a.id_anio = pr.anio
+                INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta
+                WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1
+                ORDER BY pr.periodo ASC
+            ")->getResultArray();
+
+            $config = $config_notificacion->where('ruc_empresa_numero', $ruc)->where('id_tributo', 22)->first();
+
+            if ($config) {
+                foreach ($data as $key => $value) {
+                    $idPdtPlame = $pdt_plame
+                        ->select('total_r1')
+                        ->where('ruc_empresa', $ruc)
+                        ->where('anio', $value['anio'])
+                        ->where('periodo', $value['periodo'])
+                        ->first();
+
+                    $data[$key]['total_r1'] = $idPdtPlame['total_r1'] ?? 0;
+                }
+            }
+
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            $sheet->setCellValue('A1', 'PERIODO');
+            $sheet->setCellValue('B1', 'VENTAS GRAVADAS');
+            $sheet->setCellValue('C1', 'VENTAS NO GRAVADAS');
+            $sheet->setCellValue('D1', 'COMPRAS GRAVADAS');
+            $sheet->setCellValue('E1', 'COMPRAS NO GRAVADAS');
+
+            if ($config) {
+                $sheet->setCellValue('F1', 'PLANILLA (TOTAL R1)');
+            }
+
+            $colIngresos    = $config ? 'G' : 'F';
+            $colEgresosHdr  = $config ? 'H' : 'G';
+            $sheet->setCellValue($colIngresos . '1', 'INGRESOS');
+            $sheet->setCellValue($colEgresosHdr . '1', 'EGRESOS');
+
+            $lastDataRow = 0;
+            $row = 2;
+            foreach ($data as $item) {
+                $sheet->setCellValue('A' . $row, $item['mes_descripcion']);
+                $sheet->setCellValueExplicit('B' . $row, (float) ($item['ventas_gravadas'] ?? 0), DataType::TYPE_NUMERIC);
+                $sheet->setCellValueExplicit('C' . $row, (float) ($item['ventas_no_gravadas'] ?? 0), DataType::TYPE_NUMERIC);
+                $sheet->setCellValueExplicit('D' . $row, (float) ($item['compras_gravadas'] ?? 0), DataType::TYPE_NUMERIC);
+                $sheet->setCellValueExplicit('E' . $row, (float) ($item['compras_no_gravadas'] ?? 0), DataType::TYPE_NUMERIC);
+
+                $ingresos = (float) ($item['ventas_gravadas'] ?? 0) + (float) ($item['ventas_no_gravadas'] ?? 0);
+                $egresos  = (float) ($item['compras_gravadas'] ?? 0) + (float) ($item['compras_no_gravadas'] ?? 0);
+
+                if ($config) {
+                    $sheet->setCellValueExplicit('F' . $row, (float) ($item['total_r1'] ?? 0), DataType::TYPE_NUMERIC);
+                    $egresos += (float) ($item['total_r1'] ?? 0);
+                }
+
+                $sheet->setCellValueExplicit($colIngresos . $row, $ingresos, DataType::TYPE_NUMERIC);
+                $sheet->setCellValueExplicit($colEgresosHdr . $row, $egresos, DataType::TYPE_NUMERIC);
+
+                $lastDataRow = $row;
+                $row++;
+            }
+
+            // ─── Gráfico de barras INGRESOS vs EGRESOS ──────────
+            $dataSeriesLabels = [
+                new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$' . $colIngresos . '$1', null, 1),
+                new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$' . $colEgresosHdr . '$1', null, 1),
+            ];
+            $xAxisTickValues = [
+                new DataSeriesValues('String', '\'' . $sheet->getTitle() . '\'!$A$2:$A$' . $lastDataRow, null, $lastDataRow - 1),
+            ];
+            $dataSeriesValues = [
+                new DataSeriesValues('Number', '\'' . $sheet->getTitle() . '\'!$' . $colIngresos . '$2:$' . $colIngresos . '$' . $lastDataRow, null, $lastDataRow - 1),
+                new DataSeriesValues('Number', '\'' . $sheet->getTitle() . '\'!$' . $colEgresosHdr . '$2:$' . $colEgresosHdr . '$' . $lastDataRow, null, $lastDataRow - 1),
+            ];
+
+            $series = new DataSeries(
+                DataSeries::TYPE_BARCHART,
+                DataSeries::GROUPING_CLUSTERED,
+                range(0, count($dataSeriesValues) - 1),
+                $dataSeriesLabels,
+                $xAxisTickValues,
+                $dataSeriesValues
+            );
+
+            $plotArea = new PlotArea(null, [$series]);
+            $legend = new Legend();
+            $chart = new Chart(
+                'ingresos_egresos',
+                new Title('Ingresos vs Egresos - ' . $anio),
+                $legend,
+                $plotArea
+            );
+
+            $chart->setTopLeftPosition('A' . ($lastDataRow + 3));
+            $chart->setBottomRightPosition($colEgresosHdr . ($lastDataRow + 18));
+            $sheet->addChart($chart);
+
+            // ─── Writer con soporte para gráficos ───────────────
+            $writer = new Xlsx($spreadsheet);
+            $writer->setIncludeCharts(true);
+
+            $filename = 'reporte_' . $ruc . '_' . $anio . '_' . date('Ymd_His') . '.xlsx';
+            $filePath = WRITEPATH . 'temp/' . $filename;
+            if (!is_dir(WRITEPATH . 'temp')) {
+                mkdir(WRITEPATH . 'temp', 0755, true);
+            }
+            $writer->save($filePath);
+
+            $binary = file_get_contents($filePath);
+
+            register_shutdown_function(function () use ($filePath) {
+                if (file_exists($filePath)) unlink($filePath);
+            });
+
+            return $this->response
+                ->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
+                ->setHeader('Content-Length', strlen($binary))
+                ->setBody($binary);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'Error al generar Excel: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function consultaAnalisisMovimientoss()
+    {
+        $pdt = new PdtRentaModel();
+        $pdt_plame = new PdtPlameModel();
+        $config_notificacion = new ConfiguracionNotificacionModel();
+
+        try {
+
+            $datos = $this->request->getJSON(true);
+
+            $anio = $datos['anio'];
+            $ruc = $datos['ruc'];
+
+            $data = $pdt->query("SELECT pr.id_pdt_renta, pr.periodo, pr.anio, FORMAT(pr.total_compras, 2, 'es_PE') as total_compras_decimal, FORMAT(pr.total_ventas, 2, 'es_PE') as total_ventas_decimal, FORMAT(pr.compras_gravadas, 2, 'es_PE') as compras_gravadas_decimal, FORMAT(pr.compras_no_gravadas, 2, 'es_PE') as compras_no_gravadas_decimal, FORMAT(pr.ventas_gravadas, 2, 'es_PE') as ventas_gravadas_decimal, FORMAT(pr.ventas_no_gravadas, 2, 'es_PE') as ventas_no_gravadas_decimal, pr.total_compras, pr.total_ventas, c.razon_social, pr.ruc_empresa, m.mes_descripcion, a.anio_descripcion, ap.nombre_pdt, pr.estado_datos, c.igv FROM pdt_renta pr INNER JOIN contribuyentes c ON c.ruc = pr.ruc_empresa INNER JOIN mes m ON m.id_mes = pr.periodo INNER JOIN anio a ON a.id_anio = pr.anio INNER JOIN archivos_pdt0621 ap ON ap.id_pdt_renta = pr.id_pdt_renta WHERE pr.ruc_empresa = '$ruc' AND pr.anio = '$anio' AND pr.estado = 1 AND ap.estado = 1 ORDER BY pr.periodo asc")->getResultArray();
+
+            $config = $config_notificacion->where('ruc_empresa_numero', $ruc)->where('id_tributo', 22)->first();
+
+            if ($config) {
+                foreach ($data as $key => $value) {
+                    $idPdtPlame = $pdt_plame->select('total_r1')->where('ruc_empresa', $ruc)->where('anio', $value['anio'])->where('periodo', $value['periodo'])->first();
+
+                    $data[$key]['total_r1'] = $idPdtPlame['total_r1'];
+                }
+            }
+
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'Se hizo la consulta correctamente',
+                'afp' => $config ? 'si' : 'no',
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
+                'message' => 'error en la consulta ' . $e->getMessage()
+            ], 500);
         }
     }
 }
