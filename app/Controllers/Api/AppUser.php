@@ -855,8 +855,9 @@ class AppUser extends ResourceController
             ")->getResultArray();
 
             $config = $config_notificacion->where('ruc_empresa_numero', $ruc)->where('id_tributo', 22)->first();
+            $mostrarPlanilla = $config && $anio >= 12;
 
-            if ($config) {
+            if ($mostrarPlanilla) {
                 foreach ($data as $key => $value) {
                     $idPdtPlame = $pdt_plame
                         ->select('total_r1')
@@ -879,11 +880,11 @@ class AppUser extends ResourceController
             $sheet->setCellValue('D1', 'COMPRAS GRAVADAS');
             $sheet->setCellValue('E1', 'COMPRAS NO GRAVADAS');
 
-            if ($config) {
+            if ($mostrarPlanilla) {
                 $sheet->setCellValue('F1', 'PLANILLA (TOTAL R1)');
             }
 
-            $ultimaCol = $config ? 'F' : 'E';
+            $ultimaCol = $mostrarPlanilla ? 'F' : 'E';
 
             $row = 2;
             foreach ($data as $item) {
@@ -893,7 +894,7 @@ class AppUser extends ResourceController
                 $sheet->setCellValueExplicit('D' . $row, (float) ($item['compras_gravadas'] ?? 0), DataType::TYPE_NUMERIC);
                 $sheet->setCellValueExplicit('E' . $row, (float) ($item['compras_no_gravadas'] ?? 0), DataType::TYPE_NUMERIC);
 
-                if ($config) {
+                if ($mostrarPlanilla) {
                     $sheet->setCellValueExplicit('F' . $row, (float) ($item['total_r1'] ?? 0), DataType::TYPE_NUMERIC);
                 }
 
@@ -906,7 +907,7 @@ class AppUser extends ResourceController
             // ─── Fila de totales ────────────────────────────
             $sheet->setCellValue('A' . $totalRow, 'TOTAL');
             $letras = ['B', 'C', 'D', 'E'];
-            if ($config) $letras[] = 'F';
+            if ($mostrarPlanilla) $letras[] = 'F';
 
             foreach ($letras as $letra) {
                 $sheet->setCellValueExplicit(
@@ -933,7 +934,7 @@ class AppUser extends ResourceController
                 $ingresos = (float) ($item['ventas_gravadas'] ?? 0) + (float) ($item['ventas_no_gravadas'] ?? 0);
                 $egresos  = (float) ($item['compras_gravadas'] ?? 0) + (float) ($item['compras_no_gravadas'] ?? 0);
 
-                if ($config) {
+                if ($mostrarPlanilla) {
                     $egresos += (float) ($item['total_r1'] ?? 0);
                 }
 
