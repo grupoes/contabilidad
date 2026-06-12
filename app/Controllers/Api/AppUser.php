@@ -1032,6 +1032,7 @@ class AppUser extends ResourceController
 
             $layout = new Layout();
             $layout->setShowVal(true);
+            $layout->setNumFmtCode('#,##0.00');
 
             $plotArea = new PlotArea($layout, [$series]);
             $legend = new Legend();
