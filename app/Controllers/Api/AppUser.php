@@ -813,7 +813,25 @@ class AppUser extends ResourceController
         $db = \Config\Database::connect();
 
         try {
-            $listaPersonal = $db->query("SELECT tc.id,r8.numero_documento, r8.nombres, tc.correo FROM r08_plame as r8 INNER JOIN trabajadores_contribuyentes as tc ON tc.numero_documento = r8.numero_documento COLLATE utf8mb4_0900_ai_ci where r8.ruc = '$ruc' GROUP BY tc.id, r8.numero_documento, r8.nombres, tc.correo")->getResultArray();
+            $listaPersonal = $db->query("SELECT id, numero_documento, nombres, correo, situacion
+            FROM (
+                SELECT 
+                    tc.id,
+                    r8.numero_documento,
+                    r8.nombres,
+                    tc.correo,
+                    r8.situacion,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY r8.numero_documento 
+                        ORDER BY r8.id DESC
+                    ) AS rn
+                FROM r08_plame AS r8
+                INNER JOIN trabajadores_contribuyentes AS tc 
+                    ON tc.numero_documento = r8.numero_documento COLLATE utf8mb4_0900_ai_ci
+                WHERE r8.ruc = '$ruc'
+            ) AS sub
+            WHERE rn = 1
+            AND situacion != 'BAJA';")->getResultArray();
 
             return $this->respond([
                 "status" => "success",
