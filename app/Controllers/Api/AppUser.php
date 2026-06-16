@@ -468,11 +468,12 @@ class AppUser extends ResourceController
             $ruc = $datos['ruc'];
 
             $consulta = $pdtPlame->query("SELECT
-            pdt_plame.periodo,pdt_plame.anio,archivos_pdtplame.id_archivos_pdtplame,archivos_pdtplame.archivo_planilla,archivos_pdtplame.archivo_honorarios,archivos_pdtplame.archivo_constancia,archivos_pdtplame.estado,archivos_pdtplame.id_pdtplame,anio.anio_descripcion,mes.mes_descripcion, pdt_plame.id_pdt_plame
+            pdt_plame.periodo,pdt_plame.anio,archivos_pdtplame.id_archivos_pdtplame,archivos_pdtplame.archivo_planilla,archivos_pdtplame.archivo_honorarios,archivos_pdtplame.archivo_constancia,archivos_pdtplame.estado,archivos_pdtplame.id_pdtplame,anio.anio_descripcion,mes.mes_descripcion, pdt_plame.id_pdt_plame, contribuyentes.file_sello_firma
             FROM pdt_plame
             INNER JOIN archivos_pdtplame ON archivos_pdtplame.id_pdtplame = pdt_plame.id_pdt_plame
             INNER JOIN anio ON pdt_plame.anio = anio.id_anio
             INNER JOIN mes ON mes.id_mes = pdt_plame.periodo
+            INNER JOIN contribuyentes ON contribuyentes.ruc = pdt_plame.ruc_empresa
             WHERE pdt_plame.ruc_empresa = $ruc AND pdt_plame.anio = $anio AND pdt_plame.periodo = $mes AND archivos_pdtplame.estado = 1")->getRow();
 
             if ($consulta) {
