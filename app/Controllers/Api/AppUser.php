@@ -823,7 +823,7 @@ class AppUser extends ResourceController
                     r8.situacion,
                     ROW_NUMBER() OVER (
                         PARTITION BY r8.numero_documento 
-                        ORDER BY r8.id DESC
+                        ORDER BY r8.plameId DESC
                     ) AS rn
                 FROM r08_plame AS r8
                 INNER JOIN trabajadores_contribuyentes AS tc 
