@@ -1067,8 +1067,8 @@ class Pdt0621 extends BaseController
             INNER JOIN mes m ON m.id_mes = pr.periodo
             WHERE pr.estado = 1
               AND ap.estado = 1
-              AND pr.periodo IN (9, 10, 11, 12)
-              AND pr.anio = 6
+              AND pr.periodo >= 5
+              AND pr.anio = 12
             ORDER BY pr.anio, pr.periodo
         ")->getResultArray();
 
