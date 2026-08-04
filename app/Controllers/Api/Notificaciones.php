@@ -157,17 +157,7 @@ class Notificaciones extends ResourceController
 
     public function sendEmail()
     {
-
-        /*$resend = Resend::client('re_5wjnGFy9_2269kCpAmET27oqTKKa1eSQv');
-
-        $result = $resend->emails->send([
-            'from' => 'Acme <contabilidad@grupoesconsultores.com>',
-            'to' => ['desarrollo.tecnologico.tarapoto@gmail.com'],
-            'subject' => 'hello world',
-            'html' => '<strong>it works!</strong>',
-        ]);
-
-        return $this->respond($result);*/
+        // TODO: implementar envio de correos con Resend usando variable de entorno
     }
 
     public function sendFacturas()
@@ -1420,10 +1410,12 @@ class Notificaciones extends ResourceController
 
             //formatear fecha ingreso
 
-            $fechaFormateada = DateTime::createFromFormat('d/m/Y', $fecha_ingreso)
-                ->format('Y-m-d');
-
-            $fecha_ingreso = $fechaFormateada;
+            $fecha = DateTime::createFromFormat('d/m/Y', $fecha_ingreso ?? '');
+            if ($fecha !== false) {
+                $fecha_ingreso = $fecha->format('Y-m-d');
+            } else {
+                $fecha_ingreso = null;
+            }
 
             $consulta_job = $job->where('numero_documento', $numero_documento)->first();
 
