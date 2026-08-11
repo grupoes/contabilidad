@@ -26,6 +26,7 @@ use App\Models\PdtAnualModel;
 use App\Models\R08PlameModel;
 use App\Models\TipoCambioFacturadorModel;
 use App\Models\TrabajadoresContriModel;
+use App\Models\ComunicacionBajaModel;
 use DateTime;
 
 class Notificaciones extends ResourceController
@@ -1057,6 +1058,21 @@ class Notificaciones extends ResourceController
         return $this->respond($consulta);
     }
 
+    public function getComprobantesHonorarios($honorarioId)
+    {
+        $facturas = new FacturasHonorariosModel();
+
+        $consulta = $facturas->query(
+            "SELECT fh.*, h.mes AS honorario_mes, h.year AS honorario_year, h.descripcion AS honorario_descripcion
+             FROM facturas_honorarios fh
+             INNER JOIN honorarios h ON h.id = fh.honorario_id
+             WHERE h.id = $honorarioId AND fh.estado = 'aceptado'
+             ORDER BY fh.id ASC"
+        )->getResultArray();
+
+        return $this->respond($consulta);
+    }
+
     public function sendApiEnviarNotaCredito()
     {
         try {
@@ -1521,5 +1537,91 @@ class Notificaciones extends ResourceController
     public function delete($id = null)
     {
         //
+    }
+
+    public function darBajaComprobante()
+    {
+        $datos = $this->request->getJSON();
+
+        $data["contribuyente"] = [
+            "token_contribuyente" => "R9ENP23ZUVMSGXNARRNPWHH0Q5A8MBEZRY83J",
+            "id_usuario_vendedor" => 43,
+            "tipo_proceso"        => "produccion",
+        ];
+
+        $data["cabecera_comprobante"] = [
+            "tipo_documento"     => "01",
+            "serie_comprobante"  => $datos->serie_comprobante,
+            "numero_comprobante" => (int) $datos->numero_comprobante,
+            "motivo_anulacion"   => "Error en creación de comprobante",
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://esfacturador.com/facturacionv7/api/comunicacion_baja");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Authorization: Bearer R9ENP23ZUVMSGXNARRNPWHH0Q5A8MBEZRY83J",
+            "Content-Type: application/json",
+            "cache-control: no-cache",
+        ]);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $respuesta = curl_exec($ch);
+        $error_msg = curl_error($ch);
+        curl_close($ch);
+
+        if ($error_msg) {
+            return $this->respond(['status' => 'error', 'mensaje' => $error_msg], 500);
+        }
+
+        return $this->respond(json_decode($respuesta, true));
+    }
+
+    public function saveComunicacionBaja()
+    {
+        $model = new ComunicacionBajaModel();
+
+        try {
+            $datos = $this->request->getJSON();
+
+            $insert = [
+                'name_file_xml_cpe' => $datos->name_file_xml_cpe ?? null,
+                'name_file_zip_cpe' => $datos->name_file_zip_cpe ?? null,
+                'ruta_cpe_zip'      => $datos->ruta_cpe_zip      ?? null,
+                'file_cpe_zip'      => $datos->file_cpe_zip      ?? null,
+                'hash_cpe'          => $datos->hash_cpe          ?? null,
+                'respuesta'         => $datos->respuesta         ?? null,
+                'codigo_ticket'     => $datos->codigo_ticket     ?? null,
+                'cod_sunat'         => $datos->cod_sunat         ?? null,
+                'hash_cdr'          => $datos->hash_cdr          ?? null,
+                'msj_sunat'         => $datos->msj_sunat         ?? null,
+                'name_file_xml_cdr' => $datos->name_file_xml_cdr ?? null,
+                'name_file_zip_cdr' => $datos->name_file_zip_cdr ?? null,
+                'ruta_cdr_zip'      => $datos->ruta_cdr_zip      ?? null,
+                'file_cdr_zip'      => $datos->file_cdr_zip      ?? null,
+                'titulo'            => $datos->titulo            ?? null,
+                'id_factura'        => $datos->id_factura        ?? null,
+            ];
+
+            $model->insert($insert);
+            $registro = $model->find($model->getInsertID());
+
+            if (!empty($datos->id_factura)) {
+                $facturas = new FacturasHonorariosModel();
+                $facturas->update($datos->id_factura, ['estado' => 'anulado']);
+            }
+
+            return $this->respond([
+                'status'   => 'success',
+                'message'  => 'Comunicación de baja guardada correctamente',
+                'registro' => $registro,
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

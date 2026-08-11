@@ -257,7 +257,10 @@ $routes->get('api/notificacion-afp', 'Api\Notificaciones::notificacionAfp');
 $routes->get('api/insert-fecha_declaracion_afp', 'Api\Notificaciones::insert_fecha_declaracion_afp');
 
 $routes->get('listaHonorarioFacturas/(:num)', 'Api\Notificaciones::getFacturasHonorarios/$1');
+$routes->get('api/comprobantes-honorarios/(:num)', 'Api\Notificaciones::getComprobantesHonorarios/$1');
 $routes->post('sendNotaCredito', 'Api\Notificaciones::sendApiEnviarNotaCredito');
+$routes->post('api/dar-baja-comprobante', 'Api\Notificaciones::darBajaComprobante');
+$routes->post('api/save-comunicacion-baja', 'Api\Notificaciones::saveComunicacionBaja');
 
 $routes->get('api/insert-tipo-cambio', 'Api\Notificaciones::getCambios');
 $routes->get('api/insert-tipo-cambio-facturador', 'Api\Notificaciones::getCambiosFacturador');
@@ -415,3 +418,6 @@ $routes->get('/update-pdt-renta', 'Pdt0621::leerPdfRenta');
 $routes->get('/test-debug', 'Pdt0621::test_path');
 
 $routes->get('/update-suma-r1', 'PdtPlame::leerPdfR1');
+
+
+$routes->get('/anular-comprobante', 'BoletaPago::dar_baja_comprobante');

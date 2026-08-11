@@ -181,4 +181,56 @@ class BoletaPago extends BaseController
             ]);
         }
     }
+
+    public function dar_baja_comprobante()
+    {
+        $data["contribuyente"] = array(
+            "token_contribuyente"           => "R9ENP23ZUVMSGXNARRNPWHH0Q5A8MBEZRY83J", //Token del contribuyente
+            "id_usuario_vendedor"           => 43, //Debes ingresar el ID de uno de tus vendedores (opcional)
+            "tipo_proceso"                  => "produccion" //Funcional en una siguiente versión. El ambiente al que se enviará, puede ser: {prueba, produccion}
+        );
+
+        $data["cabecera_comprobante"] = array(
+            "tipo_documento"                => "01",  //{"01": FACTURA, "03": BOLETA, "07": NOTA DE CRÉDITO, "08": NOTA DE DÉBITO, "77": NOTA DE CRÉDITO, "88": COTIZACIÓN}
+            "serie_comprobante"             => "F001",  //Serie del Comprobante
+            "numero_comprobante"            => 6680,  //número del comprobante (debe ser un número entero)
+            "motivo_anulacion"                => "Error en creación de comprobante" //descripción del motivo de anulación
+        );
+
+        $ruta = "https://esfacturador.com/facturacionv7/api/comunicacion_baja";
+        $data_json = json_encode($data);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $ruta);
+        curl_setopt(
+            $ch,
+            CURLOPT_HTTPHEADER,
+            array(
+                "Authorization: Bearer R9ENP23ZUVMSGXNARRNPWHH0Q5A8MBEZRY83J",
+                "Content-Type: application/json",
+                "cache-control: no-cache"
+            )
+        );
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $respuesta  = curl_exec($ch);
+        if (curl_error($ch)) {
+            $error_msg = curl_error($ch);
+        }
+        curl_close($ch);
+        if (isset($error_msg)) {
+            $resp["respuesta"] = "error";
+            $resp["titulo"] = "Error";
+            $resp["data"] = "";
+            $resp["encontrado"] = false;
+            $resp["mensaje"] = "Error en Api de Búsqueda";
+            $resp["errores_curl"] = $error_msg;
+            echo json_encode($resp);
+            exit();
+        }
+
+        echo $respuesta;
+        exit();
+    }
 }
