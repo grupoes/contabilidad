@@ -1121,7 +1121,7 @@ class Notificaciones extends ResourceController
                 "afecto_icbper"                             => "no",  //"afecto_icbper":"no",
                 "id_tipoafectacionigv"                      => 20,  //"id_tipoafectacionigv":"10",
                 "descripcion"                               => $descripcion,  //"descripcion":"Zapatos",
-                "idunidadmedida"                            => 'NIU',  //{NIU para unidades, ZZ para servicio}
+                "idunidadmedida"                            => 'ZZ',  //{NIU para unidades, ZZ para servicio}
                 "precio_venta"                              => $monto,
                 "cantidad"                                  => 1,  //"cantidad":"1"
             );
