@@ -27,6 +27,7 @@ $routes->post('api/auth/update-password', 'Api\Auth::updatePassword');
 $routes->get('migration-users', 'Auth::migrationUsers');
 
 $routes->get('home', 'Home::index');
+$routes->get('reporte-anulacion-masiva', 'Home::reporteAnulacionMasiva');
 $routes->get('certificados-vencer', 'Home::certificadosVencer');
 
 $routes->get('contribuyentes', 'Contribuyentes::index');
@@ -276,6 +277,12 @@ $routes->get('api/pagos-anuales-pendientes', 'Api\Notificaciones::renderPdtAnual
 $routes->post('api/update-pagos-anuales', 'Api\Notificaciones::updatePagoAnual');
 $routes->get('api/read-boletas-pago', 'Api\Notificaciones::readBoletasPago');
 $routes->post('api/save-boleta-pago', 'Api\Notificaciones::saveDataBoletasPago');
+$routes->get('api/reporte-anulacion-masiva', 'Api\Notificaciones::reporteAnulacionMasiva');
+$routes->get('api/baja-lote', 'Api\Notificaciones::getBajaLote');
+$routes->get('api/baja-lote/download-all', 'Api\Notificaciones::downloadAllCdrs');
+$routes->get('api/baja-lote/download/(:num)', 'Api\Notificaciones::downloadCdrBaja/$1');
+$routes->get('api/baja-lote/(:num)/documentos', 'Api\Notificaciones::getDocumentosBajaLote/$1');
+$routes->get('api/baja-lote/documentos', 'Api\Notificaciones::getAllDocumentosBaja');
 
 $routes->get('mensajes-masivos', 'Mensajes::index');
 $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');

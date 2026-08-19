@@ -54,4 +54,10 @@ class Home extends BaseController
 
         return json_encode($vencer);
     }
+
+    public function reporteAnulacionMasiva()
+    {
+        $menu = $this->permisos_menu();
+        return view('reportes/anulacion_masiva', compact('menu'));
+    }
 }
