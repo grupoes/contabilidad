@@ -1624,4 +1624,62 @@ class Notificaciones extends ResourceController
             ], 500);
         }
     }
+
+    public function updateFacturasHonorarios($honorarioId)
+    {
+        $facturas = new FacturasHonorariosModel();
+        $contrib  = new ContribuyenteModel();
+
+        try {
+            $listaFacturas = $facturas->where('honorario_id', $honorarioId)->findAll();
+
+            if (empty($listaFacturas)) {
+                return $this->respond(['status' => 'error', 'message' => 'No se encontraron facturas para este honorario'], 404);
+            }
+
+            $contribuyenteIds = array_column($listaFacturas, 'contribuyente_id');
+
+            $contribuyentes = $contrib->select('id, tipoPago')
+                ->whereIn('id', $contribuyenteIds)
+                ->findAll();
+            $tipoPagoMap = array_column($contribuyentes, 'tipoPago', 'id');
+
+            $actualizados = 0;
+
+            foreach ($listaFacturas as $factura) {
+                $tipoPago = $tipoPagoMap[$factura['contribuyente_id']] ?? null;
+
+                if ($tipoPago === 'ATRASADO') {
+                    $mes  = (int) $factura['mes'];
+                    $anio = (int) $factura['anio'];
+
+                    if ($mes === 1) {
+                        $mes  = 12;
+                        $anio = $anio - 1;
+                    } else {
+                        $mes = $mes - 1;
+                    }
+
+                    $mesFormato  = str_pad($mes, 2, '0', STR_PAD_LEFT);
+                    $descripcion = $this->getMes($mesFormato) . ' ' . $anio;
+
+                    $facturas->update($factura['id'], [
+                        'mes'         => $mes,
+                        'anio'        => $anio,
+                        'descripcion' => $descripcion,
+                    ]);
+
+                    $actualizados++;
+                }
+            }
+
+            return $this->respond([
+                'status'      => 'success',
+                'message'     => "Se actualizaron $actualizados facturas de tipo ATRASADO",
+                'actualizados' => $actualizados,
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
 }
