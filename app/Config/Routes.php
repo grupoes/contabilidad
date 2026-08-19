@@ -261,7 +261,7 @@ $routes->get('api/comprobantes-honorarios/(:num)', 'Api\Notificaciones::getCompr
 $routes->post('sendNotaCredito', 'Api\Notificaciones::sendApiEnviarNotaCredito');
 $routes->post('api/dar-baja-comprobante', 'Api\Notificaciones::darBajaComprobante');
 $routes->post('api/save-comunicacion-baja', 'Api\Notificaciones::saveComunicacionBaja');
-$routes->post('api/update-facturas-honorarios/(:num)', 'Api\Notificaciones::updateFacturasHonorarios/$1');
+$routes->get('api/update-facturas-honorarios/(:num)', 'Api\Notificaciones::updateFacturasHonorarios/$1');
 
 $routes->get('api/insert-tipo-cambio', 'Api\Notificaciones::getCambios');
 $routes->get('api/insert-tipo-cambio-facturador', 'Api\Notificaciones::getCambiosFacturador');
