@@ -1919,14 +1919,12 @@ class Notificaciones extends ResourceController
             $de       = $deLookup[$cdrValue] ?? null;
 
             $merged[] = [
-                'name_file_xml_cpe'  => $cb['name_file_xml_cpe'],
-                'codigo_ticket'      => $cb['codigo_ticket'],
+                'id'                 => $cb['id'],
                 'serie_comprobante'  => $de['serie_comprobante']  ?? null,
                 'numero_comprobante' => $de['numero_comprobante'] ?? null,
                 'total'              => $de['total']              ?? null,
                 'estado_envio_sunat' => $de['estado_envio_sunat'] ?? null,
                 'tiene_cdr'          => ($cdrValue !== null && $cdrValue !== '') ? 1 : 0,
-                'encontrado'         => $de !== null ? 1 : 0,
             ];
         }
 
@@ -1936,9 +1934,7 @@ class Notificaciones extends ResourceController
         if ($search !== '') {
             $s = strtolower($search);
             $merged = array_values(array_filter($merged, function ($row) use ($s) {
-                return strpos(strtolower($row['name_file_xml_cpe'] ?? ''), $s) !== false
-                    || strpos(strtolower($row['codigo_ticket']      ?? ''), $s) !== false
-                    || strpos(strtolower($row['serie_comprobante']  ?? ''), $s) !== false
+                return strpos(strtolower($row['serie_comprobante']  ?? ''), $s) !== false
                     || strpos(strtolower($row['numero_comprobante'] ?? ''), $s) !== false
                     || strpos(strtolower($row['estado_envio_sunat'] ?? ''), $s) !== false;
             }));
@@ -1948,12 +1944,10 @@ class Notificaciones extends ResourceController
 
         // 5. Ordenar
         $sortKeys = [
-            1 => 'name_file_xml_cpe',
-            2 => 'codigo_ticket',
-            3 => 'serie_comprobante',
-            4 => 'numero_comprobante',
-            5 => 'total',
-            6 => 'estado_envio_sunat',
+            1 => 'serie_comprobante',
+            2 => 'numero_comprobante',
+            3 => 'total',
+            4 => 'estado_envio_sunat',
         ];
         $sortKey = $sortKeys[$orderColIdx] ?? 'name_file_xml_cpe';
         usort($merged, function ($a, $b) use ($sortKey, $orderDir) {
@@ -1969,6 +1963,26 @@ class Notificaciones extends ResourceController
             'recordsTotal'    => $recordsTotal,
             'recordsFiltered' => $recordsFiltered,
             'data'            => $data,
+        ]);
+    }
+
+    public function downloadCdrComunicacionBaja($id)
+    {
+        $db  = \Config\Database::connect('default');
+        $row = $db->query(
+            "SELECT file_cdr_zip, name_file_xml_cdr FROM comunicacion_baja WHERE id = " . (int) $id
+        )->getRowArray();
+
+        if (!$row || empty($row['file_cdr_zip'])) {
+            return $this->respond(['status' => 'error', 'message' => 'CDR no disponible.'], 404);
+        }
+
+        $nombre = $row['name_file_xml_cdr'] ?: ('cdr-comunicacion-' . $id . '.zip');
+
+        return $this->respond([
+            'status'        => 'success',
+            'archivo_base64' => $row['file_cdr_zip'],
+            'nombre'         => $nombre,
         ]);
     }
 

@@ -238,7 +238,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
-                    <h5 class="mb-0 text-dark"><i class="ti ti-link me-2"></i>6. Comunicaciones de Baja vs Documento Electrónico</h5>
+                    <h5 class="mb-0 text-dark"><i class="ti ti-link me-2"></i>6. Anulación de comprobantes de forma individual</h5>
                     <span class="badge bg-secondary" id="totalComunicaciones">Cargando...</span>
                 </div>
                 <div class="card-body">
@@ -247,14 +247,11 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>Archivo XML CPE</th>
-                                    <th>Código Ticket</th>
                                     <th>Serie</th>
                                     <th>Número</th>
                                     <th class="text-end">Total</th>
                                     <th class="text-center">Estado SUNAT</th>
                                     <th class="text-center">CDR</th>
-                                    <th class="text-center">Encontrado</th>
                                 </tr>
                             </thead>
                             <tbody id="bodyComunicaciones"></tbody>
@@ -486,13 +483,6 @@ $(document).ready(function () {
                 },
                 orderable: false,
             },
-            {
-                data: 'name_file_xml_cpe',
-                render: function (val) {
-                    return '<small>' + (val ?? '—') + '</small>';
-                }
-            },
-            { data: 'codigo_ticket', defaultContent: '—' },
             { data: 'serie_comprobante', defaultContent: '—' },
             { data: 'numero_comprobante', defaultContent: '—' },
             {
@@ -515,20 +505,12 @@ $(document).ready(function () {
                 data: 'tiene_cdr',
                 className: 'text-center',
                 orderable: false,
-                render: function (val) {
-                    return parseInt(val)
-                        ? '<i class="ti ti-circle-check text-success fs-5" title="CDR disponible"></i>'
-                        : '<i class="ti ti-circle-x text-danger fs-5" title="Sin CDR"></i>';
-                }
-            },
-            {
-                data: 'encontrado',
-                className: 'text-center',
-                orderable: false,
-                render: function (val) {
-                    return parseInt(val)
-                        ? '<span class="badge bg-success">Sí</span>'
-                        : '<span class="badge bg-danger">No</span>';
+                render: function (val, type, row) {
+                    if (!parseInt(val)) {
+                        return '<i class="ti ti-circle-x text-danger fs-5" title="Sin CDR"></i>';
+                    }
+                    return '<button class="btn btn-sm btn-outline-success btnDescargarCdrCb" data-id="' + row.id + '" title="Descargar CDR">'
+                        + '<i class="ti ti-download"></i></button>';
                 }
             },
         ],
@@ -540,6 +522,28 @@ $(document).ready(function () {
             const info = this.api().page.info();
             $('#totalComunicaciones').text(info.recordsTotal.toLocaleString('es-PE') + ' registros');
         },
+    });
+
+    // descargar CDR de comunicacion_baja
+    $(document).on('click', '.btnDescargarCdrCb', function () {
+        const id  = $(this).data('id');
+        const btn = $(this);
+        btn.prop('disabled', true).html('<i class="ti ti-loader"></i>');
+
+        $.get(baseUrl + 'api/comunicacion-baja/download/' + id, function (res) {
+            if (res.status === 'success') {
+                const link = document.createElement('a');
+                link.href = 'data:application/zip;base64,' + res.archivo_base64;
+                link.download = res.nombre;
+                link.click();
+            } else {
+                alert(res.message || 'CDR no disponible.');
+            }
+        }).fail(function () {
+            alert('Error al obtener el CDR.');
+        }).always(function () {
+            btn.prop('disabled', false).html('<i class="ti ti-download"></i>');
+        });
     });
 
     // descargar CDR ZIP
