@@ -1970,14 +1970,14 @@ class Notificaciones extends ResourceController
     {
         $db  = \Config\Database::connect('default');
         $row = $db->query(
-            "SELECT file_cdr_zip, name_file_xml_cdr FROM comunicacion_baja WHERE id = " . (int) $id
+            "SELECT file_cdr_zip, name_file_zip_cdr FROM comunicacion_baja WHERE id = " . (int) $id
         )->getRowArray();
 
         if (!$row || empty($row['file_cdr_zip'])) {
             return $this->respond(['status' => 'error', 'message' => 'CDR no disponible.'], 404);
         }
 
-        $nombre = $row['name_file_xml_cdr'] ?: ('cdr-comunicacion-' . $id . '.zip');
+        $nombre = $row['name_file_zip_cdr'] ?: ('cdr-comunicacion-' . $id . '.zip');
 
         return $this->respond([
             'status'        => 'success',
