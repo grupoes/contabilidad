@@ -1890,7 +1890,7 @@ class Notificaciones extends ResourceController
 
         // 1. Traer todo de comunicacion_baja (default DB)
         $cbRows = $dbDefault->query(
-            "SELECT id, name_file_xml_cpe, codigo_ticket, name_file_zip_cdr, file_cdr_zip
+            "SELECT id, name_file_xml_cpe, codigo_ticket, name_file_zip_cdr, file_cdr_zip, name_file_xml_cdr
              FROM comunicacion_baja"
         )->getResultArray();
 
@@ -1913,7 +1913,7 @@ class Notificaciones extends ResourceController
         // 3. Mergear en PHP
         $merged = [];
         foreach ($cbRows as $cb) {
-            $cdrName = $cb['name_file_zip_cdr'];
+            $cdrName = $cb['name_file_xml_cdr'];
             $de      = $deLookup[$cdrName] ?? null;
 
             $merged[] = [
