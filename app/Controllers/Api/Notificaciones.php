@@ -1890,7 +1890,7 @@ class Notificaciones extends ResourceController
 
         // 1. Traer todo de comunicacion_baja (default DB)
         $cbRows = $dbDefault->query(
-            "SELECT id, name_file_xml_cpe, codigo_ticket, name_file_zip_cdr, file_cdr_zip, name_file_xml_cdr
+            "SELECT id, name_file_xml_cpe, codigo_ticket, name_file_xml_cdr, file_cdr_zip
              FROM comunicacion_baja"
         )->getResultArray();
 
@@ -1898,23 +1898,19 @@ class Notificaciones extends ResourceController
             return $this->respond(['draw' => $draw, 'recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => []]);
         }
 
-        // 2. Buscar coincidencias en doc_electronico (facturador DB) por name_cdr
-        $cdrNames = array_filter(array_column($cbRows, 'name_file_zip_cdr'));
-        $inList   = implode(',', array_map(fn($n) => "'" . $dbFacturador->escapeString($n) . "'", $cdrNames));
-
-        $deRows = $dbFacturador->query(
-            "SELECT name_cdr, serie_comprobante, numero_comprobante, total, estado_envio_sunat
-             FROM doc_electronico
-             WHERE id_contribuyente = 42 AND name_cdr IN ($inList)"
-        )->getResultArray();
-
-        $deLookup = array_column($deRows, null, 'name_cdr');
-
-        // 3. Mergear en PHP
+        // 2. Por cada fila buscar coincidencia en doc_electronico (facturador DB) por name_cdr
         $merged = [];
         foreach ($cbRows as $cb) {
-            $cdrName = $cb['name_file_xml_cdr'];
-            $de      = $deLookup[$cdrName] ?? null;
+            $cdrValue = $cb['name_file_xml_cdr'];
+            $de       = null;
+
+            if ($cdrValue !== null && $cdrValue !== '') {
+                $de = $dbFacturador->query(
+                    "SELECT serie_comprobante, numero_comprobante, total, estado_envio_sunat
+                     FROM doc_electronico
+                     WHERE id_contribuyente = 42 AND name_cdr = '" . $dbFacturador->escapeString($cdrValue) . "'"
+                )->getRowArray();
+            }
 
             $merged[] = [
                 'name_file_xml_cpe'  => $cb['name_file_xml_cpe'],
@@ -1923,7 +1919,7 @@ class Notificaciones extends ResourceController
                 'numero_comprobante' => $de['numero_comprobante'] ?? null,
                 'total'              => $de['total']              ?? null,
                 'estado_envio_sunat' => $de['estado_envio_sunat'] ?? null,
-                'tiene_cdr'          => ($cdrName !== null && $cdrName !== '') ? 1 : 0,
+                'tiene_cdr'          => ($cdrValue !== null && $cdrValue !== '') ? 1 : 0,
                 'encontrado'         => $de !== null ? 1 : 0,
             ];
         }
