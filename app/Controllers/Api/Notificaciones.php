@@ -1966,6 +1966,38 @@ class Notificaciones extends ResourceController
         ]);
     }
 
+    public function downloadAllCdrsComunicacionBaja()
+    {
+        $db   = \Config\Database::connect('default');
+        $rows = $db->query(
+            "SELECT id, name_file_zip_cdr, file_cdr_zip FROM comunicacion_baja
+             WHERE file_cdr_zip IS NOT NULL AND file_cdr_zip != ''"
+        )->getResultArray();
+
+        if (empty($rows)) {
+            return $this->respond(['status' => 'error', 'message' => 'No hay CDRs disponibles.'], 404);
+        }
+
+        $zipPath = tempnam(sys_get_temp_dir(), 'cdrs_cb_') . '.zip';
+        $zip     = new \ZipArchive();
+        $zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+        foreach ($rows as $row) {
+            $contenido = base64_decode($row['file_cdr_zip']);
+            $nombre    = $row['name_file_zip_cdr'] ?: ('cdr-' . $row['id'] . '.zip');
+            $zip->addFromString($nombre, $contenido);
+        }
+
+        $zip->close();
+
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="cdrs_anulacion_individual.zip"');
+        header('Content-Length: ' . filesize($zipPath));
+        readfile($zipPath);
+        unlink($zipPath);
+        exit;
+    }
+
     public function downloadCdrComunicacionBaja($id)
     {
         $db  = \Config\Database::connect('default');

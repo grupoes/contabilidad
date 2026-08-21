@@ -239,7 +239,12 @@
             <div class="card">
                 <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
                     <h5 class="mb-0 text-dark"><i class="ti ti-link me-2"></i>6. Anulación de comprobantes de forma individual</h5>
-                    <span class="badge bg-secondary" id="totalComunicaciones">Cargando...</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-secondary" id="totalComunicaciones">Cargando...</span>
+                        <a href="<?= base_url('api/comunicacion-baja/download-all') ?>" class="btn btn-sm btn-success" id="btnDescargarTodosCb">
+                            <i class="ti ti-download me-1"></i>Descargar todo
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
