@@ -487,12 +487,12 @@ $(document).ready(function () {
                 orderable: false,
             },
             {
-                data: 'name_xml',
+                data: 'name_file_xml_cpe',
                 render: function (val) {
                     return '<small>' + (val ?? '—') + '</small>';
                 }
             },
-            { data: 'numero_ticket', defaultContent: '—' },
+            { data: 'codigo_ticket', defaultContent: '—' },
             { data: 'serie_comprobante', defaultContent: '—' },
             { data: 'numero_comprobante', defaultContent: '—' },
             {
@@ -522,11 +522,11 @@ $(document).ready(function () {
                 }
             },
             {
-                data: 'serie_comprobante',
+                data: 'encontrado',
                 className: 'text-center',
                 orderable: false,
                 render: function (val) {
-                    return (val !== null && val !== '')
+                    return parseInt(val)
                         ? '<span class="badge bg-success">Sí</span>'
                         : '<span class="badge bg-danger">No</span>';
                 }

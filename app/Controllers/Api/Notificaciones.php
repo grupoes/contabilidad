@@ -1878,52 +1878,89 @@ class Notificaciones extends ResourceController
 
     public function getComunicacionBajaConDocumento()
     {
-        $db = \Config\Database::connect('facturador');
+        $dbDefault    = \Config\Database::connect('default');
+        $dbFacturador = \Config\Database::connect('facturador');
 
-        $draw   = (int) ($this->request->getGet('draw')   ?? 1);
-        $start  = (int) ($this->request->getGet('start')  ?? 0);
-        $length = (int) ($this->request->getGet('length') ?? 25);
-        $search = $this->request->getGet('search')['value'] ?? '';
-
-        $orderColIdx = (int) ($this->request->getGet('order')[0]['column'] ?? 0);
+        $draw        = (int) ($this->request->getGet('draw')   ?? 1);
+        $start       = (int) ($this->request->getGet('start')  ?? 0);
+        $length      = (int) ($this->request->getGet('length') ?? 25);
+        $search      = $this->request->getGet('search')['value'] ?? '';
+        $orderColIdx = (int) ($this->request->getGet('order')[0]['column'] ?? 1);
         $orderDir    = strtoupper($this->request->getGet('order')[0]['dir'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
 
-        $columns = [
-            'cb.name_xml',             // 0: # (non-orderable fallback)
-            'cb.name_xml',             // 1: Archivo XML
-            'cb.numero_ticket',        // 2: Ticket
-            'de.serie_comprobante',    // 3: Serie
-            'de.numero_comprobante',   // 4: Número
-            'de.total',                // 5: Total
-            'de.estado_envio_sunat',   // 6: Estado SUNAT
-        ];
-        $orderBy = $columns[$orderColIdx] ?? 'cb.name_xml';
+        // 1. Traer todo de comunicacion_baja (default DB)
+        $cbRows = $dbDefault->query(
+            "SELECT id, name_file_xml_cpe, codigo_ticket, name_file_xml_cdr, file_cdr_zip
+             FROM comunicacion_baja"
+        )->getResultArray();
 
-        $base = "FROM comunicacion_baja cb
-                 LEFT JOIN doc_electronico de ON de.name_xml = cb.name_xml AND de.id_contribuyente = 42
-                 WHERE cb.estado_envio_sunat = 'aceptado'";
-
-        $recordsTotal = (int) $db->query("SELECT COUNT(*) AS total $base")->getRow()->total;
-
-        if ($search !== '') {
-            $s     = $db->escapeString($search);
-            $base .= " AND (cb.name_xml LIKE '%$s%'
-                        OR cb.numero_ticket LIKE '%$s%'
-                        OR de.serie_comprobante LIKE '%$s%'
-                        OR de.numero_comprobante LIKE '%$s%'
-                        OR de.estado_envio_sunat LIKE '%$s%')";
+        if (empty($cbRows)) {
+            return $this->respond(['draw' => $draw, 'recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => []]);
         }
 
-        $recordsFiltered = (int) $db->query("SELECT COUNT(*) AS total $base")->getRow()->total;
+        // 2. Buscar coincidencias en doc_electronico (facturador DB) por name_xml
+        $xmlNames = array_filter(array_column($cbRows, 'name_file_xml_cpe'));
+        $inList   = implode(',', array_map(fn($n) => "'" . $dbFacturador->escapeString($n) . "'", $xmlNames));
 
-        $data = $db->query(
-            "SELECT cb.name_xml, cb.numero_ticket, cb.cod_sunat, cb.msje_sunat,
-                    de.serie_comprobante, de.numero_comprobante, de.total, de.estado_envio_sunat,
-                    IF(cb.name_cdr IS NOT NULL AND cb.name_cdr != '', 1, 0) AS tiene_cdr
-             $base
-             ORDER BY $orderBy $orderDir
-             LIMIT $length OFFSET $start"
+        $deRows = $dbFacturador->query(
+            "SELECT name_xml, serie_comprobante, numero_comprobante, total, estado_envio_sunat
+             FROM doc_electronico
+             WHERE id_contribuyente = 42 AND name_xml IN ($inList)"
         )->getResultArray();
+
+        $deLookup = array_column($deRows, null, 'name_xml');
+
+        // 3. Mergear en PHP
+        $merged = [];
+        foreach ($cbRows as $cb) {
+            $xmlName = $cb['name_file_xml_cpe'];
+            $de      = $deLookup[$xmlName] ?? null;
+
+            $merged[] = [
+                'name_file_xml_cpe'  => $xmlName,
+                'codigo_ticket'      => $cb['codigo_ticket'],
+                'serie_comprobante'  => $de['serie_comprobante']  ?? null,
+                'numero_comprobante' => $de['numero_comprobante'] ?? null,
+                'total'              => $de['total']              ?? null,
+                'estado_envio_sunat' => $de['estado_envio_sunat'] ?? null,
+                'tiene_cdr'          => ($cb['name_file_xml_cdr'] !== null && $cb['name_file_xml_cdr'] !== '') ? 1 : 0,
+                'encontrado'         => $de !== null ? 1 : 0,
+            ];
+        }
+
+        $recordsTotal = count($merged);
+
+        // 4. Filtro de búsqueda
+        if ($search !== '') {
+            $s = strtolower($search);
+            $merged = array_values(array_filter($merged, function ($row) use ($s) {
+                return strpos(strtolower($row['name_file_xml_cpe'] ?? ''), $s) !== false
+                    || strpos(strtolower($row['codigo_ticket']      ?? ''), $s) !== false
+                    || strpos(strtolower($row['serie_comprobante']  ?? ''), $s) !== false
+                    || strpos(strtolower($row['numero_comprobante'] ?? ''), $s) !== false
+                    || strpos(strtolower($row['estado_envio_sunat'] ?? ''), $s) !== false;
+            }));
+        }
+
+        $recordsFiltered = count($merged);
+
+        // 5. Ordenar
+        $sortKeys = [
+            1 => 'name_file_xml_cpe',
+            2 => 'codigo_ticket',
+            3 => 'serie_comprobante',
+            4 => 'numero_comprobante',
+            5 => 'total',
+            6 => 'estado_envio_sunat',
+        ];
+        $sortKey = $sortKeys[$orderColIdx] ?? 'name_file_xml_cpe';
+        usort($merged, function ($a, $b) use ($sortKey, $orderDir) {
+            $cmp = strcmp((string) ($a[$sortKey] ?? ''), (string) ($b[$sortKey] ?? ''));
+            return $orderDir === 'DESC' ? -$cmp : $cmp;
+        });
+
+        // 6. Paginar
+        $data = array_slice($merged, $start, $length);
 
         return $this->respond([
             'draw'            => $draw,
