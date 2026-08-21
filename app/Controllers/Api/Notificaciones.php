@@ -1890,7 +1890,7 @@ class Notificaciones extends ResourceController
 
         // 1. Traer todo de comunicacion_baja (default DB)
         $cbRows = $dbDefault->query(
-            "SELECT id, name_file_xml_cpe, codigo_ticket, name_file_xml_cdr, file_cdr_zip
+            "SELECT id, name_file_xml_cpe, codigo_ticket, name_file_zip_cdr, file_cdr_zip
              FROM comunicacion_baja"
         )->getResultArray();
 
@@ -1898,32 +1898,32 @@ class Notificaciones extends ResourceController
             return $this->respond(['draw' => $draw, 'recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => []]);
         }
 
-        // 2. Buscar coincidencias en doc_electronico (facturador DB) por name_xml
-        $xmlNames = array_filter(array_column($cbRows, 'name_file_xml_cpe'));
-        $inList   = implode(',', array_map(fn($n) => "'" . $dbFacturador->escapeString($n) . "'", $xmlNames));
+        // 2. Buscar coincidencias en doc_electronico (facturador DB) por name_cdr
+        $cdrNames = array_filter(array_column($cbRows, 'name_file_zip_cdr'));
+        $inList   = implode(',', array_map(fn($n) => "'" . $dbFacturador->escapeString($n) . "'", $cdrNames));
 
         $deRows = $dbFacturador->query(
-            "SELECT name_xml, serie_comprobante, numero_comprobante, total, estado_envio_sunat
+            "SELECT name_cdr, serie_comprobante, numero_comprobante, total, estado_envio_sunat
              FROM doc_electronico
-             WHERE id_contribuyente = 42 AND name_xml IN ($inList)"
+             WHERE id_contribuyente = 42 AND name_cdr IN ($inList)"
         )->getResultArray();
 
-        $deLookup = array_column($deRows, null, 'name_xml');
+        $deLookup = array_column($deRows, null, 'name_cdr');
 
         // 3. Mergear en PHP
         $merged = [];
         foreach ($cbRows as $cb) {
-            $xmlName = $cb['name_file_xml_cpe'];
-            $de      = $deLookup[$xmlName] ?? null;
+            $cdrName = $cb['name_file_zip_cdr'];
+            $de      = $deLookup[$cdrName] ?? null;
 
             $merged[] = [
-                'name_file_xml_cpe'  => $xmlName,
+                'name_file_xml_cpe'  => $cb['name_file_xml_cpe'],
                 'codigo_ticket'      => $cb['codigo_ticket'],
                 'serie_comprobante'  => $de['serie_comprobante']  ?? null,
                 'numero_comprobante' => $de['numero_comprobante'] ?? null,
                 'total'              => $de['total']              ?? null,
                 'estado_envio_sunat' => $de['estado_envio_sunat'] ?? null,
-                'tiene_cdr'          => ($cb['name_file_xml_cdr'] !== null && $cb['name_file_xml_cdr'] !== '') ? 1 : 0,
+                'tiene_cdr'          => ($cdrName !== null && $cdrName !== '') ? 1 : 0,
                 'encontrado'         => $de !== null ? 1 : 0,
             ];
         }
