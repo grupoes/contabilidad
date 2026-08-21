@@ -283,6 +283,7 @@ $routes->get('api/baja-lote/download-all', 'Api\Notificaciones::downloadAllCdrs'
 $routes->get('api/baja-lote/download/(:num)', 'Api\Notificaciones::downloadCdrBaja/$1');
 $routes->get('api/baja-lote/(:num)/documentos', 'Api\Notificaciones::getDocumentosBajaLote/$1');
 $routes->get('api/baja-lote/documentos', 'Api\Notificaciones::getAllDocumentosBaja');
+$routes->get('api/comunicacion-baja-detalle', 'Api\Notificaciones::getComunicacionBajaConDocumento');
 
 $routes->get('mensajes-masivos', 'Mensajes::index');
 $routes->post('mensajes/guardarMensajeMasivo', 'Mensajes::guardarMensajeMasivo');

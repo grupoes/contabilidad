@@ -1876,6 +1876,63 @@ class Notificaciones extends ResourceController
         ]);
     }
 
+    public function getComunicacionBajaConDocumento()
+    {
+        $db = \Config\Database::connect('facturador');
+
+        $draw   = (int) ($this->request->getGet('draw')   ?? 1);
+        $start  = (int) ($this->request->getGet('start')  ?? 0);
+        $length = (int) ($this->request->getGet('length') ?? 25);
+        $search = $this->request->getGet('search')['value'] ?? '';
+
+        $orderColIdx = (int) ($this->request->getGet('order')[0]['column'] ?? 0);
+        $orderDir    = strtoupper($this->request->getGet('order')[0]['dir'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
+
+        $columns = [
+            'cb.name_xml',             // 0: # (non-orderable fallback)
+            'cb.name_xml',             // 1: Archivo XML
+            'cb.numero_ticket',        // 2: Ticket
+            'de.serie_comprobante',    // 3: Serie
+            'de.numero_comprobante',   // 4: Número
+            'de.total',                // 5: Total
+            'de.estado_envio_sunat',   // 6: Estado SUNAT
+        ];
+        $orderBy = $columns[$orderColIdx] ?? 'cb.name_xml';
+
+        $base = "FROM comunicacion_baja cb
+                 LEFT JOIN doc_electronico de ON de.name_xml = cb.name_xml AND de.id_contribuyente = 42
+                 WHERE cb.estado_envio_sunat = 'aceptado'";
+
+        $recordsTotal = (int) $db->query("SELECT COUNT(*) AS total $base")->getRow()->total;
+
+        if ($search !== '') {
+            $s     = $db->escapeString($search);
+            $base .= " AND (cb.name_xml LIKE '%$s%'
+                        OR cb.numero_ticket LIKE '%$s%'
+                        OR de.serie_comprobante LIKE '%$s%'
+                        OR de.numero_comprobante LIKE '%$s%'
+                        OR de.estado_envio_sunat LIKE '%$s%')";
+        }
+
+        $recordsFiltered = (int) $db->query("SELECT COUNT(*) AS total $base")->getRow()->total;
+
+        $data = $db->query(
+            "SELECT cb.name_xml, cb.numero_ticket, cb.cod_sunat, cb.msje_sunat,
+                    de.serie_comprobante, de.numero_comprobante, de.total, de.estado_envio_sunat,
+                    IF(cb.name_cdr IS NOT NULL AND cb.name_cdr != '', 1, 0) AS tiene_cdr
+             $base
+             ORDER BY $orderBy $orderDir
+             LIMIT $length OFFSET $start"
+        )->getResultArray();
+
+        return $this->respond([
+            'draw'            => $draw,
+            'recordsTotal'    => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data'            => $data,
+        ]);
+    }
+
     public function reporteAnulacionMasiva()
     {
         return $this->respond([

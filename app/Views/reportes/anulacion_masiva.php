@@ -166,6 +166,10 @@
                             </div>
                         </div>
                     </div>
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <i class="ti ti-info-circle me-2"></i>
+                        <strong>Nota:</strong> Seis comunicaciones (RA-20260814-90404, 90479, 90486, 90511, 90526 y 90532), que amparan 3,000 comprobantes, no tienen CDR descargable: SUNAT las aceptó, pero el número de ticket no llegó a registrarse y sin ticket no es posible volver a solicitar la constancia.
+                    </div>
                 </div>
             </div>
         </div>
@@ -222,6 +226,38 @@
                                 </tr>
                             </thead>
                             <tbody id="bodyComprobantes"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMUNICACION BAJA VS DOC ELECTRONICO -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 text-dark"><i class="ti ti-link me-2"></i>6. Comunicaciones de Baja vs Documento Electrónico</h5>
+                    <span class="badge bg-secondary" id="totalComunicaciones">Cargando...</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="tablaComunicaciones">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Archivo XML CPE</th>
+                                    <th>Código Ticket</th>
+                                    <th>Serie</th>
+                                    <th>Número</th>
+                                    <th class="text-end">Total</th>
+                                    <th class="text-center">Estado SUNAT</th>
+                                    <th class="text-center">CDR</th>
+                                    <th class="text-center">Encontrado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bodyComunicaciones"></tbody>
                         </table>
                     </div>
                 </div>
@@ -427,6 +463,83 @@ $(document).ready(function () {
                 ]).draw(false);
             });
         });
+    });
+
+    // punto 6 — comunicacion baja vs doc electronico (server-side)
+    const dtComunicaciones = $('#tablaComunicaciones').DataTable({
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
+        responsive: true,
+        processing: true,
+        serverSide: true,
+        pageLength: 25,
+        order: [[1, 'asc']],
+        ajax: {
+            url: baseUrl + 'api/comunicacion-baja-detalle',
+            type: 'GET',
+            dataSrc: 'data',
+        },
+        columns: [
+            {
+                data: null,
+                render: function (data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                },
+                orderable: false,
+            },
+            {
+                data: 'name_xml',
+                render: function (val) {
+                    return '<small>' + (val ?? '—') + '</small>';
+                }
+            },
+            { data: 'numero_ticket', defaultContent: '—' },
+            { data: 'serie_comprobante', defaultContent: '—' },
+            { data: 'numero_comprobante', defaultContent: '—' },
+            {
+                data: 'total',
+                className: 'text-end',
+                render: function (val) {
+                    return val !== null ? 'S/ ' + parseFloat(val).toFixed(2) : '—';
+                }
+            },
+            {
+                data: 'estado_envio_sunat',
+                className: 'text-center',
+                render: function (val) {
+                    return val
+                        ? '<span class="badge bg-success">' + val + '</span>'
+                        : '<span class="badge bg-secondary">Sin dato</span>';
+                }
+            },
+            {
+                data: 'tiene_cdr',
+                className: 'text-center',
+                orderable: false,
+                render: function (val) {
+                    return parseInt(val)
+                        ? '<i class="ti ti-circle-check text-success fs-5" title="CDR disponible"></i>'
+                        : '<i class="ti ti-circle-x text-danger fs-5" title="Sin CDR"></i>';
+                }
+            },
+            {
+                data: 'serie_comprobante',
+                className: 'text-center',
+                orderable: false,
+                render: function (val) {
+                    return (val !== null && val !== '')
+                        ? '<span class="badge bg-success">Sí</span>'
+                        : '<span class="badge bg-danger">No</span>';
+                }
+            },
+        ],
+        initComplete: function () {
+            const info = this.api().page.info();
+            $('#totalComunicaciones').text(info.recordsTotal.toLocaleString('es-PE') + ' registros');
+        },
+        drawCallback: function () {
+            const info = this.api().page.info();
+            $('#totalComunicaciones').text(info.recordsTotal.toLocaleString('es-PE') + ' registros');
+        },
     });
 
     // descargar CDR ZIP
