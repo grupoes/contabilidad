@@ -1898,19 +1898,25 @@ class Notificaciones extends ResourceController
             return $this->respond(['draw' => $draw, 'recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => []]);
         }
 
-        // 2. Por cada fila buscar coincidencia en doc_electronico (facturador DB) por name_cdr
+        // 2. Una sola query a doc_electronico con todos los name_cdr de una vez
+        $cdrValues = array_filter(array_column($cbRows, 'name_file_xml_cdr'));
+        $deLookup  = [];
+
+        if (!empty($cdrValues)) {
+            $inList = implode(',', array_map(fn($v) => "'" . $dbFacturador->escapeString($v) . "'", $cdrValues));
+            $deRows = $dbFacturador->query(
+                "SELECT name_cdr, serie_comprobante, numero_comprobante, total, estado_envio_sunat
+                 FROM doc_electronico
+                 WHERE id_contribuyente = 42 AND name_cdr IN ($inList)"
+            )->getResultArray();
+            $deLookup = array_column($deRows, null, 'name_cdr');
+        }
+
+        // 3. Mergear en PHP sin tocar la DB
         $merged = [];
         foreach ($cbRows as $cb) {
             $cdrValue = $cb['name_file_xml_cdr'];
-            $de       = null;
-
-            if ($cdrValue !== null && $cdrValue !== '') {
-                $de = $dbFacturador->query(
-                    "SELECT serie_comprobante, numero_comprobante, total, estado_envio_sunat
-                     FROM doc_electronico
-                     WHERE id_contribuyente = 42 AND name_cdr = '" . $dbFacturador->escapeString($cdrValue) . "'"
-                )->getRowArray();
-            }
+            $de       = $deLookup[$cdrValue] ?? null;
 
             $merged[] = [
                 'name_file_xml_cpe'  => $cb['name_file_xml_cpe'],
