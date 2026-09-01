@@ -34,7 +34,7 @@
         <div class="col-sm-6 col-xl-3">
             <div class="card text-white bg-primary">
                 <div class="card-body">
-                    <h2 class="mb-1">S/ 24,426,970</h2>
+                    <h2 class="mb-1">24,426,970</h2>
                     <p class="mb-0">Monto regularizado</p>
                 </div>
             </div>
@@ -43,7 +43,7 @@
             <div class="card text-white bg-info">
                 <div class="card-body">
                     <h2 class="mb-1">107,400</h2>
-                    <p class="mb-0">CDR firmados por SUNAT</p>
+                    <p class="mb-0">CDR firmados por SUNAT de forma grupal</p>
                 </div>
             </div>
         </div>
