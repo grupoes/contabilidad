@@ -281,13 +281,13 @@ function viewAfps(data) {
     if (data.length > 0) {
         data.forEach((afp) => {
             const linkReporte = afp.archivo_reporte
-                ? `<a href='${base_url}archivos/afp/${afp.archivo_reporte}' target='_blank'>REPORTE</a>`
+                ? `<a href='${base_url}archivos/afp/${afp.archivo_reporte}' class='btn btn-success btn-sm' target='_blank'>REPORTE</a>`
                 : `<span class="text-muted">N/A</span>`;
             const linkTicket = afp.archivo_ticket
-                ? `<a href='${base_url}archivos/afp/${afp.archivo_ticket}' target='_blank'>TICKET</a>`
+                ? `<a href='${base_url}archivos/afp/${afp.archivo_ticket}' class='btn btn-warning btn-sm' target='_blank'>TICKET</a>`
                 : `<span class="text-muted">N/A</span>`;
             const linkPlantilla = afp.archivo_plantilla
-                ? `<a href='${base_url}archivos/afp/${afp.archivo_plantilla}' target='_blank'>PLANTILLA</a>`
+                ? `<a href='${base_url}archivos/afp/${afp.archivo_plantilla}' class='btn btn-primary btn-sm' target='_blank'>PLANTILLA</a>`
                 : `<span class="text-muted">N/A</span>`;
 
             html += `
