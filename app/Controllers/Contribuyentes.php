@@ -2326,6 +2326,7 @@ class Contribuyentes extends BaseController
 
         $placeholders = implode(',', array_fill(0, count($sucursalIds), '?'));
 
+        // Query 1: documentos principales sin ningún join a sí misma
         $sql = "SELECT
                     d.id_codigomoneda,
                     d.tipo_cambio_sunat,
@@ -2345,13 +2346,7 @@ class Contribuyentes extends BaseController
                     d.estado_envio_sunat,
                     std.descripcion,
                     c.num_doc,
-                    c.razon_social,
-                    (SELECT ref.fecha_comprobante
-                     FROM doc_electronico ref
-                     WHERE ref.serie_comprobante  = d.serie_documento_modifica
-                       AND ref.numero_comprobante = d.nro_documento_modifica
-                       AND ref.tipo_envio_sunat   = 'produccion'
-                     LIMIT 1) AS ref_fecha_comprobante
+                    c.razon_social
                 FROM doc_electronico d
                 INNER JOIN cliente c   ON c.idcliente = d.idcliente
                 INNER JOIN sunat_tipodocelectronico std ON std.id_tipodoc_electronico = d.id_tipodoc_electronico
@@ -2364,8 +2359,44 @@ class Contribuyentes extends BaseController
         try {
             $result = $db->query($sql, array_merge($sucursalIds, [$inicio, $fin]))->getResultArray();
 
-            $data = array_map(function ($row) {
+            // Query 2: un solo batch para fechas de referencia, solo para las notas (07/08)
+            $refDates     = [];
+            $tuplePairs   = [];
+            $refParams    = [];
+
+            foreach ($result as $row) {
+                if (in_array($row['id_tipodoc_electronico'], ['07', '08'])
+                    && !empty($row['serie_documento_modifica'])
+                    && !empty($row['nro_documento_modifica'])) {
+                    $key = $row['serie_documento_modifica'] . '|' . $row['nro_documento_modifica'];
+                    if (!isset($refDates[$key])) {
+                        $refDates[$key]  = null;
+                        $tuplePairs[]    = '(?,?)';
+                        $refParams[]     = $row['serie_documento_modifica'];
+                        $refParams[]     = $row['nro_documento_modifica'];
+                    }
+                }
+            }
+
+            if (!empty($tuplePairs)) {
+                $tupleStr  = implode(',', $tuplePairs);
+                $refResult = $db->query(
+                    "SELECT serie_comprobante, numero_comprobante, MIN(fecha_comprobante) AS fecha_comprobante
+                     FROM doc_electronico
+                     WHERE tipo_envio_sunat = 'produccion'
+                       AND (serie_comprobante, numero_comprobante) IN ($tupleStr)
+                     GROUP BY serie_comprobante, numero_comprobante",
+                    $refParams
+                )->getResultArray();
+
+                foreach ($refResult as $r) {
+                    $refDates[$r['serie_comprobante'] . '|' . $r['numero_comprobante']] = $r['fecha_comprobante'];
+                }
+            }
+
+            $data = array_map(function ($row) use ($refDates) {
                 $esNota = in_array($row['id_tipodoc_electronico'], ['07', '08']);
+                $refKey = $row['serie_documento_modifica'] . '|' . $row['nro_documento_modifica'];
                 return [
                     'id_codigomoneda'        => $row['id_codigomoneda'],
                     'tipo_cambio_sunat'      => $row['tipo_cambio_sunat'],
@@ -2385,7 +2416,7 @@ class Contribuyentes extends BaseController
                     'total'                  => $row['total'],
                     'estado_envio_sunat'     => $row['estado_envio_sunat'],
                     'referencia'             => $esNota ? $row['serie_documento_modifica'] . '-' . $row['nro_documento_modifica'] : '',
-                    'fecha_referencia'       => $esNota ? ($row['ref_fecha_comprobante'] ?? '') : '',
+                    'fecha_referencia'       => $esNota ? ($refDates[$refKey] ?? '') : '',
                 ];
             }, $result);
 
@@ -2393,5 +2424,380 @@ class Contribuyentes extends BaseController
         } catch (\Exception $e) {
             return $this->response->setStatusCode(500)->setJSON(['error' => $e->getMessage()]);
         }
+    }
+
+    public function reporteMaqueta()
+    {
+        if (!session()->logged_in) {
+            return $this->response->setStatusCode(401)->setJSON(['error' => 'No autorizado']);
+        }
+
+        $sucursal      = $this->request->getPost('sucursal');
+        $inicio        = $this->request->getPost('inicio');
+        $fin           = $this->request->getPost('fin');
+        $cuenta        = $this->request->getPost('cuenta');
+        $glosa         = $this->request->getPost('glosa');
+        $ruc           = $this->request->getPost('ruc');
+        $contribuyente = $this->request->getPost('contribuyente');
+
+        $contri    = new ContribuyenteModel();
+        $estadoIgv = (int)(($contri->find($contribuyente))['estado_igv'] ?? 0);
+
+        $db = \Config\Database::connect('facturador');
+
+        // Resolver id_contribuyente en facturador usando RUC como puente
+        $contribFact   = $db->query("SELECT id_contribuyente FROM contribuyente WHERE ruc = ?", [$ruc])->getRowArray();
+        $idContribFact = $contribFact['id_contribuyente'] ?? null;
+
+        if (!$idContribFact) {
+            return $this->response->setJSON([]);
+        }
+
+        if ($sucursal == 0) {
+            $rows        = $db->query("SELECT idsucursal FROM sucursal WHERE id_contribuyente = ?", [$idContribFact])->getResultArray();
+            $sucursalIds = array_column($rows, 'idsucursal');
+        } else {
+            $sucursalIds = [(int) $sucursal];
+        }
+
+        if (empty($sucursalIds)) {
+            return $this->response->setJSON([]);
+        }
+
+        try {
+            $placeholders = implode(',', array_fill(0, count($sucursalIds), '?'));
+
+            // Query único para todos los tipos de documento
+            $result = $db->query(
+                "SELECT d.id_codigomoneda, d.id_tipodoc_electronico, d.fecha_comprobante,
+                        d.serie_comprobante, d.numero_comprobante, d.serie_documento_modifica,
+                        d.nro_documento_modifica, d.id_tipo_comprobante_modifica,
+                        d.sub_total, d.total_igv, d.total_icbper, d.total, d.estado_envio_sunat,
+                        std.descripcion, c.num_doc, c.razon_social
+                 FROM doc_electronico d
+                 INNER JOIN cliente c ON c.idcliente = d.idcliente
+                 INNER JOIN sunat_tipodocelectronico std ON std.id_tipodoc_electronico = d.id_tipodoc_electronico
+                 WHERE d.id_sucursal IN ($placeholders)
+                   AND d.id_tipodoc_electronico IN ('01','03','07','08')
+                   AND d.tipo_envio_sunat = 'produccion'
+                   AND d.fecha_comprobante BETWEEN ? AND ?
+                 ORDER BY d.id_tipodoc_electronico ASC, d.numero_comprobante ASC",
+                array_merge($sucursalIds, [$inicio, $fin])
+            )->getResultArray();
+
+            // Split por tipo en PHP
+            $facturas      = array_filter($result, fn($r) => $r['id_tipodoc_electronico'] === '01');
+            $boletas       = array_filter($result, fn($r) => $r['id_tipodoc_electronico'] === '03');
+            $notas_credito = array_filter($result, fn($r) => $r['id_tipodoc_electronico'] === '07');
+            $notas_debito  = array_filter($result, fn($r) => $r['id_tipodoc_electronico'] === '08');
+
+            // Batch tipo_cambio para documentos en USD
+            $usdFechas = [];
+            foreach ($result as $row) {
+                if ($row['id_codigomoneda'] !== 'PEN') {
+                    $usdFechas[$row['fecha_comprobante']] = true;
+                }
+            }
+            $tcMap = [];
+            if (!empty($usdFechas)) {
+                $fechas   = array_keys($usdFechas);
+                $ph       = implode(',', array_fill(0, count($fechas), '?'));
+                $tcResult = $db->query("SELECT fecha, venta FROM tipo_cambio WHERE fecha IN ($ph)", $fechas)->getResultArray();
+                foreach ($tcResult as $r) {
+                    $tcMap[$r['fecha']] = $r['venta'];
+                }
+            }
+
+            // Batch referencias para notas (07 + 08)
+            $refDates   = [];
+            $tuplePairs = [];
+            $refParams  = [];
+            foreach (array_merge(array_values($notas_credito), array_values($notas_debito)) as $row) {
+                if (!empty($row['serie_documento_modifica']) && !empty($row['nro_documento_modifica'])) {
+                    $key = $row['serie_documento_modifica'] . '|' . $row['nro_documento_modifica'];
+                    if (!isset($refDates[$key])) {
+                        $refDates[$key] = null;
+                        $tuplePairs[]   = '(?,?)';
+                        $refParams[]    = $row['serie_documento_modifica'];
+                        $refParams[]    = $row['nro_documento_modifica'];
+                    }
+                }
+            }
+            if (!empty($tuplePairs)) {
+                $refResult = $db->query(
+                    "SELECT serie_comprobante, numero_comprobante, MIN(fecha_comprobante) AS fecha_comprobante
+                     FROM doc_electronico
+                     WHERE tipo_envio_sunat = 'produccion'
+                       AND (serie_comprobante, numero_comprobante) IN (" . implode(',', $tuplePairs) . ")
+                     GROUP BY serie_comprobante, numero_comprobante",
+                    $refParams
+                )->getResultArray();
+                foreach ($refResult as $r) {
+                    $refDates[$r['serie_comprobante'] . '|' . $r['numero_comprobante']] = $r['fecha_comprobante'];
+                }
+            }
+
+            // Mapa de notas de crédito para lógica de boletas
+            $mapNotas = [];
+            foreach ($notas_credito as $nc) {
+                $key            = $nc['serie_documento_modifica'] . '-' . $nc['nro_documento_modifica'];
+                $mapNotas[$key] = $nc['fecha_comprobante'];
+            }
+
+            $data = [];
+
+            // ── Facturas (01) ────────────────────────────────────────────────
+            foreach ($facturas as $row) {
+                [$tipo_moneda, $tipo_cambio] = $this->_getTipoCambio($row, $tcMap);
+                $data[] = [
+                    'fecha'         => $row['fecha_comprobante'],
+                    'tipo_moneda'   => $tipo_moneda,
+                    'documento'     => $row['descripcion'],
+                    'numero'        => $row['serie_comprobante'] . '-' . $row['numero_comprobante'],
+                    'condicion'     => 'A',
+                    'ruc'           => $row['num_doc'],
+                    'razon_social'  => $row['razon_social'],
+                    'vventa'        => $row['sub_total'],
+                    'valor_venta'   => $row['sub_total'],
+                    'igv'           => $row['total_igv'],
+                    'bolsa'         => '0.00',
+                    'icb'           => $row['total_icbper'],
+                    'total'         => $row['total'],
+                    'tipo_cambio'   => $tipo_cambio,
+                    'glosa'         => strtoupper($glosa),
+                    'cuenta'        => $cuenta,
+                    'tipo'          => '',
+                    'referencia'    => '',
+                    'referenciafecha' => '',
+                ];
+            }
+
+            // ── Boletas (03) con agrupamiento ────────────────────────────────
+            $grupoActual = null;
+            foreach ($boletas as $row) {
+                $keyNota        = $row['serie_comprobante'] . '-' . $row['numero_comprobante'];
+                $tieneNota      = false;
+                $tieneIgv       = false;
+
+                if (isset($mapNotas[$keyNota])) {
+                    $fn = new \DateTime($mapNotas[$keyNota]);
+                    $fb = new \DateTime($row['fecha_comprobante']);
+                    if ($fn->format('Y-m') === $fb->format('Y-m')) {
+                        $tieneNota = true;
+                    }
+                    if ($estadoIgv == 0 && $row['total_igv'] > 0) {
+                        $tieneIgv = true;
+                    }
+                }
+
+                [$tipo_moneda, $tipo_cambio] = $this->_getTipoCambio($row, $tcMap);
+
+                if ($row['total'] >= 700 || $tieneNota || $tieneIgv) {
+                    if ($grupoActual !== null) {
+                        $data[]      = $this->_finalizarGrupoMaqueta($grupoActual);
+                        $grupoActual = null;
+                    }
+                    $data[] = $this->_agregarFilaMaqueta($row, $glosa, $cuenta, $tipo_moneda, $tipo_cambio);
+                    continue;
+                }
+
+                if ($grupoActual === null) {
+                    $grupoActual = $this->_iniciarGrupo($row, $glosa, $cuenta, $tipo_moneda, $tipo_cambio);
+                    continue;
+                }
+
+                if ($grupoActual['fecha'] === $row['fecha_comprobante'] && $grupoActual['serie'] === $row['serie_comprobante']) {
+                    $grupoActual['monto']       += $row['total'];
+                    $grupoActual['subtotal']    += $row['sub_total'];
+                    $grupoActual['total_igv']   += $row['total_igv'];
+                    $grupoActual['total_icbper'] += $row['total_icbper'];
+                    $grupoActual['nums'][]       = $row['numero_comprobante'];
+                } else {
+                    $data[]      = $this->_finalizarGrupoMaqueta($grupoActual);
+                    $grupoActual = $this->_iniciarGrupo($row, $glosa, $cuenta, $tipo_moneda, $tipo_cambio);
+                }
+            }
+            if ($grupoActual !== null) {
+                $data[] = $this->_finalizarGrupoMaqueta($grupoActual);
+            }
+
+            // ── Notas de crédito (07) ────────────────────────────────────────
+            foreach ($notas_credito as $row) {
+                [$tipo_moneda, $tipo_cambio] = $this->_getTipoCambio($row, $tcMap);
+                $refKey = $row['serie_documento_modifica'] . '|' . $row['nro_documento_modifica'];
+
+                if ($row['id_tipo_comprobante_modifica'] === '03' && $row['total'] < 700) {
+                    $razon = 'CLIENTE VARIOS';
+                    $rucDoc = '00000001';
+                } else {
+                    $razon  = $row['razon_social'];
+                    $rucDoc = $row['num_doc'];
+                }
+
+                $data[] = [
+                    'fecha'           => $row['fecha_comprobante'],
+                    'tipo_moneda'     => $tipo_moneda,
+                    'documento'       => $row['descripcion'],
+                    'numero'          => $row['serie_comprobante'] . '-' . $row['numero_comprobante'],
+                    'condicion'       => 'A',
+                    'ruc'             => $rucDoc,
+                    'razon_social'    => $razon,
+                    'vventa'          => '-' . $row['sub_total'],
+                    'valor_venta'     => '-' . $row['sub_total'],
+                    'igv'             => '-' . $row['total_igv'],
+                    'bolsa'           => '0.00',
+                    'icb'             => '-' . $row['total_icbper'],
+                    'total'           => '-' . $row['total'],
+                    'tipo_cambio'     => $tipo_cambio,
+                    'glosa'           => strtoupper($glosa),
+                    'cuenta'          => $cuenta,
+                    'tipo'            => $row['id_tipo_comprobante_modifica'],
+                    'referencia'      => $row['serie_documento_modifica'] . '-' . $row['nro_documento_modifica'],
+                    'referenciafecha' => $refDates[$refKey] ?? '',
+                ];
+            }
+
+            // ── Notas de débito (08) ─────────────────────────────────────────
+            foreach ($notas_debito as $row) {
+                [$tipo_moneda, $tipo_cambio] = $this->_getTipoCambio($row, $tcMap);
+                $refKey = $row['serie_documento_modifica'] . '|' . $row['nro_documento_modifica'];
+
+                if ($row['id_tipo_comprobante_modifica'] === '03' && $row['total'] < 700) {
+                    $razon  = 'CLIENTE VARIOS';
+                    $rucDoc = '00000001';
+                } else {
+                    $razon  = $row['razon_social'];
+                    $rucDoc = $row['num_doc'];
+                }
+
+                $data[] = [
+                    'fecha'           => $row['fecha_comprobante'],
+                    'tipo_moneda'     => $tipo_moneda,
+                    'documento'       => $row['descripcion'],
+                    'numero'          => $row['serie_comprobante'] . '-' . $row['numero_comprobante'],
+                    'condicion'       => 'A',
+                    'ruc'             => $rucDoc,
+                    'razon_social'    => $razon,
+                    'vventa'          => $row['sub_total'],
+                    'valor_venta'     => $row['sub_total'],
+                    'igv'             => $row['total_igv'],
+                    'bolsa'           => '0.00',
+                    'icb'             => $row['total_icbper'],
+                    'total'           => $row['total'],
+                    'tipo_cambio'     => $tipo_cambio,
+                    'glosa'           => strtoupper($glosa),
+                    'cuenta'          => $cuenta,
+                    'tipo'            => $row['id_tipo_comprobante_modifica'],
+                    'referencia'      => $row['serie_documento_modifica'] . '-' . $row['nro_documento_modifica'],
+                    'referenciafecha' => $refDates[$refKey] ?? '',
+                ];
+            }
+
+            return $this->response->setJSON($data);
+        } catch (\Exception $e) {
+            return $this->response->setStatusCode(500)->setJSON(['error' => $e->getMessage()]);
+        }
+    }
+
+    private function _getTipoCambio(array $row, array $tcMap): array
+    {
+        if ($row['id_codigomoneda'] === 'PEN') {
+            return ['S', '1'];
+        }
+        return ['D', $tcMap[$row['fecha_comprobante']] ?? '1'];
+    }
+
+    private function _iniciarGrupo(array $row, string $glosa, string $cuenta, string $tipo_moneda, string $tipo_cambio): array
+    {
+        return [
+            'fecha'        => $row['fecha_comprobante'],
+            'serie'        => $row['serie_comprobante'],
+            'nums'         => [$row['numero_comprobante']],
+            'monto'        => (float) $row['total'],
+            'subtotal'     => (float) $row['sub_total'],
+            'total_igv'    => (float) $row['total_igv'],
+            'total_icbper' => (float) $row['total_icbper'],
+            'num_clie'     => $row['num_doc'],
+            'nombre_clien' => $row['razon_social'],
+            'glosa'        => $glosa,
+            'cuenta'       => $cuenta,
+            'tipo_moneda'  => $tipo_moneda,
+            'tipo_cambio'  => $tipo_cambio,
+        ];
+    }
+
+    private function _finalizarGrupoMaqueta(array $grupo): array
+    {
+        $result = [
+            'fecha'           => $grupo['fecha'],
+            'tipo_moneda'     => $grupo['tipo_moneda'],
+            'documento'       => 'BOLETA DE VENTA ELECTRONICA',
+            'condicion'       => 'A',
+            'vventa'          => number_format($grupo['subtotal'],    2, '.', ''),
+            'valor_venta'     => number_format($grupo['subtotal'],    2, '.', ''),
+            'igv'             => number_format($grupo['total_igv'],   2, '.', ''),
+            'bolsa'           => '0.00',
+            'icb'             => number_format($grupo['total_icbper'], 2, '.', ''),
+            'total'           => number_format($grupo['monto'],       2, '.', ''),
+            'tipo_cambio'     => number_format($grupo['tipo_cambio'], 2, '.', ''),
+            'glosa'           => strtoupper($grupo['glosa']),
+            'cuenta'          => $grupo['cuenta'],
+            'tipo'            => '',
+            'referencia'      => '',
+            'referenciafecha' => '',
+        ];
+
+        if (count($grupo['nums']) > 1) {
+            $result['ruc']         = '00000001';
+            $result['razon_social'] = 'CLIENTES VARIOS';
+            $result['numero']      = $grupo['serie'] . '-' . $grupo['nums'][0] . '/' . end($grupo['nums']);
+        } else {
+            $result['ruc']         = $grupo['monto'] < 700 ? '00000001' : $grupo['num_clie'];
+            $result['razon_social'] = $grupo['monto'] < 700 ? 'CLIENTES VARIOS' : $grupo['nombre_clien'];
+            $result['numero']      = $grupo['serie'] . '-' . $grupo['nums'][0];
+        }
+
+        return $result;
+    }
+
+    private function _agregarFilaMaqueta(array $fila, string $glosa, string $cuenta, string $tipo_moneda, string $tipo_cambio): array
+    {
+        if (in_array($fila['estado_envio_sunat'], ['rechazado', 'anulado'])) {
+            return [
+                'fecha' => $fila['fecha_comprobante'], 'tipo_moneda' => $tipo_moneda,
+                'documento' => 'BOLETA DE VENTA ELECTRONICA',
+                'numero' => $fila['serie_comprobante'] . '-' . $fila['numero_comprobante'],
+                'condicion' => 'A', 'ruc' => '00000000', 'razon_social' => 'ANULADO',
+                'vventa' => '0.00', 'valor_venta' => '0.00', 'igv' => '0.00',
+                'bolsa' => '0.00', 'icb' => '0.00', 'total' => '0.00',
+                'tipo_cambio' => $tipo_cambio, 'glosa' => strtoupper($glosa),
+                'cuenta' => $cuenta, 'tipo' => '', 'referencia' => '', 'referenciafecha' => '',
+            ];
+        }
+
+        $rucDoc  = $fila['num_doc'] === '00000000' ? '00000001' : $fila['num_doc'];
+        $cliente = $fila['num_doc'] === '00000000' ? 'CLIENTES VARIOS' : $fila['razon_social'];
+
+        return [
+            'fecha'           => $fila['fecha_comprobante'],
+            'tipo_moneda'     => $tipo_moneda,
+            'documento'       => 'BOLETA DE VENTA ELECTRONICA',
+            'numero'          => $fila['serie_comprobante'] . '-' . $fila['numero_comprobante'],
+            'condicion'       => 'A',
+            'ruc'             => $rucDoc,
+            'razon_social'    => $cliente,
+            'vventa'          => number_format((float) $fila['sub_total'],   2, '.', ''),
+            'valor_venta'     => number_format((float) $fila['sub_total'],   2, '.', ''),
+            'igv'             => number_format((float) $fila['total_igv'],   2, '.', ''),
+            'bolsa'           => '0.00',
+            'icb'             => number_format((float) $fila['total_icbper'], 2, '.', ''),
+            'total'           => number_format((float) $fila['total'],       2, '.', ''),
+            'tipo_cambio'     => number_format((float) $tipo_cambio,         2, '.', ''),
+            'glosa'           => strtoupper($glosa),
+            'cuenta'          => $cuenta,
+            'tipo'            => '',
+            'referencia'      => '',
+            'referenciafecha' => '',
+        ];
     }
 }
