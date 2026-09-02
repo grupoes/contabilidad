@@ -391,7 +391,23 @@ class Afp extends BaseController
             ]);
         }
 
-        $data = $afp->query("SELECT * from afp inner join mes ON mes.id_mes = afp.periodo inner join archivos_afp ON afp.id = archivos_afp.afp_id where afp.contribuyente_id = '$idcont' and afp.anio = $anio and archivos_afp.estado = 1 and afp.periodo BETWEEN '$desde' and '$hasta'")->getResult();
+        $data = $afp->query("
+            SELECT afp.id, mes.mes_descripcion,
+                   archivos_afp.archivo_plantilla,
+                   arr.name_file AS archivo_reporte,
+                   art.name_file AS archivo_ticket
+            FROM afp
+            INNER JOIN mes          ON mes.id_mes          = afp.periodo
+            INNER JOIN archivos_afp ON archivos_afp.afp_id = afp.id
+            LEFT  JOIN archivos_reporte_afp arr
+                   ON arr.afp_id = afp.id AND arr.estado = 1
+            LEFT  JOIN archivos_ticket_afp  art
+                   ON art.afp_id = afp.id AND art.estado = 1
+            WHERE afp.contribuyente_id = '$idcont'
+              AND afp.anio              = $anio
+              AND archivos_afp.estado   = 1
+              AND afp.periodo BETWEEN '$desde' AND '$hasta'
+        ")->getResult();
 
         return $this->response->setJSON([
             "status" => "success",
