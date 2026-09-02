@@ -289,17 +289,27 @@ function listaContribuyentes() {
     });
 }
 
-function optionsTable(id, ruc, eliminar, tipoServicio) {
+function optionsTable(id, ruc, eliminar, tipoServicio, sistemasIdsRaw) {
   let del = "";
   if (eliminar) {
     del = `<a class="dropdown-item" href="#" onclick="deleteEmpresa(event, ${id})"><i class="ti ti-trash"></i>Eliminar Empresa</a>`;
   }
 
+  const sistemasIds = sistemasIdsRaw
+    ? sistemasIdsRaw.split(",").map(Number)
+    : [];
+  const linkComercial = sistemasIds.includes(2)
+    ? `<a class="dropdown-item" href="${base_url}contribuyente/reporte-comercial/${id}" target="__blank"><i class="ti ti-file-analytics"></i>Reporte Comercial</a>`
+    : "";
+  const linkRestaurante = sistemasIds.includes(1)
+    ? `<a class="dropdown-item" href="https://esconsultoresyasesores.com:9300/reporte-ventas/${ruc}" target="__blank"><i class="ti ti-file-text"></i>Reporte Restaurante</a>`
+    : "";
+
   if (tipoServicio === "ALQUILER") {
     return `
         ${del}
-        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9093/reportes/${ruc}" target="__blank"><i class="ti ti-file-analytics"></i>Reporte Comercial</a>
-        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9300/reporte-ventas/${ruc}" target="__blank"><i class="ti ti-file-text"></i>Reporte Restaurante</a>
+        ${linkComercial}
+        ${linkRestaurante}
         <a class="dropdown-item" href="#" onclick="loadModalContactos(event, ${id})"><i class="ti ti-accessible"></i>Contactos</a>
         <a class="dropdown-item" href="#" onclick="loadModalContratos(event, ${id})"><i class="ti ti-file-symlink"></i>Contratos</a>
     `;
@@ -310,8 +320,8 @@ function optionsTable(id, ruc, eliminar, tipoServicio) {
         <a class="dropdown-item" href="#" onclick="configurarDeclaraciones(event, ${id})"><i class="ti ti-settings"></i>Configurar declaraciones</a>
         <a class="dropdown-item" href="#" onclick="verAcceso(event, ${id})"><i class="ti ti-key"></i>Ver contraseña</a>
         <a class="dropdown-item" href="https://esconsultoresyasesores.com:9094/maqueta-compras/${ruc}" target="__blank"><i class="ti ti-file-download"></i>Escanear y generar maquetas de compras</a>
-        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9093/reportes/${ruc}" target="__blank"><i class="ti ti-file-analytics"></i>Reporte Comercial</a>
-        <a class="dropdown-item" href="https://esconsultoresyasesores.com:9300/reporte-ventas/${ruc}" target="__blank"><i class="ti ti-file-text"></i>Reporte Restaurante</a>
+        ${linkComercial}
+        ${linkRestaurante}
         <a class="dropdown-item" href="#" onclick="loadModalContactos(event, ${id})"><i class="ti ti-accessible"></i>Contactos</a>
         <a class="dropdown-item" href="#" onclick="loadModalContratos(event, ${id})"><i class="ti ti-file-symlink"></i>Contratos</a>
     `;
@@ -322,7 +332,7 @@ function viewListContribuyentes(data, eliminar, editar) {
   let html = "";
 
   data.forEach((emp, index) => {
-    let opciones = optionsTable(emp.id, emp.ruc, eliminar, emp.tipoServicio);
+    let opciones = optionsTable(emp.id, emp.ruc, eliminar, emp.tipoServicio, emp.sistemas_ids);
 
     let tieneSistema =
       emp.tiene_sistema === "SI"
@@ -351,17 +361,28 @@ function viewListContribuyentes(data, eliminar, editar) {
 
     let monto;
 
+    const _hoy = new Date();
+    const _mesActual = `${_hoy.getFullYear()}-${String(_hoy.getMonth() + 1).padStart(2, "0")}`;
+    const montoM = emp.tarifa_mensual ?? emp.costoMensual;
+    const montoA = emp.tarifa_anual ?? emp.costoAnual;
+    const esMesActual =
+      emp.tarifa_fecha_inicio &&
+      emp.tarifa_fecha_inicio.substring(0, 7) === _mesActual;
+    const badgeMesActual = esMesActual
+      ? `<span class="badge badge-success f-12 ms-1">MES ACTUAL</span>`
+      : "";
+
     if (emp.tipoSuscripcion === "SI GRATUITO") {
       monto = `GRATUITO`;
     } else {
       if (emp.tipoServicio === "ALQUILER") {
         monto = `
-                    <p class="f-14 mb-0">M: ${emp.costoMensual}</p>
+                    <p class="f-14 mb-0">M: ${montoM} ${badgeMesActual}</p>
                 `;
       } else {
         monto = `
-                    <p class="f-14 mb-0">M: ${emp.costoMensual}</p>
-                    <p class="f-14 mb-0">A: ${emp.costoAnual}</p>
+                    <p class="f-14 mb-0">M: ${montoM} ${badgeMesActual}</p>
+                    <p class="f-14 mb-0">A: ${montoA}</p>
                 `;
       }
     }

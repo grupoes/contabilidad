@@ -63,6 +63,8 @@ $routes->post('contribuyente/actualizar-clave', 'Contribuyentes::updatePassword'
 $routes->get('contribuyentes/contribuyentesActivos/(:any)', 'Contribuyentes::getContribuyenteActivos/$1');
 $routes->get('contribuyente/contratos/(:num)', 'Contribuyentes::showContratos/$1');
 $routes->post('contribuyente/agregar-contrato', 'Contribuyentes::agregarContrato');
+$routes->get('contribuyente/reporte-comercial/(:num)', 'Contribuyentes::reporteComercial/$1');
+$routes->post('contribuyente/reporte-venta', 'Contribuyentes::reporteVenta');
 
 $routes->get('save-afilaciones-antiguas', 'Contribuyentes::addAfiliacion');
 $routes->get('update-afiliaciones-antiguas', 'Contribuyentes::updatePagoRenta');

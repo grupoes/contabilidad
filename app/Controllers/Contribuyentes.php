@@ -181,37 +181,51 @@ class Contribuyentes extends BaseController
             $status = "c.estado = $estado";
         }
 
-        $data = $model->query("SELECT 
-            c.*, 
+        $data = $model->query("SELECT
+            c.*,
+            ht.monto_mensual AS tarifa_mensual,
+            ht.monto_anual   AS tarifa_anual,
+            ht.fecha_inicio  AS tarifa_fecha_inicio,
+            (SELECT GROUP_CONCAT(sc2.system_id)
+             FROM sistemas_contribuyente sc2
+             WHERE sc2.contribuyente_id = c.id) AS sistemas_ids,
             -- Verificar si tiene sistema
-            CASE 
+            CASE
                 WHEN EXISTS (
-                    SELECT 1 
-                    FROM sistemas_contribuyente sc 
+                    SELECT 1
+                    FROM sistemas_contribuyente sc
                     WHERE sc.contribuyente_id = c.id
                 ) THEN 'SI'
                 ELSE 'NO'
             END AS tiene_sistema,
             -- Verificar si tiene certificado digital
-            CASE 
+            CASE
                 WHEN EXISTS (
-                    SELECT 1 
-                    FROM certificado_digital cd 
+                    SELECT 1
+                    FROM certificado_digital cd
                     WHERE cd.contribuyente_id = c.id and cd.estado = 1
                 ) THEN 'SI'
                 ELSE 'NO'
             END AS tiene_certificado,
             -- Verificar si el certificado está vencido
-            CASE 
+            CASE
                 WHEN EXISTS (
-                    SELECT 1 
-                    FROM certificado_digital cd 
+                    SELECT 1
+                    FROM certificado_digital cd
                     WHERE cd.contribuyente_id = c.id and cd.estado = 1
                     AND cd.fecha_vencimiento >= CURDATE()
                 ) THEN 'NO' -- Tiene un certificado válido
                 ELSE 'SI' -- No tiene certificado válido o está vencido
             END AS certificado_vencido
-        FROM contribuyentes c left join contribuyentes_usuario cu ON cu.contribuyente_id = c.id WHERE $status $sql $asig order by c.id desc")->getResult();
+        FROM contribuyentes c
+        LEFT JOIN contribuyentes_usuario cu ON cu.contribuyente_id = c.id
+        LEFT JOIN contratos ct ON ct.contribuyenteId = c.id AND ct.estado = 1
+        LEFT JOIN historial_tarifas ht ON ht.id = (
+            SELECT ht2.id FROM historial_tarifas ht2
+            WHERE ht2.contratoId = ct.id AND ht2.estado = 1 AND ht2.fecha_inicio <= CURDATE()
+            ORDER BY ht2.fecha_inicio DESC LIMIT 1
+        )
+        WHERE $status $sql $asig order by c.id desc")->getResult();
 
         foreach ($data as $key => $value) {
             $confNot = $confiNoti->where('ruc_empresa_numero', $value->ruc)->orderBy('id_tributo', 'asc')->findAll();
@@ -2234,6 +2248,150 @@ class Contribuyentes extends BaseController
                 'status' => 'error',
                 'message' => $e->getMessage()
             ]);
+        }
+    }
+
+    public function reporteComercial($id)
+    {
+        if (!session()->logged_in) {
+            return redirect()->to(base_url());
+        }
+
+        $contri = new ContribuyenteModel();
+        $contribuyente = $contri->find($id);
+
+        $data_c = [
+            'id_contribuyente' => $contribuyente['id'],
+            'razon_social'     => $contribuyente['razon_social'],
+            'ruc'              => $contribuyente['ruc'],
+        ];
+
+        $dbFact      = \Config\Database::connect('facturador');
+        $contribFact = $dbFact->query(
+            "SELECT id_contribuyente FROM contribuyente WHERE ruc = ?",
+            [$contribuyente['ruc']]
+        )->getRowArray();
+
+        $idContribFact = $contribFact['id_contribuyente'] ?? null;
+
+        $data_s = $idContribFact
+            ? $dbFact->query(
+                "SELECT idsucursal, nombre FROM sucursal WHERE id_contribuyente = ?",
+                [$idContribFact]
+            )->getResultArray()
+            : [];
+
+        return view('contribuyente/reporte_comercial', compact('data_c', 'data_s'));
+    }
+
+    public function reporteVenta()
+    {
+        if (!session()->logged_in) {
+            return $this->response->setStatusCode(401)->setJSON(['error' => 'No autorizado']);
+        }
+
+        $sucursal = $this->request->getPost('sucursal');
+        $inicio   = $this->request->getPost('inicio');
+        $fin      = $this->request->getPost('fin');
+        $ruc      = $this->request->getPost('ruc');
+
+        $db = \Config\Database::connect('facturador');
+
+        // Resolver id_contribuyente en facturador usando el RUC como puente entre BDs
+        $contribFact = $db->query(
+            "SELECT id_contribuyente FROM contribuyente WHERE ruc = ?",
+            [$ruc]
+        )->getRowArray();
+
+        $idContribFact = $contribFact['id_contribuyente'] ?? null;
+
+        if (!$idContribFact) {
+            return $this->response->setJSON([]);
+        }
+
+        // Obtener IDs de sucursales del contribuyente
+        if ($sucursal == 0) {
+            $rows        = $db->query(
+                "SELECT idsucursal FROM sucursal WHERE id_contribuyente = ?",
+                [$idContribFact]
+            )->getResultArray();
+            $sucursalIds = array_column($rows, 'idsucursal');
+        } else {
+            $sucursalIds = [(int) $sucursal];
+        }
+
+        if (empty($sucursalIds)) {
+            return $this->response->setJSON([]);
+        }
+
+        $placeholders = implode(',', array_fill(0, count($sucursalIds), '?'));
+
+        $sql = "SELECT
+                    d.id_codigomoneda,
+                    d.tipo_cambio_sunat,
+                    d.id_tipodoc_electronico,
+                    d.fecha_comprobante,
+                    d.serie_comprobante,
+                    d.numero_comprobante,
+                    d.serie_documento_modifica,
+                    d.nro_documento_modifica,
+                    d.total_exoneradas,
+                    d.total_gravadas,
+                    d.total_inafecta,
+                    d.sub_total,
+                    d.total_igv,
+                    d.total_icbper,
+                    d.total,
+                    d.estado_envio_sunat,
+                    std.descripcion,
+                    c.num_doc,
+                    c.razon_social,
+                    (SELECT ref.fecha_comprobante
+                     FROM doc_electronico ref
+                     WHERE ref.serie_comprobante  = d.serie_documento_modifica
+                       AND ref.numero_comprobante = d.nro_documento_modifica
+                       AND ref.tipo_envio_sunat   = 'produccion'
+                     LIMIT 1) AS ref_fecha_comprobante
+                FROM doc_electronico d
+                INNER JOIN cliente c   ON c.idcliente = d.idcliente
+                INNER JOIN sunat_tipodocelectronico std ON std.id_tipodoc_electronico = d.id_tipodoc_electronico
+                WHERE d.id_sucursal IN ($placeholders)
+                  AND d.id_tipodoc_electronico IN ('01','03','07','08')
+                  AND d.tipo_envio_sunat = 'produccion'
+                  AND d.fecha_comprobante BETWEEN ? AND ?
+                ORDER BY d.id_tipodoc_electronico ASC, d.fecha_comprobante ASC, d.numero_comprobante ASC";
+
+        try {
+            $result = $db->query($sql, array_merge($sucursalIds, [$inicio, $fin]))->getResultArray();
+
+            $data = array_map(function ($row) {
+                $esNota = in_array($row['id_tipodoc_electronico'], ['07', '08']);
+                return [
+                    'id_codigomoneda'        => $row['id_codigomoneda'],
+                    'tipo_cambio_sunat'      => $row['tipo_cambio_sunat'],
+                    'id_tipodoc_electronico' => $row['id_tipodoc_electronico'],
+                    'descripcion'            => $row['descripcion'],
+                    'fecha_comprobante'      => $row['fecha_comprobante'],
+                    'serie_comprobante'      => $row['serie_comprobante'],
+                    'numero_comprobante'     => $row['numero_comprobante'],
+                    'num_doc'                => $row['num_doc'],
+                    'razon_social'           => $row['razon_social'],
+                    'total_exoneradas'       => $row['total_exoneradas'],
+                    'total_gravadas'         => $row['total_gravadas'],
+                    'total_inafecta'         => $row['total_inafecta'],
+                    'sub_total'              => $row['sub_total'],
+                    'total_igv'              => $row['total_igv'],
+                    'total_icbper'           => $row['total_icbper'],
+                    'total'                  => $row['total'],
+                    'estado_envio_sunat'     => $row['estado_envio_sunat'],
+                    'referencia'             => $esNota ? $row['serie_documento_modifica'] . '-' . $row['nro_documento_modifica'] : '',
+                    'fecha_referencia'       => $esNota ? ($row['ref_fecha_comprobante'] ?? '') : '',
+                ];
+            }, $result);
+
+            return $this->response->setJSON($data);
+        } catch (\Exception $e) {
+            return $this->response->setStatusCode(500)->setJSON(['error' => $e->getMessage()]);
         }
     }
 }
