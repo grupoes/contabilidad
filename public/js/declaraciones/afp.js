@@ -30,6 +30,8 @@ const estado = document.getElementById("estado");
 
 const viewFiles = document.getElementById("viewFiles");
 
+let afpData = [];
+
 function validarNumero(input) {
     input.value = input.value.replace(/\D/g, "").slice(0, 9);
 }
@@ -276,6 +278,7 @@ formConsulta.addEventListener("submit", (e) => {
 });
 
 function viewAfps(data) {
+    afpData = data;
     let html = "";
 
     if (data.length > 0) {
@@ -652,6 +655,55 @@ function descargarPlantilla(id) {
             viewFilesPlantilla(data);
         })
 }
+
+document.getElementById('button-addon2').addEventListener('click', function () {
+    const correoVal = document.getElementById('correo').value.trim();
+    if (!correoVal) { alert('Ingresa un correo electrónico'); return; }
+    if (afpData.length === 0) { alert('No hay archivos consultados'); return; }
+
+    const filas = afpData.map(afp => {
+        const reporte   = afp.archivo_reporte
+            ? `<a href="${base_url}archivos/afp/${afp.archivo_reporte}">Ver Reporte</a>` : 'N/A';
+        const ticket    = afp.archivo_ticket
+            ? `<a href="${base_url}archivos/afp/${afp.archivo_ticket}">Ver Ticket</a>` : '';
+        const plantilla = afp.archivo_plantilla
+            ? `<a href="${base_url}archivos/afp/${afp.archivo_plantilla}">Ver Plantilla</a>` : 'N/A';
+        return `<tr><td>${afp.mes_descripcion}</td><td>${reporte}</td><td>${ticket}</td><td>${plantilla}</td></tr>`;
+    }).join('');
+
+    const razonSocial = document.getElementById('titleModalConsult').textContent.replace('DESCARGAR AFP - ', '');
+    const body = `
+        <p>Se adjuntan los archivos AFP de <strong>${razonSocial}</strong>:</p>
+        <table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;">
+            <thead><tr><th>Periodo</th><th>Reporte</th><th>Ticket</th><th>Plantilla</th></tr></thead>
+            <tbody>${filas}</tbody>
+        </table>`;
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+    fetch(`${base_url}api/email/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: correoVal, subject: `Archivos AFP - ${razonSocial}`, body }),
+    })
+        .then(r => r.json())
+        .then(res => {
+            btn.disabled = false;
+            btn.innerHTML = 'Email';
+            if (res.status) {
+                Swal.fire({ icon: 'success', title: 'Correo enviado', timer: 1500, showConfirmButton: false });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: res.message });
+            }
+        })
+        .catch(() => {
+            btn.disabled = false;
+            btn.innerHTML = 'Email';
+            Swal.fire({ icon: 'error', title: 'Error de conexión' });
+        });
+});
 
 function viewFilesPlantilla(data) {
     let tr = "";
