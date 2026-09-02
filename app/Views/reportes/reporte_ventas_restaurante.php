@@ -312,7 +312,7 @@
     <script src="<?= base_url() ?>reportes/assets/libs/datatables.net-buttons/js/buttons.colVis.min.js"></script>
 
 
-    <script src="<?= base_url() ?>js/reporte.js"></script>
+    <script src="<?= base_url() ?>js/reporte_restaurante.js"></script>
 
 </body>
 
