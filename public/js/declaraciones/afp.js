@@ -285,7 +285,7 @@ function viewAfps(data) {
                 : `<span class="text-muted">N/A</span>`;
             const linkTicket = afp.archivo_ticket
                 ? `<a href='${base_url}archivos/afp/${afp.archivo_ticket}' class='btn btn-warning btn-sm' target='_blank'>TICKET</a>`
-                : `<span class="text-muted">N/A</span>`;
+                : ``;
             const linkPlantilla = afp.archivo_plantilla
                 ? `<a href='${base_url}archivos/afp/${afp.archivo_plantilla}' class='btn btn-primary btn-sm' target='_blank'>PLANTILLA</a>`
                 : `<span class="text-muted">N/A</span>`;
