@@ -2384,9 +2384,10 @@ class Contribuyentes extends BaseController
                     "SELECT serie_comprobante, numero_comprobante, MIN(fecha_comprobante) AS fecha_comprobante
                      FROM doc_electronico
                      WHERE tipo_envio_sunat = 'produccion'
+                       AND id_sucursal IN ($placeholders)
                        AND (serie_comprobante, numero_comprobante) IN ($tupleStr)
                      GROUP BY serie_comprobante, numero_comprobante",
-                    $refParams
+                    array_merge($sucursalIds, $refParams)
                 )->getResultArray();
 
                 foreach ($refResult as $r) {
@@ -2528,9 +2529,10 @@ class Contribuyentes extends BaseController
                     "SELECT serie_comprobante, numero_comprobante, MIN(fecha_comprobante) AS fecha_comprobante
                      FROM doc_electronico
                      WHERE tipo_envio_sunat = 'produccion'
+                       AND id_sucursal IN ($placeholders)
                        AND (serie_comprobante, numero_comprobante) IN (" . implode(',', $tuplePairs) . ")
                      GROUP BY serie_comprobante, numero_comprobante",
-                    $refParams
+                    array_merge($sucursalIds, $refParams)
                 )->getResultArray();
                 foreach ($refResult as $r) {
                     $refDates[$r['serie_comprobante'] . '|' . $r['numero_comprobante']] = $r['fecha_comprobante'];
