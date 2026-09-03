@@ -195,8 +195,8 @@ btn_maq_venta.addEventListener('click', function (e) {
             cabecera.innerHTML = `
                 <th>N°</th><th>FECHA</th><th>TIPO MONEDA</th><th>DOCUMENTO</th>
                 <th>#_DOCUMENTO</th><th>CONDICION</th><th>RUC</th><th>RAZON SOCIAL</th>
-                <th>VVENTA</th><th>VALOR VENTA</th><th>IGV</th><th>BOLSA</th>
-                <th>ICB</th><th>TOTAL</th><th>TIPO_CAMBIO</th><th>GLOSA</th>
+                <th>VVENTA</th><th>VALOR VENTA</th><th>ICB</th><th>BOLSA</th>
+                <th>IGV</th><th>TOTAL</th><th>TIPO_CAMBIO</th><th>GLOSA</th>
                 <th>CUENTA</th><th>TIPO</th><th>REFERENCIA</th><th>FECHAREF</th>
             `;
 
@@ -216,9 +216,9 @@ btn_maq_venta.addEventListener('click', function (e) {
                     <td>${row.razon_social ?? ''}</td>
                     <td>${row.vventa ?? ''}</td>
                     <td>${row.valor_venta ?? ''}</td>
-                    <td>${row.igv ?? ''}</td>
-                    <td>${row.bolsa ?? '0.00'}</td>
                     <td>${row.icb ?? ''}</td>
+                    <td>${row.bolsa ?? '0.00'}</td>
+                    <td>${row.igv ?? ''}</td>
                     <td>${row.total ?? ''}</td>
                     <td>${row.tipo_cambio ?? ''}</td>
                     <td>${row.glosa ?? ''}</td>
