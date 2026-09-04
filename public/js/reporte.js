@@ -89,6 +89,11 @@ btn_venta.addEventListener('click', function (e) {
                 let numDoc = venta.num_doc ?? '';
                 if (numDoc === '00000000') numDoc = '00000001';
 
+                // sub_total en el facturador incluye ICBper cuando hay bolsas plásticas
+                const valorVenta = parseFloat(venta.total_icbper) > 0
+                    ? (parseFloat(venta.sub_total) - parseFloat(venta.total_icbper)).toFixed(2)
+                    : (venta.sub_total ?? '0.00');
+
                 html += `
                 <tr>
                     <td>${index + 1}</td>
@@ -102,8 +107,8 @@ btn_venta.addEventListener('click', function (e) {
                     <td>${sign}${venta.total_exoneradas ?? '0.00'}</td>
                     <td>${sign}${venta.total_gravadas ?? '0.00'}</td>
                     <td>${sign}${venta.total_inafecta ?? '0.00'}</td>
-                    <td>${sign}${venta.sub_total ?? '0.00'}</td>
-                    <td>${sign}${venta.sub_total ?? '0.00'}</td>
+                    <td>${sign}${valorVenta}</td>
+                    <td>${sign}${valorVenta}</td>
                     <td>${sign}${venta.total_igv ?? '0.00'}</td>
                     <td>0.00</td>
                     <td>${sign}${venta.total_icbper ?? '0.00'}</td>

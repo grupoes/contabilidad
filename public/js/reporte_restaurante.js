@@ -84,6 +84,11 @@ btn_venta.addEventListener('click', function (e) {
             data.forEach((v, i) => {
                 const condicion  = v.estado === 'f' ? 'I' : 'A';
                 const afectacion = parseFloat(v.total_igv) > 0 ? 'SI' : 'NO';
+
+                const valorVenta = parseFloat(v.total_icbper) > 0
+                    ? (parseFloat(v.subtotal) - parseFloat(v.total_icbper)).toFixed(2)
+                    : (v.subtotal ?? '0.00');
+
                 html += `<tr>
                     <td>${i + 1}</td>
                     <td>${v.fecha ?? ''}</td>
@@ -96,8 +101,8 @@ btn_venta.addEventListener('click', function (e) {
                     <td>${v.total_exonerado ?? '0.00'}</td>
                     <td>${v.total_gravado ?? '0.00'}</td>
                     <td>${v.total_inafecto ?? '0.00'}</td>
-                    <td>${v.subtotal ?? '0.00'}</td>
-                    <td>${v.subtotal ?? '0.00'}</td>
+                    <td>${valorVenta}</td>
+                    <td>${valorVenta}</td>
                     <td>${v.total_igv ?? '0.00'}</td>
                     <td>0.00</td>
                     <td>${v.total_icbper ?? '0.00'}</td>
