@@ -278,10 +278,10 @@ listaContribuyentes();
 function listaContribuyentes() {
   fetch(
     base_url +
-    "contribuyente/all/" +
-    selectOpciones.value +
-    "/" +
-    selectEstado.value,
+      "contribuyente/all/" +
+      selectOpciones.value +
+      "/" +
+      selectEstado.value,
   )
     .then((res) => res.json())
     .then((data) => {
@@ -302,7 +302,7 @@ function optionsTable(id, ruc, eliminar, tipoServicio, sistemasIdsRaw) {
     ? `<a class="dropdown-item" href="${base_url}contribuyente/reporte-comercial/${id}" target="__blank"><i class="ti ti-file-analytics"></i>Reporte Comercial</a>`
     : "";
   const linkRestaurante = sistemasIds.includes(1)
-    ? `<a class="dropdown-item" href="https://esconsultoresyasesores.com:9300/reporte-ventas/${ruc}" target="__blank"><i class="ti ti-file-text"></i>Reporte Restaurante</a>`
+    ? `<a class="dropdown-item" href="${base_url}reporte-ventas/${ruc}" target="__blank"><i class="ti ti-file-text"></i>Reporte Restaurante</a>`
     : "";
 
   if (tipoServicio === "ALQUILER") {
@@ -332,7 +332,13 @@ function viewListContribuyentes(data, eliminar, editar) {
   let html = "";
 
   data.forEach((emp, index) => {
-    let opciones = optionsTable(emp.id, emp.ruc, eliminar, emp.tipoServicio, emp.sistemas_ids);
+    let opciones = optionsTable(
+      emp.id,
+      emp.ruc,
+      eliminar,
+      emp.tipoServicio,
+      emp.sistemas_ids,
+    );
 
     let tieneSistema =
       emp.tiene_sistema === "SI"
@@ -426,15 +432,18 @@ function viewListContribuyentes(data, eliminar, editar) {
                 <td>
                     <div class="row">
                         <div class="col">
-                            <h6 class="mb-1" title="${per}"><a href="javascript:void(0);" class="${edit}" data-id="${emp.id
-      }">${emp.ruc}</a></h6>
-                            <p class="text-muted f-14 mb-0"> ${emp.razon_social
-      } </p>
+                            <h6 class="mb-1" title="${per}"><a href="javascript:void(0);" class="${edit}" data-id="${
+                              emp.id
+                            }">${emp.ruc}</a></h6>
+                            <p class="text-muted f-14 mb-0"> ${
+                              emp.razon_social
+                            } </p>
                         </div>
                     </div>
                 </td>
-                <td><a href="#" class="tipoServicio" data-id="${emp.id}">${emp.tipoServicio
-      }</a></td>
+                <td><a href="#" class="tipoServicio" data-id="${emp.id}">${
+                  emp.tipoServicio
+                }</a></td>
                 <td>
                     ${monto}
                 </td>
@@ -444,9 +453,11 @@ function viewListContribuyentes(data, eliminar, editar) {
                 </td>
                 <td> 
                     <div class="form-check form-switch custom-switch-v1 mb-2">
-                        <input type="checkbox" class="form-check-input input-success" name="estado" id="estado${emp.id
-      }" ${estado} onchange="toggleSwitchStatus(this, ${emp.id
-      })">
+                        <input type="checkbox" class="form-check-input input-success" name="estado" id="estado${
+                          emp.id
+                        }" ${estado} onchange="toggleSwitchStatus(this, ${
+                          emp.id
+                        })">
                     </div>
 
                 </td>
@@ -547,7 +558,7 @@ tableBody.addEventListener("click", (e) => {
         diaSuscripcion.value = empresa.diaSuscripcion;
         fechaContrato.value = empresa.fechaContrato;
         numeroNotificacion.value = empresa.numeroWhatsappId;
-        document.getElementById('afectoIgv').value = empresa.estado_igv;
+        document.getElementById("afectoIgv").value = empresa.estado_igv;
 
         const sistemas = data.sistemas;
 
@@ -791,15 +802,17 @@ tipo_certificado.addEventListener("change", (e) => {
 function toggleSwitchStatus(switchElement, id) {
   let checked = switchElement.checked ? 1 : 2;
 
-  if (checked == 1) { // ACTIVAR
-    swalWithBootstrapButtons.fire({
-      title: '¿Estás seguro de activar este contribuyente?',
-      html: `
+  if (checked == 1) {
+    // ACTIVAR
+    swalWithBootstrapButtons
+      .fire({
+        title: "¿Estás seguro de activar este contribuyente?",
+        html: `
         <div class="text-start overflow-hidden">
           <div class="row g-2">
             <div class="col-6 mb-2">
               <label class="form-label mb-1">Fecha de inicio</label>
-              <input type="date" id="fecha_inicio" class="form-control form-control-sm" value="${new Date().toISOString().split('T')[0]}">
+              <input type="date" id="fecha_inicio" class="form-control form-control-sm" value="${new Date().toISOString().split("T")[0]}">
             </div>
             <div class="col-6 mb-2">
               <label class="form-label mb-1">Monto de servidor</label>
@@ -820,84 +833,89 @@ function toggleSwitchStatus(switchElement, id) {
           </div>
         </div>
       `,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Si, activar",
-      cancelButtonText: "No, cancelar!",
-      reverseButtons: true,
-      preConfirm: () => {
-        return {
-          fecha_inicio: document.getElementById('fecha_inicio').value,
-          monto_servidor: document.getElementById('monto_servidor').value,
-          monto_mensual: document.getElementById('monto_mensual').value,
-          monto_anual: document.getElementById('monto_anual').value,
-          archivo_contrato: document.getElementById('archivo_contrato').files[0]
-        }
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const formData = new FormData();
-        formData.append('fecha_inicio', result.value.fecha_inicio);
-        formData.append('monto_servidor', result.value.monto_servidor);
-        formData.append('monto_mensual', result.value.monto_mensual);
-        formData.append('monto_anual', result.value.monto_anual);
-        formData.append('archivo_contrato', result.value.archivo_contrato);
-        formData.append('id', id);
-        formData.append('checked', checked);
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Si, activar",
+        cancelButtonText: "No, cancelar!",
+        reverseButtons: true,
+        preConfirm: () => {
+          return {
+            fecha_inicio: document.getElementById("fecha_inicio").value,
+            monto_servidor: document.getElementById("monto_servidor").value,
+            monto_mensual: document.getElementById("monto_mensual").value,
+            monto_anual: document.getElementById("monto_anual").value,
+            archivo_contrato:
+              document.getElementById("archivo_contrato").files[0],
+          };
+        },
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          const formData = new FormData();
+          formData.append("fecha_inicio", result.value.fecha_inicio);
+          formData.append("monto_servidor", result.value.monto_servidor);
+          formData.append("monto_mensual", result.value.monto_mensual);
+          formData.append("monto_anual", result.value.monto_anual);
+          formData.append("archivo_contrato", result.value.archivo_contrato);
+          formData.append("id", id);
+          formData.append("checked", checked);
 
-        fetch(base_url + "contribuyente/status", {
-          method: 'POST',
-          body: formData
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            notifier.show("¡Bien hecho!", data.message, "success", "", 2000);
-            listaContribuyentes();
-          });
-      } else {
-        switchElement.checked = false;
-      }
-    });
-  } else { // DESACTIVAR
-    swalWithBootstrapButtons.fire({
-      title: '¿Estás seguro de desactivar este contribuyente?',
-      html: `
+          fetch(base_url + "contribuyente/status", {
+            method: "POST",
+            body: formData,
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              notifier.show("¡Bien hecho!", data.message, "success", "", 2000);
+              listaContribuyentes();
+            });
+        } else {
+          switchElement.checked = false;
+        }
+      });
+  } else {
+    // DESACTIVAR
+    swalWithBootstrapButtons
+      .fire({
+        title: "¿Estás seguro de desactivar este contribuyente?",
+        html: `
         <div class="text-start">
           <div class="mb-3">
             <label class="form-label">Fecha de retiro</label>
-            <input type="date" id="fecha_retiro" class="form-control" value="${new Date().toISOString().split('T')[0]}">
+            <input type="date" id="fecha_retiro" class="form-control" value="${new Date().toISOString().split("T")[0]}">
           </div>
         </div>
       `,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Si, desactivar",
-      cancelButtonText: "No, cancelar!",
-      reverseButtons: true,
-      preConfirm: () => {
-        return {
-          fecha_retiro: document.getElementById('fecha_retiro').value
-        }
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const formData = new FormData();
-        formData.append('fecha_retiro', result.value.fecha_retiro);
-        formData.append('id', id);
-        formData.append('checked', checked);
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Si, desactivar",
+        cancelButtonText: "No, cancelar!",
+        reverseButtons: true,
+        preConfirm: () => {
+          return {
+            fecha_retiro: document.getElementById("fecha_retiro").value,
+          };
+        },
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          const formData = new FormData();
+          formData.append("fecha_retiro", result.value.fecha_retiro);
+          formData.append("id", id);
+          formData.append("checked", checked);
 
-        fetch(base_url + "contribuyente/status", {
-          method: 'POST',
-          body: formData
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            notifier.show("¡Bien hecho!", data.message, "success", "", 2000);
-          });
-      } else {
-        switchElement.checked = true;
-      }
-    });
+          fetch(base_url + "contribuyente/status", {
+            method: "POST",
+            body: formData,
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              notifier.show("¡Bien hecho!", data.message, "success", "", 2000);
+            });
+        } else {
+          switchElement.checked = true;
+        }
+      });
   }
 }
 

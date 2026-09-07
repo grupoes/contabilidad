@@ -57,101 +57,113 @@ class ventas extends BaseController
     {
         $db = \Config\Database::connect('restaurant');
 
-        $sucursal = $this->request->getPost('sucursal');
+        $sucursal     = $this->request->getPost('sucursal');
         $fecha_inicio = $this->request->getPost('fecha_inicio');
-        $fecha_fin = $this->request->getPost('fecha_fin');
-        $cuenta = $this->request->getPost('cuenta');
-        $glosa = $this->request->getPost('glosa');
-        $ruc = $this->request->getPost('ruc');
-        $shema = $this->request->getPost('shema');
+        $fecha_fin    = $this->request->getPost('fecha_fin');
+        $shema        = $this->request->getPost('shema');
 
-        if ($sucursal == 0) {
-            $sqlsucursal = "";
-        } else {
-            $sqlsucursal = " AND cs.sede_id = $sucursal ";
+        // Validar schema para evitar inyección SQL (no puede ir como parámetro bind)
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $shema)) {
+            return $this->response->setStatusCode(400)->setJSON(['error' => 'Schema inválido']);
         }
 
-        $query = $db->query("SELECT * FROM (
-            SELECT 
-                v.vent_id as id, 
-                TO_CHAR(v.vent_fecha, 'DD/MM/YYYY') as fecha,
-                v.vent_fecha AS fecha_real, 
-                'S' as tipo_moneda, 
-                tc.tico_descripcion, 
-                CONCAT(v.vent_serie,'-',v.vent_numero) as numero_documento,
-                v.vent_numero as correlativo,
-                c.clie_numero_documento, 
-                c.clie_nombre_razon_social, 
-                v.vent_total_exonerado as total_exonerado, 
-                v.vent_total_gravado as total_gravado, 
-                v.vent_total_inafecto as total_inafecto, 
-                v.vent_subtotal as subtotal, 
-                v.vent_total_igv as total_igv, 
-                v.vent_total_icbper as total_icbper, 
-                v.vent_total as total, 
-                v.vent_homologacion_estado as homologacion_estado, 
-                cs.sede_id, 
+        // Filtro de sucursal parametrizado
+        $sqlsucursal   = '';
+        $sucursalParam = [];
+        if ($sucursal != 0) {
+            $sqlsucursal   = ' AND cs.sede_id = ? ';
+            $sucursalParam = [(int) $sucursal];
+        }
+
+        // Cada rama del UNION recibe sus propios parámetros en orden
+        $params = array_merge(
+            [$fecha_inicio, $fecha_fin], $sucursalParam,
+            [$fecha_inicio, $fecha_fin], $sucursalParam
+        );
+
+        $query = $db->query("
+            SELECT
+                v.vent_id                                          AS id,
+                TO_CHAR(v.vent_fecha, 'DD/MM/YYYY')               AS fecha,
+                v.vent_fecha                                       AS fecha_real,
+                'S'                                               AS tipo_moneda,
+                tc.tico_descripcion,
+                CONCAT(v.vent_serie, '-', v.vent_numero)          AS numero_documento,
+                v.vent_numero                                      AS correlativo,
+                c.clie_numero_documento,
+                c.clie_nombre_razon_social,
+                v.vent_total_exonerado                            AS total_exonerado,
+                v.vent_total_gravado                              AS total_gravado,
+                v.vent_total_inafecto                             AS total_inafecto,
+                v.vent_subtotal                                   AS subtotal,
+                v.vent_total_igv                                  AS total_igv,
+                v.vent_total_icbper                               AS total_icbper,
+                v.vent_total                                      AS total,
+                v.vent_homologacion_estado                        AS homologacion_estado,
+                cs.sede_id,
                 cs.tico_id,
-                v.vent_estado as estado,
-                '' as referencia,
-                '' as fecha_referencia,
-                'venta' as origen
-            FROM {$shema}.venta v 
-            INNER JOIN {$shema}.cliente c ON c.clie_id = v.clie_id 
-            INNER JOIN {$shema}.comprobante_sede cs ON cs.cose_id = v.cose_id 
-            INNER JOIN {$shema}.tipo_comprobante tc ON tc.tico_id = cs.tico_id 
-            WHERE cs.tico_id IN(1, 2, 3, 4) 
-            AND DATE(v.vent_fecha) BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal
-            AND v.vent_tipo_envio = 'PRODUCCION'
+                v.vent_estado                                     AS estado,
+                ''                                                AS referencia,
+                ''                                                AS fecha_referencia,
+                'venta'                                           AS origen,
+                1                                                 AS sort_origen,
+                LPAD(v.vent_numero, 10, '0')                      AS sort_correlativo
+            FROM {$shema}.venta v
+            INNER JOIN {$shema}.cliente          c  ON c.clie_id   = v.clie_id
+            INNER JOIN {$shema}.comprobante_sede cs ON cs.cose_id  = v.cose_id
+            INNER JOIN {$shema}.tipo_comprobante tc ON tc.tico_id  = cs.tico_id
+            WHERE cs.tico_id IN (1, 2, 3, 4)
+              AND v.vent_fecha  >= ?
+              AND v.vent_fecha   < ?::date + 1
+              AND v.vent_tipo_envio = 'PRODUCCION'
+              $sqlsucursal
 
             UNION ALL
 
-            SELECT 
-                nc.nocv_id as id, 
-                TO_CHAR(nc.nocv_fecha, 'DD/MM/YYYY') as fecha, 
-                nc.nocv_fecha AS fecha_real,
-                'S' as tipo_moneda, 
-                tc.tico_descripcion, 
-                CONCAT(nc.nocv_serie,'-',nc.nocv_numero) as numero_documento,
-                nc.nocv_numero as correlativo,
-                c.clie_numero_documento, 
-                c.clie_nombre_razon_social, 
-                nc.nocv_total_exonerado as total_exonerado, 
-                nc.nocv_total_gravado as total_gravado, 
-                nc.nocv_total_inafecto as total_inafecto, 
-                nc.nocv_subtotal as subtotal, 
-                nc.nocv_total_igv as total_igv, 
-                nc.nocv_total_icbper as total_icbper, 
-                nc.nocv_total as total, 
-                nc.nocv_homologacion_estado as homologacion_estado, 
+            SELECT
+                nc.nocv_id                                                    AS id,
+                TO_CHAR(nc.nocv_fecha, 'DD/MM/YYYY')                         AS fecha,
+                nc.nocv_fecha                                                 AS fecha_real,
+                'S'                                                           AS tipo_moneda,
+                tc.tico_descripcion,
+                CONCAT(nc.nocv_serie, '-', nc.nocv_numero)                   AS numero_documento,
+                nc.nocv_numero                                                AS correlativo,
+                c.clie_numero_documento,
+                c.clie_nombre_razon_social,
+                nc.nocv_total_exonerado                                      AS total_exonerado,
+                nc.nocv_total_gravado                                        AS total_gravado,
+                nc.nocv_total_inafecto                                       AS total_inafecto,
+                nc.nocv_subtotal                                             AS subtotal,
+                nc.nocv_total_igv                                            AS total_igv,
+                nc.nocv_total_icbper                                         AS total_icbper,
+                nc.nocv_total                                                AS total,
+                nc.nocv_homologacion_estado                                  AS homologacion_estado,
                 cs.sede_id,
                 cs.tico_id,
-                nc.nocv_estado as estado,
-                CONCAT(nc.nocv_modifica_serie, '-', nc.nocv_modifica_numero) as referencia,
-                TO_CHAR(v.vent_fecha, 'DD/MM/YYYY') as fecha_referencia,
-                'nota_credito' as origen
-            FROM {$shema}.nota_credito_venta nc 
-            INNER JOIN {$shema}.cliente c ON c.clie_id = nc.clie_id 
-            INNER JOIN {$shema}.comprobante_sede cs ON cs.cose_id = nc.cose_id 
-            INNER JOIN {$shema}.tipo_comprobante tc ON tc.tico_id = cs.tico_id 
-            INNER JOIN {$shema}.venta v ON v.vent_id = nc.vent_id
-            WHERE DATE(nc.nocv_fecha) BETWEEN '$fecha_inicio' AND '$fecha_fin' $sqlsucursal
-            AND nc.nocv_tipo_envio = 'PRODUCCION'
-        ) AS subconsulta
+                nc.nocv_estado                                               AS estado,
+                CONCAT(nc.nocv_modifica_serie, '-', nc.nocv_modifica_numero) AS referencia,
+                TO_CHAR(v.vent_fecha, 'DD/MM/YYYY')                         AS fecha_referencia,
+                'nota_credito'                                               AS origen,
+                2                                                            AS sort_origen,
+                LPAD(nc.nocv_numero, 10, '0')                                AS sort_correlativo
+            FROM {$shema}.nota_credito_venta nc
+            INNER JOIN {$shema}.cliente          c  ON c.clie_id   = nc.clie_id
+            INNER JOIN {$shema}.comprobante_sede cs ON cs.cose_id  = nc.cose_id
+            INNER JOIN {$shema}.tipo_comprobante tc ON tc.tico_id  = cs.tico_id
+            INNER JOIN {$shema}.venta            v  ON v.vent_id   = nc.vent_id
+            WHERE nc.nocv_fecha >= ?
+              AND nc.nocv_fecha  < ?::date + 1
+              AND nc.nocv_tipo_envio = 'PRODUCCION'
+              $sqlsucursal
 
-        ORDER BY 
-            CASE origen 
-                WHEN 'venta' THEN 1 
-                WHEN 'nota_credito' THEN 2 
-            END,
-            sede_id ASC,
-            fecha_real ASC,
-            CAST(correlativo AS INTEGER) ASC;
-        ");
+            ORDER BY
+                sort_origen ASC,
+                sede_id ASC,
+                fecha_real ASC,
+                sort_correlativo ASC
+        ", $params);
 
-        $ventas = $query->getResultArray();
-
-        return $this->response->setJSON($ventas);
+        return $this->response->setJSON($query->getResultArray());
     }
 
     public function getNotaCreditoBoleta($id_venta, $shema, $fecha_boleta)
