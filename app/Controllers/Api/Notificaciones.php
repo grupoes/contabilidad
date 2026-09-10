@@ -408,70 +408,52 @@ class Notificaciones extends ResourceController
         foreach ($empresas as $key => $value) {
             $id = $value['id'];
 
-            $monto = $this->verificar_monto_mensual($id, $periodo);
-
-            $empresas[$key]['monto_mensual'] = $monto;
-
             if ($value['tipoServicio'] == 'ALQUILER') {
-                $mes = date('m');
-                $anio = date('Y');
-                $mesLetra = $this->getMes($mes) . ' ' . $anio;
+                $mes         = date('m');
+                $anio        = date('Y');
+                $mesLetra    = $this->getMes($mes) . ' ' . $anio;
                 $descripcion = "SERVICIO DE ARRENDAMIENTO DEL SOFTWARE DEL MES DE " . $mesLetra;
+                $monto       = $this->verificar_monto_mensual($id, $periodo);
 
                 $bool = $this->verificarFacturasHonorarios($id, $anio, $mes);
 
-                $empresas[$key]['mes'] = $mes;
+                $empresas[$key]['mes']  = $mes;
                 $empresas[$key]['anio'] = $anio;
-                $empresas[$key]['descripcion'] = $mesLetra;
-
-                if ($bool) {
-                    $empresas[$key]['factura_generada'] = true;
-                } else {
-                    $empresas[$key]['factura_generada'] = false;
-                }
+                $empresas[$key]['factura_generada'] = (bool) $bool;
             } else {
                 if ($value['tipoPago'] == 'ATRASADO') {
-                    $fecha = DateTime::createFromFormat('Y-m', $periodo);
+                    $fecha           = DateTime::createFromFormat('Y-m', $periodo);
                     $fecha->modify('-1 month');
+                    $periodoFactura  = $fecha->format('Y-m');
 
-                    $mes = $fecha->format('m');
-                    $anio = $fecha->format('Y');
-                    $mesLetra = $this->getMes($mes) . ' ' . $anio;
-
+                    $mes         = $fecha->format('m');
+                    $anio        = $fecha->format('Y');
+                    $mesLetra    = $this->getMes($mes) . ' ' . $anio;
                     $descripcion = "SERVICIO DE CONTABILIDAD DEL MES DE " . $mesLetra;
-
-                    $empresas[$key]['mes'] = $mes;
-                    $empresas[$key]['anio'] = $anio;
-                    $empresas[$key]['descripcion'] = $mesLetra;
+                    $monto       = $this->verificar_monto_mensual($id, $periodoFactura);
 
                     $bool = $this->verificarFacturasHonorarios($id, $anio, $mes);
 
-                    if ($bool) {
-                        $empresas[$key]['factura_generada'] = true;
-                    } else {
-                        $empresas[$key]['factura_generada'] = false;
-                    }
+                    $empresas[$key]['mes']  = $mes;
+                    $empresas[$key]['anio'] = $anio;
+                    $empresas[$key]['factura_generada'] = (bool) $bool;
                 } else {
-                    $mes = date('m');
-                    $anio = date('Y');
-                    $mesLetra = $this->getMes($mes) . ' ' . $anio;
+                    $mes         = date('m');
+                    $anio        = date('Y');
+                    $mesLetra    = $this->getMes($mes) . ' ' . $anio;
                     $descripcion = "SERVICIO DE CONTABILIDAD DEL MES DE " . $mesLetra;
-
-                    $empresas[$key]['mes'] = $mes;
-                    $empresas[$key]['anio'] = $anio;
-                    $empresas[$key]['descripcion'] = $mesLetra;
+                    $monto       = $this->verificar_monto_mensual($id, $periodo);
 
                     $bool = $this->verificarFacturasHonorarios($id, $anio, $mes);
 
-                    if ($bool) {
-                        $empresas[$key]['factura_generada'] = true;
-                    } else {
-                        $empresas[$key]['factura_generada'] = false;
-                    }
+                    $empresas[$key]['mes']  = $mes;
+                    $empresas[$key]['anio'] = $anio;
+                    $empresas[$key]['factura_generada'] = (bool) $bool;
                 }
             }
 
-            $empresas[$key]['descripcion'] = $descripcion;
+            $empresas[$key]['monto_mensual'] = $monto;
+            $empresas[$key]['descripcion']   = $descripcion;
         }
 
         return $this->respond($empresas);

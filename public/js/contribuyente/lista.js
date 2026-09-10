@@ -612,18 +612,12 @@ function renderTarifas(id) {
             ? ""
             : `<a href="#"><i class="fas fa-trash text-danger fs-14 btnDeleteTarifa" data-id="${tarifa.id}"></i></a>`;
 
-        let fechaFin;
-
-        if (fechaFin === null) {
-          fechaFin = "";
-        } else {
-          fechaFin = tarifa.fecha_fin;
-        }
+        const [anio, mes] = tarifa.fecha_inicio.split('-');
+        const periodo = new Date(anio, mes - 1, 1).toLocaleDateString('es-PE', { month: 'long', year: 'numeric' });
 
         html += `
                     <tr>
-                        <td>${tarifa.fecha_inicio}</td>
-                        <td>${fechaFin}</td>
+                        <td class="text-capitalize">${periodo}</td>
                         <td>${tarifa.monto_mensual}</td>
                         <td>${tarifa.monto_anual}</td>
                         <td>

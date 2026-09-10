@@ -408,8 +408,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Fin</th>
+                            <th>Periodo</th>
                             <th>Monto Mensual</th>
                             <th>Monto Anual</th>
                             <th>Acciones</th>
