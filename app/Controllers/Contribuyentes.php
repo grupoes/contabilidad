@@ -2636,9 +2636,11 @@ class Contribuyentes extends BaseController
 
             // Batch tipo_cambio para documentos en USD
             $usdFechas = [];
-            foreach (array_merge($facturas, $boletas, $notas_credito, $notas_debito) as $row) {
-                if ($row['id_codigomoneda'] !== 'PEN') {
-                    $usdFechas[$row['fecha_comprobante']] = true;
+            foreach ([$facturas, $boletas, $notas_credito, $notas_debito] as $grupo) {
+                foreach ($grupo as $row) {
+                    if ($row['id_codigomoneda'] !== 'PEN') {
+                        $usdFechas[$row['fecha_comprobante']] = true;
+                    }
                 }
             }
             $tcMap = [];
@@ -2928,9 +2930,11 @@ class Contribuyentes extends BaseController
         unset($result);
 
         $usdFechas = [];
-        foreach (array_merge($facturas, $boletas, $notas_credito, $notas_debito) as $row) {
-            if ($row['id_codigomoneda'] !== 'PEN') {
-                $usdFechas[$row['fecha_comprobante']] = true;
+        foreach ([$facturas, $boletas, $notas_credito, $notas_debito] as $grupo) {
+            foreach ($grupo as $row) {
+                if ($row['id_codigomoneda'] !== 'PEN') {
+                    $usdFechas[$row['fecha_comprobante']] = true;
+                }
             }
         }
         $tcMap = [];
