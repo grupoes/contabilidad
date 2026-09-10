@@ -2560,6 +2560,8 @@ class Contribuyentes extends BaseController
 
     public function reporteMaqueta()
     {
+        ini_set('memory_limit', '512M');
+
         if (!session()->logged_in) {
             return $this->response->setStatusCode(401)->setJSON(['error' => 'No autorizado']);
         }
@@ -2720,6 +2722,8 @@ class Contribuyentes extends BaseController
                 ];
             }
 
+            unset($facturas);
+
             // ── Boletas (03) con agrupamiento ────────────────────────────────
             $grupoActual = null;
             foreach ($boletas as $row) {
@@ -2769,6 +2773,8 @@ class Contribuyentes extends BaseController
                 $data[] = $this->_finalizarGrupoMaqueta($grupoActual);
             }
 
+            unset($boletas);
+
             // ── Notas de crédito (07) ────────────────────────────────────────
             foreach ($notas_credito as $row) {
                 [$tipo_moneda, $tipo_cambio] = $this->_getTipoCambio($row, $tcMap);
@@ -2804,6 +2810,8 @@ class Contribuyentes extends BaseController
                     'referenciafecha' => $refDates[$refKey] ?? '',
                 ];
             }
+
+            unset($notas_credito);
 
             // ── Notas de débito (08) ─────────────────────────────────────────
             foreach ($notas_debito as $row) {
@@ -2870,6 +2878,8 @@ class Contribuyentes extends BaseController
 
     public function exportarMaquetaExcel()
     {
+        ini_set('memory_limit', '512M');
+
         if (!session()->logged_in) {
             return $this->response->setStatusCode(401)->setJSON(['error' => 'No autorizado']);
         }
@@ -2996,6 +3006,7 @@ class Contribuyentes extends BaseController
                 'tipo' => '', 'referencia' => '', 'referenciafecha' => '',
             ];
         }
+        unset($facturas);
 
         $grupoActual = null;
         foreach ($boletas as $row) {
@@ -3030,6 +3041,7 @@ class Contribuyentes extends BaseController
             }
         }
         if ($grupoActual !== null) { $data[] = $this->_finalizarGrupoMaqueta($grupoActual); }
+        unset($boletas);
 
         foreach ($notas_credito as $row) {
             [$tipo_moneda, $tipo_cambio] = $this->_getTipoCambio($row, $tcMap);
@@ -3053,6 +3065,7 @@ class Contribuyentes extends BaseController
                 'referenciafecha' => $refDates[$refKey] ?? '',
             ];
         }
+        unset($notas_credito);
 
         foreach ($notas_debito as $row) {
             [$tipo_moneda, $tipo_cambio] = $this->_getTipoCambio($row, $tcMap);
