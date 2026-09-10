@@ -402,7 +402,7 @@
 
     <script src="<?= base_url() ?>reportes/assets/libs/table-edits/build/table-edits.min.js"></script>
     <!-- dashboard init -->
-    <script src="<?= base_url() ?>/js/reporte.js"></script>
+    <script src="<?= base_url() ?>/js/reporte.js?v=1"></script>
 
 </body>
 
