@@ -15,6 +15,7 @@
         "firebase/php-jwt": "^6.11",
         "google/apiclient": "^2.19",
         "google/cloud-storage": "^1.39",
+        "openspout/openspout": "^4.28",
         "phpoffice/phpspreadsheet": "^5.1",
         "resend/resend-php": "^0.18.0",
         "setasign/fpdf": "^1.8",
