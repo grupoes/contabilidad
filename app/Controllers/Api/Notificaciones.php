@@ -2156,7 +2156,7 @@ class Notificaciones extends ResourceController
             'titulo'        => $titulo,
             'contenido'     => $contenido,
             'fechaCreacion' => date('Y-m-d H:i:s'),
-            'creadoPor'     => 0,
+            'creadoPor'     => null,
             'typeContri'    => $data['typeContri'] ?? 'otro',
             'envio_file'    => $data['envio_file'] ?? 'NO',
             'estado'        => 1,
