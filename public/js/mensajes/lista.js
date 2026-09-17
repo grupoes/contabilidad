@@ -90,7 +90,10 @@ function viewMensajesId(data) {
               </p>
             </td>
             <td>${message.fecha_envio}</td>
-            <td>${message.razon_social}</td>
+            <td>
+              ${message.razon_social}
+              <br><small class="text-muted fw-bold">${message.ruc}</small>
+            </td>
             <td>${estado}</td>
         </tr>
         `;
