@@ -189,47 +189,49 @@ class Pdt0621 extends BaseController
 
             $files->insert($datos_files);
 
-            $totalVentas = 0;
-            $totalCompras = 0;
+            $datosExtraidos = $this->extraer_datos($rutaPdt);
 
-            $rutaPdtMontos = FCPATH . '/archivos/pdt/' . $archivo_pdt;
+            if ($datosExtraidos && isset($datosExtraidos['datos'])) {
+                $base_107 = $datosExtraidos['datos']['igv_compras']['compras_gravadas_nacionales_base']['monto']  ?? 0;
+                $base_114 = $datosExtraidos['datos']['igv_compras']['compras_gravadas_importadas_base']['monto']  ?? 0;
+                $base_120 = $datosExtraidos['datos']['igv_compras']['compras_internas_no_gravadas']['monto']      ?? 0;
+                $base_100 = $datosExtraidos['datos']['igv_ventas']['ventas_netas_gravadas']['monto']              ?? 0;
+                $base_102 = $datosExtraidos['datos']['igv_ventas']['descuentos_devoluciones_base']['monto']       ?? 0;
+                $base_105 = $datosExtraidos['datos']['igv_ventas']['ventas_no_gravadas']['monto']                 ?? 0;
+                $base_162 = $datosExtraidos['datos']['igv_ventas']['descuentos_devoluciones_ley27037']['monto']   ?? 0;
+                $base_110 = $datosExtraidos['datos']['igv_compras']['compras_gravadas_no_gravadas_base']['monto'] ?? 0;
+                $base_113 = $datosExtraidos['datos']['igv_compras']['compras_no_gravadas_base']['monto']          ?? 0;
+                $base_122 = $datosExtraidos['datos']['igv_compras']['compras_importadas_no_gravadas']['monto']    ?? 0;
 
-            $datos = $this->apiLoadPdtFile($rutaPdtMontos);
-
-            if ($datos_pdt_file['texto'] !== "") {
-                if ($datos['status'] === 'success') {
-                    $compras = $datos['igv_compras'];
-                    $ventas = $datos['igv_ventas'];
-
-                    $totalVentas = $ventas['100'] + $ventas['154'] - $ventas['102'] + $ventas['160'] - $ventas['162'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
-
-                    $totalCompras = $compras['107'] + $compras['156'] + $compras['110'] + $compras['113'] + $compras['114'] + $compras['116'] + $compras['119'] + $compras['120'] + $compras['122'];
-
-                    $descuentos = $ventas['102'] + $ventas['162'];
-
-                    if ($ventas['100'] >= $descuentos) {
-                        $venta_gravada = $ventas['100'] - $descuentos;
-                        $venta_no_gravada = $ventas['154'] + $ventas['160'] + $ventas['106'] + $ventas['127'] + $ventas['105'] + $ventas['109'] + $ventas['112'];
-                    } else {
-                        $venta_gravada = $ventas['100'];
-                        $venta_no_gravada = $totalVentas - $venta_gravada;
-                    }
-
-                    $data_update = array(
-                        "total_ventas" => $totalVentas,
-                        "total_compras" => $totalCompras,
-                        "compras_gravadas" => $datos['compra_gravada'],
-                        "compras_no_gravadas" => $datos['compra_no_gravada'],
-                        "ventas_gravadas" => $venta_gravada,
-                        "ventas_no_gravadas" => $venta_no_gravada,
-                        "renta_pdt" => $datos['renta_pdt']
-                    );
-
-                    $pdtRenta->update($pdtRentaId, $data_update);
+                if ($base_107 > 0) {
+                    $compras_gravadas    = $base_107 + $base_114;
+                    $compras_no_gravadas = $base_120;
+                    $total_compras       = $compras_gravadas + $compras_no_gravadas;
+                    $ventas_gravadas     = $base_100 - $base_102;
+                    $ventas_no_gravadas  = $base_105 - $base_162;
+                    $total_ventas        = $ventas_gravadas + $ventas_no_gravadas;
+                } else {
+                    $compras_gravadas    = $base_110 + $base_113;
+                    $compras_no_gravadas = $base_120 + $base_122;
+                    $igv_compras_calc    = $base_113 * 0.18;
+                    $total_compras       = $compras_gravadas + $compras_no_gravadas + $igv_compras_calc;
+                    $ventas_gravadas     = $base_100 - $base_102;
+                    $ventas_no_gravadas  = $base_105;
+                    $total_ventas        = $ventas_gravadas + $ventas_no_gravadas;
                 }
-            } else {
-                $data_update = array('estado_datos' => 0);
+
+                $data_update = [
+                    "total_ventas"        => $total_ventas,
+                    "total_compras"       => $total_compras,
+                    "compras_gravadas"    => $compras_gravadas,
+                    "compras_no_gravadas" => $compras_no_gravadas,
+                    "ventas_gravadas"     => $ventas_gravadas,
+                    "ventas_no_gravadas"  => $ventas_no_gravadas,
+                ];
+
                 $pdtRenta->update($pdtRentaId, $data_update);
+            } else {
+                $pdtRenta->update($pdtRentaId, ['estado_datos' => 0]);
             }
 
             $rutaLink = 'archivos/pdt/' . $archivo_pdt;
