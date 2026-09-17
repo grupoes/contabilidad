@@ -220,6 +220,9 @@ class Pago extends BaseController
             $fecha_proceso = $this->request->getvar('fecha_proceso');
 
             $dataContrib = $contrib->where('id', $idContribuyente)->first();
+            if ($dataContrib === null) {
+                throw new \Exception("No se encontró el contribuyente con id $idContribuyente.");
+            }
 
             $sistemas = $this->verificarSistemaContribuyente($idContribuyente);
 
@@ -243,6 +246,9 @@ class Pago extends BaseController
             $montoMensual = $dataContrib['costoMensual'];
 
             $data_afiliacion = $afiliacion->where('contribuyente_id', $idContribuyente)->where('fecha_fin', null)->first();
+            if ($data_afiliacion === null) {
+                throw new \Exception("El contribuyente no tiene una afiliación activa.");
+            }
 
             $id_afiliacion = $data_afiliacion['id'];
 

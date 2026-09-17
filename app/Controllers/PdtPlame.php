@@ -704,7 +704,8 @@ class PdtPlame extends BaseController
             WHERE pr.estado = 1
               AND ap.estado = 1
               AND pr.periodo >= 1
-              AND pr.anio = 12
+              AND pr.anio >= 12
+              AND (pr.total_r1 IS NULL OR pr.total_r1 = 0)
             ORDER BY pr.anio, pr.periodo
         ")->getResultArray();
 

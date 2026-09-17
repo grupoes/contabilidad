@@ -29,6 +29,7 @@ use App\Models\TrabajadoresContriModel;
 use App\Models\ComunicacionBajaModel;
 use App\Models\BajaLoteModel;
 use App\Models\BajaLoteDocumentoModel;
+use App\Models\MensajeModel;
 use DateTime;
 
 class Notificaciones extends ResourceController
@@ -2074,6 +2075,101 @@ class Notificaciones extends ResourceController
                 ],
                 'nota' => 'Sin la verificación documento por documento, esas dos habrían quedado como ingresos vigentes ante SUNAT.',
             ],
+        ]);
+    }
+
+    public function getMensajes()
+    {
+        $mensaje = new MensajeModel();
+
+        $consulta = $mensaje->select("id, titulo, contenido, DATE_FORMAT(fechaCreacion, '%d-%m-%Y %H:%i:%s') as fecha, typeContri, envio_file")
+            ->where('estado', 1)
+            ->orderBy('id', 'desc')
+            ->findAll();
+
+        return $this->respond($consulta);
+    }
+
+    public function getEnviosByMensaje($id)
+    {
+        $envio = new EnviosModel();
+
+        $consulta = $envio->select("id, contacto_id, message, numero_whatsapp, nombre_contacto, razon_social, ruc, estado, intentos, DATE_FORMAT(fecha_envio, '%d-%m-%Y %H:%i:%s') as fecha_envio")
+            ->where('mensaje_id', $id)
+            ->orderBy("FIELD(estado, 'no enviado', 'pendiente', 'enviado')", '', false)
+            ->findAll();
+
+        return $this->respond($consulta);
+    }
+
+    public function crearEnvio()
+    {
+        $envioModel = new EnviosModel();
+
+        $data = $this->request->getJSON(true);
+
+        $requeridos = ['mensaje_id', 'contacto_id', 'fecha_envio', 'message', 'numero_whatsapp', 'nombre_contacto', 'razon_social', 'ruc', 'link'];
+
+        foreach ($requeridos as $campo) {
+            if (empty($data[$campo])) {
+                return $this->respond(['status' => 'error', 'message' => "El campo '$campo' es requerido"], 400);
+            }
+        }
+
+        $registro = [
+            'mensaje_id'      => $data['mensaje_id'],
+            'contacto_id'     => $data['contacto_id'],
+            'fecha_envio'     => $data['fecha_envio'],
+            'message'         => $data['message'],
+            'numero_whatsapp' => $data['numero_whatsapp'],
+            'nombre_contacto' => $data['nombre_contacto'],
+            'razon_social'    => $data['razon_social'],
+            'ruc'             => $data['ruc'],
+            'link'            => $data['link'],
+            'estado'          => $data['estado']          ?? 'no enviado',
+            'intentos'        => $data['intentos']        ?? 0,
+        ];
+
+        $envioModel->insert($registro);
+
+        return $this->respond([
+            'status'   => 'success',
+            'envio_id' => $envioModel->getInsertID(),
+            'message'  => 'Envío registrado correctamente',
+        ]);
+    }
+
+    public function crearMensaje()
+    {
+        $mensaje = new MensajeModel();
+
+        $data = $this->request->getJSON(true);
+
+        $titulo    = $data['titulo']    ?? null;
+        $contenido = $data['contenido'] ?? null;
+
+        if (!$titulo || !$contenido) {
+            return $this->respond(['status' => 'error', 'message' => 'titulo y contenido son requeridos'], 400);
+        }
+
+        $datos = [
+            'titulo'        => $titulo,
+            'contenido'     => $contenido,
+            'fechaCreacion' => date('Y-m-d H:i:s'),
+            'creadoPor'     => 0,
+            'typeContri'    => $data['typeContri'] ?? 'otro',
+            'envio_file'    => $data['envio_file'] ?? 'NO',
+            'estado'        => 1,
+        ];
+
+        $mensaje->insert($datos);
+
+        $id = $mensaje->getInsertID();
+
+        return $this->respond([
+            'status'     => 'success',
+            'mensaje_id' => $id,
+            'message'    => 'Mensaje creado correctamente',
         ]);
     }
 }
