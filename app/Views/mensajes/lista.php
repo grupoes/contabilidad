@@ -55,6 +55,7 @@
                                     <th>Modelo Mensaje</th>
                                     <th>Fecha</th>
                                     <th>Tipo</th>
+                                    <th>Enviados</th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>

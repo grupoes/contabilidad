@@ -203,7 +203,20 @@ class Mensajes extends BaseController
     {
         $mensaje = new MensajeModel();
 
-        $consulta = $mensaje->select("id, titulo, contenido, DATE_FORMAT(fechaCreacion, '%d-%m-%Y %H:%i:%s') as fecha, creadoPor, typeContri")->where('estado', 1)->orderBy('id', 'desc')->findAll();
+        $consulta = $mensaje->query("
+            SELECT
+                m.id,
+                m.titulo,
+                m.contenido,
+                DATE_FORMAT(m.fechaCreacion, '%d-%m-%Y %H:%i:%s') as fecha,
+                m.creadoPor,
+                m.typeContri,
+                (SELECT COUNT(*) FROM envios WHERE mensaje_id = m.id AND estado = 'enviado')    as total_enviados,
+                (SELECT COUNT(*) FROM envios WHERE mensaje_id = m.id AND estado = 'no enviado') as total_no_enviados
+            FROM mensajes m
+            WHERE m.estado = 1
+            ORDER BY m.id DESC
+        ")->getResultArray();
 
         $permiso_ver_detalle = $this->getPermisosAcciones(36, session()->perfil_id, 'ver detalle');
         $permiso_eliminar = $this->getPermisosAcciones(36, session()->perfil_id, 'eliminar');

@@ -27,6 +27,10 @@ function viewMensajes(data) {
                 <td>${mensaje.fecha}</td>
                 <td>${mensaje.typeContri}</td>
                 <td>
+                    ${mensaje.total_enviados > 0 ? `<span class="badge bg-success">${mensaje.total_enviados} enviado</span>` : ''}
+                    ${mensaje.total_no_enviados > 0 ? `<span class="badge bg-danger">${mensaje.total_no_enviados} no enviado</span>` : ''}
+                </td>
+                <td>
                     ${mensaje.acciones}
                 </td>
             </tr>
