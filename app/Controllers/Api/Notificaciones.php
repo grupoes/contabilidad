@@ -757,41 +757,38 @@ class Notificaciones extends ResourceController
     {
         $cambio = new TipoCambioModel();
 
-        $inicio = new \DateTime('2026-09-01');
-        $fin    = new \DateTime('2026-09-21');
-        $resultados = [];
-
         try {
-            $fecha = clone $inicio;
+            $fecha = date('Y-m-d');
 
-            while ($fecha <= $fin) {
-                $fechaStr = $fecha->format('Y-m-d');
+            $consulta = $cambio->where('fecha', $fecha)->first();
 
-                $tipo = $this->apiTipoCambio($fechaStr);
-
-                $datos = [
-                    'compra' => $tipo->buy_price,
-                    'venta' => $tipo->sell_price,
-                    'origen' => 'SUNAT',
-                    'moneda' => $tipo->base_currency,
-                    'fecha' => $tipo->date
-                ];
-
-                $cambio->insert($datos);
-                $resultados[] = $datos;
-
-                $fecha->modify('+1 day');
+            if ($consulta) {
+                return $this->respond([
+                    'status' => 'success',
+                    'message' => 'El tipo de cambio ya existe para la fecha de hoy',
+                    'data' => $consulta
+                ]);
             }
 
+            $tipo = $this->apiTipoCambio($fecha);
+
+            $datos = [
+                'compra' => $tipo->buy_price,
+                'venta' => $tipo->sell_price,
+                'origen' => 'SUNAT',
+                'moneda' => $tipo->base_currency,
+                'fecha' => $tipo->date
+            ];
+
+            $cambio->insert($datos);
+
             return $this->respond([
-                'status'  => 'success',
-                'message' => 'Agregados correctamente',
-                'total'   => count($resultados),
-                'datos'   => $resultados
+                'status' => 'success',
+                'message' => 'Agregado correctamente'
             ]);
         } catch (\Exception $e) {
             return $this->respond([
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => $e->getMessage()
             ]);
         }
