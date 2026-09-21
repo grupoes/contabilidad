@@ -757,37 +757,6 @@ class Notificaciones extends ResourceController
     {
         $cambio = new TipoCambioModel();
 
-        try {
-            $fecha = date('Y-m-d');
-
-            $tipo = $this->apiTipoCambio($fecha);
-
-            $datos = [
-                'compra' => $tipo->compra,
-                'venta' => $tipo->venta,
-                'origen' => $tipo->origen,
-                'moneda' => $tipo->moneda,
-                'fecha' => $tipo->fecha
-            ];
-
-            $cambio->insert($datos);
-
-            return $this->respond([
-                'status' => 'success',
-                'message' => 'Agregado correctamente'
-            ]);
-        } catch (\Exception $e) {
-            return $this->respond([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-
-    public function getCambiosFacturador()
-    {
-        $cambio = new TipoCambioFacturadorModel();
-
         $inicio = new \DateTime('2026-09-01');
         $fin    = new \DateTime('2026-09-21');
         $resultados = [];
@@ -801,11 +770,11 @@ class Notificaciones extends ResourceController
                 $tipo = $this->apiTipoCambio($fechaStr);
 
                 $datos = [
-                    'compra'  => $tipo->buy_price,
-                    'venta'   => $tipo->sell_price,
-                    'origen'  => 'SUNAT',
-                    'moneda'  => $tipo->base_currency,
-                    'fecha'   => $tipo->date
+                    'compra' => $tipo->buy_price,
+                    'venta' => $tipo->sell_price,
+                    'origen' => 'SUNAT',
+                    'moneda' => $tipo->base_currency,
+                    'fecha' => $tipo->date
                 ];
 
                 $cambio->insert($datos);
@@ -823,6 +792,47 @@ class Notificaciones extends ResourceController
         } catch (\Exception $e) {
             return $this->respond([
                 'status'  => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getCambiosFacturador()
+    {
+        $cambio = new TipoCambioFacturadorModel();
+
+        try {
+            $fecha = date('Y-m-d');
+
+            $consulta = $cambio->where('fecha', $fecha)->first();
+
+            if ($consulta) {
+                return $this->respond([
+                    'status' => 'success',
+                    'message' => 'El tipo de cambio ya existe para la fecha de hoy',
+                    'data' => $consulta
+                ]);
+            }
+
+            $tipo = $this->apiTipoCambio($fecha);
+
+            $datos = [
+                'compra' => $tipo->buy_price,
+                'venta' => $tipo->sell_price,
+                'origen' => 'SUNAT',
+                'moneda' => $tipo->base_currency,
+                'fecha' => $tipo->date
+            ];
+
+            $cambio->insert($datos);
+
+            return $this->respond([
+                'status' => 'success',
+                'message' => 'Agregado correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 'error',
                 'message' => $e->getMessage()
             ]);
         }
