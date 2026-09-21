@@ -788,28 +788,41 @@ class Notificaciones extends ResourceController
     {
         $cambio = new TipoCambioFacturadorModel();
 
+        $inicio = new \DateTime('2026-09-01');
+        $fin    = new \DateTime('2026-09-21');
+        $resultados = [];
+
         try {
-            $fecha = date('Y-m-d');
+            $fecha = clone $inicio;
 
-            $tipo = $this->apiTipoCambio($fecha);
+            while ($fecha <= $fin) {
+                $fechaStr = $fecha->format('Y-m-d');
 
-            $datos = [
-                'compra' => $tipo->compra,
-                'venta' => $tipo->venta,
-                'origen' => $tipo->origen,
-                'moneda' => $tipo->moneda,
-                'fecha' => $tipo->fecha
-            ];
+                $tipo = $this->apiTipoCambio($fechaStr);
 
-            $cambio->insert($datos);
+                $datos = [
+                    'compra'  => $tipo->buy_price,
+                    'venta'   => $tipo->sell_price,
+                    'origen'  => 'SUNAT',
+                    'moneda'  => $tipo->base_currency,
+                    'fecha'   => $tipo->date
+                ];
+
+                $cambio->insert($datos);
+                $resultados[] = $datos;
+
+                $fecha->modify('+1 day');
+            }
 
             return $this->respond([
-                'status' => 'success',
-                'message' => 'Agregado correctamente'
+                'status'  => 'success',
+                'message' => 'Agregados correctamente',
+                'total'   => count($resultados),
+                'datos'   => $resultados
             ]);
         } catch (\Exception $e) {
             return $this->respond([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => $e->getMessage()
             ]);
         }
@@ -817,13 +830,13 @@ class Notificaciones extends ResourceController
 
     function apiTipoCambio($fecha)
     {
-        $token = 'apis-token-1.aTSI1U7KEuT-6bbbCguH-4Y8TI6KS73N';
+        $token = 'sk_19617.j8Y3mRXWMRr2xx3841J6yTEjqCXWHlKI';
 
         // Iniciar llamada a API
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://api.apis.net.pe/v1/tipo-cambio-sunat?fecha=' . $fecha,
+            CURLOPT_URL => 'https://api.decolecta.com/v1/tipo-cambio/sunat?date=' . $fecha,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 2,
@@ -832,7 +845,7 @@ class Notificaciones extends ResourceController
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'GET',
             CURLOPT_HTTPHEADER => array(
-                'Referer: https://apis.net.pe/tipo-de-cambio-sunat-api',
+                'Referer: https://api.decolecta.com/v1/tipo-cambio',
                 'Authorization: Bearer ' . $token
             ),
         ));
