@@ -124,9 +124,11 @@
                                 <i class="ti ti-file f-18"></i> Folio
                             </a>
 
+                            <?php if (in_array(session()->perfil_id, [1, 2])) { ?>
                             <a href="<?= base_url('contribuyente/exportar-app-activo') ?>" class="btn btn-outline-success d-inline-flex gap-2">
                                 <i class="ti ti-table-export f-18"></i> App Activo
                             </a>
+                            <?php } ?>
 
                         </div>
 
