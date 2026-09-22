@@ -68,6 +68,7 @@ $routes->post('contribuyente/reporte-venta', 'Contribuyentes::reporteVenta');
 $routes->post('contribuyente/reporte-maqueta',       'Contribuyentes::reporteMaqueta');
 $routes->post('contribuyente/reporte-maqueta-excel', 'Contribuyentes::exportarMaquetaExcel');
 $routes->post('contribuyente/reporte-venta-excel',   'Contribuyentes::exportarVentaExcel');
+$routes->get('contribuyente/exportar-app-activo',    'Contribuyentes::exportarAppActivo');
 
 $routes->get('save-afilaciones-antiguas', 'Contribuyentes::addAfiliacion');
 $routes->get('update-afiliaciones-antiguas', 'Contribuyentes::updatePagoRenta');

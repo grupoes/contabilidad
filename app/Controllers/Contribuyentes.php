@@ -1807,6 +1807,50 @@ class Contribuyentes extends BaseController
         }
     }
 
+    public function exportarAppActivo()
+    {
+        $model = new ContribuyenteModel();
+        $datos = $model->where('estado', 1)->where('tipoServicio', 'CONTABLE')->findAll();
+
+        $spreadsheet = new Spreadsheet();
+
+        // Hoja 1: cliente activo
+        $sheet1 = $spreadsheet->getActiveSheet();
+        $sheet1->setTitle('cliente activo');
+        $sheet1->fromArray(['RUC', 'RAZON SOCIAL', 'ACCESO', 'ESTADO APP'], null, 'A1');
+        $sheet1->getStyle('A1:D1')->getFont()->setBold(true);
+
+        foreach ($datos as $i => $c) {
+            $row = $i + 2;
+            $sheet1->setCellValue('A' . $row, $c['ruc']);
+            $sheet1->setCellValue('B' . $row, $c['razon_social']);
+            $sheet1->setCellValue('C' . $row, $c['acceso']);
+            $sheet1->setCellValue('D' . $row, $c['ruc'] === $c['acceso'] ? 'inactivo' : 'activo');
+        }
+
+        // Hoja 2: sello
+        $sheet2 = $spreadsheet->createSheet();
+        $sheet2->setTitle('sello');
+        $sheet2->fromArray(['RUC', 'RAZON SOCIAL', 'SELLO'], null, 'A1');
+        $sheet2->getStyle('A1:C1')->getFont()->setBold(true);
+
+        foreach ($datos as $i => $c) {
+            $row = $i + 2;
+            $sheet2->setCellValue('A' . $row, $c['ruc']);
+            $sheet2->setCellValue('B' . $row, $c['razon_social']);
+            $sheet2->setCellValue('C' . $row, !empty($c['file_sello_firma']) ? 'si' : 'no');
+        }
+
+        $filename = 'app_activo_' . date('Y-m-d') . '.xlsx';
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
+    }
+
     public function descargarExcelComprobantes()
     {
 
