@@ -271,8 +271,11 @@ class Contribuyentes extends BaseController
                         $value->tipo = "amazonia";
                         break;
                     case 4:
-                        $sum = $uit_->findAll();
-                        $uit = $sum[0]["uit_monto"];
+                        $uitRow = $uit_->where('anio', $anio)->first();
+                        if (!$uitRow) {
+                            $uitRow = $uit_->orderBy('anio', 'DESC')->first();
+                        }
+                        $uit = $uitRow ? $uitRow["uit_monto"] : 0;
                         $uitotal = (float) $uit * 15;
                         $codigo = $tributo->find(13);
                         $primero = $codigo["porcentaje_renta"];

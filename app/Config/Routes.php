@@ -164,6 +164,7 @@ $routes->post('configuracion-caja-virtual/save', 'Configuracion::saveCajaVirtual
 $routes->post('send-file-google-cloud-storage', 'Configuracion::sendFileGoogleCloudStorage');
 
 $routes->get('configuracion/uit', 'Configuracion::Uit');
+$routes->get('configuracion/render-uit', 'Configuracion::renderUit');
 $routes->post('configuracion/save-uit', 'Configuracion::saveUit');
 $routes->get('configuracion/renta', 'Configuracion::renta');
 $routes->get('configuracion/contadores', 'Configuracion::contadores');

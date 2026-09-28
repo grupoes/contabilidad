@@ -72,10 +72,6 @@ class Configuracion extends BaseController
             return redirect()->to(base_url());
         }
 
-        $uit = new UitModel();
-
-        $monto_uit = $uit->first();
-
         $menu = $this->permisos_menu();
 
         $editar = $this->getPermisosAcciones(2, session()->perfil_id, 'editar');
@@ -86,7 +82,38 @@ class Configuracion extends BaseController
             $isEdit = true;
         }
 
-        return view('configuracion/uit', compact('monto_uit', 'menu', 'isEdit'));
+        $anioActual = date('Y');
+
+        return view('configuracion/uit', compact('menu', 'isEdit', 'anioActual'));
+    }
+
+    public function renderUit()
+    {
+        $uit = new UitModel();
+
+        $uits = $uit->orderBy('anio', 'DESC')->findAll();
+
+        $editar = $this->getPermisosAcciones(2, session()->perfil_id, 'editar');
+
+        $anioActual = date('Y');
+
+        foreach ($uits as $key => $value) {
+            $acciones = "";
+
+            if ($editar && $value['anio'] == $anioActual) {
+                $acciones = '
+                <button type="button" class="btn btn-sm btn-outline-primary btn-editar-uit"
+                    data-id="' . $value['id_uit'] . '"
+                    data-anio="' . $value['anio'] . '"
+                    data-monto="' . $value['uit_monto'] . '">
+                    Editar
+                </button>';
+            }
+
+            $uits[$key]['acciones'] = $acciones;
+        }
+
+        return $this->response->setJSON($uits);
     }
 
     public function saveUit()
@@ -94,15 +121,19 @@ class Configuracion extends BaseController
         try {
             $uit = new UitModel();
 
-            $id = $this->request->getVar('id');
+            // Solo se permite registrar/editar la UIT del año actual.
+            $anio = date('Y');
             $monto = $this->request->getVar('uit');
 
+            $existente = $uit->where('anio', $anio)->first();
+
             $data = array(
+                "anio" => $anio,
                 "uit_monto" => $monto
             );
 
-            if ($id) {
-                $uit->update($id, $data);
+            if ($existente) {
+                $uit->update($existente['id_uit'], $data);
             } else {
                 $uit->insert($data);
             }
@@ -112,7 +143,10 @@ class Configuracion extends BaseController
                 "message" => "Se guardo correctamente"
             ]);
         } catch (\Exception $e) {
-            //throw $th;
+            return $this->response->setJSON([
+                "status" => "error",
+                "message" => $e->getMessage()
+            ]);
         }
     }
 

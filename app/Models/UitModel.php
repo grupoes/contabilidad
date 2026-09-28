@@ -11,7 +11,7 @@
 
         protected $returnType     = 'array';
 
-        protected $allowedFields = ['id_uit','uit_monto'];
+        protected $allowedFields = ['id_uit','anio','uit_monto'];
 
         protected $useTimestamps = true;
         protected $createdField  = 'created_at';
