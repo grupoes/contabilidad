@@ -100,7 +100,7 @@ class Configuracion extends BaseController
         foreach ($uits as $key => $value) {
             $acciones = "";
 
-            if ($editar && $value['anio'] == $anioActual) {
+            if ($editar && $value['anio'] >= $anioActual) {
                 $acciones = '
                 <button type="button" class="btn btn-sm btn-outline-primary btn-editar-uit"
                     data-id="' . $value['id_uit'] . '"
@@ -121,9 +121,16 @@ class Configuracion extends BaseController
         try {
             $uit = new UitModel();
 
-            // Solo se permite registrar/editar la UIT del año actual.
-            $anio = date('Y');
+            $anio = $this->request->getVar('anio');
             $monto = $this->request->getVar('uit');
+
+            // No se permite modificar la UIT de años ya cerrados (pasados).
+            if ($anio < date('Y')) {
+                return $this->response->setJSON([
+                    "status" => "error",
+                    "message" => "No se puede registrar o editar la UIT de un año anterior al actual"
+                ]);
+            }
 
             $existente = $uit->where('anio', $anio)->first();
 

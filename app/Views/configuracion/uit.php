@@ -34,7 +34,7 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <label class="form-label">Año</label>
-                                <input type="number" name="anio" id="anio" class="form-control" value="<?= $anioActual ?>" readonly>
+                                <input type="number" name="anio" id="anio" class="form-control" value="<?= $anioActual ?>" min="<?= $anioActual ?>" required>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Monto UIT</label>
