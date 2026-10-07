@@ -2445,6 +2445,9 @@ class Contribuyentes extends BaseController
                 $refKey = ($row['serie_documento_modifica'] ?? '') . '|' . ($row['nro_documento_modifica'] ?? '');
                 $row['referencia']       = $esNota ? ($row['serie_documento_modifica'] . '-' . $row['nro_documento_modifica']) : '';
                 $row['fecha_referencia'] = $esNota ? ($refDates[$refKey] ?? '') : '';
+
+                $row['fecha_comprobante'] = $row['fecha_comprobante'] ? date('d/m/Y', strtotime($row['fecha_comprobante'])) : '';
+                $row['fecha_referencia']  = $row['fecha_referencia'] ? date('d/m/Y', strtotime($row['fecha_referencia'])) : '';
             }
             unset($row, $refDates);
 
@@ -2912,6 +2915,12 @@ class Contribuyentes extends BaseController
             $filtered = count($data);
             $page     = array_slice($data, $start, $length);
 
+            foreach ($page as &$r) {
+                $r['fecha']           = $r['fecha'] ? date('d/m/Y', strtotime($r['fecha'])) : '';
+                $r['referenciafecha'] = !empty($r['referenciafecha']) ? date('d/m/Y', strtotime($r['referenciafecha'])) : '';
+            }
+            unset($r);
+
             return $this->response->setJSON([
                 'draw'            => $draw,
                 'recordsTotal'    => $total,
@@ -3136,6 +3145,12 @@ class Contribuyentes extends BaseController
                 'referenciafecha' => $refDates[$refKey] ?? '',
             ];
         }
+
+        foreach ($data as &$r) {
+            $r['fecha']           = $r['fecha'] ? date('d/m/Y', strtotime($r['fecha'])) : '';
+            $r['referenciafecha'] = !empty($r['referenciafecha']) ? date('d/m/Y', strtotime($r['referenciafecha'])) : '';
+        }
+        unset($r);
 
         $tempFile = tempnam(sys_get_temp_dir(), 'maqueta_ventas_');
         $writer   = new \OpenSpout\Writer\XLSX\Writer();
