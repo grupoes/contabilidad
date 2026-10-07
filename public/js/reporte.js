@@ -24,6 +24,10 @@ btn_venta.addEventListener('click', function (e) {
     if (!inicio) { alert('Ingresar una fecha de inicio'); return; }
     if (!fin)    { alert('Ingresar una fecha de fin');    return; }
 
+    if ($.fn.DataTable.isDataTable('#data_venta')) {
+        $('#data_venta').DataTable().destroy();
+    }
+
     cabecera.innerHTML = `
         <th>N°</th><th>FECHA</th><th>TIPO MONEDA</th><th>DOCUMENTO</th>
         <th>#_DOCUMENTO</th><th>CONDICION</th><th>RUC</th><th>RAZON SOCIAL</th>
@@ -34,10 +38,6 @@ btn_venta.addEventListener('click', function (e) {
         <th>ESTADO SUNAT</th><th>REFERENCIA</th><th>FECHA REFERENCIA</th>
     `;
     cont.innerHTML = '';
-
-    if ($.fn.DataTable.isDataTable('#data_venta')) {
-        $('#data_venta').DataTable().destroy();
-    }
 
     const withSign = (r, field) => {
         const s = r.id_tipodoc_electronico === '07' ? -1 : 1;
@@ -142,6 +142,10 @@ btn_maq_venta.addEventListener('click', function (e) {
     if (!inicio) { alert('Ingresar una fecha de inicio'); return; }
     if (!fin)    { alert('Ingresar una fecha de fin');    return; }
 
+    if ($.fn.DataTable.isDataTable('#data_venta')) {
+        $('#data_venta').DataTable().destroy();
+    }
+
     cabecera.innerHTML = `
         <th>N°</th><th>FECHA</th><th>TIPO MONEDA</th><th>DOCUMENTO</th>
         <th>#_DOCUMENTO</th><th>CONDICION</th><th>RUC</th><th>RAZON SOCIAL</th>
@@ -150,10 +154,6 @@ btn_maq_venta.addEventListener('click', function (e) {
         <th>CUENTA</th><th>TIPO</th><th>REFERENCIA</th><th>FECHAREF</th>
     `;
     cont.innerHTML = '';
-
-    if ($.fn.DataTable.isDataTable('#data_venta')) {
-        $('#data_venta').DataTable().destroy();
-    }
 
     $('#data_venta').DataTable({
         serverSide:  true,
