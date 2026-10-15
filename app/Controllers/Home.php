@@ -24,7 +24,19 @@ class Home extends BaseController
 
     public function librosAlertas()
     {
-        return $this->response->setJSON($this->librosEnAlerta());
+        $libros = $this->librosEnAlerta();
+
+        // El enlace al detalle del libro solo se muestra con el permiso "ver detalle"
+        if ($libros) {
+            $modulo = db_connect()->table('modulos')->select('id')->where('url', 'libros-electronicos')->get()->getRowArray();
+            $puedeVer = (bool) $this->getPermisosAcciones($modulo['id'], session()->perfil_id, 'ver detalle');
+
+            foreach ($libros as $k => $l) {
+                $libros[$k]['puede_ver'] = $puedeVer;
+            }
+        }
+
+        return $this->response->setJSON($libros);
     }
 
     public function index()

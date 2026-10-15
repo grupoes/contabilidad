@@ -54,6 +54,11 @@ function viewLibro(l) {
     `Folios ${l.lib_folio_inicial} al ${l.lib_folio_final} · Total ${l.lib_total_hojas} hojas · Alerta ≤ ${l.lib_minimo}` +
     (l.lib_observacion ? " · Obs: " + l.lib_observacion : "");
 
+  document.getElementById("auditoriaLibro").textContent = [
+    autoria(l.usuario_add, l.lib_fecha_add) && "Registrado por " + autoria(l.usuario_add, l.lib_fecha_add),
+    autoria(l.usuario_edit, l.lib_fecha_edit) && "Última edición por " + autoria(l.usuario_edit, l.lib_fecha_edit),
+  ].filter(Boolean).join(" — ");
+
   const barra = document.getElementById("barraLibro");
   barra.className = "progress-bar bg-" + l.color;
   barra.style.width = l.porcentaje + "%";
@@ -78,9 +83,10 @@ function viewImpresiones(data) {
         <td>${x.lim_folio_desde} al ${x.lim_folio_hasta}</td>
         <td>${x.lim_folio_hasta - x.lim_folio_desde + 1}</td>
         <td>${x.lim_periodo_desde ? periodoTexto(x.lim_periodo_desde) + " a " : ""}${periodoTexto(x.lim_periodo_hasta)}</td>
+        <td><small class="text-muted">${esc(autoria(x.usuario_add, x.lim_fecha_add))}</small></td>
         <td class="text-end">${btnBorrar(x.lim_id)}</td>
       </tr>`).join("")
-    : '<tr><td colspan="4" class="text-muted">Sin impresiones registradas.</td></tr>';
+    : '<tr><td colspan="5" class="text-muted">Sin impresiones registradas.</td></tr>';
 }
 
 function viewSimulaciones(data) {
@@ -92,9 +98,10 @@ function viewSimulaciones(data) {
       <tr>
         <td>${esc(x.texto)}</td>
         <td>${x.lsi_hojas} hojas</td>
+        <td><small class="text-muted">${esc(autoria(x.usuario_add, x.lsi_fecha_add))}</small></td>
         <td class="text-end">${btnBorrar(x.lsi_id)}</td>
       </tr>`).join("")
-    : '<tr><td colspan="3" class="text-muted">Sin simulaciones.</td></tr>';
+    : '<tr><td colspan="4" class="text-muted">Sin simulaciones.</td></tr>';
 }
 
 function borrar(url, titulo) {

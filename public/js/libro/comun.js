@@ -15,6 +15,12 @@ const esc = (s) =>
 
 const fechaDMY = (f) => (f ? f.split("-").reverse().join("/") : "");
 
+// "2026-10-15 14:30:00" -> "15/10/2026 14:30"
+const fechaHora = (f) => (f ? fechaDMY(f.slice(0, 10)) + " " + f.slice(11, 16) : "");
+
+// "Nombre · 15/10/2026 14:30" (vacío si no hay registro de quién lo hizo)
+const autoria = (usuario, fecha) => (usuario || fecha ? [usuario, fechaHora(fecha)].filter(Boolean).join(" · ") : "");
+
 const NOMBRES_PERIODO = ["Apertura", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre", "Cierre 13", "Cierre 14"];
 
 function periodoTexto(p) {

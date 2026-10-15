@@ -70,6 +70,9 @@
 
 <?= $this->section('js') ?>
 
+<script>
+    const PERMISO_VER = <?= $permiso_ver ? 'true' : 'false' ?>;
+</script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/choices.min.js"></script>
 <script src="<?= base_url() ?>js/libro/comun.js"></script>

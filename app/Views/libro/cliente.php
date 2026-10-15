@@ -57,6 +57,7 @@
 <?= $this->section('js') ?>
 
 <script>
+    const PERMISO_VER = <?= $permiso_ver ? 'true' : 'false' ?>;
     const PERMISO_EDITAR = <?= $permiso_editar ? 'true' : 'false' ?>;
     const PERMISO_ELIMINAR = <?= $permiso_eliminar ? 'true' : 'false' ?>;
 </script>

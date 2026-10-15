@@ -15,6 +15,7 @@
             'lib_id', 'con_id', 'tli_id', 'tri_id', 'lib_numero', 'lib_sede', 'lib_notaria', 'lib_fecha_legalizacion',
             'lib_kardex', 'lib_stan', 'lib_folio_inicial', 'lib_folio_final', 'lib_total_hojas', 'lib_minimo',
             'lib_observacion', 'lib_estado',
+            'lib_user_add', 'lib_fecha_add', 'lib_user_edit', 'lib_fecha_edit', 'lib_user_delete', 'lib_fecha_delete',
         ];
 
         protected $useTimestamps = false;
@@ -25,7 +26,9 @@
          */
         public function listar($libId = null, $conId = null)
         {
-            $builder = $this->select('libro.*, tipo_libro.tli_nombre, contribuyentes.razon_social, contribuyentes.ruc, tributo.tri_descripcion AS regimen', false)
+            $builder = $this->select('libro.*, tipo_libro.tli_nombre, contribuyentes.razon_social, contribuyentes.ruc, tributo.tri_descripcion AS regimen, '
+                    . $this->nombreUsuario('libro', 'lib_user_add', 'usuario_add') . ', '
+                    . $this->nombreUsuario('libro', 'lib_user_edit', 'usuario_edit'), false)
                 ->join('tipo_libro', 'tipo_libro.tli_id = libro.tli_id')
                 ->join('contribuyentes', 'contribuyentes.id = libro.con_id')
                 // Régimen del libro; si no se eligió uno, el que tiene configurado el contribuyente
@@ -61,6 +64,12 @@
                 WHERE cn.ruc_empresa_numero = $colRuc";
         }
 
+        /** Subconsulta con el nombre del usuario guardado en una columna de auditoría (usuario.id). */
+        private function nombreUsuario($tabla, $col, $alias)
+        {
+            return "(SELECT TRIM(CONCAT(u.nombres, ' ', u.apellidos)) FROM usuario u WHERE u.id = $tabla.$col) AS $alias";
+        }
+
         /** Regímenes de Renta disponibles para elegir (PDT RENTA). */
         public function tributosRenta()
         {
@@ -77,12 +86,16 @@
 
         public function impresiones($libId)
         {
-            return (new LibroImpresionModel())->where('lib_id', $libId)->where('lim_estado', 1)->orderBy('lim_folio_desde', 'ASC')->findAll();
+            return (new LibroImpresionModel())
+                ->select('libro_impresion.*, ' . $this->nombreUsuario('libro_impresion', 'lim_user_add', 'usuario_add'), false)
+                ->where('lib_id', $libId)->where('lim_estado', 1)->orderBy('lim_folio_desde', 'ASC')->findAll();
         }
 
         public function simulaciones($libId)
         {
-            return (new LibroSimulacionModel())->where('lib_id', $libId)->where('lsi_estado', 1)->orderBy('lsi_periodo', 'DESC')->findAll();
+            return (new LibroSimulacionModel())
+                ->select('libro_simulacion.*, ' . $this->nombreUsuario('libro_simulacion', 'lsi_user_add', 'usuario_add'), false)
+                ->where('lib_id', $libId)->where('lsi_estado', 1)->orderBy('lsi_periodo', 'DESC')->findAll();
         }
 
         /**

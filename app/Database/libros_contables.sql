@@ -52,6 +52,12 @@ CREATE TABLE IF NOT EXISTS `libro` (
   `lib_minimo` INT NOT NULL DEFAULT 100,
   `lib_observacion` VARCHAR(255) NULL,
   `lib_estado` TINYINT NOT NULL DEFAULT 1,
+  `lib_user_add` INT NULL COMMENT 'usuario.id que registró',
+  `lib_fecha_add` DATETIME NULL,
+  `lib_user_edit` INT NULL COMMENT 'usuario.id de la última edición',
+  `lib_fecha_edit` DATETIME NULL,
+  `lib_user_delete` INT NULL COMMENT 'usuario.id que eliminó',
+  `lib_fecha_delete` DATETIME NULL,
   PRIMARY KEY (`lib_id`),
   KEY `idx_libro_con` (`con_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -75,6 +81,10 @@ CREATE TABLE IF NOT EXISTS `libro_impresion` (
   `lim_periodo_desde` VARCHAR(7) NULL COMMENT 'YYYY-MM (MM 00=Apertura, 13/14=Cierre)',
   `lim_periodo_hasta` VARCHAR(7) NULL,
   `lim_estado` TINYINT NOT NULL DEFAULT 1,
+  `lim_user_add` INT NULL COMMENT 'usuario.id que registró',
+  `lim_fecha_add` DATETIME NULL,
+  `lim_user_delete` INT NULL COMMENT 'usuario.id que eliminó',
+  `lim_fecha_delete` DATETIME NULL,
   PRIMARY KEY (`lim_id`),
   KEY `idx_lim_lib` (`lib_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -86,9 +96,30 @@ CREATE TABLE IF NOT EXISTS `libro_simulacion` (
   `lsi_periodo` VARCHAR(7) NOT NULL,
   `lsi_hojas` INT NOT NULL,
   `lsi_estado` TINYINT NOT NULL DEFAULT 1,
+  `lsi_user_add` INT NULL COMMENT 'usuario.id que registró',
+  `lsi_fecha_add` DATETIME NULL,
+  `lsi_user_delete` INT NULL COMMENT 'usuario.id que eliminó',
+  `lsi_fecha_delete` DATETIME NULL,
   PRIMARY KEY (`lsi_id`),
   KEY `idx_lsi_lib` (`lib_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 6) Auditoría: quién y cuándo registró / editó / eliminó (para tablas creadas con una versión anterior).
+-- Agrega cada columna solo si falta; no modifica datos.
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro' AND COLUMN_NAME = 'lib_user_add') = 0, 'ALTER TABLE `libro` ADD COLUMN `lib_user_add` INT NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro' AND COLUMN_NAME = 'lib_fecha_add') = 0, 'ALTER TABLE `libro` ADD COLUMN `lib_fecha_add` DATETIME NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro' AND COLUMN_NAME = 'lib_user_edit') = 0, 'ALTER TABLE `libro` ADD COLUMN `lib_user_edit` INT NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro' AND COLUMN_NAME = 'lib_fecha_edit') = 0, 'ALTER TABLE `libro` ADD COLUMN `lib_fecha_edit` DATETIME NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro' AND COLUMN_NAME = 'lib_user_delete') = 0, 'ALTER TABLE `libro` ADD COLUMN `lib_user_delete` INT NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro' AND COLUMN_NAME = 'lib_fecha_delete') = 0, 'ALTER TABLE `libro` ADD COLUMN `lib_fecha_delete` DATETIME NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro_impresion' AND COLUMN_NAME = 'lim_user_add') = 0, 'ALTER TABLE `libro_impresion` ADD COLUMN `lim_user_add` INT NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro_impresion' AND COLUMN_NAME = 'lim_fecha_add') = 0, 'ALTER TABLE `libro_impresion` ADD COLUMN `lim_fecha_add` DATETIME NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro_impresion' AND COLUMN_NAME = 'lim_user_delete') = 0, 'ALTER TABLE `libro_impresion` ADD COLUMN `lim_user_delete` INT NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro_impresion' AND COLUMN_NAME = 'lim_fecha_delete') = 0, 'ALTER TABLE `libro_impresion` ADD COLUMN `lim_fecha_delete` DATETIME NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro_simulacion' AND COLUMN_NAME = 'lsi_user_add') = 0, 'ALTER TABLE `libro_simulacion` ADD COLUMN `lsi_user_add` INT NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro_simulacion' AND COLUMN_NAME = 'lsi_fecha_add') = 0, 'ALTER TABLE `libro_simulacion` ADD COLUMN `lsi_fecha_add` DATETIME NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro_simulacion' AND COLUMN_NAME = 'lsi_user_delete') = 0, 'ALTER TABLE `libro_simulacion` ADD COLUMN `lsi_user_delete` INT NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @s := IF((SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro_simulacion' AND COLUMN_NAME = 'lsi_fecha_delete') = 0, 'ALTER TABLE `libro_simulacion` ADD COLUMN `lsi_fecha_delete` DATETIME NULL', 'SELECT 1'); PREPARE stmt FROM @s; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- 5) Permisos ---------------------------------------------------------------------------------------
 -- Requiere que ya exista el módulo "Libros Electrónicos" (modulos.id = 32) y las acciones crear/editar/eliminar.

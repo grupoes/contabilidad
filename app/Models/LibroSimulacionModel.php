@@ -11,7 +11,7 @@
 
         protected $returnType     = 'array';
 
-        protected $allowedFields = ['lsi_id', 'lib_id', 'lsi_periodo', 'lsi_hojas', 'lsi_estado'];
+        protected $allowedFields = ['lsi_id', 'lib_id', 'lsi_periodo', 'lsi_hojas', 'lsi_estado', 'lsi_user_add', 'lsi_fecha_add', 'lsi_user_delete', 'lsi_fecha_delete'];
 
         protected $useTimestamps = false;
     }

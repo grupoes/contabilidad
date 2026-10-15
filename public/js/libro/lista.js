@@ -26,11 +26,11 @@ function viewAlertas(alertas) {
   document.getElementById("listaAlertas").innerHTML = alertas
     .map(
       (l) => `
-      <a href="${base_url}libros-electronicos/${l.lib_id}" class="d-block text-reset border-start border-4 border-${l.color} ps-3 py-1 mb-2">
+      <${PERMISO_VER ? `a href="${base_url}libros-electronicos/${l.lib_id}"` : "div"} class="d-block text-reset border-start border-4 border-${l.color} ps-3 py-1 mb-2">
         <b>${esc(l.razon_social)}</b> — ${esc(l.tli_nombre)}${l.lib_numero ? " N° " + esc(l.lib_numero) : ""}:
         ${l.estado === "Agotado" ? "sin hojas disponibles" : `quedan <b>${l.restantes}</b> hojas en blanco tras la simulación (mínimo ${l.lib_minimo})`}.
         Solicita impresión o compra de hojas.
-      </a>`
+      </${PERMISO_VER ? "a" : "div"}>`
     )
     .join("");
 }

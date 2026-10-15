@@ -618,7 +618,7 @@ function viewLibrosAlertas() {
           <td>${esc(l.lib_sede)}</td>
           <td>${l.restantes} (mínimo ${l.lib_minimo})</td>
           <td><span class="badge bg-${l.color}">${l.estado}</span></td>
-          <td><a href="${base_url}libros-electronicos/${l.lib_id}" class="btn btn-primary btn-sm" title="ver libro"><i class="ti ti-eye f-18"></i></a></td>
+          <td>${l.puede_ver ? `<a href="${base_url}libros-electronicos/${l.lib_id}" class="btn btn-primary btn-sm" title="ver libro"><i class="ti ti-eye f-18"></i></a>` : ""}</td>
         </tr>
         `
         )

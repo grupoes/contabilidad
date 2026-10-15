@@ -12,6 +12,12 @@ class Libro extends BaseController
 {
     private $sedes = ['Tarapoto', 'Yurimaguas'];
 
+    /** Usuario y fecha de la acción: $p = lib, lim o lsi; $accion = add, edit o delete. */
+    private function sello($p, $accion)
+    {
+        return ["{$p}_user_{$accion}" => session()->id, "{$p}_fecha_{$accion}" => date('Y-m-d H:i:s')];
+    }
+
     private function moduloId()
     {
         $modulo = db_connect()->table('modulos')->select('id')->where('url', 'libros-electronicos')->get()->getRowArray();
@@ -39,13 +45,26 @@ class Libro extends BaseController
             'permiso_crear' => $this->permiso('crear'),
             'permiso_editar' => $this->permiso('editar'),
             'permiso_eliminar' => $this->permiso('eliminar'),
+            'permiso_ver' => $this->permiso('ver detalle'),
+            'permiso_impresion' => $this->permiso('registrar impresion'),
+            'permiso_simular' => $this->permiso('simular'),
+            'permiso_reponer' => $this->permiso('reponer hojas'),
         ];
+    }
+
+    private function sinPermiso()
+    {
+        return $this->response->setJSON(['status' => 'error', 'message' => 'Sin permisos']);
     }
 
     public function index()
     {
         if (!session()->logged_in) {
             return redirect()->to(base_url());
+        }
+
+        if (!$this->permiso('listar')) {
+            return redirect()->to(base_url('home'));
         }
 
         return view('libro/index', $this->datosVista());
@@ -55,6 +74,10 @@ class Libro extends BaseController
     {
         if (!session()->logged_in) {
             return redirect()->to(base_url());
+        }
+
+        if (!$this->permiso('listar')) {
+            return redirect()->to(base_url('home'));
         }
 
         $contribuyente = (new ContribuyenteModel())->select('id, razon_social, ruc')->find($id);
@@ -82,6 +105,10 @@ class Libro extends BaseController
     /** Clientes con al menos un libro (cantidad de libros y alertas) y la lista de libros con alerta. */
     public function renderClientes()
     {
+        if (!$this->permiso('listar')) {
+            return $this->response->setJSON(['clientes' => [], 'alertas' => []]);
+        }
+
         $model = new LibroModel();
         $nombres = array_column($model->tributosRenta(), 'tri_descripcion', 'id_tributo');
         $mapa = $model->regimenes();
@@ -126,6 +153,10 @@ class Libro extends BaseController
             return redirect()->to(base_url());
         }
 
+        if (!$this->permiso('ver detalle')) {
+            return redirect()->to(base_url('libros-electronicos'));
+        }
+
         $libro = (new LibroModel())->listar($id);
 
         if (!$libro) {
@@ -137,13 +168,18 @@ class Libro extends BaseController
 
     public function renderLibros($conId = null)
     {
+        if (!$this->permiso('listar')) {
+            return $this->response->setJSON([]);
+        }
+
         $libros = (new LibroModel())->listar(null, $conId);
 
+        $ver = $this->permiso('ver detalle');
         $editar = $this->permiso('editar');
         $eliminar = $this->permiso('eliminar');
 
         foreach ($libros as $k => $l) {
-            $acciones = '<a href="' . base_url('libros-electronicos/' . $l['lib_id']) . '" class="btn btn-primary btn-sm" title="ver"><i class="ti ti-eye f-18"></i></a> ';
+            $acciones = $ver ? '<a href="' . base_url('libros-electronicos/' . $l['lib_id']) . '" class="btn btn-primary btn-sm" title="ver"><i class="ti ti-eye f-18"></i></a> ' : '';
 
             if ($editar) {
                 $acciones .= '<button type="button" class="btn btn-info btn-sm modificar" title="editar" data-id="' . $l['lib_id'] . '"><i class="ti ti-edit-circle f-18"></i></button> ';
@@ -161,6 +197,11 @@ class Libro extends BaseController
 
     public function dataLibro($id)
     {
+        // El detalle usa "ver detalle" y el modal de edición usa "editar"
+        if (!$this->permiso('ver detalle') && !$this->permiso('editar')) {
+            return $this->sinPermiso();
+        }
+
         $model = new LibroModel();
         $libro = $model->listar($id);
 
@@ -247,12 +288,12 @@ class Libro extends BaseController
             $libro = new LibroModel();
 
             if ($id == 0) {
-                $libroId = $libro->insert($datos);
+                $libroId = $libro->insert($datos + $this->sello('lib', 'add'));
 
                 return $this->response->setJSON(['status' => 'success', 'message' => 'Se guardó correctamente.', 'id' => $libroId]);
             }
 
-            $libro->update($id, $datos);
+            $libro->update($id, $datos + $this->sello('lib', 'edit'));
 
             return $this->response->setJSON(['status' => 'success', 'message' => 'Se editó correctamente.']);
         } catch (\Exception $e) {
@@ -267,7 +308,7 @@ class Libro extends BaseController
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Sin permisos']);
             }
 
-            (new LibroModel())->update($id, ['lib_estado' => 0]);
+            (new LibroModel())->update($id, ['lib_estado' => 0] + $this->sello('lib', 'delete'));
 
             return $this->response->setJSON(['status' => 'success', 'message' => 'Se eliminó correctamente.']);
         } catch (\Exception $e) {
@@ -278,7 +319,7 @@ class Libro extends BaseController
     public function saveImpresion()
     {
         try {
-            if (!$this->permiso('editar')) {
+            if (!$this->permiso('registrar impresion')) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Sin permisos']);
             }
 
@@ -290,28 +331,74 @@ class Libro extends BaseController
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Rango de folios inválido.']);
             }
 
+            $p1 = $d['periodoDesde'] ?: null;
+            $p2 = $d['periodoHasta'] ?: null;
+
+            $db = db_connect();
+            $db->transStart();
+
             (new LibroImpresionModel())->insert([
                 'lib_id' => $d['libroId'],
                 'lim_folio_desde' => $desde,
                 'lim_folio_hasta' => $hasta,
-                'lim_periodo_desde' => $d['periodoDesde'] ?: null,
-                'lim_periodo_hasta' => $d['periodoHasta'] ?: null,
+                'lim_periodo_desde' => $p1,
+                'lim_periodo_hasta' => $p2,
                 'lim_estado' => 1,
-            ]);
+            ] + $this->sello('lim', 'add'));
 
-            return $this->response->setJSON(['status' => 'success', 'message' => 'Impresión registrada.']);
+            // Lo impreso ya es real: se quitan las simulaciones de esos periodos
+            $quitadas = $this->quitarSimulaciones($d['libroId'], $p1, $p2);
+
+            $db->transComplete();
+
+            $msg = 'Impresión registrada.';
+            if ($quitadas > 0) {
+                $msg .= ' Se quitaron ' . $quitadas . ($quitadas == 1 ? ' simulación' : ' simulaciones') . ' de los periodos impresos.';
+            }
+
+            return $this->response->setJSON(['status' => 'success', 'message' => $msg]);
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
 
+    /**
+     * Da de baja las simulaciones del libro cuyo periodo (YYYY-MM) cae entre $p1 y $p2 inclusive.
+     * Si solo hay un periodo se usa ese; si vienen invertidos se intercambian. Devuelve cuántas quitó.
+     */
+    private function quitarSimulaciones($libroId, $p1, $p2)
+    {
+        $p1 = $p1 ?: $p2;
+        $p2 = $p2 ?: $p1;
+
+        if (!$p1) {
+            return 0;
+        }
+
+        if ($p1 > $p2) {
+            [$p1, $p2] = [$p2, $p1];
+        }
+
+        $model = new LibroSimulacionModel();
+        $ids = array_column(
+            $model->where('lib_id', $libroId)->where('lsi_estado', 1)->where('lsi_periodo >=', $p1)->where('lsi_periodo <=', $p2)->findAll(),
+            'lsi_id'
+        );
+
+        if ($ids) {
+            $model->update($ids, ['lsi_estado' => 0] + $this->sello('lsi', 'delete'));
+        }
+
+        return count($ids);
+    }
+
     public function deleteImpresion($id)
     {
-        if (!$this->permiso('editar')) {
+        if (!$this->permiso('registrar impresion')) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'Sin permisos']);
         }
 
-        (new LibroImpresionModel())->update($id, ['lim_estado' => 0]);
+        (new LibroImpresionModel())->update($id, ['lim_estado' => 0] + $this->sello('lim', 'delete'));
 
         return $this->response->setJSON(['status' => 'success', 'message' => 'Se eliminó correctamente.']);
     }
@@ -319,7 +406,7 @@ class Libro extends BaseController
     public function saveSimulacion()
     {
         try {
-            if (!$this->permiso('editar')) {
+            if (!$this->permiso('simular')) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Sin permisos']);
             }
 
@@ -335,7 +422,7 @@ class Libro extends BaseController
                 'lsi_periodo' => $d['periodo'],
                 'lsi_hojas' => $hojas,
                 'lsi_estado' => 1,
-            ]);
+            ] + $this->sello('lsi', 'add'));
 
             return $this->response->setJSON(['status' => 'success', 'message' => 'Agregado a la simulación.']);
         } catch (\Exception $e) {
@@ -345,11 +432,11 @@ class Libro extends BaseController
 
     public function deleteSimulacion($id)
     {
-        if (!$this->permiso('editar')) {
+        if (!$this->permiso('simular')) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'Sin permisos']);
         }
 
-        (new LibroSimulacionModel())->update($id, ['lsi_estado' => 0]);
+        (new LibroSimulacionModel())->update($id, ['lsi_estado' => 0] + $this->sello('lsi', 'delete'));
 
         return $this->response->setJSON(['status' => 'success', 'message' => 'Se eliminó correctamente.']);
     }
@@ -357,7 +444,7 @@ class Libro extends BaseController
     public function reponer()
     {
         try {
-            if (!$this->permiso('editar')) {
+            if (!$this->permiso('reponer hojas')) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Sin permisos']);
             }
 
@@ -375,7 +462,7 @@ class Libro extends BaseController
             $model->update($id, [
                 'lib_folio_final' => $libro['lib_folio_final'] + $hojas,
                 'lib_total_hojas' => $libro['lib_total_hojas'] + $hojas,
-            ]);
+            ] + $this->sello('lib', 'edit'));
 
             return $this->response->setJSON(['status' => 'success', 'message' => 'Hojas repuestas.']);
         } catch (\Exception $e) {

@@ -38,6 +38,7 @@
                     </div>
                     <p class="text-muted mb-2" id="datosLibro"></p>
                     <p class="text-muted mb-2" id="foliosLibro"></p>
+                    <p class="text-muted small mb-2" id="auditoriaLibro"></p>
                     <div class="progress mb-2" style="height: 10px;">
                         <div class="progress-bar" id="barraLibro" role="progressbar" style="width: 0%"></div>
                     </div>
@@ -48,7 +49,7 @@
                         <?php if ($permiso_crear) { ?>
                             <button type="button" id="btnSiguiente" class="btn btn-outline-primary btn-sm">Legalizar siguiente</button>
                         <?php } ?>
-                        <?php if ($permiso_editar) { ?>
+                        <?php if ($permiso_reponer) { ?>
                             <button type="button" id="btnReponer" class="btn btn-outline-success btn-sm"><i class="ti ti-plus"></i> Reponer hojas</button>
                         <?php } ?>
                         <?php if ($permiso_eliminar) { ?>
@@ -63,7 +64,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Historial de impresiones</h5>
-                    <?php if ($permiso_editar) { ?>
+                    <?php if ($permiso_impresion) { ?>
                         <button type="button" id="btnImpresion" class="btn btn-success btn-sm"><i class="ti ti-plus"></i> Nueva impresión</button>
                     <?php } ?>
                 </div>
@@ -75,6 +76,7 @@
                                     <th>Folios</th>
                                     <th>Hojas</th>
                                     <th>Periodo</th>
+                                    <th>Registrado por</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -91,7 +93,7 @@
                     <h5 class="mb-0">Simulador</h5>
                 </div>
                 <div class="card-body">
-                    <?php if ($permiso_editar) { ?>
+                    <?php if ($permiso_simular) { ?>
                         <div class="row g-2 mb-3">
                             <div class="col-md-5">
                                 <?= view('libro/_periodo', ['pid' => 'sim', 'vacio' => false]) ?>
@@ -110,6 +112,7 @@
                                 <tr>
                                     <th>Periodo</th>
                                     <th>Hojas</th>
+                                    <th>Registrado por</th>
                                     <th></th>
                                 </tr>
                             </thead>
