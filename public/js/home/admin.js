@@ -599,3 +599,38 @@ function excluirPeriodoSire(id, id_mes, id_anio) {
       }
     });
 }
+
+function viewLibrosAlertas() {
+  $("#modalLibros").modal("show");
+  fetch(base_url + "libros-alertas")
+    .then((res) => res.json())
+    .then((data) => {
+      const esc = (s) =>
+        String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+      const html = data
+        .map(
+          (l) => `
+        <tr>
+          <td>${esc(l.razon_social)}</td>
+          <td>${esc(l.ruc)}</td>
+          <td>${esc(l.tli_nombre)}${l.lib_numero ? " N° " + esc(l.lib_numero) : ""}</td>
+          <td>${esc(l.lib_sede)}</td>
+          <td>${l.restantes} (mínimo ${l.lib_minimo})</td>
+          <td><span class="badge bg-${l.color}">${l.estado}</span></td>
+          <td><a href="${base_url}libros-electronicos/${l.lib_id}" class="btn btn-primary btn-sm" title="ver libro"><i class="ti ti-eye f-18"></i></a></td>
+        </tr>
+        `
+        )
+        .join("");
+
+      $("#tableLibros").DataTable().destroy();
+      $("#tableLibros colgroup").remove();
+
+      document.getElementById("tbodyLibros").innerHTML = html;
+
+      const tabla = $("#tableLibros").DataTable(optionsTableDefault);
+
+      new $.fn.dataTable.Responsive(tabla);
+    });
+}

@@ -29,6 +29,7 @@ $routes->get('migration-users', 'Auth::migrationUsers');
 $routes->get('home', 'Home::index');
 $routes->get('reporte-anulacion-masiva', 'Home::reporteAnulacionMasiva');
 $routes->get('certificados-vencer', 'Home::certificadosVencer');
+$routes->get('libros-alertas', 'Home::librosAlertas');
 
 $routes->get('contribuyentes', 'Contribuyentes::index');
 $routes->get('contribuyentes/getId/(:num)', 'Contribuyentes::getIdContribuyente/$1');

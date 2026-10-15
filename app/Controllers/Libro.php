@@ -195,14 +195,17 @@ class Libro extends BaseController
 
             $fi = (int) ($d['folioInicial'] ?: 1);
             $ff = (int) $d['folioFinal'];
-            $total = (int) $d['totalHojas'];
-            if ($total <= 0 && $ff >= $fi) {
-                $total = $ff - $fi + 1;
+
+            if (empty($d['contribuyente']) || empty($d['tipoLibro'])) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Complete contribuyente y tipo de libro.']);
             }
 
-            if (empty($d['contribuyente']) || empty($d['tipoLibro']) || $total <= 0) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Complete contribuyente, tipo de libro y total de hojas.']);
+            if ($ff < $fi) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'El folio final debe ser mayor o igual al folio inicial.']);
             }
+
+            // El total de hojas siempre se calcula de los folios, no se recibe del formulario
+            $total = $ff - $fi + 1;
 
             // "Otro...": se reutiliza el tipo si ya existe o se crea uno nuevo
             if ($d['tipoLibro'] === 'otro') {
@@ -234,7 +237,7 @@ class Libro extends BaseController
                 'lib_kardex' => trim($d['kardex']),
                 'lib_stan' => trim($d['stan']),
                 'lib_folio_inicial' => $fi,
-                'lib_folio_final' => $ff >= $fi ? $ff : $fi + $total - 1,
+                'lib_folio_final' => $ff,
                 'lib_total_hojas' => $total,
                 'lib_minimo' => (int) ($d['minimo'] ?: 100),
                 'lib_observacion' => trim($d['observacion']),
@@ -245,18 +248,6 @@ class Libro extends BaseController
 
             if ($id == 0) {
                 $libroId = $libro->insert($datos);
-
-                $hp = (int) ($d['impresasHasta'] ?? 0);
-                if ($hp >= $fi) {
-                    (new LibroImpresionModel())->insert([
-                        'lib_id' => $libroId,
-                        'lim_folio_desde' => $fi,
-                        'lim_folio_hasta' => min($hp, $fi + $total - 1),
-                        'lim_periodo_desde' => $d['periodoDesde'] ?: null,
-                        'lim_periodo_hasta' => $d['periodoHasta'] ?: null,
-                        'lim_estado' => 1,
-                    ]);
-                }
 
                 return $this->response->setJSON(['status' => 'success', 'message' => 'Se guardó correctamente.', 'id' => $libroId]);
             }
@@ -380,8 +371,9 @@ class Libro extends BaseController
             $model = new LibroModel();
             $libro = $model->find($id);
 
-            // Igual que el control original: solo suma al total, los folios no cambian
+            // El total sale de los folios (final - inicial + 1): reponer extiende el folio final
             $model->update($id, [
+                'lib_folio_final' => $libro['lib_folio_final'] + $hojas,
                 'lib_total_hojas' => $libro['lib_total_hojas'] + $hojas,
             ]);
 

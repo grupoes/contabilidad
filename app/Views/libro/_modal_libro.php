@@ -11,8 +11,6 @@
             <form id="formLibro">
                 <div class="modal-body">
                     <input type="hidden" name="idLibro" id="idLibro" value="0">
-                    <input type="hidden" name="periodoDesde" id="periodoDesde">
-                    <input type="hidden" name="periodoHasta" id="periodoHasta">
                     <div class="row">
                         <div class="col-md-12 mb-3">
                             <label class="form-label" for="contribuyente">Contribuyente</label>
@@ -73,31 +71,15 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label" for="folioInicial">Folio inicial</label>
-                            <input type="number" class="form-control" name="folioInicial" id="folioInicial" min="0">
+                            <input type="number" class="form-control" name="folioInicial" id="folioInicial" min="1" required>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label" for="folioFinal">Folio final</label>
-                            <input type="number" class="form-control" name="folioFinal" id="folioFinal" min="0">
+                            <input type="number" class="form-control" name="folioFinal" id="folioFinal" min="1" required>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label" for="totalHojas">Total de hojas</label>
-                            <input type="number" class="form-control" name="totalHojas" id="totalHojas" min="1">
-                        </div>
-                        <div id="bloqueImpresas" class="col-12">
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label" for="impresasHasta">Impresas hasta el folio</label>
-                                    <input type="number" class="form-control" name="impresasHasta" id="impresasHasta" min="0">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Periodo impresiones: desde</label>
-                                    <?= view('libro/_periodo', ['pid' => 'pd', 'vacio' => true]) ?>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Periodo impresiones: hasta</label>
-                                    <?= view('libro/_periodo', ['pid' => 'ph', 'vacio' => true]) ?>
-                                </div>
-                            </div>
+                            <input type="number" class="form-control" id="totalHojas" readonly tabindex="-1" placeholder="Se calcula con los folios">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label" for="minimo">Alerta: mínimo en blanco</label>

@@ -3,9 +3,30 @@
 namespace App\Controllers;
 
 use App\Models\ContribuyenteModel;
+use App\Models\LibroModel;
 
 class Home extends BaseController
 {
+    /**
+     * Libros electrónicos con stock bajo o agotado (misma regla del módulo de libros).
+     * Solo para perfiles con permiso "listar" en Libros Electrónicos.
+     */
+    private function librosEnAlerta()
+    {
+        $modulo = db_connect()->table('modulos')->select('id')->where('url', 'libros-electronicos')->get()->getRowArray();
+
+        if (!$modulo || !$this->getPermisosAcciones($modulo['id'], session()->perfil_id, 'listar')) {
+            return [];
+        }
+
+        return array_values(array_filter((new LibroModel())->listar(), fn($l) => $l['estado'] !== 'OK'));
+    }
+
+    public function librosAlertas()
+    {
+        return $this->response->setJSON($this->librosEnAlerta());
+    }
+
     public function index()
     {
         if (!session()->logged_in) {
@@ -30,16 +51,18 @@ class Home extends BaseController
 
         $notificacionRenta = $this->notificationPdtRenta();
 
+        $notificacionLibros = count($this->librosEnAlerta());
+
         switch (session()->perfil_id) {
             case '3':
                 return view('home/cajero', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer', 'notificacionRenta'));
                 break;
 
             case '2':
-                return view('home/index', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer', 'notificacionRenta'));
+                return view('home/index', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer', 'notificacionRenta', 'notificacionLibros'));
                 break;
             case '1':
-                return view('home/index', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer', 'notificacionRenta'));
+                return view('home/index', compact('menu', 'countCont', 'notificacionSire', 'notificacionAfp', 'notificacionPdtRenta', 'notificacionPdtPlame', 'notificacionDeudoresServidor', 'notificacionDeudoresAnuales', 'notificacionCertificadosVencer', 'notificacionRenta', 'notificacionLibros'));
                 break;
 
             default:

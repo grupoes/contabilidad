@@ -72,6 +72,18 @@
             </div>
         <?php endif; ?>
 
+        <?php if ($notificacionLibros > 0) : ?>
+            <div class="col-md-6 col-xl-3">
+                <div class="card social-widget-card alerta-card" onclick="viewLibrosAlertas()">
+                    <div class="card-body">
+                        <h3 class="text-black m-0"><?= $notificacionLibros ?></h3>
+                        <span class="m-t-10 text-black">LIBROS</span>
+                        <i class="fas fa-book fa-2x mt-2 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <?php if ($notificacionCertificadosVencer > 0) : ?>
             <div class="col-md-6 col-xl-3">
                 <div class="card social-widget-card alerta-card" onclick="viewCertificadosVencer()">
@@ -385,6 +397,42 @@
     </div>
 </div>
 
+<div id="modalLibros" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+    aria-labelledby="myLargeModalLabel" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4">Libros electrónicos con stock bajo o agotado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table" id="tableLibros">
+                        <thead>
+                            <tr>
+                                <th>CLIENTE</th>
+                                <th>RUC</th>
+                                <th>LIBRO</th>
+                                <th>SEDE</th>
+                                <th>HOJAS RESTANTES</th>
+                                <th>ESTADO</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyLibros">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="<?= base_url('libros-electronicos') ?>" class="btn btn-primary">Ir a libros electrónicos</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="modalCertificado" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
     aria-labelledby="myLargeModalLabel" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -496,6 +544,6 @@
 <script src="<?= base_url() ?>assets/js/plugins/responsive.bootstrap5.min.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/sweetalert2.all.min.js"></script>
 
-<script src="<?= base_url() ?>js/home/admin.js?v=8"></script>
+<script src="<?= base_url() ?>js/home/admin.js?v=9"></script>
 
 <?= $this->endSection() ?>

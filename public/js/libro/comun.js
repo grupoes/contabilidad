@@ -68,6 +68,17 @@ const selectContribuyente = new Choices("#contribuyente", {
   noResultsText: "Sin resultados",
 });
 
+// Total de hojas = folio final - folio inicial + 1 (solo lectura)
+function calcularTotal() {
+  const fi = parseInt(document.getElementById("folioInicial").value, 10);
+  const ff = parseInt(document.getElementById("folioFinal").value, 10);
+
+  document.getElementById("totalHojas").value = fi >= 1 && ff >= fi ? ff - fi + 1 : "";
+}
+
+document.getElementById("folioInicial").addEventListener("input", calcularTotal);
+document.getElementById("folioFinal").addEventListener("input", calcularTotal);
+
 // Preselecciona el régimen de Renta que el contribuyente tiene configurado (se puede cambiar)
 function sugerirRegimen() {
   const id = document.getElementById("contribuyente").value;
@@ -96,10 +107,8 @@ function abrirModalLibro(titulo, libro) {
   selectContribuyente.setChoiceByValue("");
   document.getElementById("idLibro").value = "0";
   document.getElementById("minimo").value = "100";
+  document.getElementById("folioInicial").value = "1";
   titleModal.textContent = titulo;
-
-  // Impresas previas solo aplica al registrar uno nuevo
-  document.getElementById("bloqueImpresas").style.display = libro && libro.lib_id ? "none" : "";
 
   if (libro) {
     document.getElementById("idLibro").value = libro.lib_id || "0";
@@ -114,12 +123,13 @@ function abrirModalLibro(titulo, libro) {
     document.getElementById("fechaLegalizacion").value = libro.lib_fecha_legalizacion || "";
     document.getElementById("kardex").value = libro.lib_kardex || "";
     document.getElementById("stan").value = libro.lib_stan || "";
-    document.getElementById("folioInicial").value = libro.lib_folio_inicial || "";
+    document.getElementById("folioInicial").value = libro.lib_folio_inicial || "1";
     document.getElementById("folioFinal").value = libro.lib_folio_final || "";
-    document.getElementById("totalHojas").value = libro.lib_total_hojas || "";
     document.getElementById("minimo").value = libro.lib_minimo || 100;
     document.getElementById("observacion").value = libro.lib_observacion || "";
   }
+
+  calcularTotal();
 
   $("#modalLibro").modal("show");
 }
@@ -131,9 +141,6 @@ formLibro.addEventListener("submit", (e) => {
     swalWithBootstrapButtons.fire("Error!", "Seleccione un contribuyente.", "error");
     return;
   }
-
-  document.getElementById("periodoDesde").value = getPeriodo("pd");
-  document.getElementById("periodoHasta").value = getPeriodo("ph");
 
   fetch(base_url + "libro/guardar", {
     method: "POST",
