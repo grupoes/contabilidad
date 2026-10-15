@@ -158,6 +158,21 @@ $routes->get('render-conceptos', 'Concepto::renderConceptos');
 $routes->get('conceptos-tipo-movimiento/(:num)', 'Concepto::conceptosTipoMovimiento/$1');
 $routes->get('concepto/delete/(:num)', 'Concepto::deleteConcepto/$1');
 
+$routes->get('libros-electronicos', 'Libro::index');
+$routes->get('libros-electronicos/cliente/(:num)', 'Libro::cliente/$1');
+$routes->get('libros-electronicos/(:num)', 'Libro::detalle/$1');
+$routes->get('render-libros', 'Libro::renderLibros');
+$routes->get('render-libros/(:num)', 'Libro::renderLibros/$1');
+$routes->get('render-libros-clientes', 'Libro::renderClientes');
+$routes->get('libro/data/(:num)', 'Libro::dataLibro/$1');
+$routes->post('libro/guardar', 'Libro::save');
+$routes->get('libro/delete/(:num)', 'Libro::deleteLibro/$1');
+$routes->post('libro/impresion/guardar', 'Libro::saveImpresion');
+$routes->get('libro/impresion/delete/(:num)', 'Libro::deleteImpresion/$1');
+$routes->post('libro/simulacion/guardar', 'Libro::saveSimulacion');
+$routes->get('libro/simulacion/delete/(:num)', 'Libro::deleteSimulacion/$1');
+$routes->post('libro/reponer', 'Libro::reponer');
+
 $routes->get('configuracion/caja-virtual', 'Configuracion::cajaVirtual');
 $routes->post('configuracion-caja-virtual/save', 'Configuracion::saveCajaVirtual');
 

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><title>Control de Libros Contables</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#667085;--bd:#e3e6ea;--ac:#2563eb;--ok:#16a34a;--wa:#d97706;--er:#dc2626}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171b;--card:#1d2127;--tx:#eceff3;--mu:#98a2b3;--bd:#2d333b;--ac:#60a5fa;--ok:#4ade80;--wa:#fbbf24;--er:#f87171}}
+:root[data-theme="dark"]{--bg:#14171b;--card:#1d2127;--tx:#eceff3;--mu:#98a2b3;--bd:#2d333b;--ac:#60a5fa;--ok:#4ade80;--wa:#fbbf24;--er:#f87171}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:900px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:0}
+.mu{color:var(--mu);font-size:13px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin:12px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select,button{font:inherit;padding:7px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)}
+input{min-width:0}button{cursor:pointer;background:var(--ac);color:#fff;border:0}
+button.g{background:transparent;color:var(--mu);border:1px solid var(--bd)}button.d{background:transparent;color:var(--er);border:0;padding:4px 8px}
+.book{border-top:1px solid var(--bd);padding:12px 0}
+.bar{height:8px;background:var(--bd);border-radius:6px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%}
+.tag{font-size:12px;padding:2px 8px;border-radius:99px;color:#fff}
+.alert{border-left:4px solid var(--er);padding:8px 12px;margin:6px 0;background:var(--card);border-radius:8px;border:1px solid var(--bd);border-left:4px solid var(--er)}
+.alert.w{border-left-color:var(--wa)}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:4px 6px;text-align:left;border-bottom:1px solid var(--bd)}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}.fg label{display:flex;flex-direction:column;gap:3px}.fg input,.fg select{width:100%}
+details summary{cursor:pointer;color:var(--mu);font-size:13px;margin-top:6px}
+</style></head><body><main>
+<div class="row" style="justify-content:space-between"><div><h1>📚 Control de Libros Contables</h1><div class="mu">Hojas disponibles por cliente y libro, con alerta de stock mínimo.</div></div>
+<div class="row"><button class="g" onclick="exp()">Exportar copia</button><button class="g" onclick="document.getElementById('imp').click()">Importar</button><input id="imp" type="file" accept=".json" hidden onchange="imp(event)"></div></div>
+<div id="alerts"></div>
+<div id="tp"><div class="card"><h2>Nuevo cliente</h2><div class="row" style="margin-top:8px"><input id="cn" placeholder="Nombre o razón social" style="flex:2"><input id="cr" placeholder="RUC (opcional)" style="flex:1"><select id="cg"><option value="">Régimen...</option><option>Nuevo RUS</option><option>RER</option><option>Régimen MYPE Tributario</option><option>Régimen General</option><option>Amazonía</option></select><button onclick="addClient()">Agregar</button></div></div>
+<input id="q" type="search" placeholder="🔍 Buscar cliente por nombre o RUC..." oninput="Q=this.value;render()" style="width:100%;margin:6px 0"></div>
+<div id="list"></div>
+<p class="mu">Los datos se guardan en este navegador. Usa «Exportar copia» periódicamente como respaldo.</p>
+</main>
+<script>
+const PRESETS=["Libro Diario","Libro Diario de Formato Simplificado","Registro de Inventario Permanente en Unidades Físicas","Registro de Inventario Permanente Valorizado","Libro Mayor","Libro de Inventarios y Balances","Libro Caja y Bancos","Registro de Compras","Registro de Ventas","Registro de Ventas e Ingresos","Registro de Activos Fijos","Libro de Planillas","Libro de Actas","Registro de Costos","Otro..."];
+let S={clients:[]};
+try{S=JSON.parse(localStorage.getItem("lib_ctb")||'{"clients":[]}')}catch(e){}
+const save=()=>{try{localStorage.setItem("lib_ctb",JSON.stringify(S))}catch(e){}};
+const id=()=>Math.random().toString(36).slice(2,9);
+const norm=()=>S.clients.forEach(C=>C.books.forEach(B=>{if(!B.imp){const f=+B.fi||1;B.imp=B.pr>0?[{id:id(),f1:f,f2:f+B.pr-1,p1:B.per0||"",p2:B.per||""}]:[]}}));norm();
+const prn=B=>B.imp.reduce((a,x)=>a+x.f2-x.f1+1,0);
+const mx=B=>B.imp.reduce((a,x)=>Math.max(a,x.f2),(+B.fi||1)-1);
+const used=b=>prn(b)+b.usage.reduce((a,u)=>a+u.sheets,0);
+const MES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const NP=["Apertura","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre","Cierre 13","Cierre 14"];
+const per=p=>{if(!p)return"";const[y,m]=p.split("-");return (NP[+m]||m)+" "+y};
+const pk=(k,blank)=>`<select id="${k}p">${blank?'<option value="">Periodo...</option>':""}${NP.map((n,i)=>`<option value="${String(i).padStart(2,"0")}"${!blank&&i==new Date().getMonth()+1?" selected":""}>${String(i).padStart(2,"0")} · ${i>=13?"Cierre":n}</option>`).join("")}</select><input type="number" id="${k}y" min="2000" max="2100" placeholder="Año" style="width:80px" value="${blank?"":new Date().getFullYear()}">`;
+const gp=k=>{const p=document.getElementById(k+"p").value,y=document.getElementById(k+"y").value;return p&&y?y+"-"+p:""};
+const bn=B=>B.name+(B.num?" N° "+B.num:"");
+const sm=B=>B.usage.reduce((a,u)=>a+u.sheets,0);
+const lastSim=B=>{const u=[...B.usage].sort((a,b)=>b.month.localeCompare(a.month))[0];return u?u.month:""};
+const proy=B=>{if(!B.usage.length)return"";const avg=sm(B)/B.usage.length,r=B.total-used(B);if(r<=B.min)return" · límite alcanzado en "+per(lastSim(B));return` · al ritmo de ~${Math.round(avg)} hojas/periodo llegas al límite en ~${Math.ceil((r-B.min)/avg)} periodos más`};
+const lastPer=B=>{const u=[...B.usage].sort((a,b)=>b.month.localeCompare(a.month))[0];return u?u.month:(B.per||"")};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const find=(c,b)=>{const C=S.clients.find(x=>x.id==c);return[C,C&&C.books.find(x=>x.id==b)]};
+function addClient(){const n=cn.value.trim();if(!n)return;const nid=id();S.clients.push({id:nid,name:n,ruc:cr.value.trim(),reg:cg.value,books:[]});SEL=nid;cn.value=cr.value=cg.value="";save();render()}
+let SEL=null,SELB=null,Q="";
+function bookRows(C){if(!C.books.length)return'<p class="mu">Este cliente aún no tiene libros. Registra el primero abajo.</p>';
+return C.books.map(B=>{const[s,col,r]=status(B);return`<div class="card row" style="justify-content:space-between;cursor:pointer;margin:8px 0" onclick="SELB='${B.id}';scrollTo(0,0);render()"><div><b>${esc(bn(B))}</b><div class="mu">${[B.sede,B.fleg&&"Legalizado "+B.fleg.split("-").reverse().join("/"),"Quedan "+Math.max(r,0)+" hojas"].filter(Boolean).map(esc).join(" · ")}</div></div><span class="tag" style="background:${col}">${s}</span></div>`}).join("")}
+function clientRows(){const q=Q.trim().toLowerCase(),L=S.clients.filter(C=>!q||(C.name+" "+(C.ruc||"")).toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+if(!L.length)return`<p class="mu">${S.clients.length?"Sin resultados.":"Aún no hay clientes. Agrega el primero arriba."}</p>`;
+return`<div class="mu" style="margin:4px 0">${L.length} cliente(s)</div>`+L.map(C=>{const al=C.books.filter(B=>status(B)[0]!="OK").length;return`<div class="card row" style="justify-content:space-between;cursor:pointer;margin:6px 0" onclick="SEL='${C.id}';SELB=null;scrollTo(0,0);render()"><div><b>${esc(C.name)}</b><div class="mu">${C.ruc?"RUC "+esc(C.ruc):"Sin RUC"} · ${C.reg?esc(C.reg):"Sin régimen"} · ${C.books.length} libro(s)</div></div>${al?`<span class="tag" style="background:var(--wa)">${al} alerta(s)</span>`:"›"}</div>`}).join("")}
+let P=null,PT;function ask(k){if(P===k){P=null;return true}P=k;clearTimeout(PT);PT=setTimeout(()=>{P=null;render()},4000);render();return false}
+function delClient(c){if(ask("c"+c)){S.clients=S.clients.filter(x=>x.id!=c);SEL=null;SELB=null;save();render()}}
+function addBook(c){const f=k=>document.getElementById(k+c);let n=f("bs").value;if(n=="Otro..."){n=f("bo").value.trim();if(!n)return}
+const fi=+f("fi").value||1,ff=+f("ff").value;let t=+f("bt").value;if(!t&&ff>=fi)t=ff-fi+1;if(!t||t<1)return;
+const hp=+f("hp").value;let pr=0;if(hp>=fi)pr=Math.min(t,hp-fi+1);
+S.clients.find(x=>x.id==c).books.push({id:id(),name:n,num:f("bn").value.trim(),sede:f("sd").value,nota:f("nt").value.trim(),fleg:f("fl").value,kx:f("kx").value.trim(),stan:f("st").value.trim(),obs:f("ob").value.trim(),total:t,min:+f("bm").value||100,fi:fi,ff:ff||fi+t-1,imp:pr>0?[{id:id(),f1:fi,f2:fi+pr-1,p1:gp("pd"+c),p2:gp("pp"+c)}]:[],usage:[]});save();render()}
+function nextBook(c,b){const[,B]=find(c,b),f=k=>document.getElementById(k+c);SELB=null;render();document.getElementById("nb"+c).open=true;if(PRESETS.includes(B.name))f("bs").value=B.name;else{f("bs").value="Otro...";f("bo").style.display="";f("bo").value=B.name}
+f("bn").value=B.num&&!isNaN(+B.num)?+B.num+1:"";f("sd").value=B.sede||"Tarapoto";f("nt").value=B.nota||"";document.getElementById("frm"+c).scrollIntoView({behavior:"smooth"})}
+function addImp(c,b){const[,B]=find(c,b),g=k=>+document.getElementById(k+b).value,f1=g("ia"),f2=g("ib");if(!f1||f2<f1)return;B.imp.push({id:id(),f1:f1,f2:f2,p1:gp("i1"+b),p2:gp("i2"+b)});save();render()}
+function delImp(c,b,i){const[,B]=find(c,b);B.imp=B.imp.filter(x=>x.id!=i);save();render()}
+function delBook(c,b){if(ask("b"+b)){const[C]=find(c,b);C.books=C.books.filter(x=>x.id!=b);SELB=null;save();render()}}
+function addUse(c,b){const m=gp("um"+b),h=+document.getElementById("uh"+b).value;if(!m||!h||h<1)return;
+const[,B]=find(c,b);B.usage.push({id:id(),month:m,sheets:h});save();render()}
+function delUse(c,b,u){const[,B]=find(c,b);B.usage=B.usage.filter(x=>x.id!=u);save();render()}
+function refill(c,b){const n=+document.getElementById("rf"+b).value;if(n>0){const[,B]=find(c,b);B.total+=n;save();render()}}
+function status(B){const r=B.total-used(B);return r<=0?["Agotado","var(--er)",r]:r<=B.min?["Stock bajo","var(--wa)",r]:["OK","var(--ok)",r]}
+function exp(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:"application/json"}));a.download="libros-contables.json";a.click()}
+function imp(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(d.clients){S=d;norm();save();render()}}catch(x){}};r.readAsText(f)}
+function render(){
+const V=S.clients.find(x=>x.id==SEL);document.getElementById("tp").style.display=V?"none":"";
+let al="";S.clients.forEach(C=>C.books.forEach(B=>{const[s,col,r]=status(B);if(s!="OK")al+=`<div class="alert ${s=="Stock bajo"?"w":""}" style="cursor:pointer" onclick="SEL='${C.id}';SELB='${B.id}';scrollTo(0,0);render()"><b>${esc(C.name)}</b> — ${esc(bn(B))}: ${s=="Agotado"?"sin hojas disponibles":`quedan <b>${r}</b> hojas en blanco tras la simulación (mínimo ${B.min})`}. Solicita impresión o compra de hojas.</div>`}));
+alerts.innerHTML=al&&!V?`<div class="card"><h2>⚠️ Alertas</h2>${al}</div>`:"";
+list.innerHTML=V?'<button class="g" onclick="SEL=null;SELB=null;scrollTo(0,0);render()">← Volver a clientes</button>'+[V].map(C=>`<div class="card"><div class="row" style="justify-content:space-between"><div><h2>${esc(C.name)}</h2><span class="mu">${C.ruc?"RUC "+esc(C.ruc):"Sin RUC"} · ${C.reg?esc(C.reg):"Sin régimen"}</span></div><button class="d" onclick="delClient('${C.id}')">${P==="c"+C.id?"¿Confirmar? Clic de nuevo":"Eliminar"}</button></div>
+${SELB&&C.books.some(x=>x.id==SELB)?'<button class="g" style="margin:8px 0" onclick="SELB=null;scrollTo(0,0);render()">← Volver a los libros</button>'+C.books.filter(B=>B.id==SELB).map(B=>{const[s,col,r]=status(B),u=used(B),p=Math.min(100,u/B.total*100);return`<div class="book"><div class="row" style="justify-content:space-between"><b>${esc(bn(B))}</b><span class="tag" style="background:${col}">${s}</span></div>
+<div class="bar"><i style="width:${p}%;background:${col}"></i></div>
+<div class="mu">${[B.sede,B.nota&&"Notaría: "+B.nota,B.fleg&&"Legalizado: "+B.fleg.split("-").reverse().join("/"),B.kx&&"Kardex "+B.kx,B.stan&&"Stan "+B.stan].filter(Boolean).map(esc).join(" · ")}</div>
+<div class="mu">${B.fi?`Folios ${B.fi} al ${B.ff} · `:""}Total ${B.total} hojas · Alerta ≤ ${B.min}${B.obs?" · Obs: "+esc(B.obs):""}</div>
+<div style="font-size:13px;margin-top:4px">🖨️ <b>Impresas ${prn(B)}</b>${B.imp.length?` en ${B.imp.length} impresión(es)`:""} &nbsp; 📄 <b>En blanco ${Math.max(B.total-prn(B),0)}</b>${B.total>prn(B)?` (folios ${mx(B)+1} al ${B.ff})`:""}</div>
+<div style="font-size:13px;margin-top:2px;color:${col}">🧮 Simulado <b>${sm(B)}</b>${lastSim(B)?" hasta "+per(lastSim(B)):""} → quedarían <b>${Math.max(r,0)}</b> en blanco${proy(B)}</div>
+<details open><summary>Historial de impresiones (${B.imp.length})</summary>${B.imp.length?`<div class="tw"><table>${[...B.imp].sort((a,b)=>a.f1-b.f1).map(x=>`<tr><td>Folios ${x.f1} al ${x.f2}</td><td>${x.f2-x.f1+1} hojas</td><td>${x.p1?per(x.p1)+" a ":""}${per(x.p2)}</td><td><button class="d" onclick="delImp('${C.id}','${B.id}','${x.id}')">✕</button></td></tr>`).join("")}</table></div>`:""}
+<div class="row" style="margin-top:6px"><span class="mu">Nueva impresión, folio</span><input type="number" min="1" id="ia${B.id}" value="${mx(B)+1}" style="width:90px"><span class="mu">al</span><input type="number" min="1" id="ib${B.id}" style="width:90px">${pk("i1"+B.id,true)}<span class="mu">a</span>${pk("i2"+B.id,true)}<button onclick="addImp('${C.id}','${B.id}')">Registrar impresión</button></div></details>
+<div class="row" style="margin-top:8px"><span class="mu">Simulador:</span>${pk("um"+B.id)}<input type="number" min="1" id="uh${B.id}" placeholder="Hojas a imprimir" style="width:130px"><button onclick="addUse('${C.id}','${B.id}')">Agregar a simulación</button><button class="g" onclick="nextBook('${C.id}','${B.id}')">Legalizar siguiente</button><input type="number" min="1" id="rf${B.id}" placeholder="Hojas nuevas" style="width:120px"><button class="g" onclick="refill('${C.id}','${B.id}')">+ Reponer</button><button class="d" onclick="delBook('${C.id}','${B.id}')">${P==="b"+B.id?"¿Confirmar? Clic de nuevo":"Quitar libro"}</button></div>
+${B.usage.length?`<details><summary>Historial (${B.usage.length})</summary><div class="tw"><table>${[...B.usage].sort((a,b)=>b.month.localeCompare(a.month)).map(x=>`<tr><td>${per(x.month)}</td><td>${x.sheets} hojas</td><td><button class="d" onclick="delUse('${C.id}','${B.id}','${x.id}')">✕</button></td></tr>`).join("")}</table></div></details>`:""}</div>`}).join(""):bookRows(C)+`<details id="nb${C.id}" style="margin-top:10px"><summary>➕ Registrar libro nuevo</summary><div class="book" id="frm${C.id}"><div class="mu" style="margin-bottom:6px">Registrar libro (cada libro legalizado nuevo se registra completo)</div><div class="fg"><label class="mu">Tipo de libro<select id="bs${C.id}" onchange="document.getElementById('bo${C.id}').style.display=this.value=='Otro...'?'':'none'">${PRESETS.map(p=>`<option>${p}</option>`).join("")}</select><input id="bo${C.id}" placeholder="Nombre del libro" style="display:none"></label><label class="mu">N° de libro<input type="text" id="bn${C.id}"></label><label class="mu">Sede<select id="sd${C.id}"><option>Tarapoto</option><option>Yurimaguas</option></select></label><label class="mu">Notaría<input type="text" id="nt${C.id}"></label><label class="mu">Fecha de legalización<input type="date" id="fl${C.id}"></label><label class="mu">N° de kardex<input type="text" id="kx${C.id}"></label><label class="mu">N° de stan<input type="text" id="st${C.id}"></label><label class="mu">Folio inicial<input type="number" id="fi${C.id}" min="0"></label><label class="mu">Folio final<input type="number" id="ff${C.id}" min="0"></label><label class="mu">Total de hojas<input type="number" id="bt${C.id}" min="1"></label><label class="mu">Impresas: del folio inicial hasta el folio<input type="number" id="hp${C.id}" min="0"></label><label class="mu">Periodo de esas impresiones: desde${pk("pd"+C.id,true)}</label><label class="mu">Periodo de esas impresiones: hasta${pk("pp"+C.id,true)}</label><label class="mu">Alerta: mínimo en blanco (100)<input type="number" id="bm${C.id}" min="1"></label><label class="mu">Observaciones<input type="text" id="ob${C.id}"></label></div><button style="margin-top:8px" onclick="addBook('${C.id}')">Registrar libro</button></div></details>`}</div>`).join(""):clientRows()}
+render()</script></body></html>
