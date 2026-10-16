@@ -16,7 +16,7 @@
             <div class="row align-items-center">
                 <div class="col-md-12">
                     <div class="page-header-title d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0">Libros electrónicos</h3>
+                        <h3 class="mb-0">Inventario de Libros</h3>
                         <a href="<?= base_url('libros-electronicos') ?>" class="btn btn-secondary btn-sm"><i class="ti ti-arrow-left"></i> Volver a clientes</a>
                     </div>
                 </div>
