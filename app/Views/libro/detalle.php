@@ -31,32 +31,55 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h5 class="mb-0" id="clienteLibro"></h5>
-                        <span class="badge" id="estadoLibro"></span>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <h5 class="mb-2" id="clienteLibro"></h5>
+                            <div class="d-flex flex-wrap align-items-center gap-2 text-muted">
+                                <span id="rucLibro"></span>
+                                <span class="badge bg-light-primary text-primary" id="regimenLibro"></span>
+                            </div>
+                        </div>
+                        <span class="badge fs-6" id="estadoLibro"></span>
                     </div>
-                    <p class="text-muted mb-2" id="datosLibro"></p>
-                    <p class="text-muted mb-2" id="foliosLibro"></p>
-                    <p class="text-muted small mb-2" id="auditoriaLibro"></p>
-                    <div class="progress mb-2" style="height: 10px;">
+
+                    <hr class="my-4">
+
+                    <p class="small text-muted mb-3">Datos del libro</p>
+                    <div class="row g-4" id="datosLibro"></div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between align-items-baseline mb-2">
+                        <p class="small text-muted mb-0">Hojas</p>
+                        <p class="small text-muted mb-0" id="usoHojas"></p>
+                    </div>
+                    <div class="progress mb-3" style="height: 8px; background-color: #e9ecef;">
                         <div class="progress-bar" id="barraLibro" role="progressbar" style="width: 0%"></div>
                     </div>
-                    <p class="mb-1" id="resumenImpresas"></p>
-                    <p class="mb-0" id="resumenSimulado"></p>
+                    <div class="row g-3" id="tarjetasHojas"></div>
 
-                    <div class="d-flex gap-2 flex-wrap mt-3">
-                        <?php if ($permiso_crear) { ?>
-                            <button type="button" id="btnSiguiente" class="btn btn-outline-primary btn-sm">Legalizar siguiente</button>
-                        <?php } ?>
-                        <?php if ($permiso_reponer) { ?>
-                            <button type="button" id="btnReponer" class="btn btn-outline-success btn-sm"><i class="ti ti-plus"></i> Reponer hojas</button>
-                        <?php } ?>
-                        <?php if ($permiso_eliminar) { ?>
-                            <button type="button" id="btnQuitar" class="btn btn-outline-danger btn-sm"><i class="ti ti-trash"></i> Quitar libro</button>
-                        <?php } ?>
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <p class="small text-muted mb-0" id="auditoriaLibro"></p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <?php if ($permiso_crear) { ?>
+                                <button type="button" id="btnSiguiente" class="btn btn-outline-primary btn-sm"><i class="ti ti-copy-plus"></i> Legalizar siguiente</button>
+                            <?php } ?>
+                            <?php if ($permiso_eliminar) { ?>
+                                <button type="button" id="btnQuitar" class="btn btn-outline-danger btn-sm"><i class="ti ti-trash"></i> Quitar libro</button>
+                            <?php } ?>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12" id="avisoBloqueo" style="display: none;">
+            <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
+                <i class="ti ti-alert-triangle fs-4"></i>
+                <div id="textoBloqueo"></div>
             </div>
         </div>
 
@@ -76,6 +99,7 @@
                                     <th>Folios</th>
                                     <th>Hojas</th>
                                     <th>Periodo</th>
+                                    <th>Observación</th>
                                     <th>Registrado por</th>
                                     <th></th>
                                 </tr>
@@ -104,6 +128,7 @@
                             <div class="col-md-3">
                                 <button type="button" id="btnSimular" class="btn btn-primary w-100">Agregar</button>
                             </div>
+                            <div class="col-12 text-danger small" id="avisoPeriodoSimulacion" style="display: none;"></div>
                         </div>
                     <?php } ?>
                     <div class="table-responsive">
@@ -152,6 +177,11 @@
                             <label class="form-label">Periodo hasta</label>
                             <?= view('libro/_periodo', ['pid' => 'i2', 'vacio' => true]) ?>
                         </div>
+                        <div class="col-12 text-danger small mb-2" id="avisoPeriodoImpresion" style="display: none;"></div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label" for="observacionImpresion">Observación</label>
+                            <textarea class="form-control" id="observacionImpresion" rows="2" maxlength="255" placeholder="Opcional"></textarea>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -163,7 +193,7 @@
     </div>
 </div>
 
-<?= view('libro/_modal_libro', compact('contribuyentes', 'tipos', 'sedes', 'regimenes', 'tributos')) ?>
+<?= view('libro/_modal_libro', compact('contribuyentes', 'tipos', 'sedes', 'regimenes', 'tributos', 'notarias', 'stans')) ?>
 
 <?= $this->endSection() ?>
 

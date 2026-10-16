@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS `libro_impresion` (
   `lim_folio_hasta` INT NOT NULL,
   `lim_periodo_desde` VARCHAR(7) NULL COMMENT 'YYYY-MM (MM 00=Apertura, 13/14=Cierre)',
   `lim_periodo_hasta` VARCHAR(7) NULL,
+  `lim_observacion` VARCHAR(255) NULL COMMENT 'Observación de la impresión',
   `lim_estado` TINYINT NOT NULL DEFAULT 1,
   `lim_user_add` INT NULL COMMENT 'usuario.id que registró',
   `lim_fecha_add` DATETIME NULL,

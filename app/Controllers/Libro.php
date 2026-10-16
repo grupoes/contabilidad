@@ -6,12 +6,12 @@ use App\Models\ContribuyenteModel;
 use App\Models\LibroImpresionModel;
 use App\Models\LibroModel;
 use App\Models\LibroSimulacionModel;
+use App\Models\NotariaModel;
+use App\Models\StanModel;
 use App\Models\TipoLibroModel;
 
 class Libro extends BaseController
 {
-    private $sedes = ['Tarapoto', 'Yurimaguas'];
-
     /** Usuario y fecha de la acción: $p = lib, lim o lsi; $accion = add, edit o delete. */
     private function sello($p, $accion)
     {
@@ -32,15 +32,17 @@ class Libro extends BaseController
 
     private function datosVista()
     {
-        $tipos = (new TipoLibroModel())->where('tli_estado', 1)->findAll();
-        $contribuyentes = (new ContribuyenteModel())->select('id, razon_social, ruc')->where('estado', 1)->where('tipoServicio', 'CONTABLE')->orderBy('razon_social', 'ASC')->findAll();
+        $tipos = (new TipoLibroModel())->where('tli_estado', 1)->orderBy('tli_nombre', 'ASC')->findAll();
+        $contribuyentes = (new ContribuyenteModel())->select('id, razon_social, ruc')->where('estado >', 0)->where('tipoServicio', 'CONTABLE')->orderBy('razon_social', 'ASC')->findAll();
 
         return [
             'tipos' => $tipos,
             'contribuyentes' => $contribuyentes,
             'regimenes' => (new LibroModel())->regimenes(),
             'tributos' => (new LibroModel())->tributosRenta(),
-            'sedes' => $this->sedes,
+            'stans' => (new StanModel())->select('stan_id, sede_id, stan_numero')->where('stan_estado', 1)->orderBy('stan_numero', 'ASC')->findAll(),
+            'notarias' => (new NotariaModel())->where('not_estado', 1)->orderBy('not_razon_social', 'ASC')->findAll(),
+            'sedes' => (new LibroModel())->sedes(),
             'menu' => $this->permisos_menu(),
             'permiso_crear' => $this->permiso('crear'),
             'permiso_editar' => $this->permiso('editar'),
@@ -92,6 +94,18 @@ class Libro extends BaseController
         ]);
     }
 
+    /** Régimen de Renta configurado hoy en el contribuyente, consultado al abrir el modal del libro. */
+    public function regimenConfigurado($conId)
+    {
+        if (!$this->permiso('crear') && !$this->permiso('editar')) {
+            return $this->sinPermiso();
+        }
+
+        $id = (new LibroModel())->regimenDe($conId);
+
+        return $this->response->setJSON(['regimen' => $id, 'nombre' => $this->regimenContribuyente($conId)]);
+    }
+
     /** Régimen de Renta que el contribuyente tiene configurado (PDT RENTA), o '' si no tiene. */
     private function regimenContribuyente($conId)
     {
@@ -102,7 +116,10 @@ class Libro extends BaseController
         return $nombres[$mapa[$conId] ?? 0] ?? '';
     }
 
-    /** Clientes con al menos un libro (cantidad de libros y alertas) y la lista de libros con alerta. */
+    /**
+     * Todos los clientes contables (activos e inactivos) con la cantidad de libros y alertas;
+     * los que no tienen libros salen con libros = 0. También devuelve la lista de libros con alerta.
+     */
     public function renderClientes()
     {
         if (!$this->permiso('listar')) {
@@ -116,19 +133,27 @@ class Libro extends BaseController
         $clientes = [];
         $alertas = [];
 
+        $contribuyentes = (new ContribuyenteModel())->select('id, razon_social, ruc, estado')
+            ->where('estado >', 0)->where('tipoServicio', 'CONTABLE')->orderBy('razon_social', 'ASC')->findAll();
+
+        foreach ($contribuyentes as $c) {
+            $clientes[$c['id']] = [
+                'con_id' => $c['id'],
+                'razon_social' => $c['razon_social'],
+                'ruc' => $c['ruc'],
+                'estado' => (int) $c['estado'],
+                'regimen' => $nombres[$mapa[$c['id']] ?? 0] ?? '',
+                'libros' => 0,
+                'alertas' => 0,
+                'estados' => [],
+            ];
+        }
+
         foreach ($model->listar() as $l) {
             $id = $l['con_id'];
 
             if (!isset($clientes[$id])) {
-                $clientes[$id] = [
-                    'con_id' => $id,
-                    'razon_social' => $l['razon_social'],
-                    'ruc' => $l['ruc'],
-                    'regimen' => $nombres[$mapa[$id] ?? 0] ?? '',
-                    'libros' => 0,
-                    'alertas' => 0,
-                    'estados' => [],
-                ];
+                continue;
             }
 
             $clientes[$id]['libros']++;
@@ -212,6 +237,7 @@ class Libro extends BaseController
         return $this->response->setJSON([
             'status' => 'success',
             'libro' => $libro[0],
+            'bloqueo' => $model->libroAnteriorConHojas($libro[0]),
             'impresiones' => $model->impresiones($id),
             'simulaciones' => array_map(function ($s) use ($model) {
                 $s['texto'] = $model->periodoTexto($s['lsi_periodo']);
@@ -234,11 +260,71 @@ class Libro extends BaseController
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Sin permisos']);
             }
 
-            $fi = (int) ($d['folioInicial'] ?: 1);
+            // Todos los campos son obligatorios
+            $obligatorios = [
+                'contribuyente' => 'Contribuyente',
+                'regimen' => 'Régimen',
+                'tipoLibro' => 'Tipo de libro',
+                'numero' => 'N° de libro',
+                'sede' => 'Sede',
+                'notaria' => 'Notaría',
+                'fechaLegalizacion' => 'Fecha de legalización',
+                'kardex' => 'N° de kardex',
+                'stan' => 'N° de stan',
+                'folioInicial' => 'Folio inicial',
+                'folioFinal' => 'Folio final',
+                'minimo' => 'Alerta: mínimo en blanco',
+            ];
+
+            if (($d['tipoLibro'] ?? '') === 'otro') {
+                $obligatorios['tipoOtro'] = 'Nombre del libro';
+            }
+
+            $faltan = [];
+            foreach ($obligatorios as $campo => $etiqueta) {
+                if (trim((string) ($d[$campo] ?? '')) === '') {
+                    $faltan[] = $etiqueta;
+                }
+            }
+
+            if ($faltan) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Todos los campos son obligatorios. Falta completar: ' . implode(', ', $faltan) . '.']);
+            }
+
+            // El régimen del libro debe ser el configurado en el contribuyente
+            $configurado = (new LibroModel())->regimenDe($d['contribuyente']);
+            $dondeCambiar = 'Para cambiarlo, vaya a Contribuyentes > menú de acciones del contribuyente > Configurar declaraciones > PDT > RENTA y luego vuelva a guardar.';
+
+            if (!$configurado) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'El contribuyente no tiene un régimen configurado. Configúrelo primero en Contribuyentes > menú de acciones del contribuyente > Configurar declaraciones > PDT > RENTA.']);
+            }
+
+            if ((string) $d['regimen'] !== (string) $configurado) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'El régimen del libro debe ser el configurado en el contribuyente (' . $this->regimenContribuyente($d['contribuyente']) . '). ' . $dondeCambiar]);
+            }
+
+            // La notaría debe existir y estar activa
+            if (!(new NotariaModel())->where('not_id', (int) $d['notaria'])->where('not_estado', 1)->first()) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Seleccione una notaría activa. Puede registrarlas en Configuración > Notarias.']);
+            }
+
+            // La sede debe existir en la tabla sede y estar activa
+            $sede = (new LibroModel())->sedeActiva($d['sede']);
+            if (!$sede) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Seleccione una sede activa.']);
+            }
+
+            // El stan debe existir, estar activo y ser de la sede del libro
+            $stan = (new StanModel())->where('stan_id', (int) $d['stan'])->where('stan_estado', 1)->first();
+            if (!$stan || (int) $stan['sede_id'] !== (int) $sede['id']) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Seleccione un stan activo de la sede ' . $sede['nombre_sede'] . '. Puede registrarlos en Configuración > Stan.']);
+            }
+
+            $fi = (int) $d['folioInicial'];
             $ff = (int) $d['folioFinal'];
 
-            if (empty($d['contribuyente']) || empty($d['tipoLibro'])) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Complete contribuyente y tipo de libro.']);
+            if ($fi < 1 || (int) $d['minimo'] < 1) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'El folio inicial y el mínimo de alerta deben ser mayores a 0.']);
             }
 
             if ($ff < $fi) {
@@ -265,23 +351,39 @@ class Libro extends BaseController
                 }
             }
 
-            $sede = in_array($d['sede'], $this->sedes) ? $d['sede'] : $this->sedes[0];
+            // La fecha de legalización no puede ser futura (hasta hoy, en la zona horaria de la aplicación)
+            $fecha = \DateTime::createFromFormat('Y-m-d', (string) $d['fechaLegalizacion']);
+            if (!$fecha || $fecha->format('Y-m-d') !== $d['fechaLegalizacion']) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'La fecha de legalización no es válida.']);
+            }
+
+            $hoy = (new \DateTime('now', new \DateTimeZone(config('App')->appTimezone)))->format('Y-m-d');
+            if ($d['fechaLegalizacion'] > $hoy) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'La fecha de legalización no puede ser posterior a hoy (' . date('d/m/Y', strtotime($hoy)) . ').']);
+            }
+
+            // El N° de libro no se repite para el mismo contribuyente y tipo de libro (entre los libros activos)
+            $numero = trim($d['numero']);
+            $existente = (new LibroModel())->libroConNumero($d['contribuyente'], $d['tipoLibro'], $numero, $id);
+            if ($existente) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Ya existe el libro ' . $existente['nombre'] . ' para este contribuyente. Use otro número de libro.']);
+            }
 
             $datos = [
                 'con_id' => $d['contribuyente'],
                 'tli_id' => $d['tipoLibro'],
                 'tri_id' => $d['regimen'] ?: null,
                 'lib_numero' => trim($d['numero']),
-                'lib_sede' => $sede,
-                'lib_notaria' => trim($d['notaria']),
+                'lib_sede' => $sede['nombre_sede'],
+                'sede_id' => (int) $sede['id'],
+                'not_id' => (int) $d['notaria'],
                 'lib_fecha_legalizacion' => $d['fechaLegalizacion'] ?: null,
                 'lib_kardex' => trim($d['kardex']),
-                'lib_stan' => trim($d['stan']),
+                'stan_id' => (int) $d['stan'],
                 'lib_folio_inicial' => $fi,
                 'lib_folio_final' => $ff,
                 'lib_total_hojas' => $total,
                 'lib_minimo' => (int) ($d['minimo'] ?: 100),
-                'lib_observacion' => trim($d['observacion']),
                 'lib_estado' => 1,
             ];
 
@@ -308,12 +410,32 @@ class Libro extends BaseController
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Sin permisos']);
             }
 
-            (new LibroModel())->update($id, ['lib_estado' => 0] + $this->sello('lib', 'delete'));
+            // Un libro con historial de impresiones no se puede eliminar
+            $model = new LibroModel();
+            if ($model->impresiones($id)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'No se puede eliminar el libro porque ya tiene impresiones registradas.']);
+            }
+
+            $model->update($id, ['lib_estado' => 0] + $this->sello('lib', 'delete'));
 
             return $this->response->setJSON(['status' => 'success', 'message' => 'Se eliminó correctamente.']);
         } catch (\Exception $e) {
             return $this->response->setJSON(['status' => 'error', 'message' => $e->getMessage()]);
         }
+    }
+
+    /** Mensaje de error si el libro anterior de la serie aún tiene hojas en blanco; '' si no hay impedimento. */
+    private function mensajeLibroAnterior($libroId, $accion)
+    {
+        $model = new LibroModel();
+        $libro = $model->find($libroId);
+        $bloqueo = $libro ? $model->libroAnteriorConHojas($libro) : null;
+
+        if (!$bloqueo) {
+            return '';
+        }
+
+        return 'No puede ' . $accion . ' en este libro mientras el libro anterior (' . $bloqueo['nombre'] . ') tenga hojas en blanco: quedan ' . $bloqueo['en_blanco'] . '.';
     }
 
     public function saveImpresion()
@@ -331,8 +453,27 @@ class Libro extends BaseController
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Rango de folios inválido.']);
             }
 
+            // No se puede imprimir en el libro siguiente mientras el anterior tenga hojas en blanco
+            if ($mensaje = $this->mensajeLibroAnterior($d['libroId'], 'registrar impresiones')) {
+                return $this->response->setJSON(['status' => 'error', 'message' => $mensaje]);
+            }
+
             $p1 = $d['periodoDesde'] ?: null;
             $p2 = $d['periodoHasta'] ?: null;
+
+            // El periodo hasta no puede ser anterior al periodo desde
+            if ($p1 && $p2 && $p2 < $p1) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'El periodo hasta no puede ser anterior al periodo desde.']);
+            }
+
+            // El periodo (mes y año) no puede ser anterior al de la última impresión con periodo
+            $model = new LibroModel();
+            $ultima = $model->ultimoPeriodoImpreso($d['libroId']);
+
+            $inicio = $p1 ?: $p2;
+            if ($ultima && $inicio && $inicio < $ultima) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'El periodo no puede ser anterior a ' . $model->periodoTexto($ultima) . ', donde quedó la última impresión.']);
+            }
 
             $db = db_connect();
             $db->transStart();
@@ -343,6 +484,7 @@ class Libro extends BaseController
                 'lim_folio_hasta' => $hasta,
                 'lim_periodo_desde' => $p1,
                 'lim_periodo_hasta' => $p2,
+                'lim_observacion' => mb_substr(trim((string) ($d['observacion'] ?? '')), 0, 255) ?: null,
                 'lim_estado' => 1,
             ] + $this->sello('lim', 'add'));
 
@@ -398,6 +540,20 @@ class Libro extends BaseController
             return $this->response->setJSON(['status' => 'error', 'message' => 'Sin permisos']);
         }
 
+        $impresion = (new LibroImpresionModel())->where('lim_estado', 1)->find($id);
+
+        if (!$impresion) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Impresión no encontrada.']);
+        }
+
+        // Solo se puede eliminar la última impresión del historial (la de folios más altos)
+        $impresiones = (new LibroModel())->impresiones($impresion['lib_id']);
+        $ultima = end($impresiones);
+
+        if (!$ultima || (int) $ultima['lim_id'] !== (int) $id) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se puede eliminar la última impresión registrada.']);
+        }
+
         (new LibroImpresionModel())->update($id, ['lim_estado' => 0] + $this->sello('lim', 'delete'));
 
         return $this->response->setJSON(['status' => 'success', 'message' => 'Se eliminó correctamente.']);
@@ -413,8 +569,31 @@ class Libro extends BaseController
             $d = $this->request->getPost();
             $hojas = (int) $d['hojas'];
 
+            // No se puede simular en el libro siguiente mientras el anterior tenga hojas en blanco
+            if ($mensaje = $this->mensajeLibroAnterior($d['libroId'], 'simular')) {
+                return $this->response->setJSON(['status' => 'error', 'message' => $mensaje]);
+            }
+
             if (empty($d['periodo']) || $hojas < 1) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'Indique periodo y hojas.']);
+            }
+
+            // El periodo (mes y año) no puede ser anterior al de la última impresión
+            $model = new LibroModel();
+            $ultima = $model->ultimoPeriodoImpreso($d['libroId']);
+            if ($ultima && $d['periodo'] < $ultima) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'El periodo no puede ser anterior a ' . $model->periodoTexto($ultima) . ', donde quedó la última impresión.']);
+            }
+
+            // No se pueden simular más hojas de las que quedan disponibles
+            $libro = $model->listar($d['libroId']);
+            if (!$libro) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Libro no encontrado.']);
+            }
+
+            $disponibles = (int) $libro[0]['restantes'];
+            if ($hojas > $disponibles) {
+                return $this->response->setJSON(['status' => 'error', 'message' => $disponibles > 0 ? 'Solo quedan ' . $disponibles . ' hojas disponibles para simular.' : 'No quedan hojas disponibles para simular.']);
             }
 
             (new LibroSimulacionModel())->insert([
@@ -434,6 +613,19 @@ class Libro extends BaseController
     {
         if (!$this->permiso('simular')) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'Sin permisos']);
+        }
+
+        $simulacion = (new LibroSimulacionModel())->where('lsi_estado', 1)->find($id);
+
+        if (!$simulacion) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Simulación no encontrada.']);
+        }
+
+        // Solo se puede eliminar la última simulación: la de periodo más reciente (primera de la lista)
+        $simulaciones = (new LibroModel())->simulaciones($simulacion['lib_id']);
+
+        if (!$simulaciones || (int) $simulaciones[0]['lsi_id'] !== (int) $id) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Solo se puede eliminar la última simulación registrada.']);
         }
 
         (new LibroSimulacionModel())->update($id, ['lsi_estado' => 0] + $this->sello('lsi', 'delete'));

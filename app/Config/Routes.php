@@ -165,6 +165,7 @@ $routes->get('libros-electronicos/(:num)', 'Libro::detalle/$1');
 $routes->get('render-libros', 'Libro::renderLibros');
 $routes->get('render-libros/(:num)', 'Libro::renderLibros/$1');
 $routes->get('render-libros-clientes', 'Libro::renderClientes');
+$routes->get('libro/regimen/(:num)', 'Libro::regimenConfigurado/$1');
 $routes->get('libro/data/(:num)', 'Libro::dataLibro/$1');
 $routes->post('libro/guardar', 'Libro::save');
 $routes->get('libro/delete/(:num)', 'Libro::deleteLibro/$1');
@@ -173,6 +174,18 @@ $routes->get('libro/impresion/delete/(:num)', 'Libro::deleteImpresion/$1');
 $routes->post('libro/simulacion/guardar', 'Libro::saveSimulacion');
 $routes->get('libro/simulacion/delete/(:num)', 'Libro::deleteSimulacion/$1');
 $routes->post('libro/reponer', 'Libro::reponer');
+
+$routes->get('configuracion/stan', 'Stan::index');
+$routes->get('configuracion/render-stans', 'Stan::renderStans');
+$routes->get('configuracion/get-stan/(:num)', 'Stan::getStan/$1');
+$routes->post('configuracion/save-stan', 'Stan::saveStan');
+$routes->get('configuracion/delete-stan/(:num)', 'Stan::deleteStan/$1');
+
+$routes->get('configuracion/notarias', 'Notaria::index');
+$routes->get('configuracion/render-notarias', 'Notaria::renderNotarias');
+$routes->get('configuracion/get-notaria/(:num)', 'Notaria::getNotaria/$1');
+$routes->post('configuracion/save-notaria', 'Notaria::saveNotaria');
+$routes->get('configuracion/delete-notaria/(:num)', 'Notaria::deleteNotaria/$1');
 
 $routes->get('configuracion/caja-virtual', 'Configuracion::cajaVirtual');
 $routes->post('configuracion-caja-virtual/save', 'Configuracion::saveCajaVirtual');

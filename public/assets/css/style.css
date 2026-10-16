@@ -28896,7 +28896,7 @@ div:where(.swal2-container) button:where(.swal2-close):focus {
 }
 
 .notifier-container {
-  z-index: 1051;
+  z-index: 1100; /* por encima de los modales (1081) para que los avisos se vean sobre ellos */
   font-family: "Inter var", sans-serif;
   width: 400px;
   max-width: 98%;

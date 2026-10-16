@@ -85,13 +85,66 @@ function calcularTotal() {
 document.getElementById("folioInicial").addEventListener("input", calcularTotal);
 document.getElementById("folioFinal").addEventListener("input", calcularTotal);
 
-// Preselecciona el régimen de Renta que el contribuyente tiene configurado (se puede cambiar)
-function sugerirRegimen() {
-  const id = document.getElementById("contribuyente").value;
-  document.getElementById("regimen").value = REGIMENES[id] || "";
+// Stan: solo los activos de la sede elegida
+const selectStan = document.getElementById("stan");
+const avisoStan = document.getElementById("avisoStan");
+
+function cargarStans() {
+  const sede = document.getElementById("sede").value;
+  const delaSede = STANS.filter((s) => String(s.sede_id) === String(sede));
+
+  selectStan.innerHTML =
+    '<option value="">Seleccione...</option>' +
+    delaSede.map((s) => `<option value="${s.stan_id}">${esc(s.stan_numero)}</option>`).join("");
+
+  avisoStan.style.display = delaSede.length ? "none" : "";
 }
 
-document.getElementById("contribuyente").addEventListener("change", sugerirRegimen);
+document.getElementById("sede").addEventListener("change", cargarStans);
+
+// Régimen de Renta configurado hoy en el contribuyente (se consulta al abrir el modal).
+// El del libro debe coincidir: para cambiarlo hay que hacerlo antes en Contribuyentes.
+let regimenConfigurado = "";
+let regimenConfiguradoNombre = "";
+
+const selectRegimen = document.getElementById("regimen");
+const avisoRegimen = document.getElementById("avisoRegimen");
+const btnForm = document.getElementById("btnForm");
+
+const DONDE_CAMBIAR_REGIMEN =
+  'Contribuyentes &gt; menú de acciones (⋮) del contribuyente &gt; <b>Configurar declaraciones</b> &gt; PDT &gt; RENTA';
+
+// Devuelve true si el régimen elegido no coincide con el configurado; muestra el aviso y bloquea Guardar
+function validarRegimen() {
+  const elegido = selectRegimen.value;
+  let mensaje = "";
+
+  if (!regimenConfigurado) {
+    mensaje = "Este contribuyente no tiene régimen configurado. Configúrelo primero en: ";
+  } else if (elegido && elegido !== regimenConfigurado) {
+    mensaje = `El régimen del libro debe ser el configurado en el contribuyente (<b>${esc(regimenConfiguradoNombre)}</b>). Para cambiarlo, hágalo primero en: `;
+  }
+
+  const bloqueado = mensaje !== "";
+
+  avisoRegimen.innerHTML = bloqueado
+    ? `${mensaje}${DONDE_CAMBIAR_REGIMEN}. Luego vuelva aquí. <a href="${base_url}contribuyentes" target="_blank">Ir a Contribuyentes</a>`
+    : "";
+  avisoRegimen.style.display = bloqueado ? "" : "none";
+  btnForm.disabled = bloqueado;
+
+  return bloqueado;
+}
+
+selectRegimen.addEventListener("change", () => {
+  if (validarRegimen()) {
+    swalWithBootstrapButtons.fire(
+      "Cambio de régimen",
+      "Primero debe cambiar el régimen en la lista de Contribuyentes (menú de acciones > Configurar declaraciones > PDT > RENTA). Si vuelve al régimen configurado podrá guardar.",
+      "warning"
+    );
+  }
+});
 
 const tipoLibro = document.getElementById("tipoLibro");
 const tipoOtro = document.getElementById("tipoOtro");
@@ -106,11 +159,19 @@ const opcionesContribuyente = selectContribuyente._store.choices.map((c) => ({ v
 
 function abrirModalLibro(titulo, libro) {
   formLibro.reset();
+
+  // Fecha de legalización: hasta hoy (los días futuros quedan bloqueados en el selector)
+  const hoy = new Date();
+  document.getElementById("fechaLegalizacion").max =
+    hoy.getFullYear() + "-" + String(hoy.getMonth() + 1).padStart(2, "0") + "-" + String(hoy.getDate()).padStart(2, "0");
+
+  cargarStans();
   selectContribuyente.setChoices(opcionesContribuyente, "value", "label", true);
   tipoOtro.style.display = "none";
   tipoOtro.required = false;
   selectContribuyente.removeActiveItems();
   selectContribuyente.setChoiceByValue("");
+  document.getElementById("contribuyenteNombre").value = "";
   document.getElementById("idLibro").value = "0";
   document.getElementById("minimo").value = "100";
   document.getElementById("folioInicial").value = "1";
@@ -119,25 +180,64 @@ function abrirModalLibro(titulo, libro) {
   if (libro) {
     document.getElementById("idLibro").value = libro.lib_id || "0";
     selectContribuyente.setChoiceByValue(String(libro.con_id));
-    sugerirRegimen();
-    // El régimen guardado en el libro manda sobre el del contribuyente
-    if (libro.tri_id) document.getElementById("regimen").value = libro.tri_id;
+    const opcion = opcionesContribuyente.find((o) => String(o.value) === String(libro.con_id));
+    document.getElementById("contribuyenteNombre").value = opcion ? opcion.label : "";
     if (libro.tli_id) document.getElementById("tipoLibro").value = libro.tli_id;
     document.getElementById("numero").value = libro.lib_numero || "";
-    if (libro.lib_sede) document.getElementById("sede").value = libro.lib_sede;
-    document.getElementById("notaria").value = libro.lib_notaria || "";
+    // Sede por id; los libros antiguos sin sede_id se buscan por nombre
+    const selSede = document.getElementById("sede");
+    if (libro.sede_id) {
+      selSede.value = libro.sede_id;
+    } else if (libro.lib_sede) {
+      const op = [...selSede.options].find((o) => o.text.trim().toLowerCase() === String(libro.lib_sede).trim().toLowerCase());
+      if (op) selSede.value = op.value;
+    }
+    // Notaría elegida; en libros antiguos (solo texto) se busca una notaría registrada con ese mismo nombre
+    let notariaId = libro.not_id || "";
+    const textoNotaria = String(libro.notaria_nombre || libro.lib_notaria || "").trim().toLowerCase();
+    if (!notariaId && textoNotaria) {
+      const op = [...document.getElementById("notaria").options].find(
+        (o) => o.value && o.text.split(" - ")[0].trim().toLowerCase() === textoNotaria
+      );
+      if (op) notariaId = op.value;
+    }
+    document.getElementById("notaria").value = notariaId;
     document.getElementById("fechaLegalizacion").value = libro.lib_fecha_legalizacion || "";
     document.getElementById("kardex").value = libro.lib_kardex || "";
-    document.getElementById("stan").value = libro.lib_stan || "";
+    cargarStans();
+    document.getElementById("stan").value = libro.stan_id || "";
     document.getElementById("folioInicial").value = libro.lib_folio_inicial || "1";
     document.getElementById("folioFinal").value = libro.lib_folio_final || "";
     document.getElementById("minimo").value = libro.lib_minimo || 100;
-    document.getElementById("observacion").value = libro.lib_observacion || "";
   }
 
   calcularTotal();
 
-  $("#modalLibro").modal("show");
+  regimenConfigurado = "";
+  regimenConfiguradoNombre = "";
+  btnForm.disabled = false;
+  avisoRegimen.style.display = "none";
+
+  const mostrar = () => {
+    // Siempre parte del régimen vigente del contribuyente, también al editar
+    selectRegimen.value = regimenConfigurado;
+    validarRegimen();
+    $("#modalLibro").modal("show");
+  };
+
+  if (!libro || !libro.con_id) {
+    mostrar();
+    return;
+  }
+
+  fetch(base_url + "libro/regimen/" + libro.con_id)
+    .then((res) => res.json())
+    .then((d) => {
+      regimenConfigurado = d.regimen ? String(d.regimen) : "";
+      regimenConfiguradoNombre = d.nombre || "";
+    })
+    .catch(() => {})
+    .finally(mostrar);
 }
 
 formLibro.addEventListener("submit", (e) => {
@@ -147,6 +247,8 @@ formLibro.addEventListener("submit", (e) => {
     swalWithBootstrapButtons.fire("Error!", "Seleccione un contribuyente.", "error");
     return;
   }
+
+  if (validarRegimen()) return;
 
   fetch(base_url + "libro/guardar", {
     method: "POST",

@@ -21,7 +21,7 @@ function viewLibros(data) {
         <${PERMISO_VER ? `a href="${base_url}libros-electronicos/${l.lib_id}"` : "div"} class="text-reset flex-grow-1">
           <b>${esc(l.tli_nombre)}${l.lib_numero ? " N° " + esc(l.lib_numero) : ""}</b>
           <div class="text-muted">${[
-            l.lib_sede,
+            l.sede_nombre,
             l.regimen && "Régimen " + l.regimen,
             l.lib_fecha_legalizacion && "Legalizado " + fechaDMY(l.lib_fecha_legalizacion),
             "Quedan " + l.restantes + " hojas",
@@ -34,7 +34,7 @@ function viewLibros(data) {
           <span class="badge bg-${l.color}">${l.estado}</span>
           ${PERMISO_VER ? `<a href="${base_url}libros-electronicos/${l.lib_id}" class="btn btn-primary btn-sm" title="ver"><i class="ti ti-eye f-18"></i></a>` : ""}
           ${PERMISO_EDITAR ? `<button type="button" class="btn btn-info btn-sm modificar" title="editar" data-id="${l.lib_id}"><i class="ti ti-edit-circle f-18"></i></button>` : ""}
-          ${PERMISO_ELIMINAR ? `<button type="button" class="btn btn-danger btn-sm eliminar" title="eliminar" data-id="${l.lib_id}"><i class="ti ti-trash f-18"></i></button>` : ""}
+          ${PERMISO_ELIMINAR ? `<button type="button" class="btn btn-danger btn-sm eliminar ${l.impresas > 0 ? "opacity-50" : ""}" title="${l.impresas > 0 ? "No se puede eliminar: el libro ya tiene impresiones" : "eliminar"}" data-id="${l.lib_id}" ${l.impresas > 0 ? 'data-bloqueado="1" aria-disabled="true"' : ""}><i class="ti ti-trash f-18"></i></button>` : ""}
         </div>
       </div>`
         )
@@ -64,6 +64,11 @@ listaLibros.addEventListener("click", (e) => {
   }
 
   if (btn.classList.contains("eliminar")) {
+    if (btn.dataset.bloqueado) {
+      swalWithBootstrapButtons.fire("No se puede eliminar", "El libro ya tiene impresiones registradas en su historial.", "warning");
+      return;
+    }
+
     confirmar("¿Seguro desea eliminarlo?").then((ok) => {
       if (!ok) return;
 

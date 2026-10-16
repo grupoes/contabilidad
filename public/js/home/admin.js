@@ -615,7 +615,7 @@ function viewLibrosAlertas() {
           <td>${esc(l.razon_social)}</td>
           <td>${esc(l.ruc)}</td>
           <td>${esc(l.tli_nombre)}${l.lib_numero ? " N° " + esc(l.lib_numero) : ""}</td>
-          <td>${esc(l.lib_sede)}</td>
+          <td>${esc(l.sede_nombre)}</td>
           <td>${l.restantes} (mínimo ${l.lib_minimo})</td>
           <td><span class="badge bg-${l.color}">${l.estado}</span></td>
           <td>${l.puede_ver ? `<a href="${base_url}libros-electronicos/${l.lib_id}" class="btn btn-primary btn-sm" title="ver libro"><i class="ti ti-eye f-18"></i></a>` : ""}</td>

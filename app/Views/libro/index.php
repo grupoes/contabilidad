@@ -16,7 +16,7 @@
             <div class="row align-items-center">
                 <div class="col-md-12">
                     <div class="page-header-title">
-                        <h3 class="mb-0">Libros electrónicos</h3>
+                        <h3 class="mb-0">Inventario de libros</h3>
                     </div>
                 </div>
             </div>
@@ -40,6 +40,11 @@
                     <div class="d-flex justify-content-between align-items-center pb-3 flex-wrap gap-2">
                         <div class="d-flex align-items-center gap-2 flex-grow-1">
                             <input type="search" id="buscarCliente" class="form-control" placeholder="Buscar cliente por nombre o RUC..." style="max-width: 420px;">
+                            <select id="filtroContribuyente" class="form-select" style="max-width: 170px;" title="Estado del contribuyente">
+                                <option value="0">Todos</option>
+                                <option value="1" selected>Activos</option>
+                                <option value="2">Inactivos</option>
+                            </select>
                             <select id="filtroEstado" class="form-select" style="max-width: 200px;">
                                 <option value="">Todos los estados</option>
                                 <option>OK</option>
@@ -47,11 +52,6 @@
                                 <option>Agotado</option>
                             </select>
                         </div>
-                        <?php if ($permiso_crear) { ?>
-                            <button type="button" id="btnModal" class="btn btn-success d-inline-flex align-items-center gap-2">
-                                <i class="ti ti-plus f-18"></i> Nuevo libro
-                            </button>
-                        <?php } ?>
                     </div>
 
                     <div class="text-muted mb-2" id="totalClientes"></div>
@@ -64,7 +64,7 @@
     <!-- [ Main Content ] end -->
 </div>
 
-<?= view('libro/_modal_libro', compact('contribuyentes', 'tipos', 'sedes', 'regimenes', 'tributos')) ?>
+<?= view('libro/_modal_libro', compact('contribuyentes', 'tipos', 'sedes', 'regimenes', 'tributos', 'notarias', 'stans')) ?>
 
 <?= $this->endSection() ?>
 

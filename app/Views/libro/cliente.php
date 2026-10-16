@@ -50,7 +50,7 @@
     <!-- [ Main Content ] end -->
 </div>
 
-<?= view('libro/_modal_libro', compact('contribuyentes', 'tipos', 'sedes', 'regimenes', 'tributos')) ?>
+<?= view('libro/_modal_libro', compact('contribuyentes', 'tipos', 'sedes', 'regimenes', 'tributos', 'notarias', 'stans')) ?>
 
 <?= $this->endSection() ?>
 
