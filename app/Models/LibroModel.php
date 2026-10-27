@@ -12,10 +12,10 @@
         protected $returnType     = 'array';
 
         protected $allowedFields = [
-            'lib_id', 'con_id', 'tli_id', 'tri_id', 'lib_numero', 'lib_sede', 'sede_id', 'lib_notaria', 'not_id', 'lib_fecha_legalizacion',
+            'lib_id', 'con_id', 'tli_id', 'lib_tipo_hoja', 'tri_id', 'lib_numero', 'lib_sede', 'sede_id', 'lib_notaria', 'not_id', 'lib_fecha_legalizacion',
             'lib_kardex', 'lib_stan', 'stan_id', 'lib_folio_inicial', 'lib_folio_final', 'lib_total_hojas', 'lib_minimo',
             'lib_observacion', 'lib_estado',
-            'lib_user_add', 'lib_fecha_add', 'lib_user_edit', 'lib_fecha_edit', 'lib_user_delete', 'lib_fecha_delete',
+            'lib_faltantes', 'lib_user_add', 'lib_fecha_add', 'lib_user_edit', 'lib_fecha_edit', 'lib_user_delete', 'lib_fecha_delete',
         ];
 
         protected $useTimestamps = false;
@@ -139,6 +139,11 @@
          */
         public function libroAnteriorConHojas($libro)
         {
+            // Un libro electrónico no usa hojas: nada lo bloquea
+            if (($libro['lib_tipo_hoja'] ?? '') === 'electronico') {
+                return null;
+            }
+
             $anteriores = $this->select('libro.*, tipo_libro.tli_nombre')
                 ->join('tipo_libro', 'tipo_libro.tli_id = libro.tli_id')
                 ->where('libro.con_id', $libro['con_id'])
@@ -188,6 +193,21 @@
             return null;
         }
 
+        /** Libro electrónico activo del mismo contribuyente y tipo (null si no hay). $excluirId evita compararse consigo mismo al editar. */
+        public function libroElectronico($conId, $tipoId, $excluirId = 0)
+        {
+            $fila = $this->select('libro.lib_id, tipo_libro.tli_nombre')
+                ->join('tipo_libro', 'tipo_libro.tli_id = libro.tli_id')
+                ->where('libro.con_id', $conId)
+                ->where('libro.tli_id', $tipoId)
+                ->where('libro.lib_tipo_hoja', 'electronico')
+                ->where('libro.lib_estado', 1)
+                ->where('libro.lib_id !=', (int) $excluirId)
+                ->first();
+
+            return $fila ? ['lib_id' => $fila['lib_id'], 'nombre' => $fila['tli_nombre']] : null;
+        }
+
         public function simulaciones($libId)
         {
             return (new LibroSimulacionModel())
@@ -201,6 +221,22 @@
          */
         public function calcular($libro)
         {
+            // Un libro electrónico no tiene hojas: ni estado de stock ni alertas
+            if (($libro['lib_tipo_hoja'] ?? '') === 'electronico') {
+                return [
+                    'impresas' => 0,
+                    'simuladas' => 0,
+                    'restantes' => 0,
+                    'en_blanco' => 0,
+                    'folio_sig' => 1,
+                    'estado' => 'Electrónico',
+                    'color' => 'secondary',
+                    'porcentaje' => 0,
+                    'proyeccion' => '',
+                    'ultima_simulacion' => '',
+                ];
+            }
+
             $libId = $libro['lib_id'];
             $imps = $this->impresiones($libId);
             $sims = $this->simulaciones($libId);
@@ -238,7 +274,7 @@
                 }
             }
 
-            return [
+            $resultado = [
                 'impresas' => $impresas,
                 'simuladas' => $simuladas,
                 'restantes' => max($restantes, 0),
@@ -250,6 +286,15 @@
                 'proyeccion' => $proyeccion,
                 'ultima_simulacion' => $sims ? $this->periodoTexto($sims[0]['lsi_periodo']) : '',
             ];
+
+            // Libro importado con datos pendientes: no se evalúa el stock (sin alertas) hasta completarlo
+            if (!empty($libro['lib_faltantes'])) {
+                $resultado['estado'] = 'Por completar';
+                $resultado['color'] = 'info';
+                $resultado['proyeccion'] = '';
+            }
+
+            return $resultado;
         }
 
         public function periodoTexto($p)

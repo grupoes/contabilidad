@@ -13,6 +13,8 @@ const esc = (s) =>
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])
   );
 
+const TIPOS_HOJA = { manual: "Manual", computarizado: "Computarizado", electronico: "Electrónico" };
+
 const fechaDMY = (f) => (f ? f.split("-").reverse().join("/") : "");
 
 // "2026-10-15 14:30:00" -> "15/10/2026 14:30"
@@ -154,6 +156,21 @@ tipoLibro.addEventListener("change", () => {
   tipoOtro.required = tipoLibro.value === "otro";
 });
 
+// Con tipo de hoja "Electrónico" no hay hojas, folios, sede ni numeración: esos campos se ocultan y no se envían
+const CAMPOS_CON_HOJAS = ["numero", "sede", "notaria", "fechaLegalizacion", "kardex", "stan", "folioInicial", "folioFinal", "totalHojas", "minimo"];
+
+function aplicarTipoHoja() {
+  const electronico = document.getElementById("tipoHoja").value === "electronico";
+
+  CAMPOS_CON_HOJAS.forEach((id) => {
+    const campo = document.getElementById(id);
+    campo.disabled = electronico;
+    campo.closest('[class*="col-md-"]').style.display = electronico ? "none" : "";
+  });
+}
+
+document.getElementById("tipoHoja").addEventListener("change", aplicarTipoHoja);
+
 // formLibro.reset() hace que Choices vuelva a su estado inicial y pierda las opciones: se guardan para restaurarlas
 const opcionesContribuyente = selectContribuyente._store.choices.map((c) => ({ value: c.value, label: c.label }));
 
@@ -183,6 +200,7 @@ function abrirModalLibro(titulo, libro) {
     const opcion = opcionesContribuyente.find((o) => String(o.value) === String(libro.con_id));
     document.getElementById("contribuyenteNombre").value = opcion ? opcion.label : "";
     if (libro.tli_id) document.getElementById("tipoLibro").value = libro.tli_id;
+    document.getElementById("tipoHoja").value = libro.lib_tipo_hoja || "";
     document.getElementById("numero").value = libro.lib_numero || "";
     // Sede por id; los libros antiguos sin sede_id se buscan por nombre
     const selSede = document.getElementById("sede");
@@ -212,6 +230,7 @@ function abrirModalLibro(titulo, libro) {
   }
 
   calcularTotal();
+  aplicarTipoHoja();
 
   regimenConfigurado = "";
   regimenConfiguradoNombre = "";

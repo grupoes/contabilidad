@@ -52,6 +52,12 @@
                                 <option>Agotado</option>
                             </select>
                         </div>
+                        <?php if ($permiso_crear) { ?>
+                            <div class="d-flex align-items-center gap-2">
+                                <a href="<?= base_url('libro/plantilla') ?>" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2"><i class="ti ti-download f-18"></i> Descargar plantilla</a>
+                                <button type="button" id="btnImportar" class="btn btn-success d-inline-flex align-items-center gap-2"><i class="ti ti-upload f-18"></i> Importar libros</button>
+                            </div>
+                        <?php } ?>
                     </div>
 
                     <div class="text-muted mb-2" id="totalClientes"></div>
@@ -63,6 +69,47 @@
     </div>
     <!-- [ Main Content ] end -->
 </div>
+
+<?php if ($permiso_crear) { ?>
+<div id="modalImportar" class="modal fade" tabindex="-1" role="dialog" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title h4">Importar libros desde Excel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">Descargue la plantilla, llénela con sus clientes y libros (y el historial de impresiones) y súbala aquí. Primero se valida el archivo: cada fila sale <b>correcta</b>, <b>por completar</b> (importa con lo que tiene y anota qué falta) o con <b>error</b>. Después confirma la importación.</p>
+                <div class="d-flex gap-2 align-items-center mb-3 flex-wrap">
+                    <input type="file" class="form-control" id="archivoImportar" accept=".xlsx" style="max-width: 420px;">
+                    <button type="button" class="btn btn-primary" id="btnValidarArchivo">Validar archivo</button>
+                </div>
+                <div id="resumenImportar" class="mb-3" style="display: none;"></div>
+                <div class="table-responsive" id="tablaImportar" style="display: none; max-height: 420px; overflow-y: auto;">
+                    <table class="table table-sm align-middle">
+                        <thead class="table-light" style="position: sticky; top: 0;">
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Fila</th>
+                                <th>Cliente</th>
+                                <th>Libro</th>
+                                <th>Resultado</th>
+                                <th>Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyImportar"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <a href="#" class="btn btn-outline-danger" id="btnDescargarErrores" style="display: none;"><i class="ti ti-download"></i> Descargar filas con error</a>
+                <button type="button" class="btn btn-success" id="btnConfirmarImportar" style="display: none;"><i class="ti ti-check"></i> Importar filas válidas</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php } ?>
 
 <?= view('libro/_modal_libro', compact('contribuyentes', 'tipos', 'sedes', 'regimenes', 'tributos', 'notarias', 'stans')) ?>
 

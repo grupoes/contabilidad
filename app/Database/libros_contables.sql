@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS `libro` (
   `lib_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `con_id` INT NOT NULL COMMENT 'contribuyentes.id',
   `tli_id` INT UNSIGNED NOT NULL,
+  `lib_tipo_hoja` VARCHAR(20) NULL COMMENT 'manual, computarizado o electronico',
   `tri_id` INT NULL COMMENT 'tributo.id_tributo (régimen de Renta, PDT RENTA)',
   `lib_numero` VARCHAR(30) NULL,
   `lib_sede` VARCHAR(50) NOT NULL DEFAULT 'Tarapoto',

@@ -48,6 +48,7 @@
                     <p class="small text-muted mb-3">Datos del libro</p>
                     <div class="row g-4" id="datosLibro"></div>
 
+                    <div id="seccionHojas">
                     <hr class="my-4">
 
                     <div class="d-flex justify-content-between align-items-baseline mb-2">
@@ -58,6 +59,7 @@
                         <div class="progress-bar" id="barraLibro" role="progressbar" style="width: 0%"></div>
                     </div>
                     <div class="row g-3" id="tarjetasHojas"></div>
+                    </div>
 
                     <hr class="my-4">
 
@@ -76,6 +78,23 @@
             </div>
         </div>
 
+        <div class="col-sm-12" id="avisoElectronico" style="display: none;">
+            <div class="alert alert-info d-flex align-items-start gap-2" role="alert">
+                <i class="ti ti-info-circle fs-4"></i>
+                <div>Este es un libro <b>electrónico</b>: no usa hojas, por lo que no registra impresiones ni simulaciones.</div>
+            </div>
+        </div>
+
+        <div class="col-sm-12" id="avisoIncompleto" style="display: none;">
+            <div class="alert alert-info d-flex align-items-start gap-2" role="alert">
+                <i class="ti ti-info-circle fs-4"></i>
+                <div class="flex-grow-1">Este libro está <b>por completar</b>. Faltan: <b id="textoFaltantes"></b>. Mientras tanto no se puede registrar impresiones ni simular.</div>
+                <?php if ($permiso_editar) { ?>
+                    <button type="button" id="btnCompletar" class="btn btn-info btn-sm"><i class="ti ti-edit"></i> Completar datos</button>
+                <?php } ?>
+            </div>
+        </div>
+
         <div class="col-sm-12" id="avisoBloqueo" style="display: none;">
             <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
                 <i class="ti ti-alert-triangle fs-4"></i>
@@ -83,7 +102,7 @@
             </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-6" id="colImpresiones">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Historial de impresiones</h5>
@@ -111,7 +130,7 @@
             </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-6" id="colSimulador">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">Simulador</h5>

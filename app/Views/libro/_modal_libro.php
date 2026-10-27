@@ -26,7 +26,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-5 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label class="form-label" for="regimen">Régimen (PDT Renta) <span class="text-danger">*</span></label>
                             <select name="regimen" id="regimen" class="form-select text-capitalize" required>
                                 <option value="">Seleccione...</option>
@@ -36,7 +36,7 @@
                             </select>
                             <div class="text-danger small mt-1" id="avisoRegimen" style="display: none;"></div>
                         </div>
-                        <div class="col-md-5 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label class="form-label" for="tipoLibro">Tipo de libro <span class="text-danger">*</span></label>
                             <select name="tipoLibro" id="tipoLibro" class="form-select" required>
                                 <option value="">Seleccione...</option>
@@ -46,6 +46,15 @@
                                 <option value="otro">Otro...</option>
                             </select>
                             <input type="text" class="form-control mt-2" name="tipoOtro" id="tipoOtro" placeholder="Nombre del libro" style="display: none;">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label" for="tipoHoja">Tipo de hoja <span class="text-danger">*</span></label>
+                            <select name="tipoHoja" id="tipoHoja" class="form-select" required>
+                                <option value="">Seleccione...</option>
+                                <option value="manual">Manual</option>
+                                <option value="computarizado">Computarizado</option>
+                                <option value="electronico">Electrónico</option>
+                            </select>
                         </div>
                         <div class="col-md-2 mb-3">
                             <label class="form-label" for="numero">N° de libro <span class="text-danger">*</span></label>

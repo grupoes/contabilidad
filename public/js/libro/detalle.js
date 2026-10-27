@@ -57,22 +57,23 @@ function sugerirPeriodoSimulador() {
 // Mientras el libro anterior de la serie tenga hojas en blanco, este libro no puede imprimir ni simular
 function aplicarBloqueo() {
   const aviso = document.getElementById("avisoBloqueo");
-  const bloqueado = !!BLOQUEO;
+  const incompleto = !!(LIBRO && LIBRO.lib_faltantes);
+  const bloqueado = !!BLOQUEO || incompleto;
 
-  if (bloqueado) {
+  if (BLOQUEO) {
     const enlace = `<a href="${base_url}libros-electronicos/${BLOQUEO.lib_id}">${esc(BLOQUEO.nombre)}</a>`;
     document.getElementById("textoBloqueo").innerHTML =
       `El libro anterior (${enlace}) todavía tiene <b>${BLOQUEO.en_blanco}</b> hojas en blanco. ` +
       "Mientras tanto no se puede registrar impresiones ni simular en este libro.";
   }
 
-  aviso.style.display = bloqueado ? "" : "none";
+  aviso.style.display = BLOQUEO ? "" : "none";
 
   ["btnImpresion", "btnSimular", "simHojas", "simMes", "simAnio"].forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
     el.disabled = bloqueado;
-    el.title = bloqueado ? "Bloqueado: el libro anterior aún tiene hojas en blanco" : "";
+    el.title = incompleto ? "Bloqueado: complete primero los datos del libro" : bloqueado ? "Bloqueado: el libro anterior aún tiene hojas en blanco" : "";
   });
 }
 
@@ -122,14 +123,19 @@ function viewLibro(l) {
       <p class="mb-0">${esc(valor) || "—"}</p>
     </div>`;
 
-  document.getElementById("datosLibro").innerHTML =
+  const electronico = l.lib_tipo_hoja === "electronico";
+
+  document.getElementById("datosLibro").innerHTML = electronico
+    ? dato("Tipo de hoja", TIPOS_HOJA[l.lib_tipo_hoja], "col-6 col-md-3")
+    :
     dato("Sede", l.sede_nombre, "col-6 col-md-3") +
     dato("Notaría", l.notaria_nombre, "col-12 col-md-6") +
     dato("Legalizado", fechaDMY(l.lib_fecha_legalizacion), "col-6 col-md-3") +
     dato("Kardex", l.lib_kardex, "col-6 col-md-3") +
     dato("Stan", l.stan_nombre, "col-6 col-md-3") +
-    dato("Folios", `${l.lib_folio_inicial} al ${l.lib_folio_final}`, "col-6 col-md-3") +
-    dato("Alerta desde", `${l.lib_minimo} hojas`, "col-6 col-md-3");
+    dato("Folios", l.lib_total_hojas > 0 ? `${l.lib_folio_inicial} al ${l.lib_folio_final}` : "", "col-6 col-md-3") +
+    dato("Alerta desde", `${l.lib_minimo} hojas`, "col-6 col-md-3") +
+    dato("Tipo de hoja", TIPOS_HOJA[l.lib_tipo_hoja], "col-6 col-md-3");
 
   document.getElementById("auditoriaLibro").textContent = [
     autoria(l.usuario_add, l.lib_fecha_add) && "Registrado por " + autoria(l.usuario_add, l.lib_fecha_add),
@@ -166,6 +172,25 @@ function viewLibro(l) {
         ${l.proyeccion ? `<p class="small mt-2 mb-0">${esc(l.proyeccion)}</p>` : ""}
       </div>
     </div>`;
+
+  // Un libro electrónico no usa hojas: sin sección de hojas, impresiones, simulador ni "Legalizar siguiente"
+  const mostrar = (id, visible) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = visible ? "" : "none";
+  };
+
+  mostrar("seccionHojas", !electronico);
+  mostrar("colImpresiones", !electronico);
+  mostrar("colSimulador", !electronico);
+  mostrar("avisoElectronico", electronico);
+  // Libro importado con datos pendientes: aviso con lo que falta y botón para completarlo
+  const incompleto = !!l.lib_faltantes;
+  mostrar("avisoIncompleto", incompleto);
+  if (incompleto) {
+    document.getElementById("textoFaltantes").textContent = l.lib_faltantes;
+    if (!(l.lib_total_hojas > 0)) mostrar("seccionHojas", false); // sin folios no hay hojas que mostrar
+  }
+  mostrar("btnSiguiente", !electronico && !incompleto);
 }
 function viewImpresiones(data) {
   const btnBorrar = (id) =>
@@ -359,6 +384,7 @@ if (btnSiguiente) {
     const base = {
       con_id: LIBRO.con_id,
       tli_id: LIBRO.tli_id,
+      lib_tipo_hoja: LIBRO.lib_tipo_hoja,
       tri_id: LIBRO.tri_id,
       lib_numero: LIBRO.lib_numero && !isNaN(+LIBRO.lib_numero) ? String(+LIBRO.lib_numero + 1) : "",
       sede_id: LIBRO.sede_id,
@@ -394,4 +420,9 @@ if (btnQuitar) {
         });
     });
   });
+}
+
+const btnCompletar = document.getElementById("btnCompletar");
+if (btnCompletar) {
+  btnCompletar.addEventListener("click", () => abrirModalLibro("COMPLETAR DATOS DEL LIBRO", LIBRO));
 }

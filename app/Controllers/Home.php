@@ -19,7 +19,7 @@ class Home extends BaseController
             return [];
         }
 
-        return array_values(array_filter((new LibroModel())->listar(), fn($l) => $l['estado'] !== 'OK'));
+        return array_values(array_filter((new LibroModel())->listar(), fn($l) => in_array($l['estado'], ['Stock bajo', 'Agotado'], true)));
     }
 
     public function librosAlertas()

@@ -20,12 +20,17 @@ function viewLibros(data) {
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 border rounded p-3 mb-2">
         <${PERMISO_VER ? `a href="${base_url}libros-electronicos/${l.lib_id}"` : "div"} class="text-reset flex-grow-1">
           <b>${esc(l.tli_nombre)}${l.lib_numero ? " N° " + esc(l.lib_numero) : ""}</b>
-          <div class="text-muted">${[
-            l.sede_nombre,
-            l.regimen && "Régimen " + l.regimen,
-            l.lib_fecha_legalizacion && "Legalizado " + fechaDMY(l.lib_fecha_legalizacion),
-            "Quedan " + l.restantes + " hojas",
-          ]
+          <div class="text-muted">${(l.lib_tipo_hoja === "electronico"
+            ? [l.regimen && "Régimen " + l.regimen, "Libro electrónico"]
+            : l.lib_faltantes
+            ? [l.sede_nombre, l.regimen && "Régimen " + l.regimen, "Faltan: " + l.lib_faltantes]
+            : [
+                l.sede_nombre,
+                l.regimen && "Régimen " + l.regimen,
+                l.lib_fecha_legalizacion && "Legalizado " + fechaDMY(l.lib_fecha_legalizacion),
+                "Quedan " + l.restantes + " hojas",
+              ]
+          )
             .filter(Boolean)
             .map(esc)
             .join(" · ")}</div>
